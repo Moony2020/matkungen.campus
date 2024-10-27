@@ -1,0 +1,1855 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 
+    - primary meta tags
+  -->
+    <title>Matkungen - Amazing & Delicious Food</title>
+    <meta name="title" content="Matkungen - Amazing & Delicious Food" />
+    <meta
+      name="description"
+      content="This is a Restaurant html template made by mymoon"
+    />
+    <!-- remixicon -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- 
+    - favicon
+  -->
+    <link rel="shortcut icon" href="./assets/images/logo.png" type="image" />
+
+    <!-- 
+    - google font link
+  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- 
+    - custom css link
+  -->
+    <link rel="stylesheet" href="./assets/css/style.css" />
+
+    <!-- 
+    - preload images
+  -->
+    <link rel="preload" as="image" href="./assets/images/pizza-slider.jpg" />
+    <link rel="preload" as="image" href="./assets/images/burgermedbommes.jpg" />
+    <link rel="preload" as="image" href="./assets/images/rulle.jpg" />
+  </head>
+
+  <body id="top">
+    <!-- 
+    - #PRELOADER
+  -->
+
+    <div class="preload" data-preaload>
+      <div class="circle"></div>
+      <p class="text">Matkungen</p>
+    </div>
+
+    <!-- 
+    - #TOP BAR
+  -->
+
+    <div class="topbar">
+      <div class="container">
+        <address class="topbar-item">
+          <div class="icon">
+            <a
+              href="https://www.google.com/maps/dir/56.8535951,14.8251036/CAMPUS+MATKUNGEN+I+V%C3%84XJ%C3%96,+P+G+Vejdes+v%C3%A4g,+352+52+V%C3%A4xj%C3%B6"
+              target="_blank"
+              aria-label="Open map"
+            >
+              <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+            </a>
+          </div>
+          <span class="span"> Matkungen, P G Vejdes väg, 352 52 Växjö </span>
+        </address>
+
+        <div class="wrapper">
+          <div class="separator"></div>
+          <div class="separator"></div>
+        </div>
+
+        <div class="topbar-item item-2">
+          <div class="icon">
+            <ion-icon name="car-outline" aria-hidden="true"></ion-icon>
+          </div>
+          <span class="span">Gratis hemkörning inom Campus & Teleborg </span>
+        </div>
+        <i class="fa-solid fa-truck-utensils"></i>
+        <a href="tel:+46735124552" class="topbar-item link">
+          <div class="icon">
+            <i class="ri-phone-fill"></i>
+          </div>
+          <span class="span">+46 735124552</span>
+        </a>
+
+        <div class="wrapper">
+          <div class="separator number-separator"></div>
+          <div class="separator number-separator"></div>
+        </div>
+
+        <a href="tel:+46707176921" class="topbar-item link">
+          <div class="icon">
+            <i class="ri-phone-fill"></i>
+          </div>
+          <span class="span">+46 707176921</span>
+        </a>
+      </div>
+    </div>
+    <!-- 
+    - #HEADER
+  -->
+
+    <header class="header" data-header>
+      <div class="container">
+        <div class="logo-container">
+          <a href="#" class="logo">
+            <img
+              src="./assets/images/logo.png"
+              width="100"
+              height="35"
+              alt="Matkungen - Home"
+            />
+          </a>
+          <div class="logo-text">
+            <h1>MATKUNGEN</h1>
+            <p>Taste The Difference</p>
+          </div>
+        </div>
+
+        <!-- navbar for logo toggeler when the page is small-->
+
+        <nav class="navbar" data-navbar>
+          <button class="close-btn" aria-label="close menu" data-nav-toggler>
+            <ion-icon name="close-outline" aria-hidden="true"></ion-icon>
+          </button>
+          <div class="logo-container">
+            <a href="#" class="logo">
+              <img
+                src="./assets/images/logo.png"
+                width="100"
+                height="35"
+                alt="Matkungen - Home"
+              />
+            </a>
+            <div class="logo-text">
+              <h1>MATKUNGEN</h1>
+              <p>Taste The Difference</p>
+            </div>
+          </div>
+          <ul class="navbar-list">
+            <li class="navbar-item">
+              <a href="#home" class="navbar-link hover-underline active">
+                <div class="separator"></div>
+                <span class="span">Hem</span>
+              </a>
+            </li>
+
+            <li class="navbar-item">
+              <a href="#menu" class="navbar-link hover-underline">
+                <div class="separator"></div>
+                <span class="span">Meny</span>
+              </a>
+            </li>
+
+            <li class="navbar-item">
+              <a href="#about" class="navbar-link hover-underline">
+                <div class="separator"></div>
+                <span class="span">Om oss</span>
+              </a>
+            </li>
+
+            <li class="navbar-item">
+              <a href="#contact" class="navbar-link hover-underline">
+                <div class="separator"></div>
+                <span class="span">Kontakta oss</span>
+              </a>
+            </li>
+          </ul>
+
+          <div class="text-center">
+            <p class="headline-1 navbar-title">Besök oss</p>
+
+            <address class="body-4">
+              Matkungen Campus , P G Vejdes väg , <br />
+              352 52 Växjö
+            </address>
+            <div class="custom-separator"></div>
+
+            <p class="contact-label">Öppettider</p>
+            <p class="body-4">
+              Måndag - Tisdag - Torsdag<br />
+              11:00 - 22:00
+            </p>
+            <p class="body-4">
+              Onsdag - Fredag <br />
+              11:00 - 03:00 på natten
+            </p>
+            <p class="contact-label">Helg "Weekend"</p>
+            <p class="body-4">
+              Lördag <br />
+              12:00 - 03:00 på natten
+            </p>
+            <p class="body-4">
+              Söndag <br />
+              12:00 - 22:00
+            </p>
+
+            <a href="mailto:booking@matkungen.com" class="body-4 sidebar-link"
+              >booking@matkungen.com</a
+            >
+
+            <div class="custom-separator"></div>
+
+            <p class="contact-label">Beställ via Telefon</p>
+
+            <a
+              href="tel:+46 73 512 45 52"
+              class="body-1 contact-number hover-underline"
+            >
+              +46-735124552
+            </a>
+          </div>
+        </nav>
+
+        <button class="nav-open-btn" aria-label="open menu" data-nav-toggler>
+          <span class="line line-1"></span>
+          <span class="line line-2"></span>
+          <span class="line line-3"></span>
+        </button>
+
+        <div class="overlay" data-nav-toggler data-overlay></div>
+      </div>
+    </header>
+
+    <main>
+      <article>
+        <!-- 
+        - #HERO
+      -->
+
+        <section class="hero text-center" aria-label="home" id="home">
+          <ul class="hero-slider" data-hero-slider>
+            <li class="slider-item active" data-hero-slider-item>
+              <div class="slider-bg">
+                <img
+                  src="./assets/images/pizza-slider.jpg"
+                  width="1880"
+                  height="950"
+                  alt=""
+                  class="img-cover"
+                />
+              </div>
+
+              <p class="label-2 section-subtitle slider-reveal">
+                Tradational & Hygine
+              </p>
+
+              <h1 class="display-1 hero-title slider-reveal">
+                Njut av smaken av <br />
+                fantastisk mat
+              </h1>
+
+              <p class="body-2 hero-text slider-reveal">
+                Ta med familjen och upplev glädjen av en oförglömlig måltid
+              </p>
+
+              <a href="#menu" class="btn btn-primary slider-reveal">
+                <span class="text text-1">Se Vår Meny</span>
+
+                <span class="text text-2" aria-hidden="true">Se Vår Meny</span>
+              </a>
+            </li>
+
+            <li class="slider-item" data-hero-slider-item>
+              <div class="slider-bg">
+                <img
+                  src="./assets/images/burgermedbommes.jpg"
+                  width="1880"
+                  height="950"
+                  alt=""
+                  class="img-cover"
+                />
+              </div>
+
+              <p class="label-2 section-subtitle slider-reveal">
+                delightful experience
+              </p>
+
+              <h1 class="display-1 hero-title slider-reveal">
+                Smaker inspirerade av <br />
+                årstiderna
+              </h1>
+
+              <p class="body-2 hero-text slider-reveal">
+                Ta med familjen och njut av vår oemotståndliga mat
+              </p>
+
+              <a href="#menu" class="btn btn-primary slider-reveal">
+                <span class="text text-1">Se Vår Meny</span>
+
+                <span class="text text-2" aria-hidden="true">Se Vår Meny</span>
+              </a>
+            </li>
+
+            <li class="slider-item" data-hero-slider-item>
+              <div class="slider-bg">
+                <img
+                  src="./assets/images/rulle.jpg"
+                  width="1880"
+                  height="950"
+                  alt=""
+                  class="img-cover"
+                />
+              </div>
+
+              <p class="label-2 section-subtitle slider-reveal">
+                amazing & delicious
+              </p>
+
+              <h1 class="display-1 hero-title slider-reveal">
+                Där varje smak <br />
+                berättar en historia
+              </h1>
+
+              <p class="body-2 hero-text slider-reveal">
+                Kom med familjen och känn glädjen av läcker mat
+              </p>
+
+              <a href="#menu" class="btn btn-primary slider-reveal">
+                <span class="text text-1">Se Vår Meny</span>
+
+                <span class="text text-2" aria-hidden="true">Se Vår Meny</span>
+              </a>
+            </li>
+
+            <li class="slider-item" data-hero-slider-item>
+              <div class="slider-bg">
+                <img
+                  src="./assets/images/sallad.jpg"
+                  width="1880"
+                  height="950"
+                  alt="Sallad"
+                  class="img-cover"
+                />
+              </div>
+              <p class="label-2 section-subtitle slider-reveal">
+                Fresh & Healthy
+              </p>
+              <h1 class="display-1 hero-title slider-reveal">
+                Njut av våra <br />
+                fräscha sallader
+              </h1>
+              <p class="body-2 hero-text slider-reveal">
+                Smaka på våra färska sallader och känn skillnaden med varje
+                munsbit
+              </p>
+              <a href="#menu" class="btn btn-primary slider-reveal">
+                <span class="text text-1">Se Vår Meny</span>
+                <span class="text text-2" aria-hidden="true">Se Vår Meny</span>
+              </a>
+            </li>
+          </ul>
+          <!-- next prev buttons -->
+          <div class="arrows">
+            <button id="prev" aria-label="slide to previous">
+              <i class="ri-arrow-left-fill"></i>
+            </button>
+            <button id="next" aria-label="slide to next">
+              <i class="ri-arrow-right-fill"></i>
+            </button>
+          </div>
+
+          <!--  
+                <button class="slider-btn prev" aria-label="slide to previous" data-prev-btn>
+          <ion-icon name="chevron-back"></ion-icon>
+        </button>
+
+                <button class="slider-btn next" aria-label="slide to next" data-next-btn>
+          <ion-icon name="chevron-forward"></ion-icon>
+        </button>
+-->
+        </section>
+        <!-- 
+- #SERVICE
+-->
+        <section
+          class="section service bg-black-10 text-center"
+          id="service-section"
+          aria-label="service"
+        >
+          <div class="container">
+            <p class="section-subtitle label-2">Smaker av Högsta Klass</p>
+            <h2 class="headline-1 section-title">Vi Erbjuder Det Bästa</h2>
+            <p class="section-text">
+              Njut av våra noggrant utvalda menyer, från uppfriskande drycker
+              till läckra vegetariska rätter och rejäla luncher.
+            </p>
+            <p class="menu-lunch-info">
+              Lunch: kl. 11–14 <br />
+              Pizza 100 kr inkl. dricka <br />
+              Tallrikar 80 kr inkl. dricka
+            </p>
+            <ul class="grid-list">
+              <!-- Lunch Menu Card -->
+              <li id="lunch-section">
+                <div class="service-card">
+                  <a href="lunch.html" class="has-before hover:shine">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 285; --height: 336"
+                    >
+                      <img
+                        src="./assets/images/service-1.jpg"
+                        loading="lazy"
+                        alt="Lunch"
+                        class="img-cover"
+                      />
+                    </figure>
+                  </a>
+                  <div class="card-content">
+                    <h3 class="title-4 card-title">
+                      <a href="lunch.html">Lunch</a>
+                      <p href="#" class="btn-text hover-underline label-2">
+                        kl 11-14
+                      </p>
+                    </h3>
+                  </div>
+                </div>
+              </li>
+
+              <!-- Vegetarisk Menu Card -->
+              <li id="Vegetarisk-section">
+                <div class="service-card">
+                  <a href="vegetarisk.html" class="has-before hover:shine">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 285; --height: 336"
+                    >
+                      <img
+                        src="./assets/images/service-2.png"
+                        loading="lazy"
+                        alt="Vegetarisk"
+                        class="img-cover"
+                      />
+                    </figure>
+                  </a>
+                  <div class="card-content">
+                    <h3 class="title-4 card-title">
+                      <a href="vegetarisk.html">Vegetarisk</a>
+                    </h3>
+                  </div>
+                </div>
+              </li>
+
+              <!-- Drycker Menu Card -->
+              <li id="drycker-section">
+                <div class="service-card">
+                  <a href="drycker.html" class="has-before hover:shine">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 285; --height: 336"
+                    >
+                      <img
+                        src="./assets/images/service-3.png"
+                        loading="lazy"
+                        alt="Drycker"
+                        class="img-cover"
+                      />
+                    </figure>
+                  </a>
+                  <div class="card-content">
+                    <h3 class="title-4 card-title">
+                      <a href="drycker.html">Drycker</a>
+                      <p href="#" class="btn-text hover-underline label-2">
+                        inkl. lunch
+                      </p>
+                    </h3>
+                  </div>
+                </div>
+              </li>
+            </ul>
+
+            <img
+              src="./assets/images/shape-1.png"
+              width="246"
+              height="412"
+              loading="lazy"
+              alt="shape"
+              class="shape shape-1 move-anim"
+            />
+            <img
+              src="./assets/images/shape-2.png"
+              width="343"
+              height="345"
+              loading="lazy"
+              alt="shape"
+              class="shape shape-2 move-anim"
+            />
+            <img
+              src="./assets/images/shape-9.png"
+              loading="lazy"
+              alt=""
+              class="shape-4"
+            />
+          </div>
+        </section>
+
+        <!-- 
+        - #ABOUT
+      -->
+
+        <section
+          class="section about text-center"
+          aria-labelledby="about-label"
+          id="about"
+        >
+          <div class="container">
+            <div class="about-content">
+              <p class="label-2 section-subtitle" id="about-label">
+                Vår Historia
+              </p>
+
+              <h2 class="headline-1 section-title">
+                Varje Smak Har Sin Egen Berättelse
+              </h2>
+
+              <p class="section-text">
+                Matkungen föddes ur en passion för matlagning och en kärlek till
+                råvaror av högsta kvalitet. Vår meny är skapad med inspiration
+                från årstidernas skiftande smaker och traditioner. Här hos oss
+                får du uppleva mat som är tillagad med omsorg, där varje rätt
+                har sin egen unika berättelse. Välkommen in och låt oss
+                tillsammans skapa smakfulla minnen för dig och din familj.
+              </p>
+
+              <div class="contact-label">Beställ via Telefon</div>
+
+              <a
+                href="tel:+804001234567"
+                class="body-1 contact-number hover-underline"
+                >+46-735124552</a
+              >
+            </div>
+
+            <figure class="about-banner">
+              <img
+                src="./assets/images/matkungen1.png"
+                width="570"
+                height="570"
+                loading="lazy"
+                alt="first image of matkungen"
+                class="w-100"
+                data-parallax-item
+                data-parallax-speed="1"
+              />
+
+              <div
+                class="abs-img abs-img-1 has-before"
+                data-parallax-item
+                data-parallax-speed="1.75"
+              >
+                <img
+                  src="./assets/images/Matkungen2.png"
+                  loading="lazy"
+                  alt="second image of matkungen"
+                  class="w-100 second-image-matkungen"
+                />
+              </div>
+
+              <div class="abs-img abs-img-2 has-before">
+                <img
+                  src="./assets/images/badge-2.png"
+                  width="123"
+                  height="124"
+                  loading="lazy"
+                  alt=""
+                />
+              </div>
+            </figure>
+
+            <img
+              src="./assets/images/shape-3.png"
+              width="197"
+              height="194"
+              loading="lazy"
+              alt=""
+              class="shape"
+            />
+          </div>
+        </section>
+
+        <!-- 
+        - #MENU
+      -->
+
+        <!-- Menu section -->
+        <section class="section menu" aria-label="menu-label" id="menu">
+          <div class="container">
+            <p class="section-subtitle text-center label-2">
+              Vårt Exklusiva Urval
+            </p>
+            <h2 class="headline-1 section-title text-center">Delicious Menu</h2>
+
+            <!-- Menu categories -->
+            <ul class="menu-categories">
+              <li>
+                <button class="menu-btn" data-menu="pizza">Pizzor</button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="burgers">Burger</button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="salads">Sallader</button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="rollers">Rullar</button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="dishes">Tallrikar</button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="boxes">Box</button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="pitabrod">Pitabröd</button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="addition">Tillbehör</button>
+              </li>
+            </ul>
+
+            <!-- Pizza Menu -->
+            <div class="menu-content pizzor" id="pizza-menu">
+              <h1 class="heading">Ordinarie <span>Pizzor</span></h1>
+
+              <div class="box-container" id="pizza-container">
+                <div class="box">
+                  <img
+                    src="./assets/images/vegetaiana.jpg"
+                    alt="Hawaii Pizza"
+                  />
+                  <div class="content">
+                    <h3>Vegetaiana</h3>
+                    <p>
+                      Tomatsås, ost, champinjoner,lök, paprika, fetaost, oliver.
+                      Small: 65 kr, Medium: 120 kr, Large: 190 kr
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img
+                    src="./assets/images/margherita.jpg"
+                    alt="Afrikana Pizza"
+                  />
+                  <div class="content">
+                    <h3>Margherita</h3>
+                    <p>
+                      Tomatsås, ost. Small: 65 kr, Medium: 120 kr, Large: 190 kr
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/vesuvio.png" alt="Milano Pizza" />
+                  <div class="content">
+                    <h3>Vesuvio</h3>
+                    <p>
+                      Tomatsås, ost, skinka. Small: 60 kr, Medium: 130 kr,
+                      Large: 190 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img
+                    src="./assets/images/funghi.jpg"
+                    alt="Margherita Pizza"
+                  />
+                  <div class="content">
+                    <h3>Funghi</h3>
+                    <p>
+                      Tomatsås, ost, champinjoner. Small: 60 kr, Medium: 130 kr,
+                      Large: 190 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/hawaii .jpg" alt="" />
+                  <div class="content">
+                    <h3>Hawaii</h3>
+                    <p>
+                      Tomatsås, ost, skinka, ananas. Small: 60 kr, Medium: 130
+                      kr, Large: 190 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/capricciosa.png" alt="" />
+                  <div class="content">
+                    <h3>Capricciosa</h3>
+                    <p>
+                      Tomatsås, ost, skinka, champinjoner. Small: 60 kr, Medium:
+                      120 kr, Large: 170 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/calzone.png" alt="" />
+                  <div class="content">
+                    <h3>Calzone</h3>
+                    <p>Tomatsås, ost, skinka. "inbakad" standard: 80 kr.</p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/calzone-special.png" alt="" />
+                  <div class="content">
+                    <h3>Calzone Special</h3>
+                    <p>
+                      Tomatsås, ost, skinka, räkor. "inbakad" standard: 85 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/salami.png" alt="" />
+                  <div class="content">
+                    <h3>Salami</h3>
+                    <p>
+                      Tomatsås, ost, salami, lök. Small: 60 kr, Medium: 120 kr,
+                      Large: 170 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/fyra-ostar.png" alt="" />
+                  <div class="content">
+                    <h3>Fyra ostar</h3>
+                    <p>
+                      Tomatsås, ost, mozzarellaost, fetaost, gorgonzola. Small:
+                      60 kr, Medium: 120 kr, Large: 170 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/salami-special.jpg" alt="" />
+                  <div class="content">
+                    <h3>Salami special</h3>
+                    <p>
+                      Tomatsås, ost, salami, pepperoni. Small: 60 kr, Medium:
+                      120 kr, Large: 170 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/kebabpizza.png" alt="" />
+                  <div class="content">
+                    <h3>Kebabgpizza</h3>
+                    <p>
+                      Tomatsås, ost, kebabkött, lök, champinjoner. Small: 60 kr,
+                      Medium: 130 kr, Large: 190 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/kycklingpizza.png" alt="" />
+                  <div class="content">
+                    <h3>Kycklingpizza</h3>
+                    <p>
+                      Tomatsås, ost, kyckling, lök, champinjoner. Small: 60 kr,
+                      Medium: 130 kr, Large: 190 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/växjö.png" alt="" />
+                  <div class="content">
+                    <h3>Växjö pizza</h3>
+                    <p>
+                      Tomatsås, ost, kebab, kyckling, lök, champinjoner. Small:
+                      60 kr, Medium: 120 kr, Large: 170 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/tonfisk-pizza.png" alt="" />
+                  <div class="content">
+                    <h3>Tonfisk pizza</h3>
+                    <p>
+                      Tomatsås, ost, tonfisk, lök. Small: 60 kr, Medium: 120 kr,
+                      Large: 170 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/räkor-pizza.png" alt="" />
+                  <div class="content">
+                    <h3>Räkor pizza</h3>
+                    <p>
+                      Tomatsås, ost, räkor. Small: 60 kr, Medium: 120 kr, Large:
+                      170 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/la_maffia.png" alt="" />
+                  <div class="content">
+                    <h3>La Maffia</h3>
+                    <p>
+                      Tomatsås, ost, bacon, lök. Small: 60 kr, Medium: 120 kr,
+                      Large: 170 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/quattro.png" alt="" />
+                  <div class="content">
+                    <h3>Quattro</h3>
+                    <p>
+                      Tomatsås, ost, skinka, räkor, musslor, vitlöksolja. Small:
+                      60 kr, Medium: 120 kr, Large: 170 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/falafel-pizza.png" alt="" />
+                  <div class="content">
+                    <h3>Falafel pizza</h3>
+                    <p>
+                      Tomatsås, ost, falafel, tomat, fetaost. Small: 60 kr,
+                      Medium: 120 kr, Large: 170 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/mexikana.png" alt="" />
+                  <div class="content">
+                    <h3>Mexikana</h3>
+                    <p>
+                      Tomatsås, ost, köttfärs, jalapeno, lök. Small: 60 kr,
+                      Medium: 130 kr, Large: 190 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/mamma-mia.png" alt="" />
+                  <div class="content">
+                    <h3>Mamma Mia</h3>
+                    <p>
+                      Tomatsås, ost, köttfärs, salami, ,lök, skinka,
+                      vitlöksolja. Small: 60 kr, Medium: 130 kr, Large: 190 kr.
+                    </p>
+                  </div>
+                </div>
+                <div class="box">
+                  <img src="./assets/images/matkungen-pizza.png" alt="" />
+                  <div class="content">
+                    <h3>Matkungen pizza</h3>
+                    <p>
+                      Tomatsås, ost, kyckling, curry, banan. Small: 60 kr,
+                      Medium: 130 kr, Large: 190 kr.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="box">
+                  <img src="./assets/images/pepperoni.png" alt="" />
+                  <div class="content">
+                    <h3>Pepperoni</h3>
+                    <p>
+                      Tomatsås, ost, pepperoni, lök. Small: 60 kr, Medium: 130
+                      kr, Large: 190 kr.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Add more pizzas as needed -->
+
+                <!-- Show All Button -->
+                <button
+                  class="btn btn-primary"
+                  id="show-all-pizza-btn"
+                  onclick="showAllPizzas()"
+                >
+                  <span class="text text-1">Visa Alla Menyn</span>
+                  <span class="text text-2" aria-hidden="true"
+                    >Visa Alla Menyn</span
+                  >
+                </button>
+              </div>
+            </div>
+            <!-- Burgers  Menu -->
+            <div class="menu-content burgers" id="burgers-menu">
+              <h1 class="heading">Burger</h1>
+              <ul class="grid-list">
+                <li>
+                  <div class="menu-card hover:card">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 100; --height: 100"
+                    >
+                      <img
+                        src="./assets/images/hamburgare.png"
+                        width="100"
+                        height="100"
+                        loading="lazy"
+                        alt="Greek Salad"
+                        class="img-cover"
+                      />
+                    </figure>
+                    <div class="menu-card-content">
+                      <div class="title-wrapper">
+                        <h3 class="menu-title">Hamburgare 90 gram</h3>
+                        <span class="span title-2">60 kr</span>
+                      </div>
+                      <p class="card-text">
+                        Nötfärs 90 gram, isbergssallad, tomat gurka, lök,
+                        hamburgerdressing.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="menu-card hover:card">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 100; --height: 100"
+                    >
+                      <img
+                        src="./assets/images/kycklingburgare.png"
+                        width="100"
+                        height="100"
+                        loading="lazy"
+                        alt="Butternut Pumpkin"
+                        class="img-cover"
+                      />
+                    </figure>
+                    <div class="menu-card-content">
+                      <div class="title-wrapper">
+                        <h3 class="menu-title">Kycklingburgare</h3>
+                        <span class="span title-2">60 kr</span>
+                      </div>
+                      <p class="card-text label-1">
+                        Kycklingfärs, hamburgerbröd, isbergssallad, färska
+                        tomater, gurka, rödlök, ost, hamburgerdressing.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="menu-card hover:card">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 100; --height: 100"
+                    >
+                      <img
+                        src="./assets/images/hamburgeretallrik.png"
+                        width="100"
+                        height="100"
+                        loading="lazy"
+                        alt="Lasagne"
+                        class="img-cover"
+                      />
+                    </figure>
+                    <div class="menu-card-content">
+                      <div class="title-wrapper">
+                        <h3 class="menu-title">Hamburgeretallrik</h3>
+                        <span class="span title-2">85 kr</span>
+                      </div>
+                      <p class="card-text">
+                        Nötfärs 90 gram, pommes, isbergssallad, färska tomater,
+                        gurka, lök, hamburgerdressing, fetaost.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <!-- Add more salad items here -->
+              </ul>
+            </div>
+            <!-- Salads Menu -->
+            <div
+              class="menu-content sallader"
+              id="salads-menu"
+              style="display: none"
+            >
+              <h1 class="heading">Sallader</h1>
+              <ul class="grid-list">
+                <li>
+                  <div class="menu-card hover:card">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 100; --height: 100"
+                    >
+                      <img
+                        src="./assets/images/falafelsallad.png"
+                        width="100"
+                        height="100"
+                        loading="lazy"
+                        alt="Greek Salad"
+                        class="img-cover"
+                      />
+                    </figure>
+                    <div class="menu-card-content">
+                      <div class="title-wrapper">
+                        <h3 class="menu-title">Falafelsallad</h3>
+                        <span class="span title-2">70 kr</span>
+                      </div>
+                      <p class="card-text">
+                        Falafel, isbergssallad, tomater, gurka, lök, majs,
+                        vitlöksås.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+
+                <li>
+                  <div class="menu-card hover:card">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 100; --height: 100"
+                    >
+                      <img
+                        src="./assets/images/kebabsallad.png"
+                        width="100"
+                        height="100"
+                        loading="lazy"
+                        alt="Lasagne"
+                        class="img-cover"
+                      />
+                    </figure>
+                    <div class="menu-card-content">
+                      <div class="title-wrapper">
+                        <h3 class="menu-title">Kebabsallad</h3>
+                        <span class="span title-2">80 kr</span>
+                      </div>
+                      <p class="card-text">
+                        Kebabkött, isbergssallad, tomater, gurka, lök, majs,
+                        vitlöksås.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="menu-card hover:card">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 100; --height: 100"
+                    >
+                      <img
+                        src="./assets/images/kycklingsallad.png"
+                        width="100"
+                        height="100"
+                        loading="lazy"
+                        alt="Tokusen Wagyu"
+                        class="img-cover"
+                      />
+                    </figure>
+                    <div class="menu-card-content">
+                      <div class="title-wrapper">
+                        <h3 class="menu-title">Kycklingsallad</h3>
+                        <span class="span title-2">80 kr</span>
+                      </div>
+                      <p class="card-text label-1">
+                        <!-- label-1 could be delete i will see if i will use it or no-->
+                        Kyckling sliced, isbergssallad, tomater, gurka, lök,
+                        majs, vitlöksås.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="menu-card hover:card">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 100; --height: 100"
+                    >
+                      <img
+                        src="./assets/images/halloumisallad.png"
+                        width="100"
+                        height="100"
+                        loading="lazy"
+                        alt="Olivas Rellenas"
+                        class="img-cover"
+                      />
+                    </figure>
+                    <div class="menu-card-content">
+                      <div class="title-wrapper">
+                        <h3 class="menu-title">Halloumisallad</h3>
+                        <span class="span title-2">80 kr</span>
+                      </div>
+                      <p class="card-text label-1">
+                        Halloumi, isbergssallad, gurka, färska tomater, rödlök,
+                        paprika, olivolja, citron, och persilja.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="menu-card hover:card">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 100; --height: 100"
+                    >
+                      <img
+                        src="./assets/images/krispigsallad.png"
+                        width="100"
+                        height="100"
+                        loading="lazy"
+                        alt="Opu Fish"
+                        class="img-cover"
+                      />
+                    </figure>
+                    <div class="menu-card-content">
+                      <div class="title-wrapper">
+                        <h3 class="menu-title">Krispigsallad</h3>
+                        <span class="span title-2">90 kr</span>
+                      </div>
+                      <p class="card-text label-1">
+                        Krispig kycklingfilé, isbergssallad, gurka, färska
+                        tomater, rödlök, paprika, olivolja, citron.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+                <li>
+                  <div class="menu-card hover:card">
+                    <figure
+                      class="card-banner img-holder"
+                      style="--width: 100; --height: 100"
+                    >
+                      <img
+                        src="./assets/images/Blandadsallad.png"
+                        width="100"
+                        height="100"
+                        loading="lazy"
+                        alt="Lasagne"
+                        class="img-cover"
+                      />
+                    </figure>
+                    <div class="menu-card-content">
+                      <div class="title-wrapper">
+                        <h3 class="menu-title">Blandadsallad</h3>
+                        <span class="span title-2">90 kr</span>
+                      </div>
+                      <p class="card-text">
+                        Kebabkött, kyckling, isbergssallad, färska tomater,
+                        gurka, rödlök, feferoni, dressing.
+                      </p>
+                    </div>
+                  </div>
+                </li>
+
+                <!-- Add more salad items here -->
+              </ul>
+            </div>
+
+            <!-- rollers menu section starts  -->
+
+            <div
+              class="menu-content rollers"
+              id="rollers-menu"
+              style="display: none"
+            >
+              <h1 class="heading">Rulle</h1>
+              <div class="box-container">
+                <div class="box">
+                  <h3>Falafelrulle (50 kr)</h3>
+                  <p>
+                    Falafel, isbergssallad, hummus, färska tomater, gurka, lök.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Kebabrulle (60 kr)</h3>
+                  <p>
+                    Kebabkött, isbergssallad, dressing, färska tomater, lök,
+                    feferoni.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Kycklingrulle (60 kr)</h3>
+                  <p>
+                    Kyckling, isbergssallad, dressing, färska tomater, lök,
+                    feferoni.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Halloumirulle (65 kr)</h3>
+                  <p>
+                    Halloumi, hummus, tortillabröd, gurka, isbergssallad, färska
+                    tomater, lök, persilja.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Blandadrulle (70 kr)</h3>
+                  <p>
+                    Kebabkött, Kyckling, isbergssallad, dressing, färska
+                    tomater, lök, feferoni.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Krispigrulle (70 kr)</h3>
+                  <p>
+                    Krispigt kycklingfilé, tortillabröd, gurka, isbergssallad,
+                    färska tomater, lök.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Chili Cheese-rulle (60 kr)</h3>
+                  <p>
+                    Chili cheese bollar, tortillabröd, gurka, isbergssallad,
+                    färska tomater, lök, vitlöksås, Riven ost.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Pommes-rulle (50 kr)</h3>
+                  <p>
+                    Pommes, tortillabröd, isbergssallad, färska tomater,
+                    jalapeno, rödlök, vitlöksås.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- rollers menu section ends -->
+
+            <!-- Tallrikar menu section starts  -->
+            <div class="menu-content dishes" id="dishes-menu">
+              <h1 class="heading">Tallrikar</h1>
+              <div class="box-container">
+                <div class="box">
+                  <h3>Falafeltallrik med ris (75 kr)</h3>
+                  <p>
+                    Falafel, ris, isbergssallad, hummus, färska tomater, lök.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Kebabtallrik (80 kr)</h3>
+                  <p>
+                    Kebabkött, isbergssallad, färska tomater, lök, feferoni,
+                    pommes, dressing (mildsås).
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Kycklingtallrik (80 kr)</h3>
+                  <p>
+                    Kyckling (skuren i bitar), isbergssallad, färska tomater,
+                    lök, feferoni, pommes, dressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Blandadtallrik (90 kr)</h3>
+                  <p>
+                    Kebabkött, Kyckling, pommes, isbergssallad, färska tomater,
+                    gurka, lök, feferoni, dressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Krispigtallrik (90 kr)</h3>
+                  <p>
+                    Krispig kycklingfilé, pommes, isbergssallad, färska tomater,
+                    gurka, lök, feferoni, dressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Hamburgeretallrik (85 kr)</h3>
+                  <p>
+                    Nötfärs 90 gram, pommes, isbergssallad, färska tomater,
+                    gurka, lök, hamburgerdressing, fetaost.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Kycklingburgaretallrik (85 kr)</h3>
+                  <p>
+                    Kycklingfärs, hamburgerbröd, isbergssallad, färska tomater,
+                    gurka, rödlök, ost, hamburgerdressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Cevapcicitallrik (95 kr)</h3>
+                  <p>
+                    Köttfärs, pommes, isbergssallad, rödlök, gräddfil, pitabröd.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Halloumitallrik (80 kr)</h3>
+                  <p>
+                    Halloumi (grillad eller stekt), pommes, isbergssallad,
+                    färska tomater, gurka, rödlök, gräddfil.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Halloumi-burgaretallrik (85 kr)</h3>
+                  <p>
+                    Halloumi (grillad eller stekt), pommes, isbergssallad,
+                    färska tomater, gurka, rödlök, hamburgerdressing, vitlöksås,
+                    feferoni.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Kebab med Bosnisk bröd (85 kr)</h3>
+                  <p>
+                    Kebabkött, isbergssallad, dressing, färska tomater, lök,
+                    feferoni.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Cevapcici med Bosnisk bröd (95 kr)</h3>
+                  <p>Köttfärs, vitlök, tomater, gurka, gräddfil.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tallrikar menu section ends  -->
+
+            <!-- Box menu section starts  -->
+
+            <div
+              class="menu-content boxes"
+              id="boxes-menu"
+              style="display: none"
+            >
+              <h1 class="heading">Box</h1>
+              <div class="box-container">
+                <div class="box">
+                  <h3>Falafel box (70 kr)</h3>
+                  <p>
+                    Falafel, isbergssallad, färska tomater, gurka, lök,
+                    vitlöksdressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Kebab box (80 kr)</h3>
+                  <p>
+                    Kebabkött, pommes, isbergssallad, färska tomater, gurka,
+                    lök, feferoni, dressing (mildsås).
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Kyckling box (80 kr)</h3>
+                  <p>
+                    Kyckling (skuren i bitar), pommes, isbergssallad, färska
+                    tomater, gurka, lök, feferoni, dressing (mildsås).
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Blandad box (90 kr)</h3>
+                  <p>
+                    Kebabkött, Kyckling, pommes, isbergssallad, färska tomater,
+                    gurka, lök, feferoni, dressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Krispig box (90 kr)</h3>
+                  <p>
+                    Krispig kycklingfilé, pommes, isbergssallad, färska tomater,
+                    gurka, lök, feferoni, dressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Chili cheese box (75 kr)</h3>
+                  <p>
+                    Chili cheese bollar, pommes, isbergssallad, färska tomater,
+                    gurka, lök, jalapeno, dressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Nuggets box (80 kr)</h3>
+                  <p>
+                    Kycklingnuggets, pommes, isbergssallad, färska tomater,
+                    gurka, rödlök, BBQ-sås/vitlöksdressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Halloumi box (80 kr)</h3>
+                  <p>
+                    Halloumi, pommes, isbergssallad, färska tomater, gurka,
+                    rödlök, feferoni, dressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Pommes box (40 kr)</h3>
+                  <p>Pommes, dressing (mildsås).</p>
+                </div>
+                <div class="box">
+                  <h3>Cheese Fries box (50 kr)</h3>
+                  <p>
+                    Smält ost, pommes, isbergssallad, färska tomater, rödlök,
+                    jalapeno.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Mix box (125 kr)</h3>
+                  <p>
+                    Pommes, mozzarella 4st, Chili cheese 4st, halloumi 4st,
+                    dressing.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <!-- Box menu section ends  -->
+
+            <!-- Pitabröd menu section starts -->
+
+            <div
+              class="menu-content pitabread"
+              id="pitabrod-menu"
+              style="display: none"
+            >
+              <h1 class="heading">Pitabröd</h1>
+              <div class="box-container">
+                <div class="box">
+                  <h3>Falafel med Pitabröd (80 kr)</h3>
+                  <p>
+                    Falafel, isbergssallad, hummus, färska tomater, gurka, lök.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Kebab med Pitabröd (85 kr)</h3>
+                  <p>
+                    Kebabkött, isbergssallad, färska tomater, gurka, lök,
+                    feferoni, vitlökssås.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Kyckling med Pitabröd (85 kr)</h3>
+                  <p>
+                    Kyckling (grillad), isbergssallad, färska tomater, gurka,
+                    lök, feferoni, dressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Blandad med Pitabröd (90 kr)</h3>
+                  <p>
+                    Kebabkött, Kyckling, isbergssallad, färska tomater, gurka,
+                    lök, feferoni, dressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Krispig med Pitabröd (90 kr)</h3>
+                  <p>
+                    Krispig kycklingfilé, isbergssallad, färska tomater, gurka,
+                    lök, feferoni, dressing.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Halloumi med Pitabröd (85 kr)</h3>
+                  <p>
+                    Halloumi, isbergssallad, färska tomater, gurka, lök, hummus,
+                    persilja.
+                  </p>
+                </div>
+                <div class="box">
+                  <h3>Cevapcici med Pitabröd (90 kr)</h3>
+                  <p>
+                    Cevapcici (grillad), isbergssallad, färska tomater, gurka,
+                    lök, feferoni, vitlökssås.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pitabröd menu section ends -->
+
+            <!-- Tillbehör menu section starts -->
+
+            <div class="menu-content addition" id="addition-menu">
+              <h1 class="heading">Tillbehör</h1>
+              <div class="box-container">
+                <div class="box">
+                  <h3>Mozzarella</h3>
+                  <p>4st 35 kr, 7st 60 kr</p>
+                </div>
+                <div class="box">
+                  <h3>Chili Cheese</h3>
+                  <p>5st 35 kr, 10st 60 kr</p>
+                </div>
+                <div class="box">
+                  <h3>Halloumi (35 kr)</h3>
+                  <p>4st 35 kr, 7st 60 kr</p>
+                </div>
+                <div class="box">
+                  <h3>Nuggets</h3>
+                  <p>4st 35 kr, 7st 60 kr</p>
+                </div>
+                <div class="box">
+                  <h3>Krispig Chicken (35 kr)</h3>
+                  <p>5st 60 kr</p>
+                </div>
+                <div class="box">
+                  <h3>Lökringar</h3>
+                  <p>7st 35 kr, 14st 60 kr</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tillbehör menu section ends -->
+          </div>
+          <img
+            src="./assets/images/shape-5.png"
+            width="921"
+            height="1036"
+            loading="lazy"
+            alt="shape"
+            class="shape shape-2 move-anim"
+          />
+          <img
+            src="./assets/images/shape-6.png"
+            width="343"
+            height="345"
+            loading="lazy"
+            alt="shape"
+            class="shape shape-3 move-anim"
+          />
+
+          <!-- EXTRA item under the menu -->
+          <div class="extra-item">
+            <p>
+              Extra tillbehör : Pommes, Extra Sås, Fetaost, Chili Cheese eller
+              Halloumi + 10 kr
+            </p>
+          </div>
+          <!-- Add other menu categories similarly -->
+        </section>
+
+        <!-- 
+        - #RESERVATION
+      -->
+
+        <section id="contact" class="reservation">
+          <div class="container">
+            <div class="form reservation-form bg-black-10">
+              <form action="" class="form-left">
+                <h2 class="headline-1 text-center">Online Reservation</h2>
+
+                <p class="contact-label">Beställ via Telefon</p>
+
+                <a
+                  href="tel:+46735124552"
+                  class="body-1 contact-number hover-underline"
+                  >+46-735124552</a
+                >
+              </form>
+
+              <div
+                class="form-right text-center"
+                style="
+                  background-image: url('./assets/images/form-pattern.jpg');
+                "
+              >
+                <h2 class="headline-1 text-center">Kontakta Oss</h2>
+
+                <a
+                  href="tel:+46735124552"
+                  class="body-1 contact-number hover-underline"
+                  >+46-735124552</a
+                >
+
+                <div class="custom-separator"></div>
+                <a
+                  href="mailto:booking@matkungen.com"
+                  class="body-4 contact-link"
+                  >booking@matkungen.com</a
+                >
+                <p class="contact-label">Plats</p>
+
+                <address class="body-4">
+                  Matkungen Campus , P G Vejdes väg , <br />
+                  352 52 Växjö
+                </address>
+                <p class="contact-label">Öppettider</p>
+                <p class="body-4">
+                  Måndag - Tisdag - Torsdag<br />
+                  11:00 - 22:00
+                </p>
+                <p class="body-4">
+                  Onsdag - Fredag <br />
+                  11:00 - 03:00 på natten
+                </p>
+                <p class="contact-label">Helg "Weekend"</p>
+                <p class="body-4">
+                  Lördag <br />
+                  12:00 - 03:00 på natten
+                </p>
+                <p class="body-4">
+                  Söndag <br />
+                  12:00 - 22:00
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 
+        - #FEATURES
+      -->
+
+        <section class="section features text-center" aria-label="features">
+          <div class="container">
+            <p class="section-subtitle label-2">Why Choose Us</p>
+
+            <h2 class="headline-1 section-title">Our Strength</h2>
+
+            <ul class="grid-list">
+              <li class="feature-item">
+                <div class="feature-card">
+                  <div class="card-icon">
+                    <img
+                      src="./assets/images/features-icon-1.png"
+                      width="100"
+                      height="80"
+                      loading="lazy"
+                      alt="icon"
+                    />
+                  </div>
+
+                  <h3 class="title-2 card-title">Hygienic Food</h3>
+
+                  <p class="label-1 card-text">
+                    Lorem Ipsum is simply dummy printing and typesetting.
+                  </p>
+                </div>
+              </li>
+
+              <li class="feature-item">
+                <div class="feature-card">
+                  <div class="card-icon">
+                    <img
+                      src="./assets/images/features-icon-2.png"
+                      width="100"
+                      height="80"
+                      loading="lazy"
+                      alt="icon"
+                    />
+                  </div>
+
+                  <h3 class="title-2 card-title">Fresh Environment</h3>
+
+                  <p class="label-1 card-text">
+                    Lorem Ipsum is simply dummy printing and typesetting.
+                  </p>
+                </div>
+              </li>
+
+              <li class="feature-item">
+                <div class="feature-card">
+                  <div class="card-icon">
+                    <img
+                      src="./assets/images/features-icon-3.png"
+                      width="100"
+                      height="80"
+                      loading="lazy"
+                      alt="icon"
+                    />
+                  </div>
+
+                  <h3 class="title-2 card-title">Skilled Chefs</h3>
+
+                  <p class="label-1 card-text">
+                    Lorem Ipsum is simply dummy printing and typesetting.
+                  </p>
+                </div>
+              </li>
+
+              <li class="feature-item">
+                <div class="feature-card">
+                  <div class="card-icon">
+                    <img
+                      src="./assets/images/features-icon-4.png"
+                      width="100"
+                      height="80"
+                      loading="lazy"
+                      alt="icon"
+                    />
+                  </div>
+
+                  <h3 class="title-2 card-title">Event & Party</h3>
+
+                  <p class="label-1 card-text">
+                    Lorem Ipsum is simply dummy printing and typesetting.
+                  </p>
+                </div>
+              </li>
+            </ul>
+
+            <img
+              src="./assets/images/shape-7.png"
+              width="208"
+              height="178"
+              loading="lazy"
+              alt="shape"
+              class="shape shape-1"
+            />
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <!-- 
+    - #FOOTER
+  -->
+
+    <footer
+      class="footer section has-bg-image text-center"
+      style="background-image: url('./assets/images/footer-bg.jpg')"
+    >
+      <div class="container">
+        <div class="footer-top grid-list">
+          <div class="footer-brand has-before has-after">
+            <a href="#" class="logo">
+              <img
+                src="./assets/images/logo.png"
+                width="140"
+                height="50"
+                loading="lazy"
+                alt="Matkungen home"
+              />
+            </a>
+
+            <address class="body-4">
+              Matkungen Campus , P G Vejdes väg , <br />
+              352 52 Växjö
+            </address>
+
+            <a href="mailto:booking@matkungen.com" class="body-4 contact-link"
+              >booking@matkungen.com</a
+            >
+
+            <a href="tel:+46735124552" class="body-4 contact-link"
+              >Beställ via Telefon : +46-735124552</a
+            >
+
+            <p class="contact-label">Öppettider</p>
+            <p class="body-4">
+              Måndag - Tisdag - Torsdag<br />
+              11:00 - 22:00
+            </p>
+            <p class="body-4">
+              Onsdag - Fredag <br />
+              11:00 - 03:00 på natten
+            </p>
+            <p class="contact-label">Helg "Weekend"</p>
+            <p class="body-4">
+              Lördag <br />
+              12:00 - 03:00 på natten
+            </p>
+            <p class="body-4">
+              Söndag <br />
+              12:00 - 22:00
+            </p>
+
+            <div class="wrapper">
+              <div class="separator"></div>
+              <div class="separator"></div>
+              <div class="separator"></div>
+            </div>
+          </div>
+
+          <ul class="footer-list">
+            <li>
+              <a href="#home" class="label-2 footer-link hover-underline"
+                >Hem</a
+              >
+            </li>
+
+            <li>
+              <a href="#menu" class="label-2 footer-link hover-underline"
+                >Meny</a
+              >
+            </li>
+
+            <li>
+              <a href="#about" class="label-2 footer-link hover-underline"
+                >Om Oss</a
+              >
+            </li>
+
+            <li>
+              <a href="#contact" class="label-2 footer-link hover-underline"
+                >kontakta oss</a
+              >
+            </li>
+          </ul>
+
+          <ul class="social-icons">
+            <li>
+              <a
+                href=" https://www.facebook.com/matkungen.campus/?locale=sv_SE "
+              >
+                <i class="bx bxl-facebook"></i>
+              </a>
+            </li>
+
+            <li>
+              <a href="#">
+                <i class="bx bxl-instagram"></i>
+              </a>
+            </li>
+
+            <li>
+              <a href="#">
+                <i class="bx bxl-youtube"></i>
+              </a>
+            </li>
+
+            <li>
+              <a
+                href="https://www.google.com/maps/dir/56.8535951,14.8251036/CAMPUS+MATKUNGEN+I+V%C3%84XJ%C3%96,+P+G+Vejdes+v%C3%A4g,+352+52+V%C3%A4xj%C3%B6 "
+              >
+                <i class="ri-map-pin-fill"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="footer-bottom">
+          <p class="copyright">
+            &copy; 2024 Matkungen. All Rights Reserved | Created by<a
+              href="https://mymoonportfolio.netlify.app "
+              target="_blank "
+              class="link"
+              >mymoon</a
+            >
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- 
+    - #BACK TO TOP
+  -->
+
+    <!-- scroll top button  -->
+    <a href="#home" class="bx bxs-up-arrow-circle" id="scroll-top"></a>
+
+    <!-- 
+    - custom js link
+  -->
+    <script src="./assets/js/script.js "></script>
+
+    <!-- 
+    - ionicon link
+  -->
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script>
+  </body>
+</html>

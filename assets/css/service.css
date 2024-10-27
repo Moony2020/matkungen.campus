@@ -1,0 +1,277 @@
+body,
+html {
+    height: 100vh;
+    /* Full viewport height */
+    overflow: hidden;
+    /* Prevent scrolling on the entire page */
+}
+
+.menu-page {
+    position: relative;
+    /* Needed for absolute positioning of shapes */
+    height: 100%;
+    /* Allow the section to expand as necessary */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    padding: 20px;
+    /* Add padding if needed */
+}
+
+/* Background shapes */
+.menu-page .shape {
+    position: absolute;
+    z-index: -1;
+    /* Ensure the shapes are behind other content */
+    opacity: 0.5;
+    /* Adjust visibility */
+    display: block;
+}
+
+.menu-page .shape-1 {
+    bottom: 0;
+    left: 0;
+}
+
+.menu-page .shape-2 {
+    top: 0;
+    right: 0;
+}
+
+/* Adjust the position of the header container */
+#lunch-menu .header-container,
+#vegetarian-menu .header-container,
+#drinks-menu .header-container {
+    display: flex;
+    align-items: center;
+    /* Vertically align the items */
+    justify-content: center;
+    /* Center content horizontally */
+    gap: 10px;
+    /* Add spacing between the arrow and the heading */
+    margin-top: -20px;
+    /* Move the container up */
+    position: relative;
+    /* To allow absolute positioning of the arrow */
+}
+
+/* Style the back arrow button */
+.btn-primary {
+    position: absolute;
+    /* Remove from normal document flow */
+    left: -10px;
+    /* Align it to the left */
+    color: rgba(238, 238, 238, 0.619);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.btn-primary i:hover {
+    color: #fff;
+}
+
+/* Adjust the heading */
+.heading {
+    margin-top: 0;
+    /* Remove any default top margin */
+}
+
+/* back arrow styling */
+.menu-page .back-arrow {
+    position: absolute;
+    left: 0;
+    display: flex;
+}
+
+.menu-page .back-arrow a {
+    margin-top: -1.5rem;
+    color: rgba(238, 238, 238, 0.644);
+    /* Adjust this variable to your desired color */
+    cursor: pointer;
+}
+
+.menu-page .back-arrow i {
+    font-size: 5rem;
+}
+
+.menu-page .back-arrow a:hover {
+    /* Change the color on hover */
+    color: #fff;
+    border-radius: 50%;
+    transition: 0.3s ease;
+}
+
+.menu-page .btn-primary {
+    margin-left: 25px;
+}
+
+/* price & 2 lines front of the price  margin*/
+.menu-card .span {
+    margin-bottom: 1rem;
+    font-family: var(--fontFamily-forum);
+    font-size: var(--fontSize-title-2);
+    font-weight: var(--weight-regular);
+}
+
+/* Animation for background images */
+.menu-page .move-anim {
+    animation: move 5s linear infinite;
+}
+
+/* Define the keyframes */
+@keyframes move {
+
+    0%,
+    100% {
+        transform: translateY(20px);
+    }
+
+    50% {
+        transform: translateY(90px);
+    }
+}
+
+/* Menu Lunch Info Styling */
+.menu-lunch-info {
+    font-size: 1.6rem;
+    margin-top: -2rem;
+    color: var(--quick-silver);
+    text-align: center;
+    /* Center the lunch information text */
+    margin-bottom: 20px;
+    /* Add space below the paragraph */
+}
+
+.menu-buttons {
+    display: flex;
+    /* Use flexbox for layout */
+    justify-content: center;
+    /* Center the buttons horizontally */
+    gap: 20px;
+    /* Add space between buttons */
+    margin-top: 2px;
+    /* Optional: space above the button container */
+}
+
+.pizza-section,
+.tallrikar-section {
+    text-align: center;
+    /* Center the text in each section */
+}
+
+.menu-description {
+    font-weight: bold;
+    /* Makes the description stand out */
+    margin-bottom: 10px;
+    /* Space between the description and the button */
+}
+
+.btn:hover {
+    color: var(--smoky-black-1);
+}
+
+.grid-list {
+    margin-top: 30px;
+    /* Space between buttons and grid list */
+}
+
+/* General container styles */
+.container {
+    max-width: 1200px;
+    /* Set a max width for the container */
+    margin: 0 auto;
+    /* Center the container */
+    padding: 55px;
+    /* Add padding around the container */
+}
+
+/* Heading styles */
+.header-container {
+    display: flex;
+    /* Use flexbox for layout */
+    align-items: center;
+    /* Center items vertically */
+    justify-content: space-between;
+    /* Space between back arrow and heading */
+    margin-bottom: 30px;
+    /* Space below the header */
+}
+
+.heading {
+    font-size: 2rem;
+    /* Larger font size for heading */
+    color: #333;
+    /* Dark color for text */
+}
+
+/* Card styles for drink*/
+.menu-card1 {
+    background: #fff;
+    /* White background for cards */
+    border: 1px solid #ddd;
+    /* Light border for cards */
+    border-radius: 12px;
+    /* Rounded corners */
+    overflow: hidden;
+    /* Clip overflow */
+    transition: transform 0.3s ease;
+    /* Smooth transition for hover effects */
+    display: flex;
+    /* Enable flexbox */
+    flex-direction: column;
+    /* Align items vertically */
+    align-items: center;
+    /* Center items horizontally */
+    padding: 5px;
+    /* Add some padding */
+    height: 190px;
+    /* Fixed height for all cards */
+}
+
+/* Title styles for drink**/
+.menu-title1 {
+    font-size: 1.4rem;
+    /* Title font size */
+    color: #333;
+    /* Dark color for title */
+    margin-top: 8px;
+    /* Remove margin to prevent excess spacing */
+    text-align: left;
+    /* Align text to the left */
+    padding-left: 10px;
+    /* Padding for the left side */
+    white-space: normal;
+    /* Allow text to wrap */
+    overflow-wrap: break-word;
+    /* Break long words to fit within the container */
+    line-height: 1.2;
+    /* Adjust line height for better spacing */
+}
+
+/* Price styles for drink**/
+.span.title-5 {
+    font-size: 1.4rem;
+    /* Price font size */
+    font-weight: var(--weight-bold);
+    text-align: center;
+    color: var(--davys-grey);
+    white-space: nowrap;
+    /* Prevent the price from wrapping to the next line */
+}
+
+/* container adjustment for drink* */
+.grid-list1 {
+    display: grid;
+    /* Use grid layout */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    /* Responsive grid */
+    gap: 20px;
+    /* Space between grid items */
+}
+
+/* hover transform for drinks menu */
+#drinks-menu .hover\:card:is(:hover,
+    :focus-within) .card-banner .img-cover {
+    transform: scale(1.1);
+}
