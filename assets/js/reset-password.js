@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const password = document.getElementById("new-password").value;
     const confirmPassword = document.getElementById("confirm-password").value;
-    const messageDiv = document.getElementById("message");
+   const messageDiv = document.getElementById("message");
     messageDiv.innerHTML = ""; // clear previous messages
 
     if (password !== confirmPassword) {
