@@ -1,262 +1,1859 @@
-'use strict';
+"use strict";
 
-/**
- * PRELOAD
- * 
- * loading will end after the document is loaded
- */
-const preloader = document.querySelector("[data-preaload]");
+// ==================== GENERAL UTILITIES ====================
+document.addEventListener('DOMContentLoaded', function() {
+  // Preloader
+  const preloader = document.querySelector("[data-preaload]");
+  if (preloader) {
+    window.addEventListener("load", function() {
+      preloader.classList.add("loaded");
+      document.body.classList.add("loaded");
+    });
+  }
 
-window.addEventListener("load", function() {
-    preloader.classList.add("loaded");
-    document.body.classList.add("loaded");
+  // ==================== NAVIGATION ====================
+  const navbar = document.querySelector("[data-navbar]");
+  const navTogglers = document.querySelectorAll("[data-nav-toggler]");
+  const overlay = document.querySelector("[data-overlay]");
+
+ const toggleNavbar = function() {
+  navbar.classList.toggle("active");
+  if (overlay) overlay.classList.toggle("active");
+  document.body.classList.toggle("nav-active");
+};
+
+  navTogglers.forEach(toggler => {
+    toggler.addEventListener("click", toggleNavbar);
+  });
+
+  if (overlay) {
+    overlay.addEventListener("click", toggleNavbar);
+  }
+
+  // ==================== HEADER & SCROLL ====================
+  const header = document.querySelector("[data-header]");
+  const scrollTopBtn = document.getElementById("scroll-top");
+
+  if (header && scrollTopBtn) {
+    let lastScrollPos = 0;
+
+ const hideHeader = function () {
+  const isScrollBottom = lastScrollPos < window.scrollY;
+  if (isScrollBottom) {
+    header.classList.add("hide");
+  } else {
+    header.classList.remove("hide");
+  }
+  lastScrollPos = window.scrollY;
+};
+
+window.addEventListener("scroll", function () {
+  const userSidebar = document.querySelector(".user-sidebar");
+  const isUserSidebarOpen = userSidebar?.classList.contains("open");
+
+  // Do NOT hide header if user-sidebar is open
+  if (!isUserSidebarOpen) {
+    if (window.scrollY >= 100) {
+      header.classList.add("active");
+      scrollTopBtn.classList.add("active");
+      hideHeader();
+    } else {
+      header.classList.remove("active");
+      scrollTopBtn.classList.remove("active");
+    }
+  }
 });
 
-/**
- * Add event listener on multiple elements
- */
-const addEventOnElements = function(elements, eventType, callback) {
-    for (let i = 0, len = elements.length; i < len; i++) {
-        elements[i].addEventListener(eventType, callback);
-    }
-}
 
-/**
- * NAVBAR
- */
-const navbar = document.querySelector("[data-navbar]");
-const navTogglers = document.querySelectorAll("[data-nav-toggler]");
-const overlay = document.querySelector("[data-overlay]");
 
-const toggleNavbar = function() {
-    navbar.classList.toggle("active");
-    overlay.classList.toggle("active");
-    document.body.classList.toggle("nav-active");
-}
-
-addEventOnElements(navTogglers, "click", toggleNavbar);
-
-/**
- * HEADER & SCROLL TOP BTN
- */
-
-const header = document.querySelector("[data-header]");
-const scrollTopBtn = document.getElementById("scroll-top");
-
-let lastScrollPos = 0;
-
-const hideHeader = function() {
-    const isScrollBottom = lastScrollPos < window.scrollY;
-    if (isScrollBottom) {
-        header.classList.add("hide");
-    } else {
-        header.classList.remove("hide");
-    }
-    lastScrollPos = window.scrollY;
-}
-
-window.addEventListener("scroll", function() {
-    if (window.scrollY >= 100) { // Change when to show the button
-        header.classList.add("active");
-        scrollTopBtn.classList.add("active"); // Make the scroll-top button visible
-        hideHeader();
-    } else {
-        header.classList.remove("active");
-        scrollTopBtn.classList.remove("active"); // Hide the scroll-top button
-    }
-});
-
-// Smooth scroll to top when the button is clicked
-scrollTopBtn.addEventListener("click", function(event) {
-    event.preventDefault();
-    window.scrollTo({
+    scrollTopBtn.addEventListener("click", function(event) {
+      event.preventDefault();
+      window.scrollTo({
         top: 0,
         behavior: "smooth"
+      });
     });
-});
+  }
 
-/**
- * HERO SLIDER
- */
-const heroSlider = document.querySelector("[data-hero-slider]");
-const heroSliderItems = document.querySelectorAll("[data-hero-slider-item]");
-const prevBtn = document.getElementById("prev");
-const nextBtn = document.getElementById("next");
+  // ==================== HERO SLIDER ====================
+  const heroSlider = document.querySelector("[data-hero-slider]");
+  const heroSliderItems = document.querySelectorAll("[data-hero-slider-item]");
+  const prevBtn = document.getElementById("prev");
+  const nextBtn = document.getElementById("next");
 
-let currentSlidePos = 0;
-let lastActiveSliderItem = heroSliderItems[0];
+  if (heroSlider && heroSliderItems.length && prevBtn && nextBtn) {
+    let currentSlidePos = 0;
+    let lastActiveSliderItem = heroSliderItems[0];
 
-const updateSliderPos = function() {
-    lastActiveSliderItem.classList.remove("active");
-    heroSliderItems[currentSlidePos].classList.add("active");
-    lastActiveSliderItem = heroSliderItems[currentSlidePos];
-};
+    const updateSliderPos = function() {
+      lastActiveSliderItem.classList.remove("active");
+      heroSliderItems[currentSlidePos].classList.add("active");
+      lastActiveSliderItem = heroSliderItems[currentSlidePos];
+    };
 
-const slideNext = function() {
-    if (currentSlidePos >= heroSliderItems.length - 1) {
+    const slideNext = function() {
+      if (currentSlidePos >= heroSliderItems.length - 1) {
         currentSlidePos = 0;
-    } else {
+      } else {
         currentSlidePos++;
-    }
-    updateSliderPos();
-};
+      }
+      updateSliderPos();
+    };
 
-nextBtn.addEventListener("click", slideNext);
+    nextBtn.addEventListener("click", slideNext);
 
-const slidePrev = function() {
-    if (currentSlidePos <= 0) {
+    const slidePrev = function() {
+      if (currentSlidePos <= 0) {
         currentSlidePos = heroSliderItems.length - 1;
-    } else {
+      } else {
         currentSlidePos--;
-    }
-    updateSliderPos();
-};
+      }
+      updateSliderPos();
+    };
 
-prevBtn.addEventListener("click", slidePrev);
+    prevBtn.addEventListener("click", slidePrev);
 
-/**
- * AUTO SLIDE
- */
-let autoSlideInterval;
+    let autoSlideInterval;
 
-const autoSlide = function() {
-    autoSlideInterval = setInterval(function() {
+    const autoSlide = function() {
+      autoSlideInterval = setInterval(function() {
         slideNext();
-    }, 7000);
-};
+      }, 7000);
+    };
 
-prevBtn.addEventListener("mouseover", function() {
-    clearInterval(autoSlideInterval);
-});
-nextBtn.addEventListener("mouseover", function() {
-    clearInterval(autoSlideInterval);
-});
+    prevBtn.addEventListener("mouseover", function() {
+      clearInterval(autoSlideInterval);
+    });
+    nextBtn.addEventListener("mouseover", function() {
+      clearInterval(autoSlideInterval);
+    });
 
-prevBtn.addEventListener("mouseout", autoSlide);
-nextBtn.addEventListener("mouseout", autoSlide);
+    prevBtn.addEventListener("mouseout", autoSlide);
+    nextBtn.addEventListener("mouseout", autoSlide);
 
-window.addEventListener("load", autoSlide);
+    window.addEventListener("load", autoSlide);
+  }
 
-/**
- * PARALLAX EFFECT
- */
-const parallaxItems = document.querySelectorAll("[data-parallax-item]");
+  // ==================== PARALLAX EFFECT ====================
+  const parallaxItems = document.querySelectorAll("[data-parallax-item]");
 
-let x, y;
+  if (parallaxItems.length) {
+    let x, y;
 
-window.addEventListener("mousemove", function(event) {
-    x = (event.clientX / window.innerWidth * 10) - 5;
-    y = (event.clientY / window.innerHeight * 10) - 5;
+    window.addEventListener("mousemove", function(event) {
+      x = event.clientX / window.innerWidth * 10 - 5;
+      y = event.clientY / window.innerHeight * 10 - 5;
 
-    // reverse the number eg. 20 -> -20, -5 -> 5
-    x = x - (x * 2);
-    y = y - (y * 2);
+      x = x - x * 2;
+      y = y - y * 2;
 
-    for (let i = 0, len = parallaxItems.length; i < len; i++) {
+      for (let i = 0, len = parallaxItems.length; i < len; i++) {
         x = x * Number(parallaxItems[i].dataset.parallaxSpeed);
         y = y * Number(parallaxItems[i].dataset.parallaxSpeed);
         parallaxItems[i].style.transform = `translate3d(${x}px, ${y}px, 0px)`;
+      }
+    });
+  }
+// ==================== SHOPPING CART ====================
+class Cart {
+  constructor() {
+    this.cart = JSON.parse(localStorage.getItem("cart")) || [];
+    this.initCart();
+  }
+
+  initCart() {
+    this.updateCart();
+    this.setupEventListeners();
+  }
+
+  setupEventListeners() {
+    // Cart toggle functionality
+    const cartBtn = document.getElementById("cart-trigger");
+    const cartSidebar = document.querySelector(".cart-sidebar");
+    const cartOverlay = document.querySelector(".cart-overlay");
+    const closeCartBtn = document.querySelector(".close-cart");
+
+    if (cartBtn && cartSidebar && cartOverlay && closeCartBtn) {
+      cartBtn.addEventListener("click", () => {
+        cartSidebar.classList.add("open");
+        cartOverlay.classList.add("open");
+      });
+
+      closeCartBtn.addEventListener("click", () => {
+        cartSidebar.classList.remove("open");
+        cartOverlay.classList.remove("open");
+      });
+
+      cartOverlay.addEventListener("click", () => {
+        cartSidebar.classList.remove("open");
+        cartOverlay.classList.remove("open");
+      });
     }
-});
 
-
-
-// function to show all pizzas in the menu
-function showAllPizzas() {
-    // Find all hidden pizza items
-    const pizzaContainer = document.getElementById('pizza-container');
-    const pizzaItems = pizzaContainer.querySelectorAll('.box');
-
-    // Display all the pizza items
-    pizzaItems.forEach((pizza, index) => {
-        if (index >= 12) { // Assuming the first 12 are always shown
-            pizza.style.display = 'block';
+    // Checkout button validation
+    document.addEventListener('click', (e) => {
+      if (e.target.classList.contains('checkout-btn') || 
+          e.target.closest('.checkout-btn')) {
+        if (this.cart.length === 0) {
+          e.preventDefault();
+          this.showNotification("Your cart is empty", true);
         }
+      }
     });
+  }
 
-    // Hide the "Show All" button after clicking
-    document.getElementById('show-all-pizza-btn').style.display = 'none';
-}
-
-// Initially show only the first 12 pizzas
-window.onload = function() {
-    const pizzaContainer = document.getElementById('pizza-container');
-    const pizzaItems = pizzaContainer.querySelectorAll('.box');
-
-    pizzaItems.forEach((pizza, index) => {
-        if (index >= 12) {
-            pizza.style.display = 'none';
-        }
-    });
-};
-
-
-/**
- * MENU SWITCHING
- */
-document.querySelectorAll('.menu-btn').forEach(button => {
-    button.addEventListener('click', function() {
-        const menuType = this.getAttribute('data-menu');
-
-        // Hide all menu contents
-        document.querySelectorAll('.menu-content').forEach(menu => {
-            menu.style.display = 'none';
-        });
-
-        // Show the selected menu
-        const selectedMenu = document.getElementById(`${menuType}-menu`);
-        selectedMenu.style.display = 'block';
-
-        // Special handling for pizzor (if required, you can add more logic)
-        if (menuType === 'pizza') {
-            selectedMenu.classList.add('pizzor');
-        } else {
-            selectedMenu.classList.remove('pizzor');
-        }
-    });
-});
- // Get the burger menu section when i click Visa Alla Menyn button on section special-dish
-function showBurgerMenu() {
-    // show the burger menu
-    var burgerMenu = document.getElementById('burgers-menu');
+  addItem(product) {
+    const existingItem = this.cart.find(item => 
+      item.name === product.name && item.price === product.price
+    );
     
-    // Remove the 'display: none' to make it visible
-    burgerMenu.style.display = 'block';
+    if (existingItem) {
+      existingItem.quantity++;
+    } else {
+      product.id = Date.now();
+      product.quantity = 1;
+      this.cart.push(product);
+    }
+    
+    this.saveCart();
+    this.updateCart();
+    this.showNotification(`${product.name} added to cart`);
+  }
+
+  removeItem(itemId) {
+    this.cart = this.cart.filter(item => item.id !== itemId);
+    this.saveCart();
+    this.updateCart();
+  }
+
+  updateQuantity(itemId, newQuantity) {
+    const item = this.cart.find(item => item.id === itemId);
+    if (item) {
+      if (newQuantity > 0) {
+        item.quantity = newQuantity;
+      } else {
+        this.cart = this.cart.filter(item => item.id !== itemId);
+      }
+      this.saveCart();
+      this.updateCart();
+    }
+  }
+
+  saveCart() {
+    localStorage.setItem("cart", JSON.stringify(this.cart));
+  }
+
+  clearCart() {
+    this.cart = [];
+    this.saveCart();
+    this.updateCart();
+  }
+
+  updateCart() {
+    const cartItemsContainer = document.querySelector(".cart-items");
+    const cartCount = document.querySelector(".cart-count");
+    const subtotalPrice = document.querySelector(".subtotal-price");
+
+    // Update cart count
+    if (cartCount) {
+      const totalItems = this.cart.reduce((total, item) => total + item.quantity, 0);
+      cartCount.textContent = totalItems;
+    }
+
+    // Update cart items
+    if (cartItemsContainer) {
+      if (this.cart.length === 0) {
+        cartItemsContainer.innerHTML = `
+          <div class="empty-cart">
+            <i class="ri-shopping-cart-line"></i>
+            <p>Your cart is empty</p>
+          </div>
+        `;
+      } else {
+        cartItemsContainer.innerHTML = this.cart.map(item => `
+          <div class="cart-item" data-id="${item.id}">
+            <img src="${item.img}" alt="${item.name}" width="70" height="70">
+            <div class="item-details">
+              <h4>${item.name}</h4>
+              <div class="item-price">${item.price} kr</div>
+              <div class="item-quantity">
+                <button class="decrease-quantity">-</button>
+                <span>${item.quantity}</span>
+                <button class="increase-quantity">+</button>
+              </div>
+            </div>
+            <button class="remove-item"><i class="ri-close-line"></i></button>
+          </div>
+        `).join("");
+      }
+    }
+
+    // Update subtotal
+    if (subtotalPrice) {
+      const subtotal = this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+      subtotalPrice.textContent = `${subtotal.toFixed(2)} kr`;
+    }
+
+    // Add event listeners to cart buttons
+    document.querySelectorAll(".remove-item").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const itemId = parseInt(e.target.closest(".cart-item").dataset.id);
+        this.removeItem(itemId);
+      });
+    });
+
+    document.querySelectorAll(".increase-quantity").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const itemId = parseInt(e.target.closest(".cart-item").dataset.id);
+        const item = this.cart.find(item => item.id === itemId);
+        if (item) this.updateQuantity(itemId, item.quantity + 1);
+      });
+    });
+
+    document.querySelectorAll(".decrease-quantity").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const itemId = parseInt(e.target.closest(".cart-item").dataset.id);
+        const item = this.cart.find(item => item.id === itemId);
+        if (item) this.updateQuantity(itemId, item.quantity - 1);
+      });
+    });
+  }
+
+  showNotification(message, isError = false) {
+    const notification = document.createElement("div");
+    notification.className = `notification ${isError ? 'error' : ''}`;
+    notification.innerHTML = `
+      <span>${message}</span>
+    `;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.classList.add('fade-out');
+      setTimeout(() => notification.remove(), 300);
+    }, 2000);
+  }
+
+async submitOrder(orderData) {
+  try {
+    const token = localStorage.getItem("authToken");
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify(orderData)
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Order submission failed');
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Order submission error:', error);
+    this.showNotification("Failed to submit order", true);
+    return null;
+  }
+}
 }
 
-// Get all menu buttons
-const menuButtons = document.querySelectorAll('.menu-btn');
-// Function to remove the 'active' class from all buttons and add it to the clicked one
-menuButtons.forEach(button => {
-    button.addEventListener('click',  () => {
-        // Remove 'active' class from all buttons
-        menuButtons.forEach(btn => btn.classList.remove('active'));
+// Initialize cart
+const cart = new Cart();
 
-        // Add 'active' class to the clicked button
-        button.classList.add('active');
+  // ==================== ADD TO CART FUNCTIONALITY ====================
+  document.addEventListener("click", function(e) {
+    const btn = e.target.closest(".add-to-cart-btn");
+    if (!btn) return;
+
+    // Get the menu item container
+    const menuItem = btn.closest(".menu-card, .menu-item");
+    
+    // Get product details
+    const productName = btn.dataset.name || menuItem?.querySelector(".menu-title, .menu-item-title")?.textContent || "Unknown Item";
+    const price = parseFloat(btn.dataset.price) || 0;
+    const productImg = btn.dataset.img || './assets/images/default-food.jpg';
+
+    const product = {
+      name: productName,
+      price: price,
+      img: productImg
+    };
+
+    // Animation feedback
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="ri-check-line"></i> Added';
+    btn.style.backgroundColor = '#4CAF50';
+    
+    setTimeout(() => {
+      btn.innerHTML = originalText;
+      btn.style.backgroundColor = 'var(--gold-crayola)';
+    }, 1000);
+
+    // Add to cart
+    cart.addItem(product);
+  });
+
+  // ==================== SIZE SELECTION FOR PIZZA ITEMS ====================
+  document.querySelectorAll(".size-selector input[type='radio']").forEach(radio => {
+    if (radio.checked) {
+      updateAddToCartButton(radio);
+    }
+    
+    radio.addEventListener("change", function() {
+      updateAddToCartButton(this);
     });
+  });
+
+  function updateAddToCartButton(radio) {
+    const menuItem = radio.closest(".menu-item");
+    if (!menuItem) return;
+    
+    const btn = menuItem.querySelector(".add-to-cart-btn");
+    const sizeName = radio.nextElementSibling.textContent.match(/(Small|Medium|Large)/)?.[0] || "";
+    const productName = menuItem.querySelector(".menu-item-title")?.textContent || "";
+    
+    if (btn && productName && sizeName) {
+      btn.dataset.name = `${productName} (${sizeName})`;
+      btn.dataset.price = radio.value;
+    }
+  }
+
+ // ==================== SIZE SELECTION FOR TILLBEHÖR ITEMS ====================
+ document.querySelectorAll("#addition-menu .size-selector input[type='radio']").forEach(radio => {
+  if (radio.checked) {
+    updateAddToCartButtonForTillbehor(radio);
+  }
+  
+  radio.addEventListener("change", function() {
+    updateAddToCartButtonForTillbehor(this);
+  });
+ });
+
+ function updateAddToCartButtonForTillbehor(radio) {
+  const menuItem = radio.closest(".menu-item");
+  if (!menuItem) return;
+  
+  const btn = menuItem.querySelector(".add-to-cart-btn");
+  // Extract just the quantity part (like "7st" or "14st")
+  const quantityText = radio.nextElementSibling.textContent.trim().split(' ')[0];
+  const productName = menuItem.querySelector(".menu-item-title")?.textContent || "";
+  
+  if (btn && productName && quantityText) {
+    // Format as "Product (Xst)"
+    btn.dataset.name = `${productName} (${quantityText})`;
+    btn.dataset.price = radio.value;
+  }
+}
+  // ==================== MENU CATEGORIES ====================
+  document.querySelectorAll(".menu-btn").forEach(button => {
+    button.addEventListener("click", function() {
+      const menuType = this.getAttribute("data-menu");
+      
+      // Hide all menu contents
+      document.querySelectorAll(".menu-content").forEach(menu => {
+        menu.classList.remove("active");
+      });
+      
+      // Show the selected menu
+      const selectedMenu = document.getElementById(`${menuType}-menu`);
+      if (selectedMenu) {
+        selectedMenu.classList.add("active");
+      }
+      
+      // Update active button
+      document.querySelectorAll(".menu-btn").forEach(btn => {
+        btn.classList.remove("active");
+      });
+      this.classList.add("active");
+      
+      // Scroll to the menu section
+      document.getElementById("menu").scrollIntoView({
+        behavior: "smooth"
+      });
+    });
+  });
+
+  // ==================== PIZZA SHOW ALL FUNCTION ====================
+  function showAllPizzas() {
+    const pizzaContainer = document.querySelector("#pizza-menu .menu-grid");
+    if (!pizzaContainer) return;
+  
+    const pizzaItems = pizzaContainer.querySelectorAll(".menu-item");
+    
+    // Show all pizza items
+    pizzaItems.forEach((pizza, index) => {
+      pizza.style.display = "block";
+    });
+  
+    // Hide the "Show All" button after clicking
+    const showAllBtn = document.getElementById("show-all-pizza-btn");
+    if (showAllBtn) showAllBtn.style.display = "none";
+  }
+  
+  // Initialize pizza display on page load
+  const pizzaContainer = document.querySelector("#pizza-menu .menu-grid");
+  if (pizzaContainer) {
+    const pizzaItems = pizzaContainer.querySelectorAll(".menu-item");
+    
+    // Initially show only the first 12 pizzas
+    pizzaItems.forEach((pizza, index) => {
+      if (index >= 12) {
+        pizza.style.display = "none";
+      }
+    });
+  
+    // Add event listener to the "Show All" button
+    const showAllBtn = document.getElementById("show-all-pizza-btn");
+    if (showAllBtn) {
+      showAllBtn.addEventListener("click", showAllPizzas);
+    }
+  }
+
+// ==================== CHECKOUT PAGE FUNCTIONALITY ====================
+if (window.location.pathname.includes('checkout.html')) {
+  const orderItems = document.querySelector(".order-items");
+  const orderSubtotal = document.querySelector(".order-subtotal");
+  const orderTotal = document.querySelector(".order-total");
+  const checkoutForm = document.getElementById("checkout-form");
+  const deliveryFee = 20; // Delivery fee in kr
+
+  function renderOrderSummary() {
+    if (!orderItems) return;
+
+    if (cart.cart.length === 0) {
+      orderItems.innerHTML = "<p>Your cart is empty</p>";
+      if (orderSubtotal) orderSubtotal.textContent = "0 kr";
+      if (orderTotal) orderTotal.textContent = "0 kr";
+      return;
+    }
+
+    orderItems.innerHTML = cart.cart
+      .map(
+        item => `
+        <div class="order-item">
+          <div class="item-name">${item.name} × ${item.quantity}</div>
+          <div class="item-price">${(item.price * item.quantity).toFixed(2)} kr</div>
+        </div>
+      `
+      )
+      .join("");
+
+    const subtotal = cart.cart.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+    const total = subtotal + deliveryFee;
+
+    if (orderSubtotal) orderSubtotal.textContent = `${subtotal.toFixed(2)} kr`;
+    if (orderTotal) orderTotal.textContent = `${total.toFixed(2)} kr`;
+  }
+
+if (checkoutForm) {
+  checkoutForm.addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    if (cart.cart.length === 0) {
+      cart.showNotification("Your cart is empty", true);
+      return;
+    }
+
+    const name = document.getElementById("name")?.value || "";
+    const phone = document.getElementById("phone")?.value || "";
+    const address = document.getElementById("address")?.value || "";
+    const notes = document.getElementById("notes")?.value || "";
+
+    const subtotal = cart.cart.reduce(
+      (total, item) => total + item.price * item.quantity,
+      0
+    );
+    const deliveryFee = 20;
+    const total = subtotal + deliveryFee;
+
+    const order = {
+      orderNumber: `${Math.floor(100000 + Math.random() * 900000)}`,
+      date: new Date().toISOString(),
+      customer: { name, phone, address, notes },
+      items: cart.cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        img: item.img,
+        size: item.size
+      })),
+      subtotal,
+      deliveryFee,
+      total,
+      paymentMethod: "Pending",
+      status: "Pending Payment"
+    };
+
+    const token = localStorage.getItem("authToken");
+
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(order)
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        console.error("Order submission failed:", result.error || result.msg);
+        cart.showNotification("Failed to submit order", true);
+        return;
+      }
+
+      localStorage.setItem("currentOrder", JSON.stringify(result));
+      cart.clearCart();
+      window.location.href = "payment.html";
+
+    } catch (error) {
+      console.error("Fetch error:", error);
+      cart.showNotification("Something went wrong", true);
+    }
+  });
+}
+
+
+  // Initialize order summary
+  renderOrderSummary();
+}
+
+
+// ==================== PAYMENT PAGE LOGIC ====================
+if (document.querySelector('.payment-page')) {
+  // Get the current order from localStorage
+  const currentOrder = JSON.parse(localStorage.getItem('currentOrder'));
+  
+  if (!currentOrder) {
+    console.warn("No order found, redirecting to home");
+    window.location.href = "index.html";
+    return;
+  }
+
+  // Calculate total in cents (öre)
+  const total = Math.round(currentOrder.total * 100);
+
+  // Initialize payment methods
+  initializePaymentMethods(currentOrder, total);
+
+  // Render order summary
+  renderOrderSummary(currentOrder);
+}
+
+async function initializePaymentMethods(order, total) {
+  try {
+    // 1. Fetch payment configuration from server
+    const configResponse = await fetch('/config');
+    const config = await configResponse.json();
+    
+    if (!config.stripePublishableKey || !config.paypalClientId) {
+      throw new Error("Payment configuration incomplete");
+    }
+
+    // 2. Dynamically load PayPal SDK
+    const paypalSDK = document.createElement('script');
+    paypalSDK.src = `https://www.paypal.com/sdk/js?client-id=${config.paypalClientId}&currency=SEK`;
+    document.head.appendChild(paypalSDK);
+
+    // 3. Initialize Stripe
+    const stripe = Stripe(config.stripePublishableKey);
+    const elements = stripe.elements();
+    const cardElement = elements.create('card', {
+      style: {
+        base: {
+          fontSize: '16px',
+          color: '#32325d',
+          '::placeholder': { color: '#aab7c4' }
+        },
+        invalid: { color: '#fa755a', iconColor: '#fa755a' }
+      },
+      hidePostalCode: true
+    });
+    cardElement.mount('#card-element');
+
+    // 4. Payment method selection UI
+    const paymentOptions = document.querySelectorAll('.payment-option');
+    const paymentForms = {
+      card: document.getElementById('card-form'),
+      paypal: document.getElementById('paypal-button-container'),
+      swish: document.getElementById('swish-form'),
+      cash: document.getElementById('cash-form')
+    };
+
+    paymentOptions.forEach(option => {
+      option.addEventListener('click', () => {
+        paymentOptions.forEach(opt => opt.classList.remove('active'));
+        option.classList.add('active');
+        
+        Object.values(paymentForms).forEach(form => form.classList.add('hidden'));
+        paymentForms[option.dataset.method].classList.remove('hidden');
+      });
+    });
+
+    // Set default to card payment
+    paymentOptions[0].click();
+
+    // 5. Stripe Payment Handler
+    document.getElementById('stripe-pay-btn')?.addEventListener('click', async () => {
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: 'card',
+        card: cardElement
+      });
+
+      if (error) {
+        document.getElementById('card-errors').textContent = error.message;
+        return;
+      }
+
+      try {
+        const response = await fetch('/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: total })
+        });
+        
+        const { clientSecret } = await response.json();
+        const { error: confirmError, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: paymentMethod.id
+        });
+        
+        if (confirmError) throw confirmError;
+        
+        if (paymentIntent.status === 'succeeded') {
+          // Update order with payment details
+          const updatedOrder = {
+            ...order,
+            paymentMethod: 'Credit Card',
+            paymentStatus: 'Completed',
+            paymentDetails: paymentIntent
+          };
+          
+          // Save updated order to server
+          await updateOrder(updatedOrder);
+          
+          // Clear cart and redirect to confirmation
+          localStorage.removeItem('cart');
+          window.location.href = 'confirmation.html';
+        }
+      } catch (err) {
+        document.getElementById('card-errors').textContent = err.message;
+      }
+    });
+
+    // 6. PayPal Payment Handler
+    paypalSDK.onload = () => {
+      if (!document.getElementById('paypal-button-container')) return;
+
+      paypal.Buttons({
+        createOrder: (data, actions) => {
+          return fetch('/create-paypal-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ amount: (total / 100).toFixed(2) })
+          }).then(res => res.json())
+            .then(data => data.orderID);
+        },
+        onApprove: (data, actions) => {
+          return fetch('/capture-paypal-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ orderID: data.orderID })
+          })
+          .then(res => res.json())
+          .then(async details => {
+            // Update order with payment details
+            const updatedOrder = {
+              ...order,
+              paymentMethod: 'PayPal',
+              paymentStatus: 'Completed',
+              paymentDetails: details
+            };
+            
+            // Save updated order to server
+            await updateOrder(updatedOrder);
+            
+            // Clear cart and redirect to confirmation
+            localStorage.removeItem('cart');
+            window.location.href = 'confirmation.html';
+          });
+        },
+        onError: (err) => {
+          console.error('PayPal error:', err);
+          alert(`Payment failed: ${err.message}`);
+        }
+      }).render('#paypal-button-container');
+    };
+
+    // 7. Other Payment Methods
+    document.getElementById('confirm-cash')?.addEventListener('click', async () => {
+      // Update order with cash payment
+      const updatedOrder = {
+        ...order,
+        paymentMethod: 'Cash on Delivery',
+        paymentStatus: 'Pending'
+      };
+      
+      // Save updated order to server
+      await updateOrder(updatedOrder);
+      
+      // Clear cart and redirect to confirmation
+      localStorage.removeItem('cart');
+      window.location.href = 'confirmation.html';
+    });
+
+    document.querySelector('#swish-form button')?.addEventListener('click', async () => {
+      // Update order with Swish payment
+      const updatedOrder = {
+        ...order,
+        paymentMethod: 'Swish',
+        paymentStatus: 'Completed'
+      };
+      
+      // Save updated order to server
+      await updateOrder(updatedOrder);
+      
+      // Clear cart and redirect to confirmation
+      localStorage.removeItem('cart');
+      window.location.href = 'confirmation.html';
+    });
+
+    // 8. Render initial order summary
+    renderOrderSummary(order);
+
+  } catch (err) {
+    console.error("Payment initialization failed:", err);
+    alert("Failed to initialize payment methods. Please try again.");
+  }
+}
+
+async function updateOrder(updatedOrder) {
+  try {
+    const token = localStorage.getItem("authToken");
+    const headers = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`/api/orders/${updatedOrder.orderNumber}`, {
+      method: 'PUT',
+      headers: headers,
+      body: JSON.stringify(updatedOrder)
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to update order');
+    }
+    
+    // Update local storage with the updated order
+    localStorage.setItem("currentOrder", JSON.stringify(updatedOrder));
+    
+    return data.order;
+  } catch (error) {
+    console.error('Order update error:', error);
+    throw error;
+  }
+}
+
+function renderOrderSummary(order) {
+  const orderItemsContainer = document.querySelector('.order-items');
+  const orderSubtotal = document.querySelector('.order-subtotal');
+  const orderTotal = document.querySelector('.order-total');
+  
+  if (!orderItemsContainer || !orderSubtotal || !orderTotal) return;
+
+  // Clear existing items
+  orderItemsContainer.innerHTML = '';
+
+  // Add each item to the summary
+  order.items.forEach(item => {
+    const itemElement = document.createElement('div');
+    itemElement.className = 'order-item';
+    itemElement.innerHTML = `
+      <div class="item-name">${item.name} × ${item.quantity}</div>
+      <div class="item-price">${(item.price * item.quantity).toFixed(2)} kr</div>
+    `;
+    orderItemsContainer.appendChild(itemElement);
+  });
+
+  // Update totals
+  const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const deliveryFee = 20; // Fixed delivery fee
+  const total = subtotal + deliveryFee;
+
+  orderSubtotal.textContent = `${subtotal.toFixed(2)} kr`;
+  orderTotal.textContent = `${total.toFixed(2)} kr`;
+}
+
+// ==================== CHECKOUT SUBMIT HANDLER ====================
+const checkoutForm = document.getElementById("checkout-form");
+const placeOrderBtn = document.querySelector(".place-order");
+
+if (checkoutForm && placeOrderBtn) {
+  placeOrderBtn.addEventListener("click", async function(e) {
+    e.preventDefault();
+
+    // Validate form
+    const name = document.getElementById("name")?.value || "";
+    const email = document.getElementById("email")?.value || "";
+    const phone = document.getElementById("phone")?.value || "";
+    const address = document.getElementById("address")?.value || "";
+    const zip = document.getElementById("zip")?.value || "";
+    const city = document.getElementById("city")?.value || "";
+    const notes = document.getElementById("notes")?.value || "";
+
+    // Validate required fields
+ if (!name || !email || !phone || !address || !zip || !city) {
+      cart.showNotification("Please fill in all required fields", true);
+      return;
+    }
+
+    // Prepare order data
+    const orderData = {
+      items: cart.cart.map(item => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        img: item.img || ""
+      })),
+      customer: {
+        name,
+        email,
+        phone,
+        address: `${address}, ${zip} ${city}`,
+        notes
+      },
+      paymentMethod: "Pending" // Will be updated in payment page
+    };
+
+    // Add user ID if logged in
+    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    if (currentUser) {
+      orderData.user = currentUser.id;
+    }
+
+    // Submit order to server
+    try {
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem("authToken")}`
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Order submission failed');
+      }
+
+      // Store current order in localStorage for payment page
+      localStorage.setItem("currentOrder", JSON.stringify(data.order));
+      
+      // Clear cart after successful order submission
+      cart.clearCart();
+      
+      // Redirect to payment page
+      window.location.href = "payment.html";
+    } catch (error) {
+      cart.showNotification("Order submission failed: " + error.message, true);
+    }
+  });
+}
+
+// ==================== CONFIRMATION PAGE FUNCTIONALITY ====================
+if (document.querySelector(".confirmation-page")) {
+  const currentOrder = JSON.parse(localStorage.getItem("currentOrder")) || {};
+  
+  if (!currentOrder || !currentOrder.items) {
+    console.warn("No valid order found, redirecting to home");
+    window.location.href = "index.html";
+    return;
+  }
+
+  // Show payment method (ensure it's properly set)
+  const paymentMethodEl = document.getElementById("payment-method");
+  if (paymentMethodEl) {
+    paymentMethodEl.textContent = currentOrder.paymentMethod || "Not specified";
+  }
+
+  // Show order number
+  const orderNum = document.getElementById("order-number");
+  if (orderNum) orderNum.textContent = currentOrder.orderNumber || "N/A";
+
+  // Show customer email
+  const emailEl = document.getElementById("customer-email");
+  if (emailEl) emailEl.textContent = currentOrder.customer?.email || "Not provided";
+
+  // Show totals
+  const subtotalEl = document.getElementById("order-subtotal");
+  if (subtotalEl) subtotalEl.textContent = `${(currentOrder.subtotal || 0).toFixed(2)} kr`;
+
+  const totalEl = document.getElementById("order-total");
+  if (totalEl) totalEl.textContent = `${(currentOrder.total || 0).toFixed(2)} kr`;
+
+  const deliveryFeeEl = document.getElementById("delivery-fee");
+  if (deliveryFeeEl) deliveryFeeEl.textContent = `${(currentOrder.deliveryFee || 0).toFixed(2)} kr`;
+
+  // Show customer details
+  const details = document.getElementById("customer-details");
+  if (details && currentOrder.customer) {
+    const { name, phone, address, notes } = currentOrder.customer;
+    details.innerHTML = `
+      <p><strong>Name:</strong> ${name || "N/A"}</p>
+      <p><strong>Phone:</strong> ${phone || "N/A"}</p>
+      <p><strong>Address:</strong> ${address || "N/A"}</p>
+      ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ""}
+    `;
+  }
+
+  // Show order items
+  const orderItemsEl = document.getElementById("order-items");
+  if (orderItemsEl) {
+    orderItemsEl.innerHTML = currentOrder.items.map(item => `
+      <div class="order-item">
+        <div class="item-name">${item.name} × ${item.quantity}</div>
+        <div class="item-price">${(item.price * item.quantity).toFixed(2)} kr</div>
+      </div>
+    `).join("");
+  }
+}
+
+// ==================== PRINT RECEIPT FUNCTION ====================
+document.getElementById("print-receipt")?.addEventListener("click", function() {
+  const currentOrder = JSON.parse(localStorage.getItem("currentOrder")) || {};
+  
+  // Create a hidden iframe for printing
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'absolute';
+  iframe.style.left = '-9999px';
+  document.body.appendChild(iframe);
+  
+  const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+  
+  // Get current date and time
+  const now = new Date();
+  const orderDate = now.toLocaleDateString('sv-SE', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  iframeDoc.open();
+  iframeDoc.write(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Order Receipt - ${currentOrder.orderNumber || ''}</title>
+      <link rel="stylesheet" href="./assets/css/style.css">
+    </head>
+    <body class="print-view">
+      <div class="confirmation-card">
+        <div class="confirmation-header">
+          <h1>Matkungen</h1>
+          <p class="confirmation-text">
+            Order Number <span id="order-number">${currentOrder.orderNumber || ''}</span>
+          </p>
+        </div>
+
+        <div class="confirmation-content">
+          <div class="delivery-info">
+            <h2>Delivery Information</h2>
+            <div id="customer-details">
+              ${currentOrder.customer ? `
+                <p><strong>Name:</strong> ${currentOrder.customer.name || 'N/A'}</p>
+                <p><strong>Phone:</strong> ${currentOrder.customer.phone || 'N/A'}</p>
+                <p><strong>Address:</strong> ${currentOrder.customer.address || 'N/A'}</p>
+                ${currentOrder.customer.notes ? `<p><strong>Notes:</strong> ${currentOrder.customer.notes}</p>` : ''}
+              ` : '<p>No customer information available</p>'}
+            </div>
+            <div class="detail-row">
+              <span>Payment Method:</span>
+              <span id="payment-method">${currentOrder.paymentMethod || 'Not specified'}</span>
+            </div>
+            <div class="detail-row">
+              <span>Order Date:</span>
+              <span>${orderDate}</span>
+            </div>
+            <div class="detail-row">
+              <span>Estimated Delivery:</span>
+              <span id="delivery-time">25-40 minutes</span>
+            </div>
+          </div>
+
+          <div class="order-summary">
+            <h2>Order Summary</h2>
+            <div class="order-items" id="order-items">
+              ${currentOrder.items?.map(item => `
+                <div class="order-item">
+                  <div class="item-name">${item.name} × ${item.quantity}</div>
+                  <div class="item-price">${(item.price * item.quantity).toFixed(2)} kr</div>
+                </div>
+              `).join('') || '<p>No items in order</p>'}
+            </div>
+
+            <div class="order-totals">
+              <div class="order-row">
+                <span>Subtotal</span>
+                <span id="order-subtotal">${currentOrder.subtotal?.toFixed(2) || '0.00'} kr</span>
+              </div>
+              <div class="order-row">
+                <span>Delivery Fee</span>
+                <span id="delivery-fee">${currentOrder.deliveryFee?.toFixed(2) || '0.00'} kr</span>
+              </div>
+              <div class="order-row total">
+                <span>Total</span>
+                <span id="order-total">${currentOrder.total?.toFixed(2) || '0.00'} kr</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        window.onload = function() {
+          setTimeout(function() {
+            window.print();
+            setTimeout(function() {
+              window.parent.document.body.removeChild(window.frameElement);
+            }, 1000);
+          }, 200);
+        };
+      </script>
+    </body>
+    </html>
+  `);
+  iframeDoc.close();
 });
 
-/* HANDLE PAGE LOAD WITH URL HASH (FOR INDEX.HTML)*/
-window.addEventListener('DOMContentLoaded', () => {
-   if (window.location.hash) {
-       const hash = window.location.hash.substring(1);
-       const selectedMenu = document.getElementById(hash);
 
-       if (selectedMenu) {
-           document.querySelectorAll('.menu-content').forEach(menu => {
-               menu.style.display = 'none';
-           });
+// ==================== USER AUTHENTICATION ====================
+class UserAuth {
+  constructor() {
+    this.token = localStorage.getItem("authToken") || null;
+    this.currentUser = JSON.parse(localStorage.getItem("currentUser")) || null;
+    this.initAuth();
+  }
 
-           selectedMenu.style.display = 'block';
+  initAuth() {
+    this.setupEventListeners();
+    this.checkAuthState();
+  }
 
-           document.querySelectorAll('.menu-btn').forEach(button => {
-               if (button.getAttribute('data-menu') === hash) {
-                   button.classList.add('active');
-               } else {
-                   button.classList.remove('active');
-               }
-           });
-       }
-   }
+  setupEventListeners() {
+    // User sidebar toggle
+    const userBtn = document.getElementById("user-trigger");
+    const userSidebar = document.querySelector(".user-sidebar");
+    const userOverlay = document.querySelector(".user-overlay");
+    const closeUserBtn = document.querySelector(".close-user");
+
+    if (userBtn && userSidebar && userOverlay && closeUserBtn) {
+      userBtn.addEventListener("click", () => {
+        userSidebar.classList.add("open");
+        userOverlay.classList.add("open");
+        this.checkAuthState();
+      });
+
+      closeUserBtn.addEventListener("click", () => {
+        userSidebar.classList.remove("open");
+        userOverlay.classList.remove("open");
+      });
+
+      userOverlay.addEventListener("click", () => {
+        userSidebar.classList.remove("open");
+        userOverlay.classList.remove("open");
+      });
+    }
+
+    // Form switching
+    document.getElementById("show-register")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      this.showForm("register");
+    });
+
+    document.getElementById("show-login")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      this.showForm("login");
+    });
+
+    document.getElementById("show-forgot")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      this.showForm("forgot");
+    });
+
+    document.getElementById("show-login-from-forgot")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      this.showForm("login");
+    });
+
+    // Log in side bar opening via url parameter
+  const urlParams = new URLSearchParams(window.location.search);
+  const showLogin = urlParams.get('showLogin');
+
+  if (showLogin === 'true') {
+    document.getElementById("user-trigger")?.click();
+  }
+
+    // Form submissions
+    document.getElementById("login-form")?.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const email = document.getElementById("login-email").value;
+      const password = document.getElementById("login-password").value;
+      this.handleLogin(email, password);
+    });
+
+    document.getElementById("register-form")?.addEventListener("submit", (e) => this.handleRegister(e));
+    document.getElementById("forgot-form")?.addEventListener("submit", (e) => this.handleForgotPassword(e));
+    document.getElementById("edit-profile-form")?.addEventListener("submit", (e) => this.handleEditProfile(e));
+    document.getElementById("change-password-form")?.addEventListener("submit", (e) => this.handleChangePassword(e));
+
+    // Profile actions
+    document.getElementById("logout")?.addEventListener("click", () => this.handleLogout());
+    document.getElementById("edit-profile")?.addEventListener("click", () => this.showEditProfile());
+    document.getElementById("change-password")?.addEventListener("click", () => this.showChangePassword());
+    document.getElementById("cancel-edit")?.addEventListener("click", () => this.cancelEdit());
+    document.getElementById("cancel-password")?.addEventListener("click", () => this.cancelPasswordChange());
+  }
+
+  showForm(formName) {
+    document.querySelectorAll(".user-forms form").forEach(form => {
+      form.classList.remove("active");
+    });
+    document.getElementById(`${formName}-form`)?.classList.add("active");
+  }
+
+  checkAuthState() {
+  const userForms = document.querySelector(".user-forms");
+  const userProfile = document.querySelector(".user-profile");
+  const editProfileForm = document.getElementById("edit-profile-form");
+  const changePasswordForm = document.getElementById("change-password-form");
+  const logoutBtn = document.getElementById("logout"); // Add this line
+
+  if (userForms && userProfile && editProfileForm && changePasswordForm && logoutBtn) {
+    if (this.currentUser) {
+      // User is logged in
+      userForms.style.display = "none";
+      userProfile.style.display = "block";
+      editProfileForm.style.display = "none";
+      changePasswordForm.style.display = "none";
+      logoutBtn.style.display = "block"; // Show logout button
+        
+        // Populate user info
+        const displayName = document.getElementById("user-display-name");
+        const userEmail = document.getElementById("user-email");
+        
+        if (displayName) displayName.textContent = this.currentUser.name;
+        if (userEmail) userEmail.textContent = this.currentUser.email;
+        
+        // Populate edit form
+        const editName = document.getElementById("edit-name");
+        const editEmail = document.getElementById("edit-email");
+        const editPhone = document.getElementById("edit-phone");
+        const editAddress = document.getElementById("edit-address");
+        
+        if (editName) editName.value = this.currentUser.name;
+        if (editEmail) editEmail.value = this.currentUser.email;
+        if (editPhone) editPhone.value = this.currentUser.phone || "";
+        if (editAddress) editAddress.value = this.currentUser.address || "";
+        
+        // Load user's orders
+        this.loadUserOrders();
+      } else {
+        // User is not logged in
+      userForms.style.display = "block";
+      userProfile.style.display = "none";
+      logoutBtn.style.display = "none"; // Hide logout button
+      this.showForm("login");
+      }
+    }
+  }
+
+ async handleLogin(email, password) {
+  try {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+    
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.msg || 'Login failed');
+    }
+    
+    this.token = data.token;
+    this.currentUser = data.user;
+    
+    localStorage.setItem("authToken", this.token);
+    localStorage.setItem("currentUser", JSON.stringify(this.currentUser));
+    
+    this.showNotification("Login successful!");
+    this.checkAuthState();
+    this.loadUserOrders();
+    
+    // Close sidebar after successful login
+    setTimeout(() => {
+      document.querySelector(".user-sidebar")?.classList.remove("open");
+      document.querySelector(".user-overlay")?.classList.remove("open");
+    }, 1000);
+    
+    return true;
+  } catch (error) {
+    this.showNotification(error.message, true);
+    return false;
+  }
+}
+
+  async handleRegister(e) {
+    e.preventDefault();
+    const name = document.getElementById("register-name").value;
+    const email = document.getElementById("register-email").value;
+    const password = document.getElementById("register-password").value;
+    const confirmPassword = document.getElementById("register-confirm").value;
+    
+    if (!name || !email || !password || !confirmPassword) {
+      this.showNotification("Please fill in all fields", true);
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      this.showNotification("Passwords don't match", true);
+      return;
+    }
+    
+    if (password.length < 6) {
+      this.showNotification("Password must be at least 6 characters", true);
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Registration failed');
+      }
+      
+      this.showNotification("Registration successful! Please login.");
+      this.showForm("login");
+      
+      // Clear form
+      document.getElementById("register-form").reset();
+    } catch (error) {
+      this.showNotification(error.message, true);
+    }
+  }
+
+  async handleForgotPassword(e) {
+    e.preventDefault();
+    const email = document.getElementById("forgot-email").value;
+    
+    if (!email) {
+      this.showNotification("Please enter your email", true);
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Password reset failed');
+      }
+      
+      this.showNotification("If an account exists with this email, you'll receive a reset link");
+      this.showForm("login");
+      
+      // Clear form
+      document.getElementById("forgot-form").reset();
+    } catch (error) {
+      this.showNotification(error.message, true);
+    }
+  }
+
+  showEditProfile() {
+    document.querySelector(".user-profile").style.display = "none";
+    document.getElementById("edit-profile-form").style.display = "block";
+  }
+
+  showChangePassword() {
+    document.querySelector(".user-profile").style.display = "none";
+    document.getElementById("change-password-form").style.display = "block";
+  }
+
+  cancelEdit() {
+    document.getElementById("edit-profile-form").style.display = "none";
+    document.querySelector(".user-profile").style.display = "block";
+  }
+
+  cancelPasswordChange() {
+    document.getElementById("change-password-form").style.display = "none";
+    document.querySelector(".user-profile").style.display = "block";
+  }
+
+  async handleEditProfile(e) {
+    e.preventDefault();
+    const name = document.getElementById("edit-name").value;
+    const email = document.getElementById("edit-email").value;
+    const phone = document.getElementById("edit-phone").value;
+    const address = document.getElementById("edit-address").value;
+    
+    if (!name || !email) {
+      this.showNotification("Name and email are required", true);
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/update-profile', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify({
+          userId: this.currentUser.id,
+          name,
+          email,
+          phone,
+          address
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Profile update failed');
+      }
+      
+      // Update current user in local storage
+      this.currentUser = {
+        ...this.currentUser,
+        name,
+        email,
+        phone,
+        address
+      };
+      
+      localStorage.setItem("currentUser", JSON.stringify(this.currentUser));
+      this.showNotification("Profile updated successfully!");
+      this.checkAuthState();
+    } catch (error) {
+      this.showNotification(error.message, true);
+    }
+  }
+
+  async handleChangePassword(e) {
+    e.preventDefault();
+    const currentPassword = document.getElementById("current-password").value;
+    const newPassword = document.getElementById("new-password").value;
+    const confirmNewPassword = document.getElementById("confirm-new-password").value;
+    
+    if (!currentPassword || !newPassword || !confirmNewPassword) {
+      this.showNotification("Please fill in all fields", true);
+      return;
+    }
+    
+    if (newPassword !== confirmNewPassword) {
+      this.showNotification("New passwords don't match", true);
+      return;
+    }
+    
+    if (newPassword.length < 6) {
+      this.showNotification("Password must be at least 6 characters", true);
+      return;
+    }
+    
+    try {
+      const response = await fetch('/api/change-password', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.token}`
+        },
+        body: JSON.stringify({
+          userId: this.currentUser.id,
+          currentPassword,
+          newPassword
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Password change failed');
+      }
+      
+      this.showNotification("Password updated successfully!");
+      this.cancelPasswordChange();
+      
+      // Clear form
+      document.getElementById("change-password-form").reset();
+    } catch (error) {
+      this.showNotification(error.message, true);
+    }
+  }
+
+  async loadUserOrders() {
+    const ordersList = document.getElementById("orders-list");
+    if (!ordersList || !this.currentUser) return;
+    
+    try {
+      const response = await fetch(`/api/orders/user/${this.currentUser.id}`, {
+        headers: {
+          'Authorization': `Bearer ${this.token}`
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load orders');
+      }
+      
+      if (data.orders.length === 0) {
+        ordersList.innerHTML = `
+          <div class="no-orders">
+            <i class="ri-shopping-bag-line"></i>
+            <p>You don't have any previous orders</p>
+            <p class="small">Start ordering from our menu!</p>
+          </div>
+        `;
+        return;
+      }
+      
+      // Group orders by date
+      const ordersByDate = {};
+      data.orders.forEach(order => {
+        const date = new Date(order.createdAt).toLocaleDateString('sv-SE', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        
+        if (!ordersByDate[date]) {
+          ordersByDate[date] = [];
+        }
+        ordersByDate[date].push(order);
+      });
+
+      // Create HTML for each date group
+      ordersList.innerHTML = Object.entries(ordersByDate).map(([date, dateOrders]) => {
+        return `
+          <div class="order-date-group">
+            <h4 class="order-date-header">${date}</h4>
+            ${dateOrders.map(order => this.createOrderItemHTML(order)).join('')}
+          </div>
+        `;
+      }).join('');
+      
+      // Add event listeners
+      this.addOrderEventListeners();
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      ordersList.innerHTML = `
+        <div class="error-loading">
+          <i class="ri-error-warning-line"></i>
+          <p>Failed to load orders</p>
+        </div>
+      `;
+    }
+  }
+
+ createOrderItemHTML(order) {
+  const statusMap = {
+    'Pending': { class: 'pending', icon: 'ri-time-line' },
+    'Confirmed': { class: 'confirmed', icon: 'ri-checkbox-circle-line' },
+    'Preparing': { class: 'preparing', icon: 'ri-restaurant-line' },
+    'On the Way': { class: 'on-the-way', icon: 'ri-roadster-line' },
+    'Delivered': { class: 'delivered', icon: 'ri-check-double-line' },
+    'Cancelled': { class: 'cancelled', icon: 'ri-close-circle-line' }
+  };
+
+  const statusInfo = statusMap[order.status] || statusMap['Pending'];
+  
+  return `
+    <div class="order-card">
+      <div class="order-header">
+        <span class="order-number">#${order.orderNumber}</span>
+        <span class="order-date">
+          ${new Date(order.createdAt).toLocaleDateString('sv-SE', {
+            day: 'numeric', 
+            month: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </span>
+      </div>
+      
+      <div class="order-status ${statusInfo.class}">
+        <i class="${statusInfo.icon}"></i>
+        ${order.status}
+      </div>
+      
+      <div class="order-progress">
+        ${this.createProgressSteps(order.status)}
+      </div>
+      
+      <div class="order-summary">
+        <div class="order-items-preview">
+          ${order.items.slice(0, 2).map(item => `
+            <div class="preview-item">
+              <img src="${item.img || './assets/images/default-food.jpg'}" 
+                   alt="${item.name}" width="40" height="40">
+              <span>${item.name}</span>
+            </div>
+          `).join('')}
+          ${order.items.length > 2 ? 
+            `<div class="more-items">+${order.items.length - 2} more</div>` : ''}
+        </div>
+        
+        <div class="order-total">${order.total?.toFixed(2) || '0.00'} kr</div>
+      </div>
+      
+      <div class="order-actions">
+        <button class="btn btn-outline view-order" data-order="${order.orderNumber}">
+          View Details
+        </button>
+        ${order.status === 'On the Way' ? `
+          <button class="btn btn-primary track-order" data-order="${order.orderNumber}">
+            <i class="ri-map-pin-line"></i> Track
+          </button>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+createProgressSteps(currentStatus) {
+  const steps = [
+    { status: 'Confirmed', icon: 'ri-checkbox-circle-line' },
+    { status: 'Preparing', icon: 'ri-restaurant-line' },
+    { status: 'On the Way', icon: 'ri-roadster-line' },
+    { status: 'Delivered', icon: 'ri-check-double-line' }
+  ];
+  
+  const currentIndex = steps.findIndex(step => step.status === currentStatus);
+  
+  return steps.map((step, index) => `
+    <div class="progress-step ${index <= currentIndex ? 'active' : ''}">
+      <div class="step-icon">
+        <i class="${step.icon}"></i>
+      </div>
+      <div class="step-label">${step.status}</div>
+    </div>
+  `).join('');
+}
+
+  addOrderEventListeners() {
+    // View order details
+    document.querySelectorAll(".view-order").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const orderNumber = e.target.closest("button").getAttribute("data-order");
+        this.viewOrderDetails(orderNumber);
+      });
+    });
+
+    // Delete order
+    document.querySelectorAll(".delete-order").forEach(btn => {
+      btn.addEventListener("click", (e) => {
+        const orderNumber = e.target.closest("button").getAttribute("data-order");
+        this.deleteOrder(orderNumber);
+      });
+    });
+  }
+
+  async deleteOrder(orderNumber) {
+    if (!confirm("Are you sure you want to delete this order?")) return;
+    
+    try {
+      const response = await fetch(`/api/orders/${orderNumber}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${this.token}`
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to delete order');
+      }
+      
+      this.loadUserOrders();
+      this.showNotification("Order deleted successfully");
+    } catch (error) {
+      this.showNotification(error.message, true);
+    }
+  }
+
+  async viewOrderDetails(orderNumber) {
+    try {
+      const response = await fetch(`/api/orders/${orderNumber}`, {
+        headers: {
+          'Authorization': `Bearer ${this.token}`
+        }
+      });
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to load order details');
+      }
+      
+      this.showOrderModal(data.order);
+    } catch (error) {
+      this.showNotification(error.message, true);
+    }
+  }
+
+  showOrderModal(order) {
+    // Create modal
+    const modal = document.createElement("div");
+  modal.className = "order-modal";
+  
+  // Check if order is being delivered
+  const showTracking = order.status === 'On the Way' && order.driver;
+    modal.innerHTML = `
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Order Details</h3>
+          <h4>#${order.orderNumber}</h4>
+          <span class="close-modal">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="order-meta">
+            <div><strong>Date:</strong> ${new Date(order.createdAt).toLocaleString('sv-SE')}</div>
+            <div><strong>Status:</strong> <span class="status-badge ${order.status.toLowerCase()}">${order.status}</span></div>
+            <div><strong>Payment:</strong> ${order.paymentMethod || 'Not specified'}</div>
+          </div>
+          
+          <div class="order-items-section">
+            <h5>Items</h5>
+            <div class="order-items-list">
+              ${order.items.map(item => `
+                <div class="order-item-detail">
+                  <img src="${item.img || './assets/images/default-food.jpg'}" width="50" height="50" alt="${item.name}">
+                  <div class="item-info">
+                    <span class="item-name">${item.name}</span>
+                    <span class="item-price">${item.price} kr × ${item.quantity}</span>
+                  </div>
+                  <div class="item-total">${(item.price * item.quantity).toFixed(2)} kr</div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+          
+          <div class="order-totals">
+            <div class="summary-row">
+              <span>Subtotal:</span>
+              <span>${order.subtotal.toFixed(2)} kr</span>
+            </div>
+            <div class="summary-row">
+              <span>Delivery Fee:</span>
+              <span>${order.deliveryFee.toFixed(2)} kr</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total:</span>
+              <span>${order.total.toFixed(2)} kr</span>
+            </div>
+          </div>
+          
+          <div class="customer-info">
+            <h5>Customer Information</h5>
+            <p><strong>Name:</strong> ${order.customer?.name || 'N/A'}</p>
+            <p><strong>Phone:</strong> ${order.customer?.phone || 'N/A'}</p>
+            <p><strong>Address:</strong> ${order.customer?.address || 'N/A'}</p>
+            ${order.customer?.notes ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>` : ''}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary close-modal-btn">Close</button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.classList.add("modal-open");
+    
+    // Close functionality
+    const closeModal = () => {
+      modal.remove();
+      document.body.classList.remove("modal-open");
+    };
+    
+    modal.querySelector(".close-modal").addEventListener("click", closeModal);
+    modal.querySelector(".close-modal-btn").addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  handleLogout() {
+    this.token = null;
+    this.currentUser = null;
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("currentUser");
+    this.checkAuthState();
+    this.showNotification("Logged out successfully");
+    
+    // Close the sidebar after logout
+    setTimeout(() => {
+      document.querySelector(".user-sidebar")?.classList.remove("open");
+      document.querySelector(".user-overlay")?.classList.remove("open");
+    }, 500);
+  }
+
+  showNotification(message, isError = false) {
+    const notification = document.createElement("div");
+    notification.className = `user-notification ${isError ? 'error' : ''}`;
+    notification.innerHTML = `<span>${message}</span>`;
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+      notification.classList.add('show');
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }, 10);
+  }
+}
+
+// Initialize user auth
+const userAuth = new UserAuth();
 });
+
+

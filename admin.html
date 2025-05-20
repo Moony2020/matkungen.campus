@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- 
+    - primary meta tags
+  -->
+    <title>Matkungen - Admin</title>
+    <meta name="title" content="Matkungen - Amazing & Delicious Food" />
+    <meta
+      name="description"
+      content="This is a Restaurant html template made by mymoon"
+    />
+    <!-- remixicon -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- 
+    - favicon
+  -->
+    <link rel="shortcut icon" href="./assets/images/logo.png" type="image" />
+
+    <!-- 
+    - google font link
+  -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- 
+    - custom css link
+  -->
+    <link rel="stylesheet" href="./assets/css/admin.css" />
+  </head>
+  <body>
+    <div class="admin-container">
+      <aside class="sidebar">
+        <div class="logo">
+          <img src="./assets/images/logo.png" alt="Matkungen" />
+          <h2>Admin Panel</h2>
+        </div>
+        <nav>
+          <ul>
+            <li class="active">
+              <a href="#dashboard"
+                ><i class="ri-dashboard-line"></i> Dashboard</a
+              >
+            </li>
+            <li>
+              <a href="#orders"><i class="ri-shopping-bag-line"></i> Orders</a>
+            </li>
+            <li>
+              <a href="#menu"
+                ><i class="ri-restaurant-line"></i> Menu Management</a
+              >
+            </li>
+            <li>
+              <a href="#users"><i class="ri-user-line"></i> Users</a>
+            </li>
+            <li>
+              <a href="#settings"><i class="ri-settings-line"></i> Settings</a>
+            </li>
+          </ul>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="admin-header">
+          <div class="search-bar">
+            <i class="ri-search-line"></i>
+            <input type="text" placeholder="Search..." />
+          </div>
+          <div class="admin-actions">
+            <button class="notification-btn">
+              <i class="ri-notification-line"></i>
+            </button>
+            <div class="admin-profile">
+              <img src="./assets/images/admin-avatar.jpg" alt="Admin" />
+            </div>
+          </div>
+        </header>
+
+        <section id="dashboard" class="content-section active">
+          <div class="stats-grid">
+            <div class="stat-card">
+              <h3>Today's Orders</h3>
+              <p class="stat-value">24</p>
+              <div class="stat-trend up">+12%</div>
+            </div>
+            <!-- More stat cards -->
+          </div>
+
+          <div class="recent-orders">
+            <h2>Recent Orders</h2>
+            <div class="orders-table">
+              <!-- Orders will be loaded here -->
+            </div>
+          </div>
+        </section>
+
+        <section id="orders" class="content-section">
+          <div class="orders-header">
+            <h2>Order Management</h2>
+            <div class="order-filters">
+              <select id="order-filter">
+                <option value="all">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="preparing">Preparing</option>
+                <option value="delivery">On Delivery</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="orders-list">
+            <!-- Orders will be loaded here -->
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="./assets/js/admin.js"></script>
+  </body>
+</html>
