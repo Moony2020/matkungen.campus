@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const password = document.getElementById("new-password").value;
     const confirmPassword = document.getElementById("confirm-password").value;
-   const messageDiv = document.getElementById("message");
+    const messageDiv = document.getElementById("message");
     messageDiv.innerHTML = ""; // clear previous messages
 
     if (password !== confirmPassword) {
@@ -59,10 +59,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function showMessage(message, isError) {
-    const messageDiv = document.getElementById("message");
-    const notification = document.createElement("div");
-    notification.className = `notification ${isError ? "error" : "success"}`;
-    notification.innerHTML = message;
-    messageDiv.appendChild(notification);
-  }
+  const messageDiv = document.getElementById("message");
+  if (!messageDiv) return console.warn("message div not found");
+
+  const notification = document.createElement("div");
+  notification.className = `notification ${isError ? "error" : "success"}`;
+  notification.innerHTML = message;
+  messageDiv.appendChild(notification);
+}
+
 });
