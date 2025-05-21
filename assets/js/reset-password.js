@@ -60,7 +60,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showMessage(message, isError) {
   const messageDiv = document.getElementById("message");
-  if (!messageDiv) return console.warn("message div not found");
+  if (!messageDiv) return; // silently do nothing
 
   const notification = document.createElement("div");
   notification.className = `notification ${isError ? "error" : "success"}`;
