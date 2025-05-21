@@ -2154,7 +2154,7 @@ body.nav-active {
 }
 
 .checkout-page .container {
-    margin: 6rem;
+    margin: 5rem;
     color: var(--gold-crayola);
 }
 
@@ -2495,6 +2495,17 @@ body.nav-active {
 
     .confirmation-actions .btn {
         width: 100%;
+    }
+
+    .checkout-form {
+        background: var(--eerie-black-2);
+        padding: 30px;
+        border-radius: 10px;
+        /* height: fit-content; */
+    }
+
+    .checkout-page .container {
+        margin: 1rem;
     }
 }
 
