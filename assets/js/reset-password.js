@@ -60,7 +60,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showMessage(message, isError) {
   const messageDiv = document.getElementById("message");
-  if (!messageDiv) return; // silently do nothing
+  messageDiv.innerHTML = ""; // clear previous messages
+  messageDiv.style.display = "block";
 
   const notification = document.createElement("div");
   notification.className = `notification ${isError ? "error" : "success"}`;
