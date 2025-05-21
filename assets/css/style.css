@@ -1442,6 +1442,14 @@ body.nav-active {
     .menu-heading {
         font-size: 2.8rem;
     }
+
+    .social-icons {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: .5rem !important;
+    }
 }
 
 .menu-content h3 {
@@ -1454,9 +1462,7 @@ body.nav-active {
     gap: 40px;
 }
 
-
 /*pizza section */
-
 #pizza-menu .menu-heading,
 #burgers-menu .menu-heading,
 #rollers-menu .menu-heading,
@@ -1681,75 +1687,6 @@ body.nav-active {
     flex-wrap: wrap;
     gap: 1.5rem;
 }
-
-/* .rollers .box-container,
-.dishes .box-container,
-.boxes .box-container,
-.pitabread .box-container,
-.addition .box-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    align-items: stretch;
-    /* Ensure all boxes are the same height */
-
-/* } */
-
-/* .rollers .box-container .box,
-.dishes .box-container .box,
-.boxes .box-container .box,
-.pitabread .box-container .box,
-.addition .box-container .box {
-    flex: .3 .8 34rem;
-    position: relative;
-    overflow: hidden;
-    background-color: rgba(0, 0, 0, 0.336);
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    cursor: pointer;
-    border-radius: .5rem;
-    padding: 1.4rem;
-    text-align: center;
-} */
-
-/* .rollers .box-container .box h3,
-.dishes .box-container .box h3,
-.boxes .box-container .box h3,
-.pitabread .box-container .box h3 {
-    text-align: center;
-    color: var(--white);
-    font-family: var(--fontFamily-dm_sans);
-    font-size: 2rem;
-} */
-
-/* .rollers p,
-.dishes p,
-.boxes p,
-.pitabread p,
-.addition p {
-    font-size: var(--fontSize-label-3);
-    color: var(--quick-silver);
-    padding: 1rem 0;
-    margin-top: -2rem;
-}
-
-.rollers .box-container .box:hover,
-.dishes .box-container .box:hover,
-.boxes .box-container .box:hover,
-.pitabread .box-container .box:hover,
-.addition .box-container .box:hover {
-    transform: translateY(-1%) scale(1.02);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 10px 18px rgba(176, 176, 176, 0.349);
-}
-
-
-.rollers .box-container .box:hover .content,
-.dishes .box-container .box:hover .content,
-.boxes .box-container .box:hover .content,
-.pitabread .box-container .box:hover .content,
-.addition .box-container .box:hover .content {
-    transform: translateY(100%);
-} */
 
 /* Styling for the extra item under the menu */
 .extra-item {
@@ -2154,7 +2091,7 @@ body.nav-active {
 }
 
 .checkout-page .container {
-    margin: 5rem;
+    margin: 6rem;
     color: var(--gold-crayola);
 }
 
@@ -2497,15 +2434,8 @@ body.nav-active {
         width: 100%;
     }
 
-    .checkout-form {
-        background: var(--eerie-black-2);
-        padding: 30px;
-        border-radius: 10px;
-        /* height: fit-content; */
-    }
-
     .checkout-page .container {
-        margin: 1rem;
+        margin: 0 .8rem 0 .8rem;
     }
 }
 
