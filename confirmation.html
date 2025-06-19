@@ -56,7 +56,7 @@
             <p class="confirmation-text">
               Order Number <span id="order-number"></span> has been received and
               is being prepared. A confirmation email has been sent to
-              <strong id="customer-email">user@example.com</strong>
+              <strong id="customer-email"></strong>
             </p>
           </div>
 
@@ -69,7 +69,7 @@
               </div>
               <div class="detail-row">
                 <span>Payment Method:</span>
-                <span id="payment-method">Credit Card</span>
+                <span id="payment-method"></span>
               </div>
               <div class="detail-row">
                 <span>Estimated Delivery:</span>
@@ -108,7 +108,11 @@
             <a href="#" id="print-receipt" class="btn btn-secondary">
               <i class="ri-printer-line"></i> Print Receipt
             </a>
-            <a href="track-order.html" class="btn btn-secondary track-order">
+            <a
+              id="track-order-btn"
+              href="#"
+              class="btn btn-secondary track-order"
+            >
               <i class="ri-map-pin-line"></i> Track Order
             </a>
           </div>
@@ -273,6 +277,7 @@
     <!-- 
       - custom js link
     -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="./assets/js/script.js "></script>
     <!-- 
       - ionicon link

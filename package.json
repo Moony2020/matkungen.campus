@@ -7,11 +7,14 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
+    "get-stream": "^9.0.1",
     "jsonwebtoken": "^9.0.2",
     "mapbox-gl": "^3.12.0",
     "mongodb": "^6.16.0",
     "mongoose": "^8.14.3",
+    "mongoose-paginate-v2": "^1.9.0",
     "nodemailer": "^7.0.3",
+    "pdfkit": "^0.17.1",
     "socket.io": "^4.8.1",
     "stripe": "^18.1.0"
   },
@@ -20,7 +23,6 @@
   "description": "<div align=\"center\">",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
   },
   "repository": {
@@ -36,6 +38,8 @@
   },
   "homepage": "https://github.com/Moony2020/Matkungen#readme",
   "devDependencies": {
+    "browser-sync": "^3.0.4",
+    "concurrently": "^9.1.2",
     "nodemon": "^3.1.10"
   }
 }

@@ -276,7 +276,7 @@
                 <input type="email" id="forgot-email" placeholder="Email" required>
               </div>
               <button type="submit" class="btn btn-primary">Reset Password
-                 <span class="text text-2" aria-hidden="true">Reset Password</span>
+                <span class="text text-2" aria-hidden="true">Reset Password</span>
               </button>
               <p class="form-switch"><a href="#" id="show-login-from-forgot">Back to Login</a></p>
             </form>
@@ -295,7 +295,6 @@
               <button id="logout" class="btn text text-1">Log out
                 <span class="text text-2" aria-hidden="true">Log out</span>
               </button>
-
 
               <button type="submit" class="btn btn-primary text text-1">Log in
                 <span class="text text-2" aria-hidden="true">Log in</span>
@@ -608,34 +607,59 @@
             Vårt Exklusiva Urval
           </p>
           <h2 class="headline-1 section-title text-center">Delicious Menu</h2>
-
-          <!-- Menu categories -->
-          <ul class="menu-categories">
-            <li>
-              <button class="menu-btn" data-menu="pizza">Pizzor</button>
-            </li>
-            <li>
-              <button class="menu-btn" data-menu="burgers">Burger</button>
-            </li>
-            <li>
-              <button class="menu-btn" data-menu="salads">Sallader</button>
-            </li>
-            <li>
-              <button class="menu-btn" data-menu="rollers">Rullar</button>
-            </li>
-            <li>
-              <button class="menu-btn" data-menu="dishes">Tallrikar</button>
-            </li>
-            <li>
-              <button class="menu-btn" data-menu="boxes">Box</button>
-            </li>
-            <li>
-              <button class="menu-btn" data-menu="pitabrod">Pitabröd</button>
-            </li>
-            <li>
-              <button class="menu-btn" data-menu="addition">Tillbehör</button>
-            </li>
-          </ul>
+          <div class="menu-categories-container">
+            <!-- Menu categories -->
+            <ul class="menu-categories">
+              <li>
+                <button class="menu-btn" data-menu="pizza">
+                 <img src="./assets/images/pizzor.png" alt="Pizzor" />
+                  <span>Pizzor</span>
+                </button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="burgers">
+                   <img src="./assets/images/burger.png" alt="Burger" />
+                  <span>Burger</span>
+                </button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="salads">
+                 <img src="./assets/images/sallader.png" alt="Sallader" />
+                  <span>Sallader</span>
+                </button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="rollers">
+                 <img src="./assets/images/kebabrulle.png" alt="Rullar" />
+                  <span>Rullar</span>
+                </button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="dishes">
+                  <img src="./assets/images/kebab-tallrik.png" alt="Tallrikar" />
+                  <span>Tallrikar</span>
+                </button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="boxes">
+                      <img src="./assets/images/nuggets-box.jpg" alt="Box" />
+                  <span>Box</span>
+                </button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="pitabrod">
+                   <img src="./assets/images/falafel-pitabrod.jpg" alt="Pitabröd" />
+                  <span>Pitabröd</span>
+                </button>
+              </li>
+              <li>
+                <button class="menu-btn" data-menu="addition">
+                 <img src="./assets/images/tillbehor.png" alt="Tillbehör" />
+                  <span>Tillbehör</span>
+                </button>
+              </li>
+            </ul>
+          </div>
           <div class="menu-content" id="pizza-menu">
             <h1 class="menu-heading">Ordinarie <span> Pizzor</span></h1>
 
@@ -1643,15 +1667,15 @@
 
               <!-- Kebab tallrik -->
               <div class="menu-item">
-                <img src="./assets/images/kebab-tallrik.jpg" alt="Kebab tallrik" class="menu-item-img" />
+                <img src="./assets/images/kebab-tallrik.jpg" alt="Kebab tallrik med ris" class="menu-item-img" />
                 <div class="menu-item-content">
-                  <h3 class="menu-item-title">Kebab tallrik</h3>
+                  <h3 class="menu-item-title">Kebab tallrik med ris</h3>
                   <p class="menu-item-price">80 kr</p>
                   <p class="menu-item-desc">
-                    Kebabkött, isbergssallad, färska tomater, lök, feferoni,
+                    Kebabkött, ris, isbergssallad, färska tomater, lök, feferoni,
                     pommes, dressing (mildsås).
                   </p>
-                  <button class="add-to-cart-btn" data-name="Kebab tallrik" data-price="80"
+                  <button class="add-to-cart-btn" data-name="Kebab tallrik med ris" data-price="80"
                     data-img="./assets/images/kebab-tallrik.jpg">
                     <i class="ri-shopping-cart-line"></i> Lägg till
                   </button>
@@ -1660,15 +1684,15 @@
 
               <!-- Kyckling tallrik -->
               <div class="menu-item">
-                <img src="./assets/images/kyckling-tallrik.jpg" alt="Kyckling tallrik" class="menu-item-img" />
+                <img src="./assets/images/kyckling-tallrik.jpg" alt="Kyckling tallrik med ris" class="menu-item-img" />
                 <div class="menu-item-content">
-                  <h3 class="menu-item-title">Kyckling tallrik</h3>
+                  <h3 class="menu-item-title">Kyckling tallrik med ris</h3>
                   <p class="menu-item-price">80 kr</p>
                   <p class="menu-item-desc">
-                    Kyckling (skuren i bitar), isbergssallad, färska tomater,
+                    Kyckling (skuren i bitar), ris, isbergssallad, färska tomater,
                     lök, feferoni, pommes, dressing.
                   </p>
-                  <button class="add-to-cart-btn" data-name="Kyckling tallrik" data-price="80"
+                  <button class="add-to-cart-btn" data-name="Kyckling tallrik med ris" data-price="80"
                     data-img="./assets/images/kyckling-tallrik.jpg">
                     <i class="ri-shopping-cart-line"></i> Lägg till
                   </button>
@@ -1677,15 +1701,15 @@
 
               <!-- Blandad tallrik -->
               <div class="menu-item">
-                <img src="./assets/images/blandad-tallrik.jpg" alt="Blandad tallrik" class="menu-item-img" />
+                <img src="./assets/images/blandad-tallrik.jpg" alt="Blandad tallrik med ris" class="menu-item-img" />
                 <div class="menu-item-content">
-                  <h3 class="menu-item-title">Blandad tallrik</h3>
+                  <h3 class="menu-item-title">Blandad tallrik med ris</h3>
                   <p class="menu-item-price">90 kr</p>
                   <p class="menu-item-desc">
-                    Kebabkött, Kyckling, pommes, isbergssallad, färska
+                    Kebabkött, Kyckling, ris, pommes, isbergssallad, färska
                     tomater, gurka, lök, feferoni, dressing.
-                  </p>
-                  <button class="add-to-cart-btn" data-name="Blandad tallrik" data-price="90"
+                  </p>med ris
+                  <button class="add-to-cart-btn" data-name="Blandad tallrik med ris" data-price="90"
                     data-img="./assets/images/blandad-tallrik.jpg">
                     <i class="ri-shopping-cart-line"></i> Lägg till
                   </button>
@@ -1694,15 +1718,15 @@
 
               <!-- Krispig tallrik -->
               <div class="menu-item">
-                <img src="./assets/images/krispig-tallrik.jpg" alt="Krispig tallrik" class="menu-item-img" />
+                <img src="./assets/images/krispig-tallrik.jpg" alt="Krispig tallrik med ris" class="menu-item-img" />
                 <div class="menu-item-content">
-                  <h3 class="menu-item-title">Krispig tallrik</h3>
+                  <h3 class="menu-item-title">Krispig tallrik med ris</h3>
                   <p class="menu-item-price">90 kr</p>
                   <p class="menu-item-desc">
-                    Krispig kycklingfilé, pommes, isbergssallad, färska
+                    Krispig kycklingfilé, ris, pommes, isbergssallad, färska
                     tomater, gurka, lök, feferoni, dressing.
                   </p>
-                  <button class="add-to-cart-btn" data-name="Krispig tallrik" data-price="90"
+                  <button class="add-to-cart-btn" data-name="Krispig tallrik med ris" data-price="90"
                     data-img="./assets/images/krispig-tallrik.jpg">
                     <i class="ri-shopping-cart-line"></i> Lägg till
                   </button>
@@ -2563,9 +2587,11 @@
   <!-- 
     - custom js link
   -->
-    <!-- <script src="/socket.io/socket.io.js"></script> -->
+  <!-- <script src="/socket.io/socket.io.js"></script> -->
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
   <script src="./assets/js/script.js "></script>
   <script src="./assets/js/reset-password.js"></script>
+
   <!-- 
     - ionicon link
   -->

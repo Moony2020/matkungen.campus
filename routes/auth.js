@@ -113,11 +113,6 @@ router.post("/forgot-password", async (req, res) => {
     const resetToken = user.getResetPasswordToken();
     await user.save();
 
-    // Create reset URL - make sure this matches your frontend route
-    // const resetUrl = `${process.env.SERVER_URL}/reset-password/${resetToken}`;
-    // const resetUrl = `${process.env
-    //   .SERVER_URL}/reset-password.html?token=${resetToken}`;
-
     // Inside the forgot password route (auth.js)
     const resetUrl = `${req.protocol}://${req.get(
       "host"
@@ -144,7 +139,6 @@ router.post("/forgot-password", async (req, res) => {
   }
 });
 
-// ✅ Reset Password using Token
 // ✅ Reset Password using Token
 router.put("/reset-password/:token", async (req, res) => {
   try {
@@ -183,6 +177,40 @@ router.put("/reset-password/:token", async (req, res) => {
   } catch (error) {
     console.error("Reset password error:", error.message);
     res.status(500).json({ error: "Could not reset password" });
+  }
+});
+
+// Admin Login
+router.post("/admin/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await User.findOne({ email, isAdmin: true });
+    if (!user) return res.status(401).json({ error: "Invalid credentials" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
+
+    const token = jwt.sign(
+      { id: user._id, isAdmin: true },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "8h" // Shorter expiry for admin tokens
+      }
+    );
+
+    res.json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        isAdmin: true
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
   }
 });
 

@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   phone: { type: String, default: "" },
   address: { type: String, default: "" },
+  isAdmin: { type: Boolean, default: false },
   resetPasswordToken: String,
   resetPasswordExpire: Date,
   createdAt: { type: Date, default: Date.now }

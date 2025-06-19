@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Track Your Order</title>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="track-container">
+      <h2>Track Your Order</h2>
+      <p id="status-message">Loading order status...</p>
+
+      <div class="track-detail" id="order-info" style="display: none">
+        <div>
+          <strong>Order Number:</strong> <span id="order-number"></span>
+        </div>
+        <!-- <div class="progress-bar-container">
+          <div class="progress-bar">
+            <div class="progress-step" data-step="Confirmed">Confirmed</div>
+            <div class="progress-step" data-step="On the way">On the way</div>
+            <div class="progress-step" data-step="Delivered">Delivered</div>
+          </div>
+        </div> -->
+        <div id="status-label-container" class="status-label-container"></div>
+
+        <!-- order progress status , confirmed ,, -->
+        <div class="order-progress" id="order-progress"></div>
+        <div id="status-label-container"></div>
+
+        <div>
+          <strong>Estimated Delivery:</strong>
+          <span id="eta">25–40 minutes</span>
+        </div>
+      </div>
+
+      <a href="index.html" class="btn btn-secondary back-to-home"
+        >Back to Home</a
+      >
+    </div>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="./assets/js/track.js"></script>
+  </body>
+</html>

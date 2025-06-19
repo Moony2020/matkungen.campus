@@ -406,7 +406,7 @@ body.nav-active {
 }
 
 .confirmation-actions .btn {
-    padding: 7px 36px;
+    padding: 7px 15px;
 }
 
 .confirmation-actions .btn-secondary:hover {
@@ -1092,6 +1092,64 @@ body.nav-active {
     animation-delay: 2s;
 }
 
+/* HERO slider arrows styling */
+.hero .arrows {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    z-index: 2;
+    transform: translateY(-50%);
+}
+
+.hero .arrows button {
+    background-color: transparent;
+    /* Keep the button background transparent */
+    border: 2px solid rgb(230, 205, 140);
+    /* Border with the desired color */
+    border-radius: 50%;
+    /* Make the button circular */
+    font-size: 5rem;
+    width: 45px;
+    height: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+/* Style the icon inside the button */
+.hero .arrows button i {
+    color: rgb(230, 205, 140);
+    /* Set the arrow color */
+    font-size: 2.4rem;
+    /* Adjust size of the arrow */
+}
+
+/* Apply hover effect on the button */
+.hero .arrows button:hover {
+    background-color: var(--gold-crayola);
+    /* Semi-transparent background on hover */
+    transition: 0.3s ease;
+}
+
+/* Change arrow color when the button is hovered */
+.hero .arrows button:hover i {
+    color: var(--black);
+    /* Change arrow color on hover */
+}
+
+.hero #prev {
+    margin-left: 25px;
+
+}
+
+.hero #next {
+    margin-right: 25px;
+}
 
 /*-----------------------------------*\
   #SERVICE
@@ -1246,35 +1304,104 @@ body.nav-active {
   #NEWWWWWWWW MENU
 \*-----------------------------------*/
 
+.menu-categories-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    /* Smooth scrolling on iOS */
+    padding-bottom: 20px;
+    /* Space for scrollbar */
+    margin-bottom: -20px;
+    /* Compensate for padding */
+    width: 100%;
+}
+
 .menu-categories {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 12px;
-    margin: 30px 0;
-    padding: 10px 0;
-    position: sticky;
-    top: 80px;
-    background-color: var(--eerie-black-1);
-    z-index: 3;
-    border-bottom: 1px solid var(--gold-crayola);
+    gap: 15px;
+    padding: 20px 15px;
+    min-width: max-content;
+    width: max-content;
+    list-style: none;
+    scroll-snap-type: x mandatory;
+    margin: 0 auto;
+}
+
+/* Hide scrollbar for cleaner look (optional) */
+.menu-categories-container::-webkit-scrollbar {
+    height: 4px;
+}
+
+.menu-categories-container::-webkit-scrollbar-thumb {
+    background: var(--gold-crayola);
+    border-radius: 2px;
 }
 
 .menu-btn {
-    background-color: transparent;
-    color: var(--white);
-    padding: 10px 18px;
-    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: none;
+    border: none;
+    min-width: 100px;
     cursor: pointer;
-    font-size: var(--fontSize-label-1);
-    font-weight: var(--weight-bold);
-    transition: all var(--transition-1);
-    border: 2px solid transparent;
-    text-transform: uppercase;
-    letter-spacing: var(--letterSpacing-1);
+    transition: all 0.3s ease;
+    padding: 10px;
+    border-radius: 12px;
+    background: #2a2a2a;
 }
 
-.menu-btn:hover {
+.menu-btn img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.menu-btn span {
+    position: relative;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+    transition: color 0.3s ease;
+    position: relative;
+}
+
+.menu-btn:hover span::after,
+.menu-btn.active span::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #FFD700;
+}
+
+.menu-btn:hover img {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.menu-btn:hover span {
+    color: #FFD700;
+}
+
+.menu-btn.active img {
+    border-color: #FFD700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.7);
+    transform: scale(1.15);
+}
+
+.menu-btn.active span {
+    color: #FFD700;
+    font-weight: bold;
+}
+
+/* .menu-btn:hover {
     color: var(--gold-crayola);
     border-color: var(--gold-crayola);
 }
@@ -1282,16 +1409,16 @@ body.nav-active {
 .menu-btn:active {
     transform: translateY(2px);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
-}
+} */
 
 /* Active Button Styling */
-.menu-btn.active {
+/* .menu-btn.active {
     background-color: var(--gold-crayola);
     color: var(--black);
     border-color: var(--gold-crayola);
     transform: translateY(-3px);
     box-shadow: 0 4px 8px rgba(255, 215, 0, 0.3);
-}
+} */
 
 .menu-content {
     display: none;
@@ -1423,34 +1550,6 @@ body.nav-active {
 
 
 
-/* Responsive Adjustments */
-@media (max-width: 768px) {
-    .menu-categories {
-        top: 60px;
-        padding: 10px 0;
-    }
-
-    .menu-btn {
-        padding: 10px 15px;
-        font-size: var(--fontSize-label-1);
-    }
-
-    .menu-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .menu-heading {
-        font-size: 2.8rem;
-    }
-
-    .social-icons {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: wrap !important;
-        justify-content: center !important;
-        gap: .5rem !important;
-    }
-}
 
 .menu-content h3 {
     font-size: var(--fontSize-body-2);
@@ -2115,8 +2214,6 @@ body.nav-active {
     gap: 15px;
 }
 
-@media (min-width: 992px) {}
-
 .header-actions {
     gap: 25px;
 }
@@ -2279,12 +2376,6 @@ body.nav-active {
     margin: 40px 0;
 }
 
-@media (min-width: 768px) {
-    .confirmation-content {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
 .confirmation-content .order-summary h2,
 .confirmation-content .delivery-info h2 {
     margin-top: -1rem;
@@ -2375,10 +2466,10 @@ body.nav-active {
 
 .confirmation-actions {
     display: flex;
-    gap: 15px;
-    justify-content: center;
-    margin-top: 30px;
     flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 2.5rem;
 }
 
 .confirmation-actions .btn {
@@ -2407,38 +2498,6 @@ body.nav-active {
     margin-top: 15px;
 }
 
-/* Responsive adjustments */
-@media (max-width: 575px) {
-    .confirmation-card {
-        padding: 25px 15px;
-    }
-
-    .confirmation-header h1 {
-        font-size: var(--fontSize-body-1);
-    }
-
-    .order-item-detail {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-
-    .order-item-image {
-        margin-bottom: 10px;
-    }
-
-    .confirmation-actions {
-        flex-direction: column;
-    }
-
-    .confirmation-actions .btn {
-        width: 100%;
-    }
-
-    .checkout-page .container {
-        margin: 0 .8rem 0 .8rem;
-    }
-}
-
 /*-----------------------------------*
 #PAYMENT PAGE
 *-----------------------------------*/
@@ -2455,12 +2514,6 @@ body.nav-active {
     gap: 30px;
     max-width: 1200px;
     margin: 0 auto;
-}
-
-@media (min-width: 992px) {
-    .payment-grid {
-        grid-template-columns: 1fr 1fr;
-    }
 }
 
 .payment-heading {
@@ -2503,11 +2556,6 @@ body.nav-active {
     background: white;
 }
 
-@media (min-width: 768px) {
-    .payment-options {
-        grid-template-columns: repeat(4, 1fr);
-    }
-}
 
 .payment-option {
     padding: 15px;
@@ -2974,6 +3022,159 @@ body.nav-active {
 }
 
 /*-----------------------------------*\
+  #TRACK ORDER PAGE
+\*-----------------------------------*/
+.track-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: var(--text-color);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    font-family: 'DM Sans', sans-serif;
+    color: #333;
+}
+
+.track-container h2 {
+    text-align: center;
+    color: #000;
+    margin-bottom: 30px;
+    font-size: 2.4rem;
+    font-weight: 700;
+}
+
+#status-message {
+    text-align: center;
+    margin: 20px 0;
+    font-size: 1.6rem;
+}
+
+.track-detail {
+    margin-bottom: 25px;
+}
+
+.track-detail div {
+    margin-bottom: 12px;
+    font-size: 1.6rem;
+}
+
+.track-detail strong {
+    font-weight: 600;
+    color: #000;
+}
+
+/* Progress bar styling */
+.progress-bar-container {
+    margin: 30px 0;
+}
+
+/* .progress-bar {
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-top: 30px;
+} */
+
+/* Connecting line */
+/* .progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 16px;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: #e0e0e0;
+    z-index: 1;
+} */
+
+/* .progress-step {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    flex: 1;
+} */
+
+/* Step circle */
+/* .progress-step::before {
+    content: '';
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+} */
+
+/* Active step */
+/* .progress-step.active::before {
+    background: #28a745;
+    color: white;
+    content: '✓';
+    color: white;
+    font-size: 1.6rem;
+} */
+
+/* Step text */
+/* .progress-step span {
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #666;
+    text-align: center;
+    display: block;
+    max-width: 100px;
+} */
+
+/* .progress-step.active span {
+    color: #000;
+    font-weight: 600;
+} */
+
+/* Status styling */
+/* #order-status {
+    font-weight: 700;
+    background-color: var(--gold-crayola);
+    color: var(--black);
+    padding: 7px 15px;
+    max-width: fit-content;
+    border-radius: 7;
+} */
+.status-label-container {
+    margin-bottom: 16px;
+}
+
+.status-label i {
+    vertical-align: middle;
+}
+
+/* Back button styling */
+.back-to-home {
+    display: inline-block;
+    padding: 7px 15px;
+    background-color: #000;
+    border: none;
+}
+
+.back-to-home:hover {
+    color: #000;
+}
+
+/* .status-label.delivered {
+    background-color: #d9fbe2;
+    color: #166534;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+} */
+
+/*-----------------------------------*\
   #USER ACCOUNT
 \*-----------------------------------*/
 
@@ -3296,17 +3497,6 @@ body.nav-active {
     text-decoration: underline;
 }
 
-@media (max-width: 575px) {
-    .reset-container {
-        margin: 50px auto;
-        padding: 25px;
-    }
-
-    .reset-container h2 {
-        font-size: var(--fontSize-title-3);
-    }
-}
-
 /* Orders Section */
 .orders-section {
     margin: 20px 0;
@@ -3393,11 +3583,6 @@ body.nav-active {
     color: #0D47A1;
 }
 
-.order-status.preparing {
-    background: #E8F5E9;
-    color: #1B5E20;
-}
-
 .order-status.on-the-way {
     background: #E1F5FE;
     color: #01579B;
@@ -3450,6 +3635,7 @@ body.nav-active {
     justify-content: center;
     margin-bottom: 8px;
     color: #999;
+    transition: all 0.3s ease;
 }
 
 .progress-step.active .step-icon {
@@ -3461,6 +3647,7 @@ body.nav-active {
     font-size: 0.75em;
     color: #999;
     text-align: center;
+    transition: all 0.3s ease;
 }
 
 .progress-step.active .step-label {
@@ -3771,19 +3958,6 @@ body.modal-open {
     color: white;
 }
 
-/* Responsive */
-@media (max-width: 575px) {
-    .user-sidebar {
-        width: 100%;
-        max-width: 320px;
-    }
-
-    .user-btn {
-        margin-right: 0;
-        font-size: 2.2rem;
-    }
-}
-
 /*-----------------------------------*\
   #FOOTER
 \*-----------------------------------*/
@@ -3997,7 +4171,7 @@ body.modal-open {
 
 
 /*-----------------------------------*\
-  #MEDIA QUERIES
+  # MEDIA QUERIES
 \*-----------------------------------*/
 
 @media (max-width: 575px) {
@@ -4094,17 +4268,55 @@ body.modal-open {
 
     .confirmation-actions {
         flex-direction: column;
+        align-items: center;
     }
 
     .confirmation-actions .btn {
         width: 100%;
     }
+
+    /* Track Order */
+    .track-container {
+        padding: 20px;
+        margin: 20px;
+    }
+
+    /* .progress-bar {
+        margin-top: 20px;
+    } */
+
+    .progress-step span {
+        font-size: 1.2rem;
+    }
+
+    .reset-container {
+        margin: 50px auto;
+        padding: 25px;
+    }
+
+    .reset-container h2 {
+        font-size: var(--fontSize-title-3);
+    }
+
+    .user-sidebar {
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .user-btn {
+        margin-right: 0;
+        font-size: 2.2rem;
+    }
+
+    .hero .arrows button {
+        border: 2px solid rgba(230, 205, 140, 0.538);
+    }
+
+    .hero .arrows button i {
+        font-size: 1.6rem;
+        color: rgba(230, 205, 140, 0.538);
+    }
 }
-
-/**
- * responsive for larger than 575px screen
- */
-
 
 @media (min-width: 575px) {
 
@@ -4362,6 +4574,50 @@ body.modal-open {
     }
 }
 
+@media (max-width: 768px) {
+    .menu-container {
+        max-width: 100%;
+        padding: 0;
+        overflow: visible;
+    }
+
+    .menu-categories {
+        top: 60px;
+        padding: 10px 0;
+    }
+
+    .menu-btn {
+        padding: 10px 15px;
+        font-size: var(--fontSize-label-1);
+    }
+
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .menu-heading {
+        font-size: 2.8rem;
+    }
+
+    .social-icons {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: wrap !important;
+        justify-content: center !important;
+        gap: .5rem !important;
+    }
+
+    .hero .arrows button {
+        width: 35px;
+        height: 35px;
+    }
+
+    .hero .arrows button i {
+        font-size: 1.6rem;
+    }
+
+}
+
 /**
  * responsive for larger than 768px screen
  */
@@ -4397,64 +4653,6 @@ body.modal-open {
         padding-bottom: 1rem;
     }
 
-    /* HERO slider arrows styling */
-    .hero .arrows {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        right: 0;
-        display: flex;
-        justify-content: space-between;
-        z-index: 2;
-        transform: translateY(-50%);
-    }
-
-    .hero .arrows button {
-        background-color: transparent;
-        /* Keep the button background transparent */
-        border: 2px solid rgb(230, 205, 140);
-        /* Border with the desired color */
-        border-radius: 50%;
-        /* Make the button circular */
-        font-size: 5rem;
-        width: 50px;
-        height: 50px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        transition: 0.3s ease;
-    }
-
-    /* Style the icon inside the button */
-    .hero .arrows button i {
-        color: rgb(230, 205, 140);
-        /* Set the arrow color */
-        font-size: 2.6rem;
-        /* Adjust size of the arrow */
-    }
-
-    /* Apply hover effect on the button */
-    .hero .arrows button:hover {
-        background-color: var(--gold-crayola);
-        /* Semi-transparent background on hover */
-        transition: 0.3s ease;
-    }
-
-    /* Change arrow color when the button is hovered */
-    .hero .arrows button:hover i {
-        color: var(--black);
-        /* Change arrow color on hover */
-    }
-
-    .hero #prev {
-        margin-left: 25px;
-
-    }
-
-    .hero #next {
-        margin-right: 25px;
-    }
 
     /**
    * ABOUT
@@ -4482,6 +4680,14 @@ body.modal-open {
    */
     .footer-brand {
         grid-column: 1 / 3;
+    }
+
+    .confirmation-content {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .payment-options {
+        grid-template-columns: repeat(4, 1fr);
     }
 }
 
@@ -4692,6 +4898,9 @@ body.modal-open {
         display: none;
     }
 
+    .payment-grid {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 /**
