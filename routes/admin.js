@@ -212,15 +212,29 @@ router.get("/stats", adminAuth, async (req, res) => {
   }
 });
 
-// Recent orders (for dashboard)
+// Recent orders (for dashboard) - now filtered by today// All today's orders
 router.get("/orders/recent", adminAuth, async (req, res) => {
   try {
-    // Show last 5 completed orders regardless of status
+    // Get current date boundaries
+    const now = new Date();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+
+    // Check if we want all orders
+    const all = req.query.all === "true";
+
+    // Show all completed orders from TODAY
     const orders = await Order.find({
-      paymentStatus: "Completed", // Only filter by payment status
+      createdAt: { $gte: todayStart, $lt: todayEnd },
+      paymentStatus: "Completed",
     })
       .sort({ createdAt: -1 }) // Newest first
-      .limit(5)
+      .limit(all ? 0 : 5) // 0 = no limit
       .lean();
 
     res.json({ success: true, orders });
@@ -228,8 +242,8 @@ router.get("/orders/recent", adminAuth, async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-// GET single order by ID for Admin
 
+// GET single order by ID for Admin
 router.get("/admin/orders/:id", adminAuth, async (req, res) => {
   try {
     const order = await Order.findOne({ orderNumber: req.params.id });

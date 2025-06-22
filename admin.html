@@ -187,15 +187,12 @@
 
           <div class="dashboard-row">
             <div class="recent-orders card">
-              <div class="card-header">
+              <div class="card-header recent-orders-header">
                 <h3>Recent Orders</h3>
-
-                <a href="#" class="view-all">View All</a>
+                <button id="view-all-recent" class="view-all-btn"></button>
               </div>
-
               <div class="orders-table" id="recent-orders-table">
                 <!-- Dynamic content will be loaded here -->
-
                 <div class="loading-spinner">
                   <div class="spinner"></div>
 
@@ -266,7 +263,9 @@
           </div>
           <div class="dashboard-section card">
             <h3>Search Results</h3>
-            <div id="search-results-container"></div>
+            <div id="search-results-container-wrapper">
+              <div id="search-results-container"></div>
+            </div>
           </div>
         </section>
 

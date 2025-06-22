@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
       );
       this.init();
       this.targetOrderNumber = null;
+      this.showingAllRecent = false;
     }
 
     async init() {
@@ -79,6 +80,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // 🟢 When any order status is updated (e.g., by driver/admin)
       this.socket.on("orderUpdate", (order) => {
         this.updateOrderInUI(order);
+        this.updateOrderInRecent(order); // NEW: Update recent orders section
 
         this.showNotification(
           `Order #${order.orderNumber} updated to ${order.status}`
@@ -129,6 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Update Dashboard Stats
       this.socket.on("stats-update", (stats) => {
         this.updateDashboardStats(stats);
+        updateOrderInRecent;
       });
 
       // 🚗 Location updates (if using driver tracking)
@@ -149,25 +152,35 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    //   addOrderToRecent(order) {
-    //     const container = document.getElementById("recent-orders-table");
-    //     const html = `<div class="order-row">
-    //   <div>#${order.orderNumber}</div>
-    //   <div>${order.customer.name}</div>
-    //   <div>${order.items.reduce((acc, item) => acc + item.quantity, 0)}</div>
-    //   <div>${order.total.toFixed(2)} kr</div>
-    //   <div><span class="status-badge ${order.status.toLowerCase()}">${
-    //       order.status
-    //     }</span></div>
-    // </div>`;
-    //     container.insertAdjacentHTML("afterbegin", html);
-    //   }
-    addOrderToRecent(order) {
-      const row = this.createOrderRow(order);
+    updateOrderInRecent(order) {
       const table = document.getElementById("recent-orders-table");
-      if (table) {
-        table.insertBefore(row, table.firstChild); // ✅ insert at the top
+      if (!table) return;
+
+      // Find existing order row
+      const existingRow = table.querySelector(
+        `.order-row[data-order-id="${order._id}"]`
+      );
+
+      if (existingRow) {
+        // Update status badge
+        const statusBadge = existingRow.querySelector(".status-badge");
+        if (statusBadge) {
+          const statusClass = this.getStatusClass(order.status);
+          statusBadge.className = `status-badge ${statusClass}`;
+          statusBadge.textContent = order.status;
+        }
       }
+    }
+
+    addOrderToRecent(order) {
+      const table = document.getElementById("recent-orders-table");
+      if (!table) return;
+
+      // Ensure header exists before adding order
+      this.ensureRecentOrdersHeader();
+
+      const row = this.createOrderRow(order);
+      table.insertBefore(row, table.children[1]); // Insert below header
     }
 
     incrementTodayOrders() {
@@ -254,6 +267,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Load recent orders
         await this.loadRecentOrders();
+        this.updateViewAllButton();
       } catch (error) {
         console.error("Dashboard load error:", error);
         this.showNotification("Failed to load dashboard data", true);
@@ -267,6 +281,77 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
     }
+
+    // async showTodaysOrdersModal() {
+    //   try {
+    //     const token = localStorage.getItem("adminToken");
+    //     const response = await fetch("/api/admin/orders/today", {
+    //       headers: { Authorization: `Bearer ${token}` },
+    //     });
+
+    //     const { orders } = await response.json();
+    //     if (!response.ok) throw new Error("Failed to fetch today's orders");
+
+    //     this.createTodaysOrdersModal(orders);
+    //   } catch (error) {
+    //     this.showNotification(error.message, true);
+    //   }
+    // }
+
+    // createTodaysOrdersModal(orders) {
+    //   const modal = document.createElement("div");
+    //   modal.className = "todays-orders-modal";
+
+    //   modal.innerHTML = `
+    //   <div class="modal-overlay"></div>
+    //   <div class="modal-container">
+    //     <div class="modal-header">
+    //       <h3>Today's Orders (${orders.length})</h3>
+    //       <button class="close-modal">&times;</button>
+    //     </div>
+    //     <div class="modal-body">
+    //       <div class="orders-table-header">
+    //         <div>Order #</div>
+    //         <div>Customer</div>
+    //         <div>Items</div>
+    //         <div>Total</div>
+    //         <div>Status</div>
+    //       </div>
+    //       <div class="orders-table-body" id="todays-orders-list">
+    //         ${
+    //           orders.length > 0
+    //             ? orders.map((order) => this.createOrderRow(order)).join("")
+    //             : `<div class="empty-state">No orders today</div>`
+    //         }
+    //       </div>
+    //     </div>
+    //     <div class="modal-footer">
+    //       <button class="btn btn-secondary close-modal">Close</button>
+    //     </div>
+    //   </div>
+    // `;
+
+    //   document.body.appendChild(modal);
+    //   document.body.classList.add("modal-open");
+
+    //   // Add close functionality
+    //   modal.querySelectorAll(".close-modal").forEach((btn) => {
+    //     btn.addEventListener("click", () => {
+    //       modal.remove();
+    //       document.body.classList.remove("modal-open");
+    //     });
+    //   });
+
+    //   // Add click handler to view order details
+    //   modal.querySelectorAll(".view-order").forEach((btn) => {
+    //     btn.addEventListener("click", (e) => {
+    //       const orderId = e.target.closest("button").dataset.order;
+    //       this.showOrderDetails(orderId);
+    //       modal.remove();
+    //       document.body.classList.remove("modal-open");
+    //     });
+    //   });
+    // }
 
     // And ensure updateDashboardStats is properly updating the UI
     updateDashboardStats(stats) {
@@ -312,10 +397,43 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+    // ✅ Improved: Single method to create header row
+    createRecentOrdersHeader() {
+      const headerRow = document.createElement("div");
+      headerRow.className = "order-header-row";
+      headerRow.innerHTML = `
+      <div class="order-cell">Order #</div>
+      <div class="order-cell">Customer</div>
+      <div class="order-cell">Items</div>
+      <div class="order-cell">Price</div>
+      <div class="order-cell">Status</div>
+      <div class="order-cell">Actions</div>
+    `;
+      return headerRow;
+    }
+
+    // ✅ Improved: Add header only when needed
+    ensureRecentOrdersHeader() {
+      const table = document.getElementById("recent-orders-table");
+      if (!table) return;
+
+      // Check if header already exists
+      const existingHeader = table.querySelector(".order-header-row");
+      if (existingHeader) return;
+
+      // Create and add header if missing
+      const headerRow = this.createRecentOrdersHeader();
+      table.prepend(headerRow); // Add at the top
+    }
+
     // Load recent orders
-    async loadRecentOrders() {
+    async loadRecentOrders(showAll = false) {
       try {
-        const response = await fetch("/api/admin/orders/recent", {
+        const url = showAll
+          ? "/api/admin/orders/recent?all=true"
+          : "/api/admin/orders/recent";
+
+        const response = await fetch(url, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
           },
@@ -328,30 +446,56 @@ document.addEventListener("DOMContentLoaded", function () {
         const { orders } = await response.json();
         const ordersTable = document.getElementById("recent-orders-table");
 
-        //Clean the table/container
+        // Clean the table/container
         ordersTable.innerHTML = "";
 
         // Check for orders
-        // If no orders, show empty state
         if (!orders || orders.length === 0) {
           ordersTable.innerHTML = `
-        <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-light);">
-          No recent orders
-        </div>`;
+          <div class="empty-state" style="padding: 20px; text-align: center; color: var(--text-light);">
+            No recent orders
+          </div>`;
           return;
         }
+
+        // ✅ Add header only once
+        this.ensureRecentOrdersHeader();
 
         // Sort orders by newest first
         orders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-        // Display requests
+        // Display orders
         orders.forEach((order) => {
           const orderRow = this.createOrderRow(order);
           ordersTable.appendChild(orderRow);
         });
+
+        // Toggle scrollable class based on view mode
+        if (showAll) {
+          ordersTable.classList.add("scrollable");
+        } else {
+          ordersTable.classList.remove("scrollable");
+        }
+
+        // Update the UI state
+        this.showingAllRecent = showAll;
+        this.updateViewAllButton();
       } catch (error) {
         console.error("Failed to load recent orders:", error);
         this.showNotification("Failed to load recent orders", true);
+      }
+    }
+
+    updateViewAllButton() {
+      const viewAllBtn = document.getElementById("view-all-recent");
+      if (!viewAllBtn) return;
+
+      if (this.showingAllRecent) {
+        viewAllBtn.textContent = "Show Less";
+        viewAllBtn.classList.add("showing-all");
+      } else {
+        viewAllBtn.textContent = "View All";
+        viewAllBtn.classList.remove("showing-all");
       }
     }
 
@@ -479,32 +623,22 @@ document.addEventListener("DOMContentLoaded", function () {
       const row = document.createElement("div");
       row.className = "order-row";
       row.dataset.orderId = order._id;
-      // Add this line to store order number on the row
-      row.dataset.orderNumber = order.orderNumber;
-
-      const statusMap = {
-        Pending: "pending",
-        Confirmed: "confirmed",
-        "On the Way": "on-the-way",
-        Delivered: "delivered",
-        Cancelled: "cancelled",
-      };
-
       row.innerHTML = `
     <div class="order-cell order-number">#${order.orderNumber}</div>
     <div class="order-cell customer">${order.customer?.name || "N/A"}</div>
-    <div class="order-cell items-count">${order.items.reduce(
+    <div class="order-cell items-count text-right">${order.items.reduce(
       (acc, item) => acc + item.quantity,
       0
     )}</div>
-    <div class="order-cell total">${order.total?.toFixed(2) || "0.00"} kr</div>
+    <div class="order-cell total text-right">${
+      order.total?.toFixed(2) || "0.00"
+    } kr</div>
     <div class="order-cell status">
-      <span class="status-badge ${statusMap[order.status] || "pending"}">
+      <span class="status-badge ${this.getStatusClass(order.status)}">
         ${order.status}
       </span>
     </div>
     <div class="order-cell actions">
-      <!-- ADD data-order-number -->
       <button class="btn-action view-order" 
               data-order="${order._id}" 
               data-order-number="${order.orderNumber}">
@@ -1388,34 +1522,30 @@ document.addEventListener("DOMContentLoaded", function () {
       return `${minutes} minutes`;
     }
 
+    // updateOrderStatus method
     async updateOrderStatus(orderId, newStatus) {
       try {
         const response = await fetch(`/api/admin/orders/${orderId}/status`, {
           method: "PUT",
-
           headers: {
             "Content-Type": "application/json",
-
             Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
           },
-
           body: JSON.stringify({ status: newStatus }),
         });
 
         const { order } = await response.json();
+        if (!response.ok) throw new Error("Failed to update order status");
 
-        if (!response.ok) {
-          throw new Error("Failed to update order status");
-        }
+        // Emit socket event after successful update
+        this.socket.emit("adminOrderUpdate", order);
 
         this.updateOrderInUI(order);
-
         this.showNotification(
           `Order #${order.orderNumber} updated to ${newStatus}`
         );
       } catch (error) {
         console.error("Error updating order status:", error);
-
         this.showNotification("Failed to update order status", true);
       }
     }
@@ -1627,6 +1757,12 @@ document.addEventListener("DOMContentLoaded", function () {
           if (searchTerm.length > 2 || searchTerm.length === 0) {
             this.loadOrders(1, { search: searchTerm });
           }
+        });
+
+      document
+        .getElementById("view-all-recent")
+        ?.addEventListener("click", () => {
+          this.loadRecentOrders(!this.showingAllRecent);
         });
 
       document.getElementById("logout-btn").addEventListener("click", () => {
