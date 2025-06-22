@@ -1705,7 +1705,7 @@ tr:hover {
         padding: 8px;
     }
 
-    #search-results-container {
+    /* #search-results-container {
         display: grid;
         overflow-x: auto;
         gap: 12px;
@@ -1715,18 +1715,32 @@ tr:hover {
     }
 
     #search-results-container>div {
-        position: relative;
-        /* Ensure internal positioning works */
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
+        flex: 0 0 auto;
+        min-width: 320px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 12px;
+        background: var(--background-color-2);
+    } */
+    #search-results-container {
+        display: grid;
+        overflow-x: auto;
+        gap: 12px;
+        padding: 10px 0;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    #search-results-container .table-order-row {
+
+        min-width: 300px;
+        margin-bottom: .5rem;
+        grid-template-columns: 80px 1fr 50px 70px 90px 60px;
+        /* You can adjust based on your content */
 
     }
 
-
-}
-
-/* #search-results-container {
+    /* #search-results-container {
         display: grid;
         overflow-x: auto;
         gap: 12px;
@@ -1744,7 +1758,7 @@ tr:hover {
         background: var(--background-color-2);
     } */
 
-/* .search-section #search-results-container {
+    /* .search-section #search-results-container {
         display: flex;
         overflow-x: auto;
         gap: 12px;
