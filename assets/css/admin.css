@@ -1701,17 +1701,6 @@ tr:hover {
         display: inline-block;
         vertical-align: top;
     } */
-    #search-results-container-wrapper {
-        overflow-x: auto;
-        width: 100%;
-    }
-
-    #search-results-container {
-        min-width: 600px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
 
     /* Adjust status badges */
     .status-badge {
