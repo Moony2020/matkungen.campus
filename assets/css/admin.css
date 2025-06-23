@@ -89,8 +89,8 @@ body {
     color: var(--text-color);
     transition: var(--transition);
     line-height: 1.6;
-
-
+    /* overflow-x: hidden; */
+    overflow-y: auto;
 }
 
 .admin-container {
@@ -1698,33 +1698,28 @@ tr:hover {
         padding: 8px;
     }
 
+    .search-section {
+        overflow-x: auto;
+        /* Single horizontal scroll here */
+        -webkit-overflow-scrolling: touch;
+    }
+
     #search-results-container {
-        /* display: grid; */
+        /* min-width: 100%; */
+        /* Fill available space */
         gap: 12px;
         padding: 10px 0;
 
     }
 
-    #search-results-container>div {
-
+    #search-results-container>div>div {
+        padding: 8px 10px;
+        font-size: 14px;
         /* Horizontal scroll inside the card */
         white-space: nowrap;
         /* Keep content in one line */
         padding: 12px;
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
 
-    }
-
-    #search-results-container>div>* {
-        display: inline-block;
-        margin-right: 16px;
-    }
-
-    .search-section {
-        overflow-x: auto;
-        /* Single horizontal scroll here */
-        -webkit-overflow-scrolling: touch;
     }
 
     /* #search-results-container {
