@@ -89,6 +89,8 @@ body {
     color: var(--text-color);
     transition: var(--transition);
     line-height: 1.6;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .admin-container {
@@ -974,14 +976,6 @@ tr:hover {
     padding: 10px 0;
 }
 
-/* Cards styling */
-#search-results-container>div {
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 12px;
-    background: var(--background-color-2);
-}
-
 .order-meta {
     display: flex;
     flex-direction: column;
@@ -1343,7 +1337,6 @@ tr:hover {
 
 
 /*admin login*/
-
 .admin-login-container {
     display: flex;
     justify-content: center;
@@ -1705,6 +1698,35 @@ tr:hover {
         padding: 8px;
     }
 
+    #search-results-container {
+        /* display: grid; */
+        gap: 12px;
+        padding: 10px 0;
+
+    }
+
+    #search-results-container>div {
+
+        /* Horizontal scroll inside the card */
+        white-space: nowrap;
+        /* Keep content in one line */
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+
+    }
+
+    #search-results-container>div>* {
+        display: inline-block;
+        margin-right: 16px;
+    }
+
+    .search-section {
+        overflow-x: auto;
+        /* Single horizontal scroll here */
+        -webkit-overflow-scrolling: touch;
+    }
+
     /* #search-results-container {
         display: grid;
         overflow-x: auto;
@@ -1722,25 +1744,17 @@ tr:hover {
         padding: 12px;
         background: var(--background-color-2);
     } */
-    #search-results-container {
-        display: grid;
-        overflow-x: auto;
-        gap: 12px;
-        padding: 10px 0;
-        white-space: nowrap;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    #search-results-container .table-order-row {
-
-        min-width: 300px;
-        margin-bottom: .5rem;
-        grid-template-columns: 80px 1fr 50px 70px 90px 60px;
-        /* You can adjust based on your content */
-
-    }
 
     /* #search-results-container {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+    } */
+
+}
+
+/* #search-results-container {
         display: grid;
         overflow-x: auto;
         gap: 12px;
@@ -1758,7 +1772,7 @@ tr:hover {
         background: var(--background-color-2);
     } */
 
-    /* .search-section #search-results-container {
+/* .search-section #search-results-container {
         display: flex;
         overflow-x: auto;
         gap: 12px;
