@@ -1705,21 +1705,26 @@ tr:hover {
     }
 
     #search-results-container {
-        /* min-width: 100%; */
-        /* Fill available space */
+        /* display: grid; */
         gap: 12px;
         padding: 10px 0;
 
     }
 
-    #search-results-container>div>div {
-        padding: 8px 10px;
-        font-size: 14px;
+    #search-results-container>div {
+
         /* Horizontal scroll inside the card */
         white-space: nowrap;
         /* Keep content in one line */
         padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
 
+    }
+
+    #search-results-container>div>* {
+        display: inline-block;
+        margin-right: 16px;
     }
 
     /* #search-results-container {
