@@ -750,6 +750,12 @@ tr:hover {
     color: var(--text-light);
 }
 
+[data-theme="dark"] .empty-state {
+    background-color: rgba(26, 26, 26, 0.582);
+    box-shadow: 0 2px 8px rgb(31, 31, 31), 0 0 4px rgba(48, 48, 48, 0.541);
+
+}
+
 .empty-state i {
     font-size: 40px;
     margin-bottom: 15px;
@@ -853,6 +859,13 @@ tr:hover {
     border-radius: 8px;
     margin-bottom: 6px;
 }
+
+[data-theme="dark"] .order-header-row {
+    background-color: var(--card-bg-lighter);
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+}
+
 
 .order-header-row .order-cell {
     display: flex;

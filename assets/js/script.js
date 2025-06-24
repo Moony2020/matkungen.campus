@@ -427,13 +427,15 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!btn) return;
 
     // Get the menu item container
-    const menuItem = btn.closest(".menu-card, .menu-item");
+    const menuItem = btn.closest(".menu-card, .menu-item, .menu-card1");
 
     // Get product details
     const productName =
       btn.dataset.name ||
-      menuItem?.querySelector(".menu-title, .menu-item-title")?.textContent ||
+      menuItem?.querySelector(".menu-title, .menu-item-title, .menu-title1")
+        ?.textContent ||
       "Unknown Item";
+
     const price = parseFloat(btn.dataset.price) || 0;
     const productImg = btn.dataset.img || "./assets/images/default-food.jpg";
 

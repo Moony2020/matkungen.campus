@@ -225,7 +225,7 @@ html {
     /* Center items horizontally */
     padding: 5px;
     /* Add some padding */
-    height: 190px;
+    height: 200px;
     /* Fixed height for all cards */
 }
 
@@ -274,4 +274,43 @@ html {
 #drinks-menu .hover\:card:is(:hover,
     :focus-within) .card-banner .img-cover {
     transform: scale(1.1);
+}
+
+/* Icon-only buttons */
+.add-to-cart-btn.icon-only {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
+.add-to-cart-btn.icon-only i {
+    font-size: 18px;
+    margin: 0;
+}
+
+.add-to-cart-btn i {
+    font-size: var(--fontSize-body-4);
+}
+
+/* Larger drink images */
+.menu-page.drinks .img-holder {
+    width: 100px;
+    height: 100px;
+
+}
+
+/* Center content in drink cards */
+.menu-page.drinks .menu-card-content {
+    text-align: center;
+}
+
+.menu-page.drinks .title-wrapper {
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
 }
