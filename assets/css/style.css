@@ -4888,9 +4888,9 @@ body.modal-open {
     }
 
     .about .abs-img-1 {
-        width: 18vw;
+        width: 24vw;
         /* Responsive: 18% of viewport width */
-        max-width: 120px;
+        max-width: 130px;
         /* Don't grow too much */
         min-width: 70px;
         /* Don't shrink too tiny */
