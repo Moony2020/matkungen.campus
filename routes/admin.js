@@ -40,15 +40,41 @@ const adminAuth = (req, res, next) => {
 // Admin login
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, remember } = req.body;
     console.log("🔐 Login attempt for:", email);
-    const admin = await Admin.findOne({ email: email.trim().toLowerCase() });
-    if (!admin) return res.status(401).json({ error: "Invalid credentials" });
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) return res.status(401).json({ error: "Invalid credentials" });
 
-    // const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    const token = admin.generateAuthToken();
+    if (!email || !password) {
+      return res.status(400).json({
+        error: "Please enter both email and password",
+      });
+    }
+
+    const admin = await Admin.findOne({ email: email.trim().toLowerCase() });
+
+    if (!admin) {
+      return res.status(401).json({
+        error: "Incorrect email or password.",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        error: "Incorrect email or password.",
+      });
+    }
+
+    // Set expiration based on remember me choice
+    const expiresIn = remember ? "30d" : "1d";
+    const token = jwt.sign(
+      {
+        id: admin._id,
+        role: admin.role,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn }
+    );
+
     res.json({
       success: true,
       token,
@@ -60,7 +86,10 @@ router.post("/login", async (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Admin login error:", error);
+    res.status(500).json({
+      error: "Something went wrong. Please try again later.",
+    });
   }
 });
 

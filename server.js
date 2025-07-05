@@ -622,39 +622,28 @@ app.post("/api/login", async (req, res) => {
     const { email, password } = req.body;
 
     // Check if user exists
-
     const user = await User.findOne({ email });
-
     if (!user) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: "Incorrect email or password." });
     }
 
     // Check password
-
     const isMatch = await bcrypt.compare(password, user.password);
-
     if (!isMatch) {
-      return res.status(401).json({ error: "Invalid credentials" });
+      return res.status(401).json({ error: "Incorrect email or password." });
     }
 
     // Generate token
-
     const token = user.generateAuthToken();
 
     res.json({
       success: true,
-
       token,
-
       user: {
         id: user._id,
-
         name: user.name,
-
         email: user.email,
-
         phone: user.phone,
-
         address: user.address,
       },
     });
@@ -666,7 +655,6 @@ app.post("/api/login", async (req, res) => {
 app.post("/api/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
-
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -674,39 +662,25 @@ app.post("/api/forgot-password", async (req, res) => {
     }
 
     // Generate reset token
-
     const resetToken = user.getResetPasswordToken();
-
     await user.save();
 
     // Create reset URL
-
     const resetUrl = `${req.protocol}://${req.get(
       "host"
     )}/reset-password/${resetToken}`;
 
     // Email message
-
     const message = `
-
   <h2>Password Reset Request</h2>
-
   <p>You requested a password reset for your <strong>Matkungen</strong> account.</p>
-
   <p>
-
     <a href="${resetUrl}" 
-
        style="display:inline-block; padding:10px 20px; background-color:#4CAF50; color:#ffffff; text-decoration:none; border-radius:5px;">
-
        Click here to reset your password
-
     </a>
-
   </p>
-
   <p>This link will expire in 10 minutes.</p>
-
 `;
 
     // Send email
@@ -728,24 +702,17 @@ app.post("/api/forgot-password", async (req, res) => {
 app.put("/api/reset-password/:token", async (req, res) => {
   try {
     const { token } = req.params;
-
     const { password } = req.body;
 
     // Hash token
-
     const resetPasswordToken = crypto
-
       .createHash("sha256")
-
       .update(token)
-
       .toString("hex");
 
     // Find user
-
     const user = await User.findOne({
       resetPasswordToken,
-
       resetPasswordExpire: { $gt: Date.now() },
     });
 
@@ -754,11 +721,8 @@ app.put("/api/reset-password/:token", async (req, res) => {
     }
 
     // Set new password
-
     user.password = password;
-
     user.resetPasswordToken = undefined;
-
     user.resetPasswordExpire = undefined;
 
     await user.save();
@@ -770,15 +734,12 @@ app.put("/api/reset-password/:token", async (req, res) => {
 });
 
 // admin reset password route
-
 app.get("/admin-reset-password/:token", (req, res) => {
   res.sendFile(path.join(__dirname, "admin-reset-password.html"));
 });
 
 // Start server
-
 const PORT = process.env.PORT || 4000;
-
 server.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
 });

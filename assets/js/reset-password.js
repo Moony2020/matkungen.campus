@@ -1,72 +1,78 @@
 document.addEventListener("DOMContentLoaded", () => {
   const token = window.location.pathname.split("/").pop();
+  const rememberCheckbox = document.getElementById("remember-reset");
 
-  if (!token) {
-    showMessage("Invalid or expired reset link.", true);
-    setTimeout(() => window.location.href = "/", 3000);
-    return;
+  // Initialize "remember me" state
+  if (localStorage.getItem("rememberUser") === "true") {
+    rememberCheckbox.checked = true;
   }
 
-  document.getElementById("reset-form")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  document
+    .getElementById("reset-form")
+    ?.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const password = document.getElementById("new-password").value;
-    const confirmPassword = document.getElementById("confirm-password").value;
-    const messageDiv = document.getElementById("message");
-    messageDiv.innerHTML = ""; // clear previous messages
+      const password = document.getElementById("new-password").value;
+      const confirmPassword = document.getElementById("confirm-password").value;
+      const remember = rememberCheckbox.checked;
+      const messageDiv = document.getElementById("message");
+      messageDiv.innerHTML = ""; // clear previous messages
 
-    if (password !== confirmPassword) {
-      showMessage("Passwords do not match", true);
-      return;
-    }
-
-    if (password.length < 6) {
-      showMessage("Password must be at least 6 characters", true);
-      return;
-    }
-
-    try {
-      const response = await fetch(`/api/reset-password/${token}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password })
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Password reset failed");
+      if (password !== confirmPassword) {
+        showMessage("Passwords do not match", true);
+        return;
       }
 
-      showMessage(
-        `Password updated successfully! <a href="/" id="go-login">Back to login</a>`,
-        false
-      );
+      if (password.length < 6) {
+        showMessage("Password must be at least 6 characters", true);
+        return;
+      }
 
-      document.getElementById("reset-form").reset();
-
-      // Wait until the message renders and then attach event listener
-      setTimeout(() => {
-        document.getElementById("go-login")?.addEventListener("click", function (e) {
-          e.preventDefault();
-          window.location.href = "/?showLogin=true";
+      try {
+        const response = await fetch(`/api/reset-password/${token}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ password, remember }),
         });
-      }, 100);
 
-    } catch (err) {
-      showMessage(err.message || "Something went wrong", true);
-    }
-  });
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "Password reset failed");
+        }
+
+        showMessage(
+          `Password updated successfully! <a href="/" id="go-login">Back to login</a>`,
+          false
+        );
+
+        document.getElementById("reset-form").reset();
+
+        // Wait until the message renders and then attach event listener
+        setTimeout(() => {
+          document
+            .getElementById("go-login")
+            ?.addEventListener("click", function (e) {
+              e.preventDefault();
+              window.location.href = "/?showLogin=true";
+            });
+        }, 100);
+
+        // Store remember preference
+        localStorage.setItem("rememberUser", remember.toString());
+      } catch (err) {
+        showMessage(err.message || "Something went wrong", true);
+      }
+    });
 
   function showMessage(message, isError) {
-  const messageDiv = document.getElementById("message");
-  messageDiv.innerHTML = ""; // clear previous messages
-  messageDiv.style.display = "block";
+    const messageDiv = document.getElementById("message");
+    messageDiv.innerHTML = ""; // clear previous messages
+    messageDiv.style.display = "block";
 
-  const notification = document.createElement("div");
-  notification.className = `notification ${isError ? "error" : "success"}`;
-  notification.innerHTML = message;
-  messageDiv.appendChild(notification);
-}
-
+    const notification = document.createElement("div");
+    notification.className = `notification ${isError ? "error" : "success"}`;
+    notification.innerHTML = message;
+    messageDiv.appendChild(notification);
+  }
 });

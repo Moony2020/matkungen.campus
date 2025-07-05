@@ -40,21 +40,23 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async checkAuth() {
       const token = localStorage.getItem("adminToken");
+      const rememberAdmin = localStorage.getItem("rememberAdmin") === "true";
 
       if (!token) {
         window.location.href = "/admin-login.html";
-
         throw new Error("No admin token found");
       }
 
       try {
         const response = await fetch("/api/admin/verify", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!response.ok) {
+          // Only remove token if "remember me" wasn't selected
+          if (!rememberAdmin) {
+            localStorage.removeItem("adminToken");
+          }
           throw new Error("Invalid admin token");
         }
 
@@ -62,10 +64,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
         this.adminId = data.adminId;
       } catch (error) {
-        localStorage.removeItem("adminToken");
-
+        if (!rememberAdmin) {
+          localStorage.removeItem("adminToken");
+        }
         window.location.href = "/admin-login.html";
-
         throw error;
       }
     }
@@ -1993,8 +1995,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    // In your admin.js
-
+    // Show notification
     showNotification(message, isError = false) {
       const toast = document.getElementById("notification-toast");
 

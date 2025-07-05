@@ -13,8 +13,8 @@ const transporter = nodemailer.createTransport({
   service: "Gmail",
   auth: {
     user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
-  }
+    pass: process.env.EMAIL_PASS,
+  },
 });
 
 // ✅ Register
@@ -41,8 +41,8 @@ router.post("/register", async (req, res) => {
       user: {
         id: user._id,
         name: user.name,
-        email: user.email
-      }
+        email: user.email,
+      },
     });
   } catch (err) {
     console.error("Register error:", err.message);
@@ -52,16 +52,22 @@ router.post("/register", async (req, res) => {
 
 // ✅ Login
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, remember } = req.body;
 
   try {
     const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ error: "Invalid credentials" });
+    if (!user)
+      return res.status(400).json({ error: "Incorrect email or password." });
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ error: "Invalid credentials" });
+    if (!isMatch)
+      return res.status(400).json({ error: "Incorrect email or password." });
 
-    const token = generateToken(user._id);
+    // Set expiration based on remember me choice
+    const expiresIn = remember ? "30d" : "1d";
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn,
+    });
 
     res.json({
       success: true,
@@ -71,8 +77,8 @@ router.post("/login", async (req, res) => {
         name: user.name,
         email: user.email,
         phone: user.phone || "",
-        address: user.address || ""
-      }
+        address: user.address || "",
+      },
     });
   } catch (err) {
     console.error("Login error:", err.message);
@@ -88,7 +94,7 @@ router.get("/user", async (req, res) => {
 
     if (token.startsWith("Bearer ")) token = token.split(" ")[1];
 
-    const decoded = verifyToken(token);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id).select("-password");
 
     if (!user) return res.status(404).json({ error: "User not found" });
@@ -96,7 +102,16 @@ router.get("/user", async (req, res) => {
     res.json({ success: true, user });
   } catch (err) {
     console.error("Get user error:", err.message);
-    res.status(401).json({ error: "Invalid or expired token" });
+
+    // More specific error messages
+    let errorMessage = "Invalid token";
+    if (err.name === "TokenExpiredError") {
+      errorMessage = "Session expired. Please log in again.";
+    } else if (err.name === "JsonWebTokenError") {
+      errorMessage = "Invalid authentication token";
+    }
+
+    res.status(401).json({ error: errorMessage });
   }
 });
 
@@ -129,7 +144,7 @@ router.post("/forgot-password", async (req, res) => {
     await transporter.sendMail({
       to: user.email,
       subject: "Password Reset",
-      html: message
+      html: message,
     });
 
     res.json({ success: true, message: "Password reset link sent." });
@@ -143,7 +158,7 @@ router.post("/forgot-password", async (req, res) => {
 router.put("/reset-password/:token", async (req, res) => {
   try {
     const { token } = req.params;
-    const { password } = req.body;
+    const { password, remember } = req.body;
 
     if (!password || password.length < 6) {
       return res
@@ -158,7 +173,7 @@ router.put("/reset-password/:token", async (req, res) => {
 
     const user = await User.findOne({
       resetPasswordToken,
-      resetPasswordExpire: { $gt: Date.now() }
+      resetPasswordExpire: { $gt: Date.now() },
     });
 
     if (!user) {
@@ -173,7 +188,22 @@ router.put("/reset-password/:token", async (req, res) => {
 
     await user.save();
 
-    res.json({ success: true, message: "Password updated successfully" });
+    // Create login token with remember preference
+    const expiresIn = remember ? "30d" : "1d";
+    const authToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn,
+    });
+
+    res.json({
+      success: true,
+      message: "Password updated successfully",
+      token: authToken,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    });
   } catch (error) {
     console.error("Reset password error:", error.message);
     res.status(500).json({ error: "Could not reset password" });
@@ -195,7 +225,7 @@ router.post("/admin/login", async (req, res) => {
       { id: user._id, isAdmin: true },
       process.env.JWT_SECRET,
       {
-        expiresIn: "8h" // Shorter expiry for admin tokens
+        expiresIn: "8h", // Shorter expiry for admin tokens
       }
     );
 
@@ -206,8 +236,8 @@ router.post("/admin/login", async (req, res) => {
         id: user._id,
         name: user.name,
         email: user.email,
-        isAdmin: true
-      }
+        isAdmin: true,
+      },
     });
   } catch (err) {
     res.status(500).json({ error: "Server error" });

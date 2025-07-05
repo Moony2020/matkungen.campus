@@ -195,6 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
   // ==================== SHOPPING CART ====================
   class Cart {
     constructor() {
@@ -422,14 +423,13 @@ document.addEventListener("DOMContentLoaded", function () {
   const cart = new Cart();
 
   // ==================== ADD TO CART FUNCTIONALITY ====================
+
   document.addEventListener("click", function (e) {
     const btn = e.target.closest(".add-to-cart-btn");
     if (!btn) return;
 
-    // Get the menu item container
     const menuItem = btn.closest(".menu-card, .menu-item, .menu-card1");
 
-    // Get product details
     const productName =
       btn.dataset.name ||
       menuItem?.querySelector(".menu-title, .menu-item-title, .menu-title1")
@@ -445,13 +445,24 @@ document.addEventListener("DOMContentLoaded", function () {
       img: productImg,
     };
 
-    // Animation feedback
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="ri-check-line"></i> Added';
+    // Check if it's icon-only button
+    const isIconOnly = btn.classList.contains("icon-only");
+
+    // Store original content to restore later
+    const originalContent = btn.innerHTML;
+
+    // Change content based on type
+    if (isIconOnly) {
+      btn.innerHTML = '<i class="ri-check-line"></i>';
+    } else {
+      btn.innerHTML = '<i class="ri-check-line"></i> Added';
+    }
+
+    // Animate with green background
     btn.style.backgroundColor = "#4CAF50";
 
     setTimeout(() => {
-      btn.innerHTML = originalText;
+      btn.innerHTML = originalContent;
       btn.style.backgroundColor = "var(--gold-crayola)";
     }, 1000);
 
@@ -1293,12 +1304,44 @@ document.addEventListener("DOMContentLoaded", function () {
       this.token = localStorage.getItem("authToken") || null;
       this.currentUser =
         JSON.parse(localStorage.getItem("currentUser")) || null;
+      this.rememberMe = localStorage.getItem("rememberUser") === "true";
       this.initAuth();
     }
 
     initAuth() {
       this.setupEventListeners();
       this.checkAuthState();
+
+      // Auto-login if remember me is enabled
+      if (this.rememberMe && this.token) {
+        this.checkTokenAndLogin();
+      }
+    }
+
+    async checkTokenAndLogin() {
+      try {
+        const response = await fetch("/api/auth/user", {
+          headers: {
+            Authorization: `Bearer ${this.token}`,
+          },
+        });
+
+        if (response.ok) {
+          const { user } = await response.json();
+          this.currentUser = user;
+          localStorage.setItem("currentUser", JSON.stringify(user));
+
+          // Join user room for live updates
+          if (this.currentUser?.id) {
+            socket.emit("joinUserRoom", this.currentUser.id);
+          }
+        } else {
+          this.handleLogout();
+        }
+      } catch (error) {
+        console.error("Token validation failed:", error);
+        this.handleLogout();
+      }
     }
 
     setupEventListeners() {
@@ -1460,24 +1503,28 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async handleLogin(email, password) {
+      const remember = document.getElementById("remember-login").checked;
+
       try {
         const response = await fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
+          body: JSON.stringify({ email, password, remember }),
         });
 
         const data = await response.json();
 
         if (!response.ok) {
-          throw new Error(data.msg || "Login failed");
+          throw new Error(data.error || "Incorrect email or password.");
         }
 
         this.token = data.token;
         this.currentUser = data.user;
+        this.rememberMe = remember;
 
         localStorage.setItem("authToken", this.token);
         localStorage.setItem("currentUser", JSON.stringify(this.currentUser));
+        localStorage.setItem("rememberUser", remember.toString());
 
         // ✅ Join user-specific room for live updates
         if (this.currentUser?.id) {
@@ -2087,8 +2134,12 @@ document.addEventListener("DOMContentLoaded", function () {
     handleLogout() {
       this.token = null;
       this.currentUser = null;
+      this.rememberMe = false;
+
       localStorage.removeItem("authToken");
       localStorage.removeItem("currentUser");
+      localStorage.removeItem("rememberUser");
+
       this.checkAuthState();
       this.showNotification("Logged out successfully");
 

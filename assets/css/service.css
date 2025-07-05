@@ -225,7 +225,7 @@ html {
     /* Center items horizontally */
     padding: 5px;
     /* Add some padding */
-    height: 200px;
+    height: 260px;
     /* Fixed height for all cards */
 }
 
@@ -299,9 +299,8 @@ html {
 
 /* Larger drink images */
 .menu-page.drinks .img-holder {
-    width: 100px;
-    height: 100px;
-
+    width: 140px;
+    height: 140px;
 }
 
 /* Center content in drink cards */
