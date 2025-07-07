@@ -54,6 +54,7 @@
     --fontSize-title-2: 2.2rem;
     --fontSize-title-3: 2.1rem;
     --fontSize-title-4: calc(1.6rem + 1.2vw);
+    --fontSize-body-0: 3rem;
     --fontSize-body-1: 2.4rem;
     --fontSize-body-2: 2rem;
     --fontSize-body-3: 1.8rem;
@@ -1161,9 +1162,11 @@ body.nav-active {
     right: 0;
     display: flex;
     justify-content: space-between;
-    z-index: 2;
+    padding: 0 14px;
     transform: translateY(-50%);
+    z-index: 10;
 }
+
 
 .hero .arrows button {
     background-color: transparent;
@@ -1186,7 +1189,7 @@ body.nav-active {
 .hero .arrows button i {
     color: rgb(230, 205, 140);
     /* Set the arrow color */
-    font-size: 2.4rem;
+    font-size: var(--fontSize-body-1);
     /* Adjust size of the arrow */
 }
 
@@ -1205,7 +1208,6 @@ body.nav-active {
 
 .hero #prev {
     margin-left: 25px;
-
 }
 
 .hero #next {
@@ -5136,6 +5138,30 @@ body.modal-open {
         padding-top: 1rem;
     }
 
+    /*
+   * HERO
+   */
+    .hero .arrows button {
+        border: 2px solid rgba(230, 205, 140, 0.538);
+    }
+
+    .hero .arrows button i {
+        font-size: 1.6rem;
+        color: rgba(230, 205, 140, 0.538);
+    }
+
+    .hero .display-1 {
+        padding: 70px 40px 0 40px;
+    }
+
+    .hero #prev {
+        margin-left: 10px;
+    }
+
+    .hero #next {
+        margin-right: 10px;
+    }
+
     /**
    * SERVICE
    */
@@ -5188,29 +5214,14 @@ body.modal-open {
     }
 
     .about .abs-img-1 {
-        width: 24vw;
-        /* Responsive: 18% of viewport width */
-        max-width: 130px;
-        /* Don't grow too much */
-        min-width: 70px;
-        /* Don't shrink too tiny */
+        width: clamp(80px, 28vw, 140px);
         height: auto;
     }
 
     .about .abs-img-2 {
-        width: 18vw;
-        /* Responsive: 18% of viewport width */
-        max-width: 80px;
-        /* Don't grow too much */
-        min-width: 40px;
-        /* Don't shrink too tiny */
+        width: clamp(40px, 20vw, 80px);
         height: auto;
-
     }
-
-    /* .about .abs-img-2 {
-    width: 80px;
-} */
 
     /* wrap menu categories when the screen is smaller than 575 px to fit the screen */
     .menu-categories {
@@ -5320,19 +5331,11 @@ body.modal-open {
         font-size: 2.2rem;
     }
 
-    .hero .arrows button {
-        border: 2px solid rgba(230, 205, 140, 0.538);
-    }
-
-    .hero .arrows button i {
-        font-size: 1.6rem;
-        color: rgba(230, 205, 140, 0.538);
-    }
-
     .user-notification {
         max-width: 300px;
         bottom: 60px;
     }
+
 }
 
 @media (min-width: 575px) {
@@ -5602,9 +5605,7 @@ body.modal-open {
     }
 
     .about-banner {
-        padding: 20px 30px;
-
-        /* add padding to the sides  */
+        padding: 20px;
     }
 
     .about .abs-img-1 {
