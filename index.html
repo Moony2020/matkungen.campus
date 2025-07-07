@@ -29,6 +29,10 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap"
     rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome (Required for icons like fa-carrot, fa-fish, etc.) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
   <!-- 
     - custom css link
   -->
@@ -477,94 +481,80 @@
       <!-- 
 - #SERVICE
 -->
-      <section class="section service bg-black-10 text-center" id="service-section" aria-label="service">
-        <div class="container">
-          <p class="section-subtitle label-2">Smaker av Högsta Klass <span class="dash-decoration"></span></p>
-          <h2 class="headline-1 section-title">Vi Erbjuder Det Bästa</h2>
-          <p class="section-text">
-            Njut av våra noggrant utvalda menyer, från uppfriskande drycker
-            till läckra vegetariska rätter och rejäla luncher.
-          </p>
-          <p class="menu-lunch-info">
-            Lunch: kl. 11–14 <br />
-            Pizza 100 kr inkl. dricka <br />
-            Tallrikar 80 kr inkl. dricka
-          </p>
-          <ul class="grid-list">
-            <!-- Lunch Menu Card -->
-            <li id="lunch-section">
-              <div class="service-card">
-                <a href="lunch.html" class="has-before hover:shine">
-                  <figure class="card-banner img-holder" style="--width: 285; --height: 336">
-                    <img src="./assets/images/service-1.jpg" loading="lazy" alt="Lunch" class="img-cover" />
-                  </figure>
-                </a>
-                <div class="card-content">
-                  <h3 class="title-4 card-title">
-                    <a href="lunch.html">Lunch</a>
-                    <p href="#" class="btn-text hover-underline label-2">
-                      kl 11-14
-                    </p>
-                  </h3>
-                </div>
-              </div>
-            </li>
+     <section class="section service bg-black-10 text-center" id="service-section" aria-label="service">
+  <div class="service-bg">
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+    <div class="floating-element"></div>
+  </div>
 
-            <!-- Vegetarisk Menu Card -->
-            <li id="Vegetarisk-section">
-              <div class="service-card">
-                <a href="vegetarisk.html" class="has-before hover:shine">
-                  <figure class="card-banner img-holder" style="--width: 285; --height: 336">
-                    <img src="./assets/images/service-2.png" loading="lazy" alt="Vegetarisk" class="img-cover" />
-                  </figure>
-                </a>
-                <div class="card-content">
-                  <h3 class="title-4 card-title">
-                    <a href="vegetarisk.html">Vegetarisk</a>
-                  </h3>
-                </div>
-              </div>
-            </li>
+  <div class="container">
+    <div class="section-header">
+      <p class="section-subtitle label-2">Smaker av Högsta Klass <span class="dash-decoration"></span></p>
+      <h2 class="headline-1 section-title">Vi Erbjuder Det Bästa</h2>
+      <p class="section-text">
+        Njut av våra noggrant utvalda menyer, från uppfriskande drycker till läckra vegetariska rätter och rejäla luncher.
+      </p>
+      <div class="highlight-box">
+        <h3 class="highlight-title"><i class="fas fa-utensils"></i> Lunch info</h3>
+        <p class="menu-lunch-info">
+          Lunch: kl. 11–14 <br />
+          Pizza 100 kr inkl. dricka <br />
+          Tallrikar 80 kr inkl. dricka
+        </p>
+      </div>
+    </div>
 
-            <!-- Drycker Menu Card -->
-            <li id="drycker-section">
-              <div class="service-card">
-                <a href="drycker.html" class="has-before hover:shine">
-                  <figure class="card-banner img-holder" style="--width: 285; --height: 336">
-                    <img src="./assets/images/service-3.png" loading="lazy" alt="Drycker" class="img-cover" />
-                  </figure>
-                </a>
-                <div class="card-content">
-                  <h3 class="title-4 card-title">
-                    <a href="drycker.html">Drycker</a>
-                    <p href="#" class="btn-text hover-underline label-2">
-                      inkl. lunch
-                    </p>
-                  </h3>
-                </div>
-              </div>
-            </li>
-          </ul>
-
-          <img src="./assets/images/shape-1.png" width="246" height="412" loading="lazy" alt="shape"
-            class="shape shape-1 move-anim" />
-          <img src="./assets/images/shape-2.png" width="343" height="345" loading="lazy" alt="shape"
-            class="shape shape-2 move-anim" />
-          <img src="./assets/images/shape-9.png" loading="lazy" alt="" class="shape-4" />
+    <ul class="grid-list">
+      <li>
+        <div class="service-card" onclick="window.location.href='lunch.html'">
+          <div class="shine"></div>
+          <div class="card-banner">
+            <img src="./assets/images/service-1.jpg" alt="Lunch" />
+          </div>
+          <div class="reflection"></div>
+          <div class="card-content">
+            <h3 class="title-4 card-title">Lunch</h3>
+            <p class="card-detail"><i class="far fa-clock"></i> <span>kl 11-14</span></p>
+          </div>
         </div>
-      </section>
+      </li>
+      <li>
+        <div class="service-card" onclick="window.location.href='vegetarisk.html'">
+          <div class="shine"></div>
+          <div class="card-banner">
+            <img src="./assets/images/service-2.png" alt="Vegetarisk" />
+          </div>
+          <div class="reflection"></div>
+          <div class="card-content">
+            <h3 class="title-4 card-title">Vegetarisk</h3>
+            <p class="card-detail"><i class="fas fa-leaf"></i> <span>Färska råvaror</span></p>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div class="service-card" onclick="window.location.href='drycker.html'">
+          <div class="shine"></div>
+          <div class="card-banner">
+            <img src="./assets/images/service-3.png" alt="Drycker" />
+          </div>
+          <div class="reflection"></div>
+          <div class="card-content">
+            <h3 class="title-4 card-title">Drycker</h3>
+            <p class="card-detail"><i class="fas fa-glass-whiskey"></i> <span>inkl. lunch</span></p>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
 
       <!-- 
         - #ABOUT
       -->
 
       <section class="section about text-center" aria-labelledby="about-label" id="about">
-        <!-- Decorative elements -->
-        <i class="fas fa-carrot decorative-element tomato"></i>
-        <i class="fas fa-leaf decorative-element herbs"></i>
-        <i class="fas fa-fish decorative-element shrimp"></i>
-        <i class="fas fa-pepper-hot decorative-element pepper"></i>
-
         <div class="container">
           <div class="about-content">
             <p class="label-2 section-subtitle" id="about-label">

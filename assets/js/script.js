@@ -195,7 +195,17 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
-
+  // ==================== RIPPLE EFFECT ====================
+  document.querySelectorAll(".service-card").forEach((card) => {
+    card.addEventListener("click", function (e) {
+      const ripple = document.createElement("span");
+      ripple.classList.add("ripple");
+      ripple.style.left = `${e.clientX - card.getBoundingClientRect().left}px`;
+      ripple.style.top = `${e.clientY - card.getBoundingClientRect().top}px`;
+      this.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+  });
   // ==================== SHOPPING CART ====================
   class Cart {
     constructor() {

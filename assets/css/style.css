@@ -3,7 +3,7 @@
 \*-----------------------------------*/
 
 /**
- * copyright 2024 mymoon
+ * copyright 2025 Mymoon
  */
 
 /*-----------------------------------*\
@@ -47,7 +47,7 @@
     --fontFamily-forum: 'Forum', 'cursive';
     --fontFamily-dm_sans: 'DM Sans', sans-serif;
     /* font-size */
-    --fontSize-display-1: calc(1.3rem + 5.7vw);
+    --fontSize-display-1: calc(1.2rem + 5.5vw);
     --fontSize-headline-1: calc(1.1rem + 2.5vw);
     --fontSize-headline-2: calc(1.3rem + 2.4vw);
     --fontSize-headline-3: calc(1.8rem + 2vw);
@@ -73,6 +73,7 @@
     --lineHeight-4: 1.6em;
     --lineHeight-5: 1.85em;
     --lineHeight-6: 1.4em;
+    --lineHeight-7: 1.7em;
     /* letter-spacing */
     --letterSpacing-1: 0.15em;
     --letterSpacing-2: 0.4em;
@@ -485,14 +486,6 @@ body.nav-active {
     color: var(--black);
 }
 
-/* .btn-secondary::before {
-    background-color: var(--smoky-black-1);
-}
-
-.btn-secondary .text-2 {
-    color: var(--white);
-} */
-
 .has-before,
 .has-after {
     position: relative;
@@ -704,7 +697,7 @@ body.nav-active {
     background-size: 500%;
     font-size: calc(2rem + 3vw);
     font-weight: var(--weight-bold);
-    line-height: 1em;
+    line-height: var(--lineHeight-1);
     text-transform: uppercase;
     letter-spacing: 16px;
     padding-inline-start: 16px;
@@ -1223,6 +1216,14 @@ body.nav-active {
   #SERVICE
 \*-----------------------------------*/
 
+.service .section-header {
+    text-align: center;
+    margin-bottom: 60px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .service .section-title {
     margin-block-end: 16px;
 }
@@ -1231,50 +1232,392 @@ body.nav-active {
     margin-block-end: 4px;
 }
 
-.service-card {
+.service .highlight-box {
+    background: rgba(230, 180, 34, 0.1);
+    border: 1px solid rgba(230, 180, 34, 0.2);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 30px auto;
+    max-width: 500px;
+    text-align: center;
+    position: relative;
     overflow: hidden;
+    transition: var(--transition);
+    backdrop-filter: blur(5px);
 }
 
-.service-card .has-before {
-    padding-block: 20px;
-    margin-block-end: 16px;
+.service .highlight-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(230, 180, 34, 0.15);
+    border-color: var(--gold-crayola);
+}
+
+.service .highlight-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 4px;
+    background: linear-gradient(90deg, var(--gold-crayola), transparent);
+    opacity: 0.7;
+}
+
+.service .highlight-title {
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    color: var(--gold-crayola);
+    font-weight: 600;
+}
+
+.service .menu-lunch-info {
+    color: var(--text-light);
+    font-size: 1.1rem;
+}
+
+.service .grid-list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--card-spacing);
+    margin-top: 40px;
+    padding: 0;
+    list-style: none;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.service .service-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: var(--transition);
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    max-width: 250px;
+    margin: 0 auto;
+    /* Center cards in grid cells */
+}
+
+.service .service-card:hover {
+    transform: translateY(-10px) rotateY(5deg);
+    border-color: var(--gold-crayola);
+    box-shadow: 0 15px 30px rgba(230, 180, 34, 0.2);
+}
+
+.service .service-card::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--gold-crayola);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s ease;
+    z-index: 3;
+}
+
+.service .service-card:hover::before {
+    transform: scaleX(1);
+}
+
+/* Shadow Border Effect */
+.service-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 16px;
+    border: 2px solid transparent;
+    background: linear-gradient(45deg, var(--gold-crayola), transparent 70%) border-box;
+    -webkit-mask:
+        linear-gradient(#fff 0 0) padding-box,
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    transition: var(--transition);
+    opacity: 0.5;
+    z-index: 4;
+}
+
+.service .card-banner {
+    position: relative;
+    overflow: hidden;
+    height: 250px;
+    transform-style: preserve-3d;
+}
+
+.service .card-banner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
     z-index: 1;
 }
 
-.service-card .has-before::before {
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 140px;
+.service .card-banner img {
+    width: 100%;
     height: 100%;
-    background-image: url('../images/img-pattern.svg');
-    background-position: center;
-    background-size: cover;
-    background-repeat: repeat;
-    transition: var(--transition-2);
-    transition-delay: 0;
+    object-fit: cover;
+    transition: var(--transition);
+    transform: scale(1.02);
+}
+
+.service .service-card:hover .card-banner img {
+    transform: scale(1.1);
+}
+
+/* Reflection effect */
+.service .reflection {
+    position: absolute;
+    bottom: -40px;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.15), transparent);
+    opacity: 0;
+    transform: scaleY(0) rotateX(80deg);
+    transform-origin: bottom;
+    transition: var(--transition);
+    filter: blur(8px);
+    z-index: 0;
+}
+
+.service .service-card:hover .reflection {
+    opacity: 1;
+    transform: scaleY(1) rotateX(0);
+}
+
+.service .card-content {
+    padding: 18px;
+    /* Reduced padding */
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 2;
+    background-color: var(--smoky-black-3);
+}
+
+.service .card-detail {
+    color: var(--text-light);
+    font-size: var(--fontSize-body-5);
+    margin-top: auto;
+    padding-top: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.service .card-detail i {
+    color: var(--gold-crayola);
+    margin-right: 8px;
+    font-size: var(--fontSize-body-5);
+}
+
+.service .card-detail span {
+    display: inline-block;
+    background: rgba(230, 180, 34, 0.15);
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: var(--fontSize-body-5);
+    transition: var(--transition);
+}
+
+.service .service-card:hover .card-detail span {
+    background: rgba(230, 180, 34, 0.3);
+}
+
+/* Shine effect */
+.service .shine {
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(to right,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.2) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    transform: skewX(-25deg);
+    transition: left 0.75s;
+    z-index: 1;
+}
+
+.service .service-card:hover .shine {
+    left: 150%;
+}
+
+/* Floating elements background */
+.service .service-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     z-index: -1;
-    will-change: transform;
 }
 
-.service-card:is(:hover,
-    :focus-within) .has-before::before {
-    transform: rotateY(0.5turn) translateX(50%);
-    transition-delay: 300ms;
+.service .floating-element {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(230, 180, 34, 0.1) 0%, transparent 70%);
+    opacity: 0.4;
+    filter: blur(20px);
 }
 
-.service-card .card-banner {
-    transition: var(--transition-2);
+.service .floating-element:nth-child(1) {
+    width: 300px;
+    height: 300px;
+    top: -100px;
+    left: -100px;
+    animation: float 15s infinite linear;
 }
 
-.service-card:is(:hover,
-    :focus-within) .card-banner {
-    transform: scale(1.05);
-    border-radius: 10px;
+.service .floating-element:nth-child(2) {
+    width: 200px;
+    height: 200px;
+    bottom: -50px;
+    right: 100px;
+    animation: float 12s infinite linear reverse;
 }
 
-.service .card-title {
-    margin-block-end: 12px;
+.service .floating-element:nth-child(3) {
+    width: 150px;
+    height: 150px;
+    top: 50%;
+    right: -50px;
+    animation: float 10s infinite linear;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) rotate(0deg);
+    }
+
+    25% {
+        transform: translate(20px, 20px) rotate(90deg);
+    }
+
+    50% {
+        transform: translate(0, 40px) rotate(180deg);
+    }
+
+    75% {
+        transform: translate(-20px, 20px) rotate(270deg);
+    }
+
+    100% {
+        transform: translate(0, 0) rotate(360deg);
+    }
+}
+
+/* Animation for cards */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.service .service-card {
+    opacity: 0;
+    animation: fadeInUp 0.6s forwards;
+}
+
+.service .grid-list li:nth-child(1) .service-card {
+    animation-delay: 0.2s;
+}
+
+.service .grid-list li:nth-child(2) .service-card {
+    animation-delay: 0.4s;
+}
+
+.service .grid-list li:nth-child(3) .service-card {
+    animation-delay: 0.6s;
+}
+
+
+/* Responsive design */
+/* @media (max-width: 768px) {
+    .service .section-title {
+        font-size: 2.2rem;
+    }
+
+    .service .grid-list {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .service .highlight-box {
+        padding: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .service .section {
+        padding: 60px 15px;
+    }
+
+    .service .section-title {
+        font-size: 1.9rem;
+    }
+
+    .service .section-subtitle {
+        font-size: 1rem;
+    }
+} */
+
+/* Animation for cards */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.service .service-card {
+    opacity: 0;
+    animation: fadeInUp 0.6s forwards;
+}
+
+.service .service-card:nth-child(1) {
+    animation-delay: 0.2s;
+}
+
+.service .service-card:nth-child(2) {
+    animation-delay: 0.4s;
+}
+
+.service .service-card:nth-child(3) {
+    animation-delay: 0.6s;
 }
 
 .menu-page {
@@ -1298,7 +1641,7 @@ body.nav-active {
     color: var(--text-light);
     position: relative;
     /* ADJUSTED PADDING: Less top, more bottom */
-    padding: 35px 40px 110px 40px !important;
+    padding: 80px 40px 110px 40px !important;
 }
 
 
@@ -1307,49 +1650,6 @@ body.nav-active {
     font-size: 1.5rem;
     margin-bottom: 1.5rem;
     max-width: 700px;
-}
-
-/* Decorative Elements */
-.decorative-element {
-    position: absolute;
-    z-index: -1;
-    opacity: 0.1;
-    color: var(--gold);
-    font-size: 8rem;
-}
-
-.tomato {
-    top: 10%;
-    right: 5%;
-    color: var(--deep-red);
-    font-size: 6rem;
-    opacity: 0.15;
-}
-
-.herbs {
-    bottom: 15%;
-    left: 5%;
-    font-size: 10rem;
-    color: var(--accent-green);
-    opacity: 0.1;
-}
-
-.shrimp {
-    top: 25%;
-    left: 8%;
-    font-size: 7rem;
-    color: var(--accent-orange);
-    opacity: 0.15;
-    transform: rotate(-20deg);
-}
-
-.pepper {
-    bottom: 20%;
-    right: 8%;
-    font-size: 6rem;
-    color: #ff4500;
-    opacity: 0.15;
-    transform: rotate(15deg);
 }
 
 .about .btn {
@@ -1661,7 +1961,7 @@ body.nav-active {
 .menu-item-desc {
     color: var(--quick-silver);
     font-size: var(--fontSize-label-1);
-    line-height: 1.6;
+    line-height: var(--lineHeight-4);
     min-height: 60px;
     /* Adjust as needed to ensure consistent spacing */
     margin-bottom: 5px;
@@ -1710,7 +2010,7 @@ body.nav-active {
     margin-bottom: 20px;
 }
 
-.grid-list {
+.menu .grid-list {
     display: grid;
     gap: 40px;
 }
@@ -4839,14 +5139,14 @@ body.modal-open {
     /**
    * SERVICE
    */
-    .service .container {
-        max-width: 320px;
-        margin-inline: auto;
+
+    .service .grid-list {
+        grid-template-columns: 1fr !important;
     }
 
-    .service .container .service-card {
-        margin-bottom: -4rem;
-        /* margin between service cards , lunch, drinks ,vegetarian */
+    .service .grid-list>* {
+        grid-column: auto !important;
+        justify-self: center;
     }
 
     .service .headline-1,
@@ -4908,133 +5208,131 @@ body.modal-open {
 
     }
 
-}
-
-/* .about .abs-img-2 {
+    /* .about .abs-img-2 {
     width: 80px;
 } */
 
-/* wrap menu categories when the screen is smaller than 575 px to fit the screen */
-.menu-categories {
-    flex-wrap: wrap;
-    gap: 15px;
-}
+    /* wrap menu categories when the screen is smaller than 575 px to fit the screen */
+    .menu-categories {
+        flex-wrap: wrap;
+        gap: 15px;
+    }
 
-.reservation .contact-number {
-    --fontSize-body-1: 2rem;
-}
+    .reservation .contact-number {
+        --fontSize-body-1: 2rem;
+    }
 
-.reservation .body-4 {
-    word-break: break-word;
-    /* Break long text "emailx" to fit the container */
-}
+    .reservation .body-4 {
+        word-break: break-word;
+        /* Break long text "emailx" to fit the container */
+    }
 
-.menu-card .title-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
+    .menu-card .title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
 
-.payment-page .headline-1 {
-    margin: -1.8rem 0 1rem 0;
-    /* top right bottom left */
-}
+    .payment-page .headline-1 {
+        margin: -1.8rem 0 1rem 0;
+        /* top right bottom left */
+    }
 
-.rollers .box-container,
-.dishes .box-container,
-.boxes .box-container {
-    justify-content: center;
-    /* center box containers */
-}
+    .rollers .box-container,
+    .dishes .box-container,
+    .boxes .box-container {
+        justify-content: center;
+        /* center box containers */
+    }
 
-.rollers .box-container .box,
-.dishes .box-container .box,
-.boxes .box-container .box,
-.pitabread .box-container .box,
-.addition .box-container .box,
-.pizzor .box-container .box {
-    flex: 1 1 80%;
-    /* Make the boxes larger and equal in width */
-    max-width: 92%;
-    /* Set the maximum width */
-    margin: 0 auto;
-    /* Add an auto margin to center the element */
-}
+    .rollers .box-container .box,
+    .dishes .box-container .box,
+    .boxes .box-container .box,
+    .pitabread .box-container .box,
+    .addition .box-container .box,
+    .pizzor .box-container .box {
+        flex: 1 1 80%;
+        /* Make the boxes larger and equal in width */
+        max-width: 92%;
+        /* Set the maximum width */
+        margin: 0 auto;
+        /* Add an auto margin to center the element */
+    }
 
-.rollers .box-container .box h3,
-.dishes .box-container .box h3,
-.boxes .box-container .box h3,
-.pitabread .box-container .box h3,
-.addition .box-container .box h3 {
-    font-size: 1.7rem;
-}
+    .rollers .box-container .box h3,
+    .dishes .box-container .box h3,
+    .boxes .box-container .box h3,
+    .pitabread .box-container .box h3,
+    .addition .box-container .box h3 {
+        font-size: 1.7rem;
+    }
 
-.footer-list li a {
-    font-size: var(--fontSize-label-1);
-}
+    .footer-list li a {
+        font-size: var(--fontSize-label-1);
+    }
 
-.footer-links,
-.footer-social {
-    margin-top: 3rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding-top: 1.7rem;
-}
+    .footer-links,
+    .footer-social {
+        margin-top: 3rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding-top: 1.7rem;
+    }
 
-.confirmation-actions {
-    flex-direction: column;
-    align-items: center;
-}
+    .confirmation-actions {
+        flex-direction: column;
+        align-items: center;
+    }
 
-.confirmation-actions .btn {
-    width: 100%;
-}
+    .confirmation-actions .btn {
+        width: 100%;
+    }
 
-/* Track Order */
-.track-container {
-    padding: 20px;
-    margin: 20px;
-}
+    /* Track Order */
+    .track-container {
+        padding: 20px;
+        margin: 20px;
+    }
 
-/* .progress-bar {
+    /* .progress-bar {
         margin-top: 20px;
     } */
 
-.progress-step span {
-    font-size: 1.2rem;
-}
+    .progress-step span {
+        font-size: 1.2rem;
+    }
 
-.reset-container {
-    margin: 50px auto;
-    padding: 25px;
-}
+    .reset-container {
+        margin: 50px auto;
+        padding: 25px;
+    }
 
-.reset-container h2 {
-    font-size: var(--fontSize-title-3);
-}
+    .reset-container h2 {
+        font-size: var(--fontSize-title-3);
+    }
 
-.user-sidebar {
-    width: 100%;
-    max-width: 320px;
-}
+    .user-sidebar {
+        width: 100%;
+        max-width: 320px;
+    }
 
-.user-btn {
-    margin-right: 0;
-    font-size: 2.2rem;
-}
+    .user-btn {
+        margin-right: 0;
+        font-size: 2.2rem;
+    }
 
-.hero .arrows button {
-    border: 2px solid rgba(230, 205, 140, 0.538);
-}
+    .hero .arrows button {
+        border: 2px solid rgba(230, 205, 140, 0.538);
+    }
 
-.hero .arrows button i {
-    font-size: 1.6rem;
-    color: rgba(230, 205, 140, 0.538);
-}
+    .hero .arrows button i {
+        font-size: 1.6rem;
+        color: rgba(230, 205, 140, 0.538);
+    }
 
-.user-notification {
-    max-width: 300px;
-    bottom: 60px;
-}
+    .user-notification {
+        max-width: 300px;
+        bottom: 60px;
+    }
 }
 
 @media (min-width: 575px) {
@@ -5140,19 +5438,8 @@ body.modal-open {
     /**
    * SERVICE
    */
-    .service .container {
-        max-width: 360px;
-        margin-inline: auto;
-        margin-bottom: 0;
-    }
-
-    .service .headline-1 {
-        font-size: 3.8rem;
-    }
-
-    .service .container .service-card {
-        margin-bottom: -4rem;
-        /* margin between service cards , lunch, drinks ,vegetarian */
+    .service .grid-list {
+        grid-template-columns: repeat(2, 1fr);
     }
 
     /**
@@ -5311,11 +5598,12 @@ body.modal-open {
 
     /* Adjust padding for mobile */
     .about {
-        padding: 14px 10px 100px 14px !important;
+        padding: 60px 10px 100px 14px !important;
     }
 
     .about-banner {
-        padding: 0 30px;
+        padding: 20px 30px;
+
         /* add padding to the sides  */
     }
 
@@ -5329,6 +5617,18 @@ body.modal-open {
         right: -10px;
     }
 
+    .service .grid-list {
+        gap: 30px;
+    }
+
+    .service .grid-list>*:nth-child(3):last-child {
+        grid-column: 1 / 3;
+        justify-self: center;
+        width: 100%;
+        gap: 30px;
+        margin: 0 auto;
+    }
+
 }
 
 /**
@@ -5339,18 +5639,25 @@ body.modal-open {
     /**
    * REUSED STYLE
    */
-    .grid-list {
-        grid-template-columns: 1fr 1fr;
+    .service .grid-list {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 900px;
+        gap: 30px;
     }
 
-    :is(.service) .container {
-        max-width: 820px;
+    .service .grid-list li:last-child {
+        grid-column: 1 / span 2;
+        width: 60%;
+        margin: 0 auto;
     }
 
-    :is(.service) .grid-list li:last-child {
-        grid-column: 1 / 3;
-        width: calc(50% - 20px);
-        margin-inline: auto;
+    /* Adjust card content for medium screens */
+    .service .card-content {
+        padding: 15px;
+    }
+
+    .service .card-title {
+        font-size: var(--fontSize-title-2)
     }
 
     /**
@@ -5436,10 +5743,6 @@ body.modal-open {
         align-items: center;
     }
 
-    .about {
-        padding: 50px 0;
-    }
-
     .about .abs-img-1 {
         width: 180px;
         left: -10px;
@@ -5474,6 +5777,7 @@ body.modal-open {
     .about-banner {
         margin: 0 auto;
         padding-bottom: 0;
+
     }
 
     .about-banner img {
@@ -5501,17 +5805,23 @@ body.modal-open {
     /**
    * REUSED STYLE
    */
-    :is(.service) .container {
+    /* :is(.service) .container {
         max-width: unset;
-    }
+    } */
 
-    :is(.service) .grid-list {
+    .service .grid-list {
         grid-template-columns: repeat(3, 1fr);
+        max-width: 1200px;
     }
 
-    :is(.service) .grid-list li:last-child {
+    .service .grid-list li:last-child {
         grid-column: auto;
         width: 100%;
+    }
+
+    /* Optimize hover effects for desktop */
+    .service .service-card:hover {
+        transform: translateY(-5px);
     }
 
     /**
@@ -5553,16 +5863,6 @@ body.modal-open {
         /* Add space on the right */
         max-width: 100%;
         /* Ensure it takes full width within padding */
-    }
-
-    .service .grid-list {
-        gap: 30px;
-        /* Adjust gap between items */
-    }
-
-    .service-card {
-        max-width: 100%;
-        /* Ensure cards don't overflow */
     }
 
     /**
