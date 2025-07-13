@@ -119,8 +119,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==================== HERO SLIDER ====================
   const heroSlider = document.querySelector("[data-hero-slider]");
   const heroSliderItems = document.querySelectorAll("[data-hero-slider-item]");
-  const prevBtn = document.getElementById("prev");
-  const nextBtn = document.getElementById("next");
+  const prevBtn = document.getElementById("prev-slide");
+  const nextBtn = document.getElementById("next-slide");
 
   if (heroSlider && heroSliderItems.length && prevBtn && nextBtn) {
     let currentSlidePos = 0;
@@ -195,6 +195,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
   // ==================== RIPPLE EFFECT ====================
   document.querySelectorAll(".service-card").forEach((card) => {
     card.addEventListener("click", function (e) {
@@ -438,12 +439,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const btn = e.target.closest(".add-to-cart-btn");
     if (!btn) return;
 
-    const menuItem = btn.closest(".menu-card, .menu-item, .menu-card1");
+    const menuItem = btn.closest(".menu-item, .menu-card1");
 
     const productName =
       btn.dataset.name ||
-      menuItem?.querySelector(".menu-title, .menu-item-title, .menu-title1")
-        ?.textContent ||
+      menuItem?.querySelector(".menu-item-title, .menu-title1")?.textContent ||
       "Unknown Item";
 
     const price = parseFloat(btn.dataset.price) || 0;

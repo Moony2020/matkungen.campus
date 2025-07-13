@@ -17,26 +17,6 @@ html {
     /* Add padding if needed */
 }
 
-/* Background shapes */
-.menu-page .shape {
-    position: absolute;
-    z-index: -1;
-    /* Ensure the shapes are behind other content */
-    opacity: 0.5;
-    /* Adjust visibility */
-    display: block;
-}
-
-.menu-page .shape-1 {
-    bottom: 0;
-    left: 0;
-}
-
-.menu-page .shape-2 {
-    top: 0;
-    right: 0;
-}
-
 /* Adjust the position of the header container */
 #lunch-menu .header-container,
 #vegetarian-menu .header-container,
@@ -55,20 +35,21 @@ html {
 }
 
 /* Style the back arrow button */
-.btn-primary {
+.back-arrow .btn-primary {
     position: absolute;
     /* Remove from normal document flow */
     left: -10px;
     /* Align it to the left */
-    color: rgba(238, 238, 238, 0.619);
+    color: var(--quick-silver);
     display: flex;
+    margin-left: 25px;
     align-items: center;
     justify-content: center;
     cursor: pointer;
 }
 
-.btn-primary i:hover {
-    color: #fff;
+.back-arrow .btn-primary i:hover {
+    color: var(--white);
 }
 
 /* Adjust the heading */
@@ -86,7 +67,7 @@ html {
 
 .menu-page .back-arrow a {
     margin-top: -1.5rem;
-    color: rgba(238, 238, 238, 0.644);
+    color: var(--quick-silver);
     /* Adjust this variable to your desired color */
     cursor: pointer;
 }
@@ -97,43 +78,17 @@ html {
 
 .menu-page .back-arrow a:hover {
     /* Change the color on hover */
-    color: #fff;
+    color: var(--white);
     border-radius: 50%;
     transition: 0.3s ease;
 }
 
-.menu-page .btn-primary {
+/* .menu-page .btn-primary {
     margin-left: 25px;
-}
-
-/* price & 2 lines front of the price  margin*/
-.menu-card .span {
-    margin-bottom: 1rem;
-    font-family: var(--fontFamily-forum);
-    font-size: var(--fontSize-title-2);
-    font-weight: var(--weight-regular);
-}
-
-/* Animation for background images */
-.menu-page .move-anim {
-    animation: move 5s linear infinite;
-}
-
-/* Define the keyframes */
-@keyframes move {
-
-    0%,
-    100% {
-        transform: translateY(20px);
-    }
-
-    50% {
-        transform: translateY(90px);
-    }
-}
+} */
 
 /* Menu Lunch Info Styling */
-.menu-lunch-info {
+#lunch-menu .menu-lunch-info {
     font-size: 1.6rem;
     margin-top: -2rem;
     color: var(--quick-silver);
