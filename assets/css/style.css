@@ -5204,7 +5204,7 @@ body.modal-open {
     }
 
     .menu-grid {
-        padding: 0 35px !important;
+        padding: 0 32px !important;
         grid-template-columns: 1fr !important;
     }
 
