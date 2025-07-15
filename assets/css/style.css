@@ -795,20 +795,27 @@ body.nav-active {
 .header {
     position: fixed;
     top: 0;
-    left: 0;
     width: 100%;
-    background-color: transparent;
-    padding-block: 40px;
-    z-index: 4;
-    border-block-end: 1px solid transparent;
+    padding: 40px 0;
+    z-index: 1000;
+    border-bottom: 1px solid transparent;
     transition: var(--transition-1);
+    display: flex;
+    justify-content: center;
+    backdrop-filter: blur(0px);
+    /* Initial state - no blur */
+    background: transparent;
 }
 
 .header.active {
-    padding-top: 3rem;
-    padding-bottom: 1rem;
-    background-color: var(--eerie-black-4);
+    padding-top: 30px;
+    padding-bottom: 15px;
+    background: rgba(18, 18, 18, 0.85);
+    /* Semi-transparent background */
     border-color: var(--black-alpha-15);
+    backdrop-filter: blur(10px);
+    /* Blur effect */
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
 }
 
 .header.hide {
@@ -817,16 +824,22 @@ body.nav-active {
 }
 
 .header .container {
-    padding-inline: 20px;
+    width: 90%;
+    max-width: 1200px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: 8px;
+    gap: 20px;
 }
 
-.logo-container {
+.header .logo-container {
     display: flex;
     align-items: center;
+    margin-left: -33px;
+}
+
+.mobile-logo {
+    margin-top: -30px;
 }
 
 .logo-container .logo-text {
@@ -844,6 +857,7 @@ body.nav-active {
     font-weight: var(--weight-bold);
     color: var(--gold-crayola);
     /* Customize color */
+    margin-top: -7px;
 }
 
 .logo-text p {
@@ -897,9 +911,11 @@ body.nav-active {
     left: -360px;
     bottom: 0;
     max-width: 360px;
+    height: 100vh;
+    /* ✅ Ensure full viewport height */
     width: 100%;
     padding-inline: 30px;
-    padding-block-end: 50px;
+    padding-bottom: 75px;
     overflow-y: auto;
     visibility: hidden;
     z-index: 2;
@@ -1283,7 +1299,7 @@ body.nav-active {
     display: grid;
     grid-template-columns: 1fr;
     gap: var(--card-spacing);
-    margin-top: 40px;
+    margin-top: -30px;
     padding: 0;
     list-style: none;
     max-width: 900px;
@@ -2083,7 +2099,7 @@ body.nav-active {
     cursor: pointer;
     padding: 6px 12px;
     border-radius: 20px;
-    background-color: rgba(30, 30, 30, 0.7);
+    background-color: rgba(51, 51, 51, 0.332);
     transition: all 0.3s ease;
     border: 1px solid transparent;
 }
@@ -2150,7 +2166,6 @@ body.nav-active {
 }
 
 /* For Sallader and Burgers using menu-card */
-
 .menu-grid>* {
     animation: fadeInUp 0.6s ease forwards;
     opacity: 0;
@@ -5400,6 +5415,11 @@ body.modal-open {
         top: 0;
     }
 
+    .navbar {
+        top: 20px;
+        /* Adjust this value to match the height of your top header/nav */
+    }
+
     /**
    * HERO
    */
@@ -5432,10 +5452,6 @@ body.modal-open {
         flex-wrap: wrap;
         gap: 15px;
     }
-
-    /**
-   * Salads Menu
-   */
 
     /**
    * rollers dishes
@@ -5497,6 +5513,7 @@ body.modal-open {
 
 /* For screens between 576px and 650px */
 @media (min-width: 576px) and (max-width: 650px) {
+
     .menu-grid {
         padding: 0 20px !important;
         grid-template-columns: 1fr !important;
@@ -5505,6 +5522,7 @@ body.modal-open {
 
 /* For screens between 651px and 768px */
 @media (min-width: 651px) and (max-width: 768px) {
+
     .menu-grid {
         padding: 0 4px !important;
         grid-template-columns: 1fr 1fr !important;
@@ -5732,6 +5750,11 @@ body.modal-open {
     .menu-grid {
         grid-template-columns: 1fr 1fr;
         padding: 0 70px;
+    }
+
+    /* Adjust padding for menu categories from left and right */
+    .menu-categories-container {
+        padding: 0 20px;
     }
 
     .service .grid-list {

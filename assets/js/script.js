@@ -72,6 +72,16 @@ document.addEventListener("DOMContentLoaded", function () {
   if (overlay) {
     overlay.addEventListener("click", toggleNavbar);
   }
+  // Close navbar when clicking on nav links like hem, meny ,,,,
+  const navLinks = document.querySelectorAll(".navbar-link");
+
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      navbar.classList.remove("active");
+      overlay.classList.remove("active");
+      document.body.classList.remove("nav-active");
+    });
+  });
 
   // ==================== HEADER & SCROLL ====================
   const header = document.querySelector("[data-header]");

@@ -1,110 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vegetarisk</title>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+    <link rel="stylesheet" href="./assets/css/service.css" />
+    <!-- Include Font Awesome for icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css"
+    />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vegetarisk</title>
-  <link rel="stylesheet" href="./assets/css/style.css" />
-  <link rel="stylesheet" href="./assets/css/service.css" />
-  <!-- Include Font Awesome for icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css" />
-</head>
-
-<body>
-  <!-- Lunch Menu -->
-  <section class="menu-page vegetarian" id="vegetarian-menu">
-    <div class="container">
-      <div class="header-container">
-        <!-- Back arrow to return to the main page -->
-        <div class="back-arrow">
-          <a href="index.html#service-section" class="btn-primary">
-            <i class="ri-arrow-left-circle-fill"></i>
-          </a>
+  <body>
+    <!-- Lunch Menu -->
+    <section class="menu-page vegetarian" id="vegetarian-menu">
+      <div class="container">
+        <div class="header-container">
+          <!-- Back arrow to return to the main page -->
+          <div class="back-arrow">
+            <a href="index.html#service-section" class="btn-primary">
+              <i class="ri-arrow-left-circle-fill"></i>
+            </a>
+          </div>
+          <h1 class="menu-heading">Vegetarisk</h1>
         </div>
-        <h1 class="menu-heading">Vegetarisk</h1>
+        <ul class="menu-grid-service">
+          <li>
+            <div class="menu-item">
+              <img
+                src="./assets/images/falafelrulle.jpg"
+                alt="Lasagne"
+                class="menu-item-img"
+              />
+              <div class="menu-item-content">
+                <div class="title-wrapper">
+                  <h3 class="menu-item-title">Falafelrulle</h3>
+                  <span class="menu-item-price">50 kr</span>
+                </div>
+                <p class="menu-item-desc">
+                  Falafel, isbergssallad, hummus, färska tomater, gurka, lök.
+                </p>
+                <button
+                  class="add-to-cart-btn"
+                  data-name="Falafelrulle"
+                  data-price="50"
+                  data-img="./assets/images/falafelrulle.jpg"
+                >
+                  <i class="ri-shopping-cart-line"></i> Lägg till
+                </button>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div class="menu-item">
+              <img
+                src="./assets/images/falafelsallad.png"
+                alt="Lasagne"
+                class="menu-item-img"
+              />
+              <div class="menu-item-content">
+                <div class="title-wrapper">
+                  <h3 class="menu-item-title">Falafelsallad</h3>
+                  <span class="menu-item-price">70 kr</span>
+                </div>
+                <p class="menu-item-desc">
+                  Falafel, isbergssallad, tomater, gurka, lök, majs, vitlöksås.
+                </p>
+                <button
+                  class="add-to-cart-btn"
+                  data-name="Falafelsallad"
+                  data-price="70"
+                  data-img="./assets/images/falafelsallad.png"
+                >
+                  <i class="ri-shopping-cart-line"></i> Lägg till
+                </button>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="menu-item">
+              <img
+                src="./assets/images/halloumisallad.png"
+                alt="Lasagne"
+                class="menu-item-img"
+              />
+              <div class="menu-item-content">
+                <div class="title-wrapper">
+                  <h3 class="menu-item-title">Halloumisallad</h3>
+                  <span class="menu-item-price">60 kr</span>
+                </div>
+                <p class="menu-item-desc">
+                  Halloumi, isbergssallad, gurka, färska tomater, rödlök,
+                  paprika, olivolja, citron, och persilja.
+                </p>
+                <button
+                  class="add-to-cart-btn"
+                  data-name="Halloumisallad"
+                  data-price="60"
+                  data-img="./assets/images/halloumisallad.png"
+                >
+                  <i class="ri-shopping-cart-line"></i> Lägg till
+                </button>
+              </div>
+            </div>
+          </li>
+
+          <li>
+            <div class="menu-item">
+              <img
+                src="./assets/images/vegetaiana.jpg"
+                alt="Lasagne"
+                class="menu-item-img"
+              />
+              <div class="menu-item-content">
+                <div class="title-wrapper">
+                  <h3 class="menu-item-title">Vegetaiana pizza</h3>
+                  <span class="menu-item-price">80 kr</span>
+                </div>
+                <p class="menu-item-desc">
+                  Tomatsås, ost, champinjoner,lök, paprika, fetaost, oliver.
+                </p>
+                <button
+                  class="add-to-cart-btn"
+                  data-name="Vegetaiana pizza"
+                  data-price="80"
+                  data-img="./assets/images/vegetaiana.jpg"
+                >
+                  <i class="ri-shopping-cart-line"></i> Lägg till
+                </button>
+              </div>
+            </div>
+          </li>
+        </ul>
       </div>
-      <ul class="menu-grid">
-        <li>
-          <div class="menu-item">
-            <img src="./assets/images/falafelrulle.jpg" alt="Lasagne" class="menu-item-img" />
-            <div class="menu-item-content">
-              <div class="title-wrapper">
-                <h3 class="menu-item-title">Falafelrulle</h3>
-                <span class="menu-item-price">50 kr</span>
-              </div>
-              <p class="menu-item-desc">
-                Falafel, isbergssallad, hummus, färska tomater, gurka, lök.
-              </p>
-              <button class="add-to-cart-btn" data-name="Falafelrulle" data-price="50"
-                data-img="./assets/images/falafelrulle.jpg">
-                <i class="ri-shopping-cart-line"></i> Lägg till
-              </button>
-            </div>
-          </div>
-        </li>
-
-        <li>
-          <div class="menu-item">
-            <img src="./assets/images/falafelsallad.png" alt="Lasagne" class="menu-item-img" />
-            <div class="menu-item-content">
-              <div class="title-wrapper">
-                <h3 class="menu-item-title">Falafelsallad</h3>
-                <span class="menu-item-price">70 kr</span>
-              </div>
-              <p class="menu-item-desc">
-                Falafel, isbergssallad, tomater, gurka, lök, majs, vitlöksås.
-              </p>
-              <button class="add-to-cart-btn" data-name="Falafelsallad" data-price="70"
-                data-img="./assets/images/falafelsallad.png">
-                <i class="ri-shopping-cart-line"></i> Lägg till
-              </button>
-            </div>
-          </div>
-        </li>
-        <li>
-          <div class="menu-item">
-            <img src="./assets/images/halloumisallad.png" alt="Lasagne" class="menu-item-img" />
-            <div class="menu-item-content">
-              <div class="title-wrapper">
-                <h3 class="menu-item-title">Halloumisallad</h3>
-                <span class="menu-item-price">60 kr</span>
-              </div>
-              <p class="menu-item-desc">
-                Halloumi, isbergssallad, gurka, färska tomater, rödlök,
-                paprika, olivolja, citron, och persilja.
-              </p>
-              <button class="add-to-cart-btn" data-name="Halloumisallad" data-price="60"
-                data-img="./assets/images/halloumisallad.png">
-                <i class="ri-shopping-cart-line"></i> Lägg till
-              </button>
-            </div>
-          </div>
-        </li>
-
-        <li>
-          <div class="menu-item">
-            <img src="./assets/images/vegetaiana.jpg" alt="Lasagne" class="menu-item-img" />
-            <div class="menu-item-content">
-              <div class="title-wrapper">
-                <h3 class="menu-item-title">Vegetaiana pizza</h3>
-                <span class="menu-item-price">80 kr</span>
-              </div>
-              <p class="menu-item-desc">
-                Tomatsås, ost, champinjoner,lök, paprika, fetaost, oliver.
-              </p>
-              <button class="add-to-cart-btn" data-name="Vegetaiana pizza" data-price="80"
-                data-img="./assets/images/vegetaiana.jpg">
-                <i class="ri-shopping-cart-line"></i> Lägg till
-              </button>
-            </div>
-          </div>
-        </li>
-      </ul>
-    </div>
-  </section>
-  <script src="./assets/js/script.js"></script>
-</body>
-
+    </section>
+    <script src="./assets/js/script.js"></script>
+  </body>
 </html>
