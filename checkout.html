@@ -1,259 +1,172 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- 
+    <!-- 
       - primary meta tags
     -->
-  <title>Checkout - Matkungen</title>
-  <meta name="title" content="Matkungen - Amazing & Delicious Food" />
-  <meta name="description" content="This is a Restaurant html template made by mymoon" />
-  <!-- remixicon -->
-  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet" />
-  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <title>Checkout - Matkungen</title>
+    <meta name="title" content="Matkungen - Amazing & Delicious Food" />
+    <meta
+      name="description"
+      content="This is a Restaurant html template made by mymoon"
+    />
+    <!-- remixicon -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+      rel="stylesheet"
+    />
 
-  <!-- 
+    <!-- 
       - favicon
     -->
-  <link rel="shortcut icon" href="./assets/images/logo.png" type="image" />
+    <link rel="shortcut icon" href="./assets/images/logo.png" type="image" />
 
-  <!-- 
+    <!-- 
       - google font link
     -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap"
-    rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap"
+      rel="stylesheet"
+    />
 
-  <!-- 
+    <!-- 
       - custom css link
     -->
-  <link rel="stylesheet" href="./assets/css/style.css" />
-</head>
+    <link rel="stylesheet" href="./assets/css/style.css" />
+  </head>
 
-<body>
-  <!-- Include the same header as index.html -->
+  <body>
+    <!-- Include the same header as index.html -->
 
-  <main class="checkout-page">
-    <div class="container">
-      <h1 class="headline-1 text-center">Checkout</h1>
+    <main class="checkout-page">
+      <div class="container">
+        <h1 class="headline-1 text-center">Checkout</h1>
 
-      <div class="checkout-grid">
-        <!-- Customer Information -->
-        <div class="checkout-form">
-          <h2>Customer Information</h2>
-          <form id="checkout-form">
-            <div class="form-group">
-              <label for="name">Full Name*</label>
-              <input type="text" id="name" required />
-            </div>
-            <div class="form-group">
-              <label for="email">Email*</label>
-              <input type="email" id="email" required />
-            </div>
-            <div class="form-group">
-              <label for="phone">Phone Number*</label>
-              <input type="tel" id="phone" required />
-            </div>
-            <div class="form-group">
-              <label for="address">Delivery Address*</label>
-              <textarea id="address" rows="2" required></textarea>
-            </div>
-            <div class="form-row">
+        <div class="checkout-grid">
+          <!-- Customer Information -->
+          <div class="checkout-form">
+            <h2>Customer Information</h2>
+            <form id="checkout-form">
               <div class="form-group">
-                <label for="city">City*</label>
-                <input type="text" id="city" required />
+                <label for="name">Full Name*</label>
+                <input type="text" id="name" required />
               </div>
               <div class="form-group">
-                <label for="zip">Postal Code*</label>
-                <input type="text" id="zip" required />
+                <label for="email">Email*</label>
+                <input type="email" id="email" required />
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number*</label>
+                <input type="tel" id="phone" required />
+              </div>
+              <div class="form-group">
+                <label for="address">Delivery Address*</label>
+                <textarea id="address" rows="2" required></textarea>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="city">City*</label>
+                  <input type="text" id="city" required />
+                </div>
+                <div class="form-group">
+                  <label for="zip">Postal Code*</label>
+                  <input type="text" id="zip" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="notes">Order Note</label>
+                <textarea id="notes" rows="2"></textarea>
+              </div>
+            </form>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="order-summary">
+            <h2>Your Order</h2>
+            <div class="order-items">
+              <!-- Items will be populated by JavaScript -->
+            </div>
+
+            <div class="order-totals">
+              <div class="order-row">
+                <span>Subtotal</span>
+                <span class="order-subtotal">0 kr</span>
+              </div>
+              <div class="order-row">
+                <span>Delivery Fee</span>
+                <span class="delivery-fee">20 kr</span>
+              </div>
+              <div class="order-row total">
+                <span>Total</span>
+                <span class="order-total">0 kr</span>
               </div>
             </div>
-            <div class="form-group">
-              <label for="notes">Order Note</label>
-              <textarea id="notes" rows="2"></textarea>
-            </div>
-          </form>
-        </div>
 
-        <!-- Order Summary -->
-        <div class="order-summary">
-          <h2>Your Order</h2>
-          <div class="order-items">
-            <!-- Items will be populated by JavaScript -->
+            <button
+              type="submit"
+              form="checkout-form"
+              class="btn btn-primary place-order"
+            >
+              <span class="text text-1">Continue to Payment</span>
+              <span class="text text-2" aria-hidden="true"
+                >Continue to Payment</span
+              >
+            </button>
           </div>
-
-          <div class="order-totals">
-            <div class="order-row">
-              <span>Subtotal</span>
-              <span class="order-subtotal">0 kr</span>
-            </div>
-            <div class="order-row">
-              <span>Delivery Fee</span>
-              <span class="delivery-fee">20 kr</span>
-            </div>
-            <div class="order-row total">
-              <span>Total</span>
-              <span class="order-total">0 kr</span>
-            </div>
-          </div>
-
-          <button type="submit" form="checkout-form" class="btn btn-primary place-order">
-            <span class="text text-1">Continue to Payment</span>
-            <span class="text text-2" aria-hidden="true">Continue to Payment</span>
-          </button>
         </div>
       </div>
-    </div>
-  </main>
+    </main>
 
-  <!-- 
+    <!-- 
     - #FOOTER
   -->
-  <!-- Shopping Cart Sidebar -->
-  <div class="cart-sidebar">
-    <div class="cart-header">
-      <h3>Your Cart</h3>
-      <a href="#" class="close-cart"><i class="ri-close-line"></i></a>
-    </div>
-    <div class="cart-items">
-      <!-- Cart items will be added here dynamically -->
-    </div>
-    <div class="cart-totals">
-      <div class="cart-subtotal">
-        <span>Subtotal:</span>
-        <span class="subtotal-price">0 kr</span>
+    <!-- Shopping Cart Sidebar -->
+    <div class="cart-sidebar">
+      <div class="cart-header">
+        <h3>Your Cart</h3>
+        <a href="#" class="close-cart"><i class="ri-close-line"></i></a>
       </div>
-      <a href="./checkout.html" class="btn btn-primary checkout-btn">
-        <span class="text text-1">Checkout</span>
-
-        <span class="text text-2" aria-hidden="true">Checkout</span>
-      </a>
-    </div>
-  </div>
-  <div class="cart-overlay"></div>
-
-  <footer class="footer section has-bg-image text-center"
-    style="background-image: url('./assets/images/footer-bg.jpg')">
-    <div class="container">
-      <div class="footer-top grid-list">
-        <div class="footer-brand has-before has-after">
-          <a href="#" class="logo">
-            <img src="./assets/images/logo.png" width="140" height="50" loading="lazy" alt="Matkungen home" />
-          </a>
-
-          <address class="body-4">
-            Matkungen Campus , P G Vejdes väg , <br />
-            352 52 Växjö
-          </address>
-
-          <a href="mailto:booking@matkungen.com" class="body-4 contact-link">booking@matkungen.com</a>
-
-          <a href="tel:+46735124552" class="body-4 contact-link">Beställ via Telefon : +46-735124552</a>
-
-          <p class="contact-label">Öppettider</p>
-          <p class="body-4">
-            Måndag - Tisdag - Torsdag<br />
-            11:00 - 22:00
-          </p>
-          <p class="body-4">
-            Onsdag - Fredag <br />
-            11:00 - 03:00 på natten
-          </p>
-          <p class="contact-label">Helg "Weekend"</p>
-          <p class="body-4">
-            Lördag <br />
-            12:00 - 03:00 på natten
-          </p>
-          <p class="body-4">
-            Söndag <br />
-            12:00 - 22:00
-          </p>
-
-          <div class="wrapper">
-            <div class="separator"></div>
-            <div class="separator"></div>
-            <div class="separator"></div>
-          </div>
+      <div class="cart-items">
+        <!-- Cart items will be added here dynamically -->
+      </div>
+      <div class="cart-totals">
+        <div class="cart-subtotal">
+          <span>Subtotal:</span>
+          <span class="subtotal-price">0 kr</span>
         </div>
+        <a href="./checkout.html" class="btn btn-primary checkout-btn">
+          <span class="text text-1">Checkout</span>
 
-        <ul class="footer-list">
-          <li>
-            <a href="#home" class="label-2 footer-link hover-underline">Hem</a>
-          </li>
-
-          <li>
-            <a href="#menu" class="label-2 footer-link hover-underline">Meny</a>
-          </li>
-
-          <li>
-            <a href="#about" class="label-2 footer-link hover-underline">Om Oss</a>
-          </li>
-
-          <li>
-            <a href="#contact" class="label-2 footer-link hover-underline">kontakta oss</a>
-          </li>
-        </ul>
-
-        <ul class="social-icons">
-          <li>
-            <a href=" https://www.facebook.com/matkungen.campus/?locale=sv_SE ">
-              <i class="bx bxl-facebook"></i>
-            </a>
-          </li>
-
-          <li>
-            <a href="#">
-              <i class="bx bxl-instagram"></i>
-            </a>
-          </li>
-
-          <li>
-            <a href="#">
-              <i class="bx bxl-youtube"></i>
-            </a>
-          </li>
-
-          <li>
-            <a
-              href="https://www.google.com/maps/dir/56.8535951,14.8251036/CAMPUS+MATKUNGEN+I+V%C3%84XJ%C3%96,+P+G+Vejdes+v%C3%A4g,+352+52+V%C3%A4xj%C3%B6 ">
-              <i class="ri-map-pin-fill"></i>
-            </a>
-          </li>
-        </ul>
-      </div>
-
-      <div class="footer-bottom">
-        <p class="copyright">
-          &copy; 2024 Matkungen. All Rights Reserved | Created by<a href="https://mymoonportfolio.netlify.app "
-            target="_blank " class="link">
-            mymoon</a>
-        </p>
+          <span class="text text-2" aria-hidden="true">Checkout</span>
+        </a>
       </div>
     </div>
-  </footer>
 
-  <!-- 
-      - #BACK TO TOP
-    -->
-
-  <!-- scroll top button  -->
-  <a href="#home" class="bx bxs-up-arrow-circle" id="scroll-top"></a>
-
-  <!-- 
+    <!-- 
       - custom js link
     -->
-  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-  <script src="./assets/js/script.js "></script>
-  <!-- 
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="./assets/js/script.js "></script>
+    <!-- 
       - ionicon link
     -->
-  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-</body>
-
+    <script
+      type="module"
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+    ></script>
+    <script
+      nomodule
+      src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+    ></script>
+  </body>
 </html>

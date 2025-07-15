@@ -835,7 +835,7 @@ body.nav-active {
 .header .logo-container {
     display: flex;
     align-items: center;
-    margin-left: -33px;
+    margin-left: -30px;
 }
 
 .mobile-logo {
@@ -5415,6 +5415,11 @@ body.modal-open {
         top: 0;
     }
 
+    .header .container {
+        max-width: unset;
+        margin-top: -2rem;
+    }
+
     .navbar {
         top: 20px;
         /* Adjust this value to match the height of your top header/nav */
@@ -6068,10 +6073,10 @@ body.modal-open {
         display: none;
     }
 
-    .header .container {
+    /* .header .container {
         max-width: unset;
         margin-top: -2rem;
-    }
+    } */
 
     .navbar,
     .navbar.active,
