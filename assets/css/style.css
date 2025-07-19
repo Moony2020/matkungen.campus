@@ -288,12 +288,6 @@ body.nav-active {
     font-weight: var(--weight-bold);
 }
 
-.contact-number {
-    color: var(--gold-crayola);
-    max-width: max-content;
-    margin-inline: auto;
-}
-
 .hover-underline {
     position: relative;
     max-width: max-content;
@@ -918,7 +912,7 @@ body.nav-active {
     padding-bottom: 75px;
     overflow-y: auto;
     visibility: hidden;
-    z-index: 2;
+    z-index: 10000;
     transition: var(--transition-2);
 }
 
@@ -928,20 +922,29 @@ body.nav-active {
 }
 
 .navbar .close-btn {
-    color: var(--white);
-    border: 1px solid currentColor;
-    padding: 4px;
-    border-radius: var(--radius-circle);
-    margin-inline-start: auto;
-    margin-block: 30px 20px;
-}
-
-.navbar .close-btn ion-icon {
-    --ionicon-stroke-width: 40px;
-}
-
-.navbar .close-btn:is(:hover, :focus-visible) {
     color: var(--gold-crayola);
+    background-color: transparent;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 18px 0 15px auto;
+    transition: transform 0.4s ease, background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
+    cursor: pointer;
+    border: 1px solid var(--gold-crayola);
+}
+
+.navbar .close-btn:hover {
+    background-color: var(--gold-crayola);
+    color: var(--smoky-black-1);
+    transform: rotate(90deg);
+}
+
+.navbar .close-btn i {
+    font-size: var(--fontSize-body-4);
 }
 
 .navbar .logo {
@@ -951,106 +954,189 @@ body.nav-active {
 }
 
 .navbar-list {
-    border-block-end: 1px solid var(--white-alpha-20);
-    margin-block-end: 100px;
+    margin-block-end: 50px;
 }
 
 .navbar-item {
-    border-block-start: 1px solid var(--white-alpha-20);
-}
-
-.navbar-list .navbar-item span {
-    font-size: var(--fontSize-body-4);
+    margin-bottom: 5px;
+    position: relative;
+    overflow: hidden;
 }
 
 .navbar-link {
     position: relative;
-    font-size: var(--fontSize-label-2);
+    display: flex;
+    align-items: center;
+    font-size: var(--fontSize-body-4);
     text-transform: uppercase;
-    padding-block: 10px;
-    max-width: unset;
-}
-
-.navbar-link::after {
-    display: none;
+    padding: 15px 20px;
+    border-radius: 8px;
+    transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
 }
 
 .navbar-link .span {
-    transition: var(--transition-1);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.3s ease;
 }
 
-.navbar-link:is(:hover, :focus-visible, .active) .span {
+.navbar-link.active .span {
+    color: var(--gold-crayola);
+    transform: none;
+}
+
+.navbar-link:is(:hover, :focus-visible) .span {
     color: var(--gold-crayola);
     transform: translateX(20px);
-}
-
-.navbar-link .separator {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    transform: translateY(-50%) rotate(45deg);
-    opacity: 0;
-    transition: var(--transition-1);
-}
-
-.navbar-link:is(:hover, :focus-visible, .active) .separator {
-    opacity: 1;
-}
-
-.navbar-title {
-    margin-block-end: 15px;
-}
-
-.navbar-text {
-    margin-block: 10px;
-}
-
-.navbar .body-4 {
-    color: var(--quick-silver);
-}
-
-.sidebar-link {
-    transition: var(--transition-1);
-}
-
-.sidebar-link:is(:hover, :focus-visible) {
-    color: var(--gold-crayola);
+    transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .navbar .text-center {
-    margin-top: -70px;
+    padding: 30px 0;
+    position: relative;
 }
 
-.navbar .text-center .separator {
-    margin-block: 20px;
-    margin-inline: auto;
-    animation: rotate360 15s linear infinite;
+.navbar .text-center::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-crayola), transparent);
+}
+
+/* .navbar .contact-info {
+    display: grid;
+    gap: 15px;
+} */
+.navbar-title {
+    font-family: 'Playfair Display', serif;
+    font-size: var(--fontSize-body-1);
+    color: var(--gold-crayola);
+    margin-bottom: 20px;
+    text-align: center;
+    letter-spacing: 1px;
 }
 
 .navbar .contact-label {
-    margin-block-end: 10px;
+    display: block;
+    font-weight: var(--f);
+    color: var(--gold-crayola);
+    margin: 20px 0 8px;
+    text-align: center;
+}
+
+/* line under the contact label */
+.navbar .contact-label::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 2px;
+    background: var(--gold-crayola);
+}
+
+
+.navbar .body-4 {
+    font-size: 1.5rem;
+    color: var(--quick-silver);
+    line-height: 1.6;
+    text-align: center;
+}
+
+.custom-separator {
+    width: 80%;
+    height: 2px;
+    background: var(--gold-crayola);
+    margin: 25px auto;
+    position: relative;
+}
+
+.custom-separator::before,
+.custom-separator::after {
+    content: '';
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 2px solid var(--gold-crayola);
+    top: -4px;
+    border-radius: 50%;
+}
+
+.custom-separator::before {
+    left: -5px;
+}
+
+.custom-separator::after {
+    right: -5px;
+}
+
+/* Scrollbar styling */
+.navbar::-webkit-scrollbar {
+    width: 6px;
 }
 
 .navbar::-webkit-scrollbar-thumb {
-    background-color: var(--white-alpha-10);
+    background: var(--gold-crayola);
+    border-radius: 10px;
 }
 
+.navbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.navbar .contact-number {
+    font-weight: var(--weight-600);
+    font-size: var(--fontSize-body-2);
+    color: var(--white);
+    text-align: center;
+    display: block;
+    /* makes the <a> take full width */
+    margin: 0 auto;
+    /* centers it horizontally */
+}
+
+
+/* Overlay */
 .overlay {
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
     right: 0;
-    background-color: var(--black-alpha-80);
+    background: rgba(0, 0, 0, 0.8);
     opacity: 0;
     pointer-events: none;
-    transition: var(--transition-2);
-    z-index: 1;
+    transition: opacity 0.5s ease;
+    z-index: 999;
+    backdrop-filter: blur(3px);
 }
 
 .overlay.active {
     opacity: 1;
     pointer-events: all;
+}
+
+/* Animation for navbar items */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.navbar-item {
+    animation: slideIn 0.4s ease forwards;
+    animation-delay: calc(0.1s * var(--i));
 }
 
 /*-----------------------------------*\
@@ -1762,7 +1848,7 @@ body.nav-active {
     transition: var(--transition);
 }
 
-.contact-number:hover {
+.about .contact-number:hover {
     background: rgba(230, 179, 37, 0.4);
     transform: scale(1.02);
 }
@@ -5121,10 +5207,55 @@ body.modal-open {
 /*-----------------------------------*\
   # MEDIA QUERIES
 \*-----------------------------------*/
+/*-----------------------------------*\
+  #HEADER - MOBILE SIDEBAR SPECIFIC STYLES
+\*-----------------------------------*/
+
+/* Different hover effect for mobile nav items */
+@media (max-width: 1199px) {
+    .navbar .navbar-link {
+        position: relative;
+        display: flex;
+        align-items: center;
+        font-size: var(--fontSize-body-4);
+        text-transform: uppercase;
+        padding: 12px 16px;
+        transition: all 0.4s cubic-bezier(0.215, 0.61, 0.355, 1);
+    }
+
+    .navbar .navbar-link::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 0;
+        background: var(--gold-crayola);
+        transition: all 0.4s ease;
+    }
+
+    /* Remove the underline effect for mobile  except for contact number */
+    .navbar .hover-underline:not(.contact-number)::after {
+        display: none;
+    }
+
+    .navbar .navbar-item:hover {
+        border-radius: var(--radius-24);
+        box-shadow: 1px 1px 10px rgba(212, 175, 55, 0.411);
+    }
+
+}
+
+
 
 @media (max-width: 575px) {
     .header.active {
         padding-top: 1rem;
+    }
+
+    .header .container {
+        max-width: unset;
+        margin-top: 0;
     }
 
     /*
@@ -5746,6 +5877,10 @@ body.modal-open {
  */
 
 @media (max-width: 992px) {
+    .navbar {
+        padding-bottom: 80px;
+    }
+
     .payment-grid {
         display: grid;
         grid-template-columns: 1fr;
@@ -5807,6 +5942,10 @@ body.modal-open {
     /* :is(.service) .container {
         max-width: unset;
     } */
+
+    .navbar {
+        padding-bottom: 80px;
+    }
 
     .service .grid-list {
         grid-template-columns: repeat(3, 1fr);

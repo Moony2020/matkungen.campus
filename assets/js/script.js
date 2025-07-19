@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const navbar = document.querySelector("[data-navbar]");
   const navTogglers = document.querySelectorAll("[data-nav-toggler]");
   const overlay = document.querySelector("[data-overlay]");
+  const navLinks = document.querySelectorAll(".navbar-link");
 
   const toggleNavbar = function () {
     navbar.classList.toggle("active");
@@ -65,21 +66,26 @@ document.addEventListener("DOMContentLoaded", function () {
     document.body.classList.toggle("nav-active");
   };
 
+  // Open/close toggle
   navTogglers.forEach((toggler) => {
     toggler.addEventListener("click", toggleNavbar);
   });
 
+  // Close navbar when clicking overlay
   if (overlay) {
-    overlay.addEventListener("click", toggleNavbar);
-  }
-  // Close navbar when clicking on nav links like hem, meny ,,,,
-  const navLinks = document.querySelectorAll(".navbar-link");
-
-  navLinks.forEach((link) => {
-    link.addEventListener("click", () => {
+    overlay.addEventListener("click", () => {
       navbar.classList.remove("active");
       overlay.classList.remove("active");
       document.body.classList.remove("nav-active");
+    });
+  }
+
+  // ✅ Close navbar when clicking nav links (fixes scroll issue)
+  navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      navbar.classList.remove("active");
+      if (overlay) overlay.classList.remove("active");
+      document.body.classList.remove("nav-active"); // ✅ THIS fixes your scrolling problem
     });
   });
 
