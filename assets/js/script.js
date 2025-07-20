@@ -41,6 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
   socket.on("disconnect", () => {
     console.log("❌ Disconnected from server");
   });
+  
 });
 
 // ==================== GENERAL UTILITIES ====================
@@ -56,37 +57,32 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // ==================== NAVIGATION ====================
   const navbar = document.querySelector("[data-navbar]");
-  const navTogglers = document.querySelectorAll("[data-nav-toggler]");
   const overlay = document.querySelector("[data-overlay]");
-  const navLinks = document.querySelectorAll(".navbar-link");
+  const navTogglers = document.querySelectorAll("[data-nav-toggler]");
 
-  const toggleNavbar = function () {
-    navbar.classList.toggle("active");
-    if (overlay) overlay.classList.toggle("active");
-    document.body.classList.toggle("nav-active");
+  const closeNavbar = function () {
+    navbar.classList.remove("active");
+    overlay.classList.remove("active");
+    document.body.classList.remove("nav-active");
   };
 
-  // Open/close toggle
+  // 1. Toggle button open/close
   navTogglers.forEach((toggler) => {
-    toggler.addEventListener("click", toggleNavbar);
+    toggler.addEventListener("click", () => {
+      navbar.classList.toggle("active");
+      overlay.classList.toggle("active");
+      document.body.classList.toggle("nav-active");
+    });
   });
 
-  // Close navbar when clicking overlay
+  // ✅ 2. Overlay click closes navbar
   if (overlay) {
-    overlay.addEventListener("click", () => {
-      navbar.classList.remove("active");
-      overlay.classList.remove("active");
-      document.body.classList.remove("nav-active");
-    });
+    overlay.addEventListener("click", closeNavbar);
   }
 
-  // ✅ Close navbar when clicking nav links (fixes scroll issue)
-  navLinks.forEach((link) => {
-    link.addEventListener("click", () => {
-      navbar.classList.remove("active");
-      if (overlay) overlay.classList.remove("active");
-      document.body.classList.remove("nav-active"); // ✅ THIS fixes your scrolling problem
-    });
+  // ✅ 3. Clicking on any link closes navbar
+  document.querySelectorAll(".navbar-link").forEach((link) => {
+    link.addEventListener("click", closeNavbar);
   });
 
   // ==================== HEADER & SCROLL ====================
