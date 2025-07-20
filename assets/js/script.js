@@ -41,7 +41,6 @@ document.addEventListener("DOMContentLoaded", () => {
   socket.on("disconnect", () => {
     console.log("❌ Disconnected from server");
   });
-  
 });
 
 // ==================== GENERAL UTILITIES ====================
@@ -186,6 +185,29 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("load", autoSlide);
   }
+
+  // ==================== PRELOADER ====================
+  const preload = document.querySelector(".preload");
+  const progressBar = document.getElementById("progress-bar");
+  const content = document.querySelector(".content");
+
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += Math.random() * 10;
+    if (progress >= 100) {
+      progress = 100;
+      clearInterval(interval);
+
+      setTimeout(() => {
+        preload.classList.add("loaded");
+        setTimeout(() => {
+          preload.style.display = "none";
+          if (content) content.style.display = "block";
+        }, 800);
+      }, 300);
+    }
+    progressBar.style.width = `${progress}%`;
+  }, 150);
 
   // ==================== PARALLAX EFFECT ====================
   const parallaxItems = document.querySelectorAll("[data-parallax-item]");
