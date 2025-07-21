@@ -619,6 +619,9 @@ body.nav-active {
 /*-----------------------------------*\
   #PRELOAD
 \*-----------------------------------*/
+/*-----------------------------------*\
+          #PRELOAD
+        \*-----------------------------------*/
 
 /* Modern Preloader */
 .preload {
@@ -635,7 +638,6 @@ body.nav-active {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    transition: var(--transition-3);
 }
 
 .preload-content {
@@ -772,46 +774,6 @@ body.nav-active {
     }
 }
 
-/* Loading complete animations */
-.preload.loaded .ring {
-    animation:
-        scaleDown 0.8s cubic-bezier(0.87, 0, 0.13, 1) forwards,
-        fadeOut 0.8s ease forwards;
-}
-
-.preload.loaded .preload-text {
-    animation:
-        slideUp 0.8s cubic-bezier(0.87, 0, 0.13, 1) forwards,
-        fadeOut 0.8s ease forwards;
-}
-
-.preload.loaded .center-logo {
-    animation:
-        scaleDown 0.8s cubic-bezier(0.87, 0, 0.13, 1) forwards,
-        fadeOut 0.8s ease forwards;
-}
-
-.preload.loaded .progress-container {
-    animation: fadeOut 0.8s ease forwards;
-}
-
-@keyframes scaleDown {
-    to {
-        transform: scale(0.8);
-    }
-}
-
-@keyframes slideUp {
-    to {
-        transform: translateY(-20px);
-    }
-}
-
-@keyframes fadeOut {
-    to {
-        opacity: 0;
-    }
-}
 
 /* .preload {
     position: fixed;
