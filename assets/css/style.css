@@ -619,7 +619,201 @@ body.nav-active {
 /*-----------------------------------*\
   #PRELOAD
 \*-----------------------------------*/
+
+/* Modern Preloader */
 .preload {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(ellipse at center,
+            var(--eerie-black-1) 0%,
+            var(--black) 100%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition-3);
+}
+
+.preload-content {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(-30px);
+}
+
+.logo-ring {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px solid transparent;
+    animation: rotate 2.5s linear infinite;
+}
+
+.ring:nth-child(1) {
+    border-top-color: var(--gold-crayola);
+    border-width: 4px;
+    animation-duration: 2s;
+}
+
+.ring:nth-child(2) {
+    border-right-color: var(--gold-crayola);
+    border-width: 3px;
+    animation-duration: 3s;
+    animation-direction: reverse;
+}
+
+.ring:nth-child(3) {
+    border-bottom-color: var(--gold-crayola);
+    border-width: 2px;
+    animation-duration: 2.5s;
+}
+
+.center-logo {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: var(--eerie-black-1);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid var(--gold-crayola);
+    box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
+}
+
+.center-logo i {
+    color: var(--gold-crayola);
+    font-size: 2.5rem;
+    animation: pulse 2s infinite;
+}
+
+.preload-text {
+    font-family: var(--fontFamily-forum);
+    font-size: 3.2rem;
+    letter-spacing: 3px;
+    margin-top: 40px;
+    background: linear-gradient(90deg,
+            var(--gold-crayola) 0%,
+            #e6b422 25%,
+            #d4af37 50%,
+            #e6b422 75%,
+            var(--gold-crayola) 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3.5s linear infinite;
+    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
+}
+
+.progress-container {
+    width: 300px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin-top: 30px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg,
+            var(--gold-crayola) 0%,
+            var(--gold-crayola-hover) 100%);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+}
+
+/* Animations */
+@keyframes rotate {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes shimmer {
+    to {
+        background-position: 200% center;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.8;
+    }
+}
+
+/* Loading complete animations */
+.preload.loaded .ring {
+    animation:
+        scaleDown 0.8s cubic-bezier(0.87, 0, 0.13, 1) forwards,
+        fadeOut 0.8s ease forwards;
+}
+
+.preload.loaded .preload-text {
+    animation:
+        slideUp 0.8s cubic-bezier(0.87, 0, 0.13, 1) forwards,
+        fadeOut 0.8s ease forwards;
+}
+
+.preload.loaded .center-logo {
+    animation:
+        scaleDown 0.8s cubic-bezier(0.87, 0, 0.13, 1) forwards,
+        fadeOut 0.8s ease forwards;
+}
+
+.preload.loaded .progress-container {
+    animation: fadeOut 0.8s ease forwards;
+}
+
+@keyframes scaleDown {
+    to {
+        transform: scale(0.8);
+    }
+}
+
+@keyframes slideUp {
+    to {
+        transform: translateY(-20px);
+    }
+}
+
+@keyframes fadeOut {
+    to {
+        opacity: 0;
+    }
+}
+
+/* .preload {
     position: fixed;
     inset: 0;
     background: var(--eerie-black-1);
@@ -707,7 +901,7 @@ body.nav-active {
     100% {
         transform: rotate(360deg);
     }
-}
+} */
 
 
 /*-----------------------------------*\
