@@ -187,27 +187,45 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // ==================== PRELOADER ====================
+
   const preload = document.querySelector(".preload");
   const progressBar = document.getElementById("progress-bar");
   const content = document.querySelector(".content");
+  // Quick preloader for lunch page when user clicks on pizza or dishes menu buttons
+  const skipPreload = sessionStorage.getItem("skipPreload");
+  const shortPreload = sessionStorage.getItem("shortPreload");
 
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += Math.random() * 10;
-    if (progress >= 100) {
-      progress = 100;
-      clearInterval(interval);
-
-      setTimeout(() => {
-        preload.classList.add("loaded");
+  if (skipPreload === "true") {
+    preload.style.display = "none";
+    if (content) content.style.display = "block";
+    sessionStorage.removeItem("skipPreload");
+  } else if (shortPreload === "true") {
+    // Quick preloader (just visual polish)
+    preload.classList.add("loaded");
+    setTimeout(() => {
+      preload.style.display = "none";
+      if (content) content.style.display = "block";
+      sessionStorage.removeItem("shortPreload");
+    }, 800); // ~0.8s preloader
+  } else {
+    // Full simulated loader
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += Math.random() * 10;
+      if (progress >= 100) {
+        progress = 100;
+        clearInterval(interval);
         setTimeout(() => {
-          preload.style.display = "none";
-          if (content) content.style.display = "block";
-        }, 800);
-      }, 300);
-    }
-    progressBar.style.width = `${progress}%`;
-  }, 150);
+          preload.classList.add("loaded");
+          setTimeout(() => {
+            preload.style.display = "none";
+            if (content) content.style.display = "block";
+          }, 800);
+        }, 300);
+      }
+      progressBar.style.width = `${progress}%`;
+    }, 150);
+  }
 
   // ==================== PARALLAX EFFECT ====================
   const parallaxItems = document.querySelectorAll("[data-parallax-item]");
@@ -2212,4 +2230,43 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Initialize user auth
   const userAuth = new UserAuth();
+
+  // Handle hash navigation for menu sections
+  const handleHashNavigation = () => {
+    const hash = window.location.hash.substring(1);
+    if (!hash) return;
+
+    // Wait for the menu to be initialized
+    setTimeout(() => {
+      const targetElement = document.getElementById(hash);
+      const menuType = hash.split("-")[0];
+      const menuButton = document.querySelector(
+        `.menu-btn[data-menu="${menuType}"]`
+      );
+
+      if (menuButton) {
+        // Click the menu button to show the section
+        menuButton.click();
+
+        // Scroll to the section after it's visible
+        setTimeout(() => {
+          if (targetElement) {
+            targetElement.scrollIntoView({ behavior: "smooth" });
+          } else {
+            document
+              .getElementById("menu")
+              .scrollIntoView({ behavior: "smooth" });
+          }
+        }, 500);
+      } else if (targetElement) {
+        targetElement.scrollIntoView({ behavior: "smooth" });
+      }
+    }, 100);
+  };
+
+  // Run on initial page load
+  handleHashNavigation();
+
+  // Also run when hash changes
+  window.addEventListener("hashchange", handleHashNavigation);
 });

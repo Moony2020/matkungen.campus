@@ -31,21 +31,23 @@
                 <span class="menu-item-spacing"></span> <!-- Spacer between items -->
             </p>
 
-            <!-- Buttons to navigate to specific menus -->
-            <div class="menu-buttons">
-                <div class="pizza-section">
-                    <p class="menu-description">Pizza 100 kr inkl. dricka</p>
-                    <button onclick="window.location.href='index.html#pizza-menu'" class="btn btn-pizza">
-                        <span class="text">Pizza Menu</span>
-                    </button>
-                </div>
-                <div class="tallrikar-section">
-                    <p class="menu-description">Tallrikar 80 kr inkl. dricka</p>
-                    <button onclick="window.location.href='index.html#dishes-menu'" class="btn btn-dishes">
-                        <span class="text">Tallrikar Menu</span>
-                    </button>
-                </div>
-            </div>
+<!-- Buttons to navigate to specific menus -->
+<div class="menu-buttons">
+  <div class="pizza-section">
+    <p class="menu-description">Pizza 100 kr inkl. dricka</p>
+   <a href="index.html#pizza-menu" onclick="sessionStorage.setItem('shortPreload', 'true')" class="btn btn-pizza">
+  <span class="text">Pizza Menu</span>
+</a>
+
+  </div>
+  <div class="tallrikar-section">
+    <p class="menu-description">Tallrikar 80 kr inkl. dricka</p>
+    <a href="index.html#dishes-menu" onclick="sessionStorage.setItem('shortPreload', 'true')"class="btn btn-dishes">
+      <span class="text">Tallrikar Menu</span>
+    </a>
+  </div>
+</div>
+
 
             <ul class="menu-grid-service">
                 <li>
