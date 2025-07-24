@@ -51,7 +51,7 @@
     - #PRELOADER
   -->
 
- <div class="preload" data-preaload>
+  <div class="preload" data-preaload>
     <div class="preload-content">
       <div class="logo-ring">
         <div class="ring"></div>
@@ -134,7 +134,7 @@
       <!-- Mobile Navigation Menu -->
       <nav class="navbar" data-navbar>
         <button class="close-btn" aria-label="close menu" data-nav-toggler>
-           <i class="fas fa-times"></i>
+          <i class="fas fa-times"></i>
         </button>
 
         <div class="logo-container mobile-logo">
@@ -234,143 +234,142 @@
           <span class="line line-3"></span>
         </button>
       </div>
-
-      <!-- User Login Sidebar -->
-      <div class="user-sidebar">
-        <div class="user-header">
-          <h3>Account</h3>
-          <button class="close-user">&times;</button>
-        </div>
-        <div class="user-content">
-          <div class="user-forms">
-            <!-- Login Form (active by default) -->
-            <form id="login-form" class="active">
-              <h4>Log in</h4>
-              <div class="form-group">
-                <input type="email" id="login-email" placeholder="Email" required>
-              </div>
-              <div class="form-group">
-                <input type="password" id="login-password" placeholder="Password" required>
-              </div>
-              <!-- Remember Me checkbox -->
-              <div class="remember-me">
-                <input type="checkbox" id="remember-login">
-                <label for="remember-login">Keep me logged in</label>
-              </div>
-              <button type="submit" class="btn btn-primary text text-1">Log in
-                <span class="text text-2" aria-hidden="true">Log in</span>
-              </button>
-              <p class="form-switch">Don't have an account? <a href="#" id="show-register">Register</a></p>
-              <p class="form-switch"><a href="#" id="show-forgot">Forgot password?</a></p>
-            </form>
-
-            <!-- Register Form -->
-            <form id="register-form">
-              <h4>Register</h4>
-              <div class="form-group">
-                <input type="text" id="register-name" placeholder="Full Name" required>
-              </div>
-              <div class="form-group">
-                <input type="email" id="register-email" placeholder="Email" required>
-              </div>
-              <div class="form-group">
-                <input type="password" id="register-password" placeholder="Password" required>
-              </div>
-              <div class="form-group">
-                <input type="password" id="register-confirm" placeholder="Confirm Password" required>
-              </div>
-              <button type="submit" class="btn btn-primary text text-1">Register
-                <span class="text text-2" aria-hidden="true">Register</span>
-              </button>
-              <p class="form-switch">Already have an account? <a href="#" id="show-login">Log in</a></p>
-            </form>
-
-            <!-- Forgot Password Form -->
-            <form id="forgot-form">
-              <h4>Reset Password</h4>
-              <div class="form-group">
-                <input type="email" id="forgot-email" placeholder="Email" required>
-              </div>
-              <button type="submit" class="btn btn-primary">Reset Password
-                <span class="text text-2" aria-hidden="true">Reset Password</span>
-              </button>
-              <p class="form-switch"><a href="#" id="show-login-from-forgot">Back to Login</a></p>
-            </form>
-          </div>
-
-          <!-- User Profile (shown when logged in) -->
-          <div class="user-profile" style="display: none;">
-            <div class="profile-header">
-              <h4>Welcome, <span id="user-display-name"></span></h4>
-              <p id="user-email"></p>
-            </div>
-            <div class="profile-actions">
-              <button class="btn" id="edit-profile">Edit Profile</button>
-              <button class="btn" id="change-password">Change Password</button>
-
-              <button id="logout" class="btn text text-1">Log out
-                <span class="text text-2" aria-hidden="true">Log out</span>
-              </button>
-
-              <button type="submit" class="btn btn-primary text text-1">Log in
-                <span class="text text-2" aria-hidden="true">Log in</span>
-              </button>
-
-            </div>
-            <!-- orders section -->
-            <div class="orders-section">
-              <h5>Your Orders</h5>
-              <div id="orders-list"></div>
-              <!-- Orders will be displayed here -->
-            </div>
-          </div>
-
-        </div>
-
-        <!-- Edit Profile Form -->
-        <form id="edit-profile-form" style="display: none;">
-          <h4>Edit Profile</h4>
-          <div class="form-group">
-            <input type="text" id="edit-name" placeholder="Full Name" required>
-          </div>
-          <div class="form-group">
-            <input type="email" id="edit-email" placeholder="Email" required>
-          </div>
-          <div class="form-group">
-            <input type="tel" id="edit-phone" placeholder="Phone Number">
-          </div>
-          <div class="form-group">
-            <input type="text" id="edit-address" placeholder="Address">
-          </div>
-          <div class="form-buttons">
-            <button type="submit" class="btn btn-primary">Save Changes</button>
-            <button type="button" class="btn btn-secondary" id="cancel-edit">Cancel</button>
-          </div>
-        </form>
-
-        <!-- Change Password Form -->
-        <form id="change-password-form" style="display: none;">
-          <h4>Change Password</h4>
-          <div class="form-group">
-            <input type="password" id="current-password" placeholder="Current Password" required>
-          </div>
-          <div class="form-group">
-            <input type="password" id="new-password" placeholder="New Password" required>
-          </div>
-          <div class="form-group">
-            <input type="password" id="confirm-new-password" placeholder="Confirm New Password" required>
-          </div>
-          <div class="form-buttons">
-            <button type="submit" class="btn btn-primary">Update Password</button>
-            <button type="button" class="btn btn-secondary" id="cancel-password">Cancel</button>
-          </div>
-        </form>
-      </div>
     </div>
-    <!-- Overlay for mobile menu -->
-    <div class="user-overlay"></div>
     </div>
   </header>
+  <!-- User Login Sidebar -->
+  <div class="user-sidebar">
+    <div class="user-header">
+      <h3>Account</h3>
+      <button class="close-user">&times;</button>
+    </div>
+    <div class="user-content">
+      <div class="user-forms">
+        <!-- Login Form (active by default) -->
+        <form id="login-form" class="active">
+          <h4>Log in</h4>
+          <div class="form-group">
+            <input type="email" id="login-email" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <input type="password" id="login-password" placeholder="Password" required>
+          </div>
+          <!-- Remember Me checkbox -->
+          <div class="remember-me">
+            <input type="checkbox" id="remember-login">
+            <label for="remember-login">Keep me logged in</label>
+          </div>
+          <button type="submit" class="btn btn-primary text text-1">Log in
+            <span class="text text-2" aria-hidden="true">Log in</span>
+          </button>
+          <p class="form-switch">Don't have an account? <a href="#" id="show-register">Register</a></p>
+          <p class="form-switch"><a href="#" id="show-forgot">Forgot password?</a></p>
+        </form>
+
+        <!-- Register Form -->
+        <form id="register-form">
+          <h4>Register</h4>
+          <div class="form-group">
+            <input type="text" id="register-name" placeholder="Full Name" required>
+          </div>
+          <div class="form-group">
+            <input type="email" id="register-email" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <input type="password" id="register-password" placeholder="Password" required>
+          </div>
+          <div class="form-group">
+            <input type="password" id="register-confirm" placeholder="Confirm Password" required>
+          </div>
+          <button type="submit" class="btn btn-primary text text-1">Register
+            <span class="text text-2" aria-hidden="true">Register</span>
+          </button>
+          <p class="form-switch">Already have an account? <a href="#" id="show-login">Log in</a></p>
+        </form>
+
+        <!-- Forgot Password Form -->
+        <form id="forgot-form">
+          <h4>Reset Password</h4>
+          <div class="form-group">
+            <input type="email" id="forgot-email" placeholder="Email" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Reset Password
+            <span class="text text-2" aria-hidden="true">Reset Password</span>
+          </button>
+          <p class="form-switch"><a href="#" id="show-login-from-forgot">Back to Login</a></p>
+        </form>
+      </div>
+
+      <!-- User Profile (shown when logged in) -->
+      <div class="user-profile" style="display: none;">
+        <div class="profile-header">
+          <h4>Welcome, <span id="user-display-name"></span></h4>
+          <p id="user-email"></p>
+        </div>
+        <div class="profile-actions">
+          <button class="btn" id="edit-profile">Edit Profile</button>
+          <button class="btn" id="change-password">Change Password</button>
+
+          <button id="logout" class="btn text text-1">Log out
+            <span class="text text-2" aria-hidden="true">Log out</span>
+          </button>
+
+          <button type="submit" class="btn btn-primary text text-1">Log in
+            <span class="text text-2" aria-hidden="true">Log in</span>
+          </button>
+
+        </div>
+        <!-- orders section -->
+        <div class="orders-section">
+          <h5>Your Orders</h5>
+          <div id="orders-list"></div>
+          <!-- Orders will be displayed here -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Edit Profile Form -->
+    <form id="edit-profile-form" style="display: none;">
+      <h4>Edit Profile</h4>
+      <div class="form-group">
+        <input type="text" id="edit-name" placeholder="Full Name" required>
+      </div>
+      <div class="form-group">
+        <input type="email" id="edit-email" placeholder="Email" required>
+      </div>
+      <div class="form-group">
+        <input type="tel" id="edit-phone" placeholder="Phone Number">
+      </div>
+      <div class="form-group">
+        <input type="text" id="edit-address" placeholder="Address">
+      </div>
+      <div class="form-buttons">
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <button type="button" class="btn btn-secondary" id="cancel-edit">Cancel</button>
+      </div>
+    </form>
+
+    <!-- Change Password Form -->
+    <form id="change-password-form" style="display: none;">
+      <h4>Change Password</h4>
+      <div class="form-group">
+        <input type="password" id="current-password" placeholder="Current Password" required>
+      </div>
+      <div class="form-group">
+        <input type="password" id="new-password" placeholder="New Password" required>
+      </div>
+      <div class="form-group">
+        <input type="password" id="confirm-new-password" placeholder="Confirm New Password" required>
+      </div>
+      <div class="form-buttons">
+        <button type="submit" class="btn btn-primary">Update Password</button>
+        <button type="button" class="btn btn-secondary" id="cancel-password">Cancel</button>
+      </div>
+    </form>
+  </div>
+  <!-- Overlay for mobile menu -->
+  <div class="user-overlay"></div>
   <main>
     <article>
       <!-- 
@@ -481,13 +480,31 @@
         </ul>
         <!-- next prev buttons -->
         <div class="slider-arrows">
-          <button id="prev" aria-label="slide to previous">
+          <button id="prev-slide" aria-label="slide to previous">
             <i class="fas fa-chevron-left"></i>
           </button>
-          <button id="next" aria-label="slide to next">
+          <button id="next-slide" aria-label="slide to next">
             <i class="fas fa-chevron-right"></i>
           </button>
         </div>
+        <!-- search to appear -->
+        <div class="search-container">
+          <div class="search-box">
+            <div class="search-icon" id="search-button">
+              <i class="ri-search-line"></i>
+            </div>
+            <input type="text" id="global-search" placeholder="Sök efter mat, dryck eller tillbehör..." />
+          </div>
+
+          <div class="search-results" id="search-results">
+            <div class="search-results-header">
+              <h3 class="search-results-title">Sökresultat</h3>
+              <button class="clear-search" id="clear-search">Rensa</button>
+            </div>
+            <div id="results-container"></div>
+          </div>
+        </div>
+
       </section>
 
       <!--  #SERVICE  -->
@@ -497,7 +514,6 @@
           <div class="floating-element"></div>
           <div class="floating-element"></div>
         </div>
-
         <div class="container">
           <div class="section-header">
             <p class="section-subtitle label-2">Smaker av Högsta Klass <span class="dash-decoration"></span></p>
@@ -618,6 +634,7 @@
             Vårt Exklusiva Urval <span class="dash-decoration"></span>
           </p>
           <h2 class="headline-1 section-title text-center">Delicious Menu</h2>
+
           <div class="menu-categories-container">
             <!-- Menu categories -->
             <ul class="menu-categories">

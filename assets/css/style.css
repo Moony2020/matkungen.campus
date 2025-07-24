@@ -638,6 +638,8 @@ body.nav-active {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    opacity: 1;
+    transition: opacity 0.6s ease;
 }
 
 .preload-content {
@@ -705,24 +707,6 @@ body.nav-active {
     animation: pulse 2s infinite;
 }
 
-/* .preload-text {
-    font-family: var(--fontFamily-forum);
-    font-size: 3.2rem;
-    letter-spacing: 3px;
-    margin-top: 40px;
-    background: linear-gradient(90deg,
-            var(--gold-crayola) 0%,
-            #e6b422 25%,
-            #d4af37 50%,
-            #e6b422 75%,
-            var(--gold-crayola) 100%);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    animation: shimmer 3.5s linear infinite;
-    filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.5));
-} */
 .preload .preload-text {
     background: var(--loading-text-gradient);
     background-size: 200% auto;
@@ -1033,16 +1017,6 @@ body.nav-active {
     transition-delay: 250ms;
 }
 
-/* 
-.header .container {
-    width: 90%;
-    max-width: 1200px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-} 
-*/
 .header .container {
     padding-inline: 20px;
     display: flex;
@@ -1138,22 +1112,6 @@ body.nav-active {
     z-index: 2;
     transition: var(--transition-2);
 }
-
-/* .navbar {
-    position: fixed;
-    background-color: var(--smoky-black-1);
-    top: 0;
-    left: -360px;
-    bottom: 0;
-    max-width: 360px;
-    width: 100%;
-    padding-inline: 30px;
-    padding-block-end: 50px;
-    overflow-y: auto;
-    visibility: hidden;
-    z-index: 2;
-    transition: var(--transition-2);
-} */
 
 .navbar.active {
     visibility: visible;
@@ -1442,12 +1400,12 @@ body.nav-active {
     z-index: 3;
     text-align: center;
     padding: 0 20px;
-    max-width: 1200px;
+    max-width: 1100px;
     margin: 0 auto;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: -10vh;
+    margin-top: 30px;
     /* Move content higher */
 }
 
@@ -1504,21 +1462,21 @@ body.nav-active {
     right: 0;
     display: flex;
     justify-content: space-between;
-    padding: 0 14px;
+    padding: 0 20px;
     transform: translateY(-50%);
-    z-index: 10;
+    z-index: 100;
 }
 
 .hero .slider-arrows button {
     background-color: transparent;
     /* Keep the button background transparent */
-    border: 2px solid rgb(230, 205, 140);
+    border: 2px solid var(--gold-crayola);
     /* Border with the desired color */
     border-radius: 50%;
     /* Make the button circular */
     font-size: 4rem;
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1528,10 +1486,11 @@ body.nav-active {
 
 /* Style the icon inside the button */
 .hero .slider-arrows button i {
-    color: rgb(230, 205, 140);
+    color: var(--gold-crayola);
     /* Set the arrow color */
     font-size: var(--fontSize-body-2);
     /* Adjust size of the arrow */
+    transition: 0.3s ease;
 }
 
 /* Apply hover effect on the button */
@@ -1548,11 +1507,11 @@ body.nav-active {
 }
 
 .hero #prev-slide {
-    margin-left: 25px;
+    margin-left: 20px;
 }
 
 .hero #next-slide {
-    margin-right: 25px;
+    margin-right: 20px;
 }
 
 /*-----------------------------------*\
@@ -4225,13 +4184,11 @@ body.nav-active {
     right: -400px;
     width: 350px;
     background: var(--smoky-black-1) !important;
-    min-height: 100vh;
-    /* Ensure full viewport height */
     height: 100vh !important;
     /* Full viewport height */
     overflow-y: auto;
     /* Allow scrolling if needed */
-    z-index: 4000;
+    z-index: 9999;
     transition: all 0.3s ease;
     padding: 20px;
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
@@ -5449,6 +5406,183 @@ body.modal-open {
 }
 
 /*-----------------------------------*\
+  #MENU SEARCH
+\*-----------------------------------*/
+.search-container {
+    position: relative;
+    width: 90%;
+    max-width: 400px;
+    margin: 40px auto;
+    z-index: 200;
+}
+
+.search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0 20px;
+    transition: var(--transition-1);
+    overflow: hidden;
+    height: 56px;
+}
+
+.search-box:focus-within {
+    box-shadow: 0 5px 20px rgba(212, 175, 55, 0.4);
+}
+
+#global-search {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--white);
+    font-size: var(--fontSize-body-4);
+    padding: 8px;
+    height: 100%;
+    outline: none;
+}
+
+#global-search::placeholder {
+    color: var(--quick-silver);
+}
+
+.search-icon {
+    color: var(--quick-silver);
+    font-size: var(--fontSize-label-1);
+    transition: color 0.3s ease;
+}
+
+.search-box:focus-within .search-icon {
+    color: var(--gold-crayola);
+}
+
+.search-results {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    background: var(--eerie-black-2);
+    border-radius: 15px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    max-height: 400px;
+    overflow-y: auto;
+    display: none;
+    z-index: 300;
+    border: 1px solid var(--white-alpha-10);
+}
+
+.search-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--white-alpha-10);
+    background: var(--smoky-black-1);
+    position: sticky;
+    top: 0;
+}
+
+.search-results-title {
+    font-size: var(--fontSize-body-4);
+    color: var(--gold-crayola);
+}
+
+.clear-search {
+    background: transparent;
+    border: none;
+    color: var(--quick-silver);
+    font-size: var(--fontSize-label-1);
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.clear-search:hover {
+    color: var(--gold-crayola);
+}
+
+.search-result-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--white-alpha-10);
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: background 0.3s ease;
+    cursor: pointer;
+}
+
+.search-result-item:hover {
+    background: var(--smoky-black-3);
+}
+
+.search-result-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid var(--gold-crayola);
+}
+
+.search-result-content {
+    flex: 1;
+    text-align: left;
+}
+
+.search-result-title {
+    font-size: var(--fontSize-body-3);
+    color: var(--white);
+    margin-bottom: 5px;
+}
+
+.search-result-desc {
+    font-size: var(--fontSize-label-1);
+    color: var(--quick-silver);
+    line-height: 1.4;
+}
+
+.search-result-price {
+    font-size: var(--fontSize-body-3);
+    color: var(--gold-crayola);
+    font-weight: 700;
+    min-width: 60px;
+    text-align: right;
+}
+
+.no-results {
+    padding: 20px;
+    text-align: center;
+    color: var(--quick-silver);
+    font-size: var(--fontSize-body-4);
+}
+
+.highlight {
+    background-color: rgba(212, 175, 55, 0.3);
+    font-weight: 600;
+    color: var(--gold-crayola);
+    padding: 0 2px;
+    border-radius: 3px;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+
+    .search-result-item {
+        padding: 12px 15px;
+    }
+
+    .search-result-img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .search-result-title {
+        font-size: var(--fontSize-body-4);
+    }
+}
+
+/*-----------------------------------*\
   # MEDIA QUERIES
 \*-----------------------------------*/
 /*-----------------------------------*\
@@ -5505,6 +5639,13 @@ body.modal-open {
         margin-left: -14px;
     }
 
+    /* .search-container {
+        margin: 6px 20px 20px auto !important;
+    } */
+    .search-container {
+        margin: 14px auto;
+    }
+
     /*
    * HERO
    */
@@ -5518,7 +5659,7 @@ body.modal-open {
     }
 
     .hero .display-1 {
-        padding: 70px 40px 0 40px;
+        padding: 20px 40px 0 40px;
     }
 
     .hero #prev-slide {
@@ -5689,7 +5830,7 @@ body.modal-open {
 
     .user-sidebar {
         width: 100%;
-        max-width: 320px;
+        max-width: 330px;
     }
 
     .user-btn {
@@ -5905,6 +6046,11 @@ body.modal-open {
 
 
 @media (max-width: 768px) {
+
+    .search-container {
+        max-width: 360px;
+    }
+
     .menu-container {
         max-width: 100%;
         padding: 0;
