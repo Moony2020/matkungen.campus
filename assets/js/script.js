@@ -374,29 +374,29 @@ document.addEventListener("DOMContentLoaded", function () {
       if (cartItemsContainer) {
         if (this.cart.length === 0) {
           cartItemsContainer.innerHTML = `
-          <div class="empty-cart">
-            <i class="ri-shopping-cart-line"></i>
-            <p>Your cart is empty</p>
-          </div>
-        `;
+            <div class="empty-cart">
+              <i class="ri-shopping-cart-line"></i>
+              <p>Your cart is empty</p>
+            </div>
+          `;
         } else {
           cartItemsContainer.innerHTML = this.cart
             .map(
               (item) => `
-          <div class="cart-item" data-id="${item.id}">
-            <img src="${item.img}" alt="${item.name}" width="70" height="70">
-            <div class="item-details">
-              <h4>${item.name}</h4>
-              <div class="item-price">${item.price} kr</div>
-              <div class="item-quantity">
-                <button class="decrease-quantity">-</button>
-                <span>${item.quantity}</span>
-                <button class="increase-quantity">+</button>
+            <div class="cart-item" data-id="${item.id}">
+              <img src="${item.img}" alt="${item.name}" width="70" height="70">
+              <div class="item-details">
+                <h4>${item.name}</h4>
+                <div class="item-price">${item.price} kr</div>
+                <div class="item-quantity">
+                  <button class="decrease-quantity">-</button>
+                  <span>${item.quantity}</span>
+                  <button class="increase-quantity">+</button>
+                </div>
               </div>
+              <button class="remove-item"><i class="ri-close-line"></i></button>
             </div>
-            <button class="remove-item"><i class="ri-close-line"></i></button>
-          </div>
-        `
+          `
             )
             .join("");
         }
@@ -440,8 +440,8 @@ document.addEventListener("DOMContentLoaded", function () {
       const notification = document.createElement("div");
       notification.className = `notification ${isError ? "error" : ""}`;
       notification.innerHTML = `
-      <span>${message}</span>
-    `;
+        <span>${message}</span>
+      `;
       document.body.appendChild(notification);
 
       setTimeout(() => {
@@ -679,13 +679,13 @@ document.addEventListener("DOMContentLoaded", function () {
       orderItems.innerHTML = cart.cart
         .map(
           (item) => `
-        <div class="order-item">
-          <div class="item-name">${item.name} × ${item.quantity}</div>
-          <div class="item-price">${(item.price * item.quantity).toFixed(
-            2
-          )} kr</div>
-        </div>
-      `
+          <div class="order-item">
+            <div class="item-name">${item.name} × ${item.quantity}</div>
+            <div class="item-price">${(item.price * item.quantity).toFixed(
+              2
+            )} kr</div>
+          </div>
+        `
         )
         .join("");
 
@@ -1028,11 +1028,11 @@ document.addEventListener("DOMContentLoaded", function () {
       const itemElement = document.createElement("div");
       itemElement.className = "order-item";
       itemElement.innerHTML = `
-      <div class="item-name">${item.name} × ${item.quantity}</div>
-      <div class="item-price">${(item.price * item.quantity).toFixed(
-        2
-      )} kr</div>
-    `;
+        <div class="item-name">${item.name} × ${item.quantity}</div>
+        <div class="item-price">${(item.price * item.quantity).toFixed(
+          2
+        )} kr</div>
+      `;
       orderItemsContainer.appendChild(itemElement);
     });
 
@@ -1186,11 +1186,11 @@ document.addEventListener("DOMContentLoaded", function () {
     if (details && currentOrder.customer) {
       const { name, phone, address, notes } = currentOrder.customer;
       details.innerHTML = `
-      <p><strong>Name:</strong> ${name || "N/A"}</p>
-      <p><strong>Phone:</strong> ${phone || "N/A"}</p>
-      <p><strong>Address:</strong> ${address || "N/A"}</p>
-      ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ""}
-    `;
+        <p><strong>Name:</strong> ${name || "N/A"}</p>
+        <p><strong>Phone:</strong> ${phone || "N/A"}</p>
+        <p><strong>Address:</strong> ${address || "N/A"}</p>
+        ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ""}
+      `;
     }
 
     const orderItemsEl = document.getElementById("order-items");
@@ -1198,13 +1198,13 @@ document.addEventListener("DOMContentLoaded", function () {
       orderItemsEl.innerHTML = currentOrder.items
         .map(
           (item) => `
-      <div class="order-item">
-        <div class="item-name">${item.name} × ${item.quantity}</div>
-        <div class="item-price">${(item.price * item.quantity).toFixed(
-          2
-        )} kr</div>
-      </div>
-    `
+        <div class="order-item">
+          <div class="item-name">${item.name} × ${item.quantity}</div>
+          <div class="item-price">${(item.price * item.quantity).toFixed(
+            2
+          )} kr</div>
+        </div>
+      `
         )
         .join("");
     }
@@ -1243,120 +1243,120 @@ document.addEventListener("DOMContentLoaded", function () {
 
       iframeDoc.open();
       iframeDoc.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Order Receipt - ${currentOrder.orderNumber || ""}</title>
-      <link rel="stylesheet" href="./assets/css/style.css">
-    </head>
-    <body class="print-view">
-      <div class="confirmation-card">
-        <div class="confirmation-header">
-          <h1>Matkungen</h1>
-          <p class="confirmation-text">
-            Order Number <span id="order-number">${
-              currentOrder.orderNumber || ""
-            }</span>
-          </p>
-        </div>
-
-        <div class="confirmation-content">
-          <div class="delivery-info">
-            <h2>Delivery Information</h2>
-            <div id="customer-details">
-              ${
-                currentOrder.customer
-                  ? `
-                <p><strong>Name:</strong> ${
-                  currentOrder.customer.name || "N/A"
-                }</p>
-                <p><strong>Phone:</strong> ${
-                  currentOrder.customer.phone || "N/A"
-                }</p>
-                <p><strong>Address:</strong> ${
-                  currentOrder.customer.address || "N/A"
-                }</p>
-                ${
-                  currentOrder.customer.notes
-                    ? `<p><strong>Notes:</strong> ${currentOrder.customer.notes}</p>`
-                    : ""
-                }
-              `
-                  : "<p>No customer information available</p>"
-              }
-            </div>
-            <div class="detail-row">
-              <span>Payment Method:</span>
-              <span id="payment-method">${
-                currentOrder.paymentMethod || "Not specified"
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Order Receipt - ${currentOrder.orderNumber || ""}</title>
+        <link rel="stylesheet" href="./assets/css/style.css">
+      </head>
+      <body class="print-view">
+        <div class="confirmation-card">
+          <div class="confirmation-header">
+            <h1>Matkungen</h1>
+            <p class="confirmation-text">
+              Order Number <span id="order-number">${
+                currentOrder.orderNumber || ""
               }</span>
-            </div>
-            <div class="detail-row">
-              <span>Order Date:</span>
-              <span>${orderDate}</span>
-            </div>
-            <div class="detail-row">
-              <span>Estimated Delivery:</span>
-              <span id="delivery-time">25-40 minutes</span>
-            </div>
+            </p>
           </div>
 
-          <div class="order-summary">
-            <h2>Order Summary</h2>
-            <div class="order-items" id="order-items">
-              ${
-                currentOrder.items
-                  ?.map(
-                    (item) => `
-                <div class="order-item">
-                  <div class="item-name">${item.name} × ${item.quantity}</div>
-                  <div class="item-price">${(
-                    item.price * item.quantity
-                  ).toFixed(2)} kr</div>
-                </div>
-              `
-                  )
-                  .join("") || "<p>No items in order</p>"
-              }
+          <div class="confirmation-content">
+            <div class="delivery-info">
+              <h2>Delivery Information</h2>
+              <div id="customer-details">
+                ${
+                  currentOrder.customer
+                    ? `
+                  <p><strong>Name:</strong> ${
+                    currentOrder.customer.name || "N/A"
+                  }</p>
+                  <p><strong>Phone:</strong> ${
+                    currentOrder.customer.phone || "N/A"
+                  }</p>
+                  <p><strong>Address:</strong> ${
+                    currentOrder.customer.address || "N/A"
+                  }</p>
+                  ${
+                    currentOrder.customer.notes
+                      ? `<p><strong>Notes:</strong> ${currentOrder.customer.notes}</p>`
+                      : ""
+                  }
+                `
+                    : "<p>No customer information available</p>"
+                }
+              </div>
+              <div class="detail-row">
+                <span>Payment Method:</span>
+                <span id="payment-method">${
+                  currentOrder.paymentMethod || "Not specified"
+                }</span>
+              </div>
+              <div class="detail-row">
+                <span>Order Date:</span>
+                <span>${orderDate}</span>
+              </div>
+              <div class="detail-row">
+                <span>Estimated Delivery:</span>
+                <span id="delivery-time">25-40 minutes</span>
+              </div>
             </div>
 
-            <div class="order-totals">
-              <div class="order-row">
-                <span>Subtotal</span>
-                <span id="order-subtotal">${
-                  currentOrder.subtotal?.toFixed(2) || "0.00"
-                } kr</span>
+            <div class="order-summary">
+              <h2>Order Summary</h2>
+              <div class="order-items" id="order-items">
+                ${
+                  currentOrder.items
+                    ?.map(
+                      (item) => `
+                  <div class="order-item">
+                    <div class="item-name">${item.name} × ${item.quantity}</div>
+                    <div class="item-price">${(
+                      item.price * item.quantity
+                    ).toFixed(2)} kr</div>
+                  </div>
+                `
+                    )
+                    .join("") || "<p>No items in order</p>"
+                }
               </div>
-              <div class="order-row">
-                <span>Delivery Fee</span>
-                <span id="delivery-fee">${
-                  currentOrder.deliveryFee?.toFixed(2) || "0.00"
-                } kr</span>
-              </div>
-              <div class="order-row total">
-                <span>Total</span>
-                <span id="order-total">${
-                  currentOrder.total?.toFixed(2) || "0.00"
-                } kr</span>
+
+              <div class="order-totals">
+                <div class="order-row">
+                  <span>Subtotal</span>
+                  <span id="order-subtotal">${
+                    currentOrder.subtotal?.toFixed(2) || "0.00"
+                  } kr</span>
+                </div>
+                <div class="order-row">
+                  <span>Delivery Fee</span>
+                  <span id="delivery-fee">${
+                    currentOrder.deliveryFee?.toFixed(2) || "0.00"
+                  } kr</span>
+                </div>
+                <div class="order-row total">
+                  <span>Total</span>
+                  <span id="order-total">${
+                    currentOrder.total?.toFixed(2) || "0.00"
+                  } kr</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <script>
-        window.onload = function() {
-          setTimeout(function() {
-            window.print();
+        <script>
+          window.onload = function() {
             setTimeout(function() {
-              window.parent.document.body.removeChild(window.frameElement);
-            }, 1000);
-          }, 200);
-        };
-      </script>
-    </body>
-    </html>
-  `);
+              window.print();
+              setTimeout(function() {
+                window.parent.document.body.removeChild(window.frameElement);
+              }, 1000);
+            }, 200);
+          };
+        </script>
+      </body>
+      </html>
+    `);
       iframeDoc.close();
     });
 
@@ -1835,12 +1835,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (data.orders.length === 0) {
           ordersList.innerHTML = `
-          <div class="no-orders">
-            <i class="ri-shopping-bag-line"></i>
-            <p>You don't have any previous orders</p>
-            <p class="small">Start ordering from our menu!</p>
-          </div>
-        `;
+            <div class="no-orders">
+              <i class="ri-shopping-bag-line"></i>
+              <p>You don't have any previous orders</p>
+              <p class="small">Start ordering from our menu!</p>
+            </div>
+          `;
           return;
         }
 
@@ -1863,13 +1863,13 @@ document.addEventListener("DOMContentLoaded", function () {
         ordersList.innerHTML = Object.entries(ordersByDate)
           .map(([date, dateOrders]) => {
             return `
-          <div class="order-date-group">
-            <h4 class="order-date-header">${date}</h4>
-            ${dateOrders
-              .map((order) => this.createOrderItemHTML(order))
-              .join("")}
-          </div>
-        `;
+            <div class="order-date-group">
+              <h4 class="order-date-header">${date}</h4>
+              ${dateOrders
+                .map((order) => this.createOrderItemHTML(order))
+                .join("")}
+            </div>
+          `;
           })
           .join("");
 
@@ -1891,11 +1891,11 @@ document.addEventListener("DOMContentLoaded", function () {
       } catch (error) {
         console.error("Error loading orders:", error);
         ordersList.innerHTML = `
-        <div class="error-loading">
-          <i class="ri-error-warning-line"></i>
-          <p>Failed to load orders</p>
-        </div>
-      `;
+          <div class="error-loading">
+            <i class="ri-error-warning-line"></i>
+            <p>Failed to load orders</p>
+          </div>
+        `;
       }
     }
 
@@ -1927,70 +1927,72 @@ document.addEventListener("DOMContentLoaded", function () {
       };
 
       return `
-    <div class="order-card">
-      <div class="order-header">
-        <span class="order-number">#${order.orderNumber}</span>
-        <span class="order-date">
-          ${new Date(order.createdAt).toLocaleDateString("sv-SE", {
-            day: "numeric",
-            month: "short",
-            hour: "2-digit",
-            minute: "2-digit",
-          })}
-        </span>
-      </div>
+      <div class="order-card">
+        <div class="order-header">
+          <span class="order-number">#${order.orderNumber}</span>
+          <span class="order-date">
+            ${new Date(order.createdAt).toLocaleDateString("sv-SE", {
+              day: "numeric",
+              month: "short",
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
+          </span>
+        </div>
 
-      <div class="order-status ${statusInfo.class}">
-        <i class="${statusInfo.icon}"></i>
-        ${statusInfo.label}
-      </div>
+        <div class="order-status ${statusInfo.class}">
+          <i class="${statusInfo.icon}"></i>
+          ${statusInfo.label}
+        </div>
 
-      <div class="order-progress">
-        ${this.createProgressSteps(order.status)}
-      </div>
+        <div class="order-progress">
+          ${this.createProgressSteps(order.status)}
+        </div>
 
-      <div class="order-summary">
-        <div class="order-items-preview">
-          ${order.items
-            .slice(0, 2)
-            .map(
-              (item) => `
-            <div class="preview-item">
-              <img src="${item.img || "./assets/images/default-food.jpg"}"
-                   alt="${item.name}" width="40" height="40">
-              <span>${item.name}</span>
-            </div>
-          `
-            )
-            .join("")}
+        <div class="order-summary">
+          <div class="order-items-preview">
+            ${order.items
+              .slice(0, 2)
+              .map(
+                (item) => `
+              <div class="preview-item">
+                <img src="${item.img || "./assets/images/default-food.jpg"}"
+                    alt="${item.name}" width="40" height="40">
+                <span>${item.name}</span>
+              </div>
+            `
+              )
+              .join("")}
+            ${
+              order.items.length > 2
+                ? `<div class="more-items">+${
+                    order.items.length - 2
+                  } more</div>`
+                : ""
+            }
+          </div>
+
+          <div class="order-total">${order.total?.toFixed(2) || "0.00"} kr</div>
+        </div>
+
+        <div class="order-actions">
+          <button class="btn btn-outline view-order" data-order="${
+            order.orderNumber
+          }">
+            View Details
+          </button>
           ${
-            order.items.length > 2
-              ? `<div class="more-items">+${order.items.length - 2} more</div>`
+            order.status === "On the Way"
+              ? `
+            <button class="btn btn-primary track-order" data-order="${order.orderNumber}">
+              <i class="ri-map-pin-line"></i> Track
+            </button>
+          `
               : ""
           }
         </div>
-
-        <div class="order-total">${order.total?.toFixed(2) || "0.00"} kr</div>
       </div>
-
-      <div class="order-actions">
-        <button class="btn btn-outline view-order" data-order="${
-          order.orderNumber
-        }">
-          View Details
-        </button>
-        ${
-          order.status === "On the Way"
-            ? `
-          <button class="btn btn-primary track-order" data-order="${order.orderNumber}">
-            <i class="ri-map-pin-line"></i> Track
-          </button>
-        `
-            : ""
-        }
-      </div>
-    </div>
-  `;
+    `;
     }
 
     createProgressSteps(currentStatus) {
@@ -2012,13 +2014,13 @@ document.addEventListener("DOMContentLoaded", function () {
       return steps
         .map(
           (step, index) => `
-    <div class="progress-step ${index <= currentIndex ? "active" : ""}">
-      <div class="step-icon">
-        <i class="${step.icon}"></i>
+      <div class="progress-step ${index <= currentIndex ? "active" : ""}">
+        <div class="step-icon">
+          <i class="${step.icon}"></i>
+        </div>
+        <div class="step-label">${step.status}</div>
       </div>
-      <div class="step-label">${step.status}</div>
-    </div>
-  `
+    `
         )
         .join("");
     }
@@ -2097,83 +2099,85 @@ document.addEventListener("DOMContentLoaded", function () {
       // Check if order is being delivered
       const showTracking = order.status === "On the Way" && order.driver;
       modal.innerHTML = `
-      <div class="modal-content">
-        <div class="modal-header">
-          <h3>Order Details</h3>
-          <h4>#${order.orderNumber}</h4>
-          <span class="close-modal">&times;</span>
-        </div>
-        <div class="modal-body">
-          <div class="order-meta">
-            <div><strong>Date:</strong> ${new Date(
-              order.createdAt
-            ).toLocaleString("sv-SE")}</div>
-            <div><strong>Status:</strong> <span class="status-badge ${order.status.toLowerCase()}">${
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Order Details</h3>
+            <h4>#${order.orderNumber}</h4>
+            <span class="close-modal">&times;</span>
+          </div>
+          <div class="modal-body">
+            <div class="order-meta">
+              <div><strong>Date:</strong> ${new Date(
+                order.createdAt
+              ).toLocaleString("sv-SE")}</div>
+              <div><strong>Status:</strong> <span class="status-badge ${order.status.toLowerCase()}">${
         order.status
       }</span></div>
-            <div><strong>Payment:</strong> ${
-              order.paymentMethod || "Not specified"
-            }</div>
-          </div>
-          
-          <div class="order-items-section">
-            <h5>Items</h5>
-            <div class="order-items-list">
-              ${order.items
-                .map(
-                  (item) => `
-                <div class="order-item-detail">
-                  <img src="${
-                    item.img || "./assets/images/default-food.jpg"
-                  }" width="50" height="50" alt="${item.name}">
-                  <div class="item-info">
-                    <span class="item-name">${item.name}</span>
-                    <span class="item-price">${item.price} kr × ${
-                    item.quantity
-                  }</span>
+              <div><strong>Payment:</strong> ${
+                order.paymentMethod || "Not specified"
+              }</div>
+            </div>
+            
+            <div class="order-items-section">
+              <h5>Items</h5>
+              <div class="order-items-list">
+                ${order.items
+                  .map(
+                    (item) => `
+                  <div class="order-item-detail">
+                    <img src="${
+                      item.img || "./assets/images/default-food.jpg"
+                    }" width="50" height="50" alt="${item.name}">
+                    <div class="item-info">
+                      <span class="item-name">${item.name}</span>
+                      <span class="item-price">${item.price} kr × ${
+                      item.quantity
+                    }</span>
+                    </div>
+                    <div class="item-total">${(
+                      item.price * item.quantity
+                    ).toFixed(2)} kr</div>
                   </div>
-                  <div class="item-total">${(
-                    item.price * item.quantity
-                  ).toFixed(2)} kr</div>
-                </div>
-              `
-                )
-                .join("")}
+                `
+                  )
+                  .join("")}
+              </div>
+            </div>
+            
+            <div class="order-totals">
+              <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>${order.subtotal.toFixed(2)} kr</span>
+              </div>
+              <div class="summary-row">
+                <span>Delivery Fee:</span>
+                <span>${order.deliveryFee.toFixed(2)} kr</span>
+              </div>
+              <div class="summary-row total">
+                <span>Total:</span>
+                <span>${order.total.toFixed(2)} kr</span>
+              </div>
+            </div>
+            
+            <div class="customer-info">
+              <h5>Customer Information</h5>
+              <p><strong>Name:</strong> ${order.customer?.name || "N/A"}</p>
+              <p><strong>Phone:</strong> ${order.customer?.phone || "N/A"}</p>
+              <p><strong>Address:</strong> ${
+                order.customer?.address || "N/A"
+              }</p>
+              ${
+                order.customer?.notes
+                  ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>`
+                  : ""
+              }
             </div>
           </div>
-          
-          <div class="order-totals">
-            <div class="summary-row">
-              <span>Subtotal:</span>
-              <span>${order.subtotal.toFixed(2)} kr</span>
-            </div>
-            <div class="summary-row">
-              <span>Delivery Fee:</span>
-              <span>${order.deliveryFee.toFixed(2)} kr</span>
-            </div>
-            <div class="summary-row total">
-              <span>Total:</span>
-              <span>${order.total.toFixed(2)} kr</span>
-            </div>
-          </div>
-          
-          <div class="customer-info">
-            <h5>Customer Information</h5>
-            <p><strong>Name:</strong> ${order.customer?.name || "N/A"}</p>
-            <p><strong>Phone:</strong> ${order.customer?.phone || "N/A"}</p>
-            <p><strong>Address:</strong> ${order.customer?.address || "N/A"}</p>
-            ${
-              order.customer?.notes
-                ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>`
-                : ""
-            }
+          <div class="modal-footer">
+            <button class="btn btn-primary close-modal-btn">Close</button>
           </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-primary close-modal-btn">Close</button>
-        </div>
-      </div>
-    `;
+      `;
 
       document.body.appendChild(modal);
       document.body.classList.add("modal-open");
@@ -2272,149 +2276,995 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ==================== GLOBAL SEARCH FUNCTIONALITY ====================
+// ==================== GLOBAL MENU DATA ====================
+const menuItems = [
+  // Drinks (drycker.html)
+  {
+    id: "coca-cola-33-cl",
+    name: "Coca-Cola (33 cl)",
+    price: 15,
+    image: "./assets/images/Coca-Cola.png",
+    category: "drinks",
+    page: "drycker.html",
+    desc: "Klassisk Coca-Cola",
+  },
+  {
+    id: "coca-cola-zero-33-cl",
+    name: "Coca-Cola Zero (33 cl)",
+    price: 15,
+    image: "./assets/images/Coca-Cola-Zero.png",
+    category: "drinks",
+    page: "drycker.html",
+    desc: "Coca-Cola utan socker",
+  },
+  {
+    id: "pepsi-33-cl",
+    name: "Pepsi (33 cl)",
+    price: 15,
+    image: "./assets/images/Pepsi.png",
+    category: "drinks",
+    page: "drycker.html",
+    desc: "Klassisk Pepsi",
+  },
+  {
+    id: "pepsi-max-33-cl",
+    name: "Pepsi Max no sugar (33 cl)",
+    price: 15,
+    image: "./assets/images/Pepsi-Max.png",
+    category: "drinks",
+    page: "drycker.html",
+    desc: "Pepsi utan socker",
+  },
+  {
+    id: "fanta-33-cl",
+    name: "Fanta (33 cl)",
+    price: 15,
+    image: "./assets/images/Fanta.png",
+    category: "drinks",
+    page: "drycker.html",
+    desc: "Apelsinsmakande läsk",
+  },
+  {
+    id: "fanta-zero-33-cl",
+    name: "Fanta Zero (33 cl)",
+    price: 15,
+    image: "./assets/images/Fanta-Zero.png",
+    category: "drinks",
+    page: "drycker.html",
+    desc: "Fanta utan socker",
+  },
+  {
+    id: "sprite-33-cl",
+    name: "Sprite (33 cl)",
+    price: 15,
+    image: "./assets/images/Sprite.png",
+    category: "drinks",
+    page: "drycker.html",
+    desc: "Citron- och limesmakande läsk",
+  },
+  {
+    id: "7up-33-cl",
+    name: "7Up (33 cl)",
+    price: 15,
+    image: "./assets/images/7UP.png",
+    category: "drinks",
+    page: "drycker.html",
+    desc: "Klassisk 7Up",
+  },
+  {
+    id: "bonaqua-citron-33-cl",
+    name: "Bonaqua Citron (33 cl)",
+    price: 15,
+    image: "./assets/images/Bonaqua-Citron.png",
+    category: "drinks",
+    page: "drycker.html",
+    desc: "Mineralvatten med citronsmak",
+  },
+  {
+    id: "bonaqua-naturell-33-cl",
+    name: "Bonaqua Naturell (33 cl)",
+    price: 15,
+    image: "./assets/images/Bonaqua-Naturell.png",
+    category: "drinks",
+    page: "drycker.html",
+    desc: "Naturellt mineralvatten",
+  },
+
+  // Vegetarian (vegetarisk.html)
+  {
+    id: "falafelrulle",
+    name: "Falafelrulle",
+    price: 50,
+    image: "./assets/images/falafelrulle.jpg",
+    category: "vegetarian",
+    page: "vegetarisk.html",
+    desc: "Falafel, isbergssallad, hummus, färska tomater, gurka, lök",
+  },
+  {
+    id: "falafelsallad",
+    name: "Falafelsallad",
+    price: 70,
+    image: "./assets/images/falafelsallad.png",
+    category: "vegetarian",
+    page: "vegetarisk.html",
+    desc: "Falafel, isbergssallad, tomater, gurka, lök, majs, vitlöksås",
+  },
+  {
+    id: "halloumisallad-lunch-offer",
+    name: "Halloumisallad (Lunch Offer)",
+    price: 60,
+    image: "./assets/images/halloumisallad.png",
+    category: "vegetarian",
+    page: "vegetarisk.html",
+    desc: "Lunchpris: 60 kr (11-14)",
+  },
+  {
+    id: "vegetaiana",
+    name: "Vegetaiana pizza",
+    price: 80,
+    image: "./assets/images/vegetaiana.jpg",
+    category: "vegetarian",
+    page: "vegetarisk.html",
+    desc: "Tomatsås, ost, champinjoner, lök, paprika, fetaost, oliver",
+  },
+
+  // Lunch (lunch.html)
+  {
+    id: "hamburgare-90-gram",
+    name: "Hamburgare 90 gram",
+    price: 50,
+    image: "./assets/images/hamburgare.png",
+    category: "lunch",
+    page: "lunch.html",
+    desc: "Nötfärs 90 gram, isbergssallad, tomat gurka, lök, hamburgerdressing",
+  },
+  {
+    id: "falafelrulle-lunch",
+    name: "Falafelrulle",
+    price: 50,
+    image: "./assets/images/falafelrulle.jpg",
+    category: "lunch",
+    page: "lunch.html",
+    desc: "Falafel, isbergssallad, hummus, färska tomater, gurka, lök",
+  },
+
+  // Pizza (index.html)
+  {
+    id: "vegetaiana-pizza",
+    name: "Vegetaiana",
+    price: 120,
+    image: "./assets/images/vegetaiana.jpg",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, champinjoner, lök, paprika, fetaost, oliver",
+  },
+  {
+    id: "margherita",
+    name: "Margherita",
+    price: 120,
+    image: "./assets/images/margherita.jpg",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost",
+  },
+  {
+    id: "vesuvio",
+    name: "Vesuvio",
+    price: 130,
+    image: "./assets/images/vesuvio.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, skinka",
+  },
+  {
+    id: "funghi",
+    name: "Funghi",
+    price: 130,
+    image: "./assets/images/funghi.jpg",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, champinjoner",
+  },
+  {
+    id: "hawaii",
+    name: "Hawaii",
+    price: 130,
+    image: "./assets/images/hawaii.jpg",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, skinka, ananas",
+  },
+  {
+    id: "capricciosa",
+    name: "Capricciosa",
+    price: 120,
+    image: "./assets/images/capricciosa.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, skinka, champinjoner",
+  },
+  {
+    id: "calzone",
+    name: "Calzone",
+    price: 80,
+    image: "./assets/images/calzone.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, skinka. 'Inbakad' standard",
+  },
+  {
+    id: "calzone-special",
+    name: "Calzone Special",
+    price: 85,
+    image: "./assets/images/calzone-special.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, skinka, räkor. 'Inbakad' standard",
+  },
+  {
+    id: "salami",
+    name: "Salami",
+    price: 120,
+    image: "./assets/images/salami.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, salami, lök",
+  },
+  {
+    id: "fyra-ostar",
+    name: "Fyra Ostar",
+    price: 120,
+    image: "./assets/images/fyra-ostar.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, mozzarellaost, fetaost, gorgonzola",
+  },
+  {
+    id: "salami-special",
+    name: "Salami Special",
+    price: 120,
+    image: "./assets/images/salami-special.jpg",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, salami, pepperoni",
+  },
+  {
+    id: "kebabpizza",
+    name: "Kebabpizza",
+    price: 130,
+    image: "./assets/images/kebabpizza.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, kebabkött, lök, champinjoner",
+  },
+  {
+    id: "kycklingpizza",
+    name: "Kycklingpizza",
+    price: 130,
+    image: "./assets/images/kycklingpizza.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, kyckling, lök, champinjoner",
+  },
+  {
+    id: "växjö-pizza",
+    name: "Växjö Pizza",
+    price: 120,
+    image: "./assets/images/växjö.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, kebab, kyckling, lök, champinjoner",
+  },
+  {
+    id: "tonfisk-pizza",
+    name: "Tonfisk Pizza",
+    price: 120,
+    image: "./assets/images/tonfisk-pizza.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, tonfisk, lök",
+  },
+  {
+    id: "räkor-pizza",
+    name: "Räkor Pizza",
+    price: 120,
+    image: "./assets/images/räkor-pizza.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, räkor",
+  },
+  {
+    id: "la-maffia",
+    name: "La Maffia",
+    price: 120,
+    image: "./assets/images/la_maffia.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, bacon, lök",
+  },
+  {
+    id: "quattro",
+    name: "Quattro",
+    price: 120,
+    image: "./assets/images/quattro.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, skinka, räkor, musslor, vitlöksolja",
+  },
+  {
+    id: "falafel-pizza",
+    name: "Falafel Pizza",
+    price: 120,
+    image: "./assets/images/falafel-pizza.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, falafel, tomat, fetaost",
+  },
+  {
+    id: "mexikana",
+    name: "Mexikana",
+    price: 130,
+    image: "./assets/images/mexikana.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, köttfärs, jalapeno, lök",
+  },
+  {
+    id: "mamma-mia",
+    name: "Mamma Mia",
+    price: 130,
+    image: "./assets/images/mamma-mia.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, köttfärs, salami, lök, skinka, vitlöksolja",
+  },
+  {
+    id: "matkungen-pizza",
+    name: "Matkungen Pizza",
+    price: 130,
+    image: "./assets/images/matkungen-pizza.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, kyckling, curry, banan",
+  },
+  {
+    id: "pepperoni",
+    name: "Pepperoni",
+    price: 130,
+    image: "./assets/images/pepperoni.png",
+    category: "pizza",
+    page: "index.html",
+    desc: "Tomatsås, ost, pepperoni, lök",
+  },
+
+  // Burgers (index.html)
+  {
+    id: "hamburgare-90-gram-burger",
+    name: "Hamburgare 90 gram",
+    price: 60,
+    image: "./assets/images/hamburgare.png",
+    category: "burgers",
+    page: "index.html",
+    desc: "Nötfärs 90 gram, isbergssallad, tomat gurka, lök, hamburgerdressing",
+  },
+  {
+    id: "kycklingburgare",
+    name: "Kycklingburgare",
+    price: 60,
+    image: "./assets/images/Kycklingburgare.png",
+    category: "burgers",
+    page: "index.html",
+    desc: "Kycklingfärs, hamburgerbröd, isbergssallad, färska tomater, gurka, rödlök, ost, hamburgerdressing",
+  },
+  {
+    id: "hamburgeretallrik",
+    name: "Hamburgeretallrik",
+    price: 85,
+    image: "./assets/images/hamburgere-tallrik.jpg",
+    category: "burgers",
+    page: "index.html",
+    desc: "Nötfärs 90 gram, pommes, isbergssallad, färska tomater, gurka, lök, hamburgerdressing, fetaost",
+  },
+
+  // Salads (index.html)
+  {
+    id: "falafelsallad-index",
+    name: "Falafelsallad",
+    price: 70,
+    image: "./assets/images/falafelsallad.png",
+    category: "salads",
+    page: "index.html",
+    desc: "Falafel, isbergssallad, tomater, gurka, lök, majs, vitlöksås",
+  },
+  {
+    id: "kebabsallad",
+    name: "Kebabsallad",
+    price: 80,
+    image: "./assets/images/kebabsallad.png",
+    category: "salads",
+    page: "index.html",
+    desc: "Kebabkött, isbergssallad, tomater, gurka, lök, majs, vitlöksås",
+  },
+  {
+    id: "kycklingsallad",
+    name: "Kycklingsallad",
+    price: 80,
+    image: "./assets/images/kycklingsallad.png",
+    category: "salads",
+    page: "index.html",
+    desc: "Kyckling sliced, isbergssallad, tomater, gurka, lök, majs, vitlöksås",
+  },
+  {
+    id: "halloumisallad",
+    name: "Halloumisallad",
+    price: 80,
+    image: "./assets/images/halloumisallad.png",
+    category: "salads",
+    page: "index.html",
+    desc: "Halloumi, isbergssallad, gurka, färska tomater, rödlök, paprika, olivolja, citron, och persilja",
+  },
+  {
+    id: "krispigsallad",
+    name: "Krispigsallad",
+    price: 90,
+    image: "./assets/images/krispigsallad.png",
+    category: "salads",
+    page: "index.html",
+    desc: "Krispig kycklingfilé, isbergssallad, gurka, färska tomater, rödlök, paprika, olivolja, citron",
+  },
+  {
+    id: "blandadsallad",
+    name: "Blandadsallad",
+    price: 90,
+    image: "./assets/images/Blandadsallad.png",
+    category: "salads",
+    page: "index.html",
+    desc: "Kebabkött, kyckling, isbergssallad, färska tomater, gurka, rödlök, feferoni, dressing",
+  },
+
+  // Rollers (index.html)
+  {
+    id: "falafelrulle-index",
+    name: "Falafelrulle",
+    price: 50,
+    image: "./assets/images/falafelrulle.jpg",
+    category: "rollers",
+    page: "index.html",
+    desc: "Falafel, isbergssallad, hummus, färska tomater, gurka, lök",
+  },
+  {
+    id: "kebabrulle",
+    name: "Kebabrulle",
+    price: 60,
+    image: "./assets/images/kebabrulle.png",
+    category: "rollers",
+    page: "index.html",
+    desc: "Kebabkött, isbergssallad, dressing, färska tomater, lök, feferoni",
+  },
+  {
+    id: "kycklingrulle",
+    name: "Kycklingrulle",
+    price: 60,
+    image: "./assets/images/kycklingrulle.jpg",
+    category: "rollers",
+    page: "index.html",
+    desc: "Kyckling, isbergssallad, dressing, färska tomater, lök, feferoni",
+  },
+  {
+    id: "halloumirulle",
+    name: "Halloumirulle",
+    price: 65,
+    image: "./assets/images/halloumirulle.jpg",
+    category: "rollers",
+    page: "index.html",
+    desc: "Halloumi, hummus, tortillabröd, gurka, isbergssallad, färska tomater, lök, persilja",
+  },
+  {
+    id: "blandadrulle",
+    name: "Blandadrulle",
+    price: 70,
+    image: "./assets/images/blandadrulle.jpg",
+    category: "rollers",
+    page: "index.html",
+    desc: "Kebabkött, Kyckling, isbergssallad, dressing, färska tomater, lök, feferoni",
+  },
+  {
+    id: "krispigrulle",
+    name: "Krispigrulle",
+    price: 70,
+    image: "./assets/images/krispigrulle.jpg",
+    category: "rollers",
+    page: "index.html",
+    desc: "Krispigt kycklingfilé, tortillabröd, gurka, isbergssallad, färska tomater, lök",
+  },
+  {
+    id: "chili-cheese-rulle",
+    name: "Chili Cheese-rulle",
+    price: 60,
+    image: "./assets/images/chili-cheese-rulle.jpg",
+    category: "rollers",
+    page: "index.html",
+    desc: "Chili cheese bollar, tortillabröd, gurka, isbergssallad, färska tomater, lök, vitlöksås, riven ost",
+  },
+  {
+    id: "pommes-rulle",
+    name: "Pommes-rulle",
+    price: 50,
+    image: "./assets/images/pommes-rulle.jpg",
+    category: "rollers",
+    page: "index.html",
+    desc: "Pommes, tortillabröd, isbergssallad, färska tomater, jalapeno, rödlök, vitlöksås",
+  },
+
+  // Tallrikar (index.html)
+  {
+    id: "falafel-tallrik-med-ris",
+    name: "Falafel tallrik med ris",
+    price: 75,
+    image: "./assets/images/falafel-tallrik.jpg",
+    category: "dishes",
+    page: "index.html",
+    desc: "Falafel, ris, isbergssallad, hummus, färska tomater, lök",
+  },
+  {
+    id: "kebab-tallrik-med-ris",
+    name: "Kebab tallrik med ris",
+    price: 80,
+    image: "./assets/images/kebab-tallrik.jpg",
+    category: "dishes",
+    page: "index.html",
+    desc: "Kebabkött, ris, isbergssallad, färska tomater, lök, feferoni, pommes, dressing (mildsås)",
+  },
+  {
+    id: "kyckling-tallrik-med-ris",
+    name: "Kyckling tallrik med ris",
+    price: 80,
+    image: "./assets/images/kyckling-tallrik.jpg",
+    category: "dishes",
+    page: "index.html",
+    desc: "Kyckling (skuren i bitar), ris, isbergssallad, färska tomater, gurka, lök, feferoni, pommes, dressing",
+  },
+  {
+    id: "blandad-tallrik-med-ris",
+    name: "Blandad tallrik med ris",
+    price: 90,
+    image: "./assets/images/blandad-tallrik.jpg",
+    category: "dishes",
+    page: "index.html",
+    desc: "Kebabkött, Kyckling, ris, pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing",
+  },
+  {
+    id: "krispig-tallrik-med-ris",
+    name: "Krispig tallrik med ris",
+    price: 90,
+    image: "./assets/images/krispig-tallrik.jpg",
+    category: "dishes",
+    page: "index.html",
+    desc: "Krispig kycklingfilé, ris, pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing",
+  },
+  {
+    id: "hamburgere-tallrik",
+    name: "Hamburgere tallrik",
+    price: 85,
+    image: "./assets/images/hamburgere-tallrik.jpg",
+    category: "dishes",
+    page: "index.html",
+    desc: "Nötfärs 90 gram, pommes, isbergssallad, färska tomater, gurka, lök, hamburgerdressing, fetaost",
+  },
+  {
+    id: "kycklingburgare-tallrik",
+    name: "Kycklingburgare tallrik",
+    price: 85,
+    image: "./assets/images/kycklingburgare-tallrik.jpg",
+    category: "dishes",
+    page: "index.html",
+    desc: "Kycklingfärs, hamburgerbröd, isbergssallad, färska tomater, gurka, rödlök, ost, hamburgerdressing",
+  },
+  {
+    id: "cevapcici-tallrik",
+    name: "Cevapcici tallrik",
+    price: 95,
+    image: "./assets/images/cevapcici-tallrik.jpg",
+    category: "dishes",
+    page: "index.html",
+    desc: "Köttfärs, pommes, isbergssallad, rödlök, gräddfil, pitabröd",
+  },
+  {
+    id: "halloumitallrik",
+    name: "Halloumitallrik",
+    price: 80,
+    image: "./assets/images/halloumi-tallrik.jpg",
+    category: "dishes",
+    page: "index.html",
+    desc: "Halloumi (grillad eller stekt), pommes, isbergssallad, färska tomater, gurka, rödlök, gräddfil",
+  },
+  {
+    id: "halloumi-burgaretallrik",
+    name: "Halloumi-burgaretallrik",
+    price: 85,
+    image: "./assets/images/halloumi-burgare-tallrik.jpg",
+    category: "dishes",
+    page: "index.html",
+    desc: "Halloumi (grillad eller stekt), pommes, isbergssallad, färska tomater, gurka, rödlök, hamburgerdressing, vitlöksås, feferoni",
+  },
+
+  // Box (index.html)
+  {
+    id: "falafel-box",
+    name: "Falafel box",
+    price: 70,
+    image: "./assets/images/falafel-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Falafel, isbergssallad, färska tomater, gurka, lök, vitlöksdressing",
+  },
+  {
+    id: "kebab-box",
+    name: "Kebab box",
+    price: 80,
+    image: "./assets/images/kebab-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Kebabkött, pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing (mildsås)",
+  },
+  {
+    id: "kyckling-box",
+    name: "Kyckling box",
+    price: 80,
+    image: "./assets/images/kyckling-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Kyckling (skuren i bitar), pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing (mildsås)",
+  },
+  {
+    id: "blandad-box",
+    name: "Blandad box",
+    price: 90,
+    image: "./assets/images/blandad-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Kebabkött, Kyckling, pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing",
+  },
+  {
+    id: "krispig-box",
+    name: "Krispig box",
+    price: 90,
+    image: "./assets/images/krispig-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Krispig kycklingfilé, pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing",
+  },
+  {
+    id: "chili-cheese-box",
+    name: "Chili cheese box",
+    price: 75,
+    image: "./assets/images/chili-cheese-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Chili cheese bollar, pommes, isbergssallad, färska tomater, gurka, lök, jalapeno, dressing",
+  },
+  {
+    id: "nuggets-box",
+    name: "Nuggets box",
+    price: 80,
+    image: "./assets/images/nuggets-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Kycklingnuggets, pommes, isbergssallad, färska tomater, gurka, rödlök, BBQ-sås/vitlöksdressing",
+  },
+  {
+    id: "halloumi-box",
+    name: "Halloumi box",
+    price: 80,
+    image: "./assets/images/halloumi-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Halloumi, pommes, isbergssallad, färska tomater, gurka, rödlök, feferoni, dressing",
+  },
+  {
+    id: "pommes-box",
+    name: "Pommes box",
+    price: 40,
+    image: "./assets/images/pommes-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Pommes, dressing (mildsås)",
+  },
+  {
+    id: "cheese-fries-box",
+    name: "Cheese Fries box",
+    price: 50,
+    image: "./assets/images/cheese-fries-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Smält ost, pommes, isbergssallad, färska tomater, rödlök, jalapeno",
+  },
+  {
+    id: "mix-box",
+    name: "Mix box",
+    price: 125,
+    image: "./assets/images/mix-box.jpg",
+    category: "boxes",
+    page: "index.html",
+    desc: "Pommes, mozzarella 4st, Chili cheese 4st, halloumi 4st, dressing",
+  },
+
+  // Pitabröd (index.html)
+  {
+    id: "falafel-med-pitabröd",
+    name: "Falafel med Pitabröd",
+    price: 80,
+    image: "./assets/images/falafel-pitabrod.jpg",
+    category: "pitabrod",
+    page: "index.html",
+    desc: "Falafel, isbergssallad, hummus, färska tomater, gurka, lök",
+  },
+  {
+    id: "kebab-med-pitabröd",
+    name: "Kebab med Pitabröd",
+    price: 85,
+    image: "./assets/images/kebab-pitabrod.jpg",
+    category: "pitabrod",
+    page: "index.html",
+    desc: "Kebabkött, isbergssallad, färska tomater, gurka, lök, feferoni, vitlökssås",
+  },
+  {
+    id: "kyckling-med-pitabröd",
+    name: "Kyckling med Pitabröd",
+    price: 85,
+    image: "./assets/images/kyckling-pitabrod.jpg",
+    category: "pitabrod",
+    page: "index.html",
+    desc: "Kyckling (grillad), isbergssallad, färska tomater, gurka, lök, feferoni, dressing",
+  },
+  {
+    id: "blandad-med-pitabröd",
+    name: "Blandad med Pitabröd",
+    price: 90,
+    image: "./assets/images/blandad-pitabrod.jpg",
+    category: "pitabrod",
+    page: "index.html",
+    desc: "Kebabkött, Kyckling, isbergssallad, färska tomater, gurka, lök, feferoni, dressing",
+  },
+  {
+    id: "krispig-med-pitabröd",
+    name: "Krispig med Pitabröd",
+    price: 90,
+    image: "./assets/images/krispig-pitabrod.jpg",
+    category: "pitabrod",
+    page: "index.html",
+    desc: "Krispig kycklingfilé, isbergssallad, färska tomater, gurka, lök, feferoni, dressing",
+  },
+  {
+    id: "halloumi-med-pitabröd",
+    name: "Halloumi med Pitabröd",
+    price: 85,
+    image: "./assets/images/halloumi-pitabrod.jpg",
+    category: "pitabrod",
+    page: "index.html",
+    desc: "Halloumi, isbergssallad, färska tomater, gurka, lök, hummus, persilja",
+  },
+  {
+    id: "cevapcici-med-pitabröd",
+    name: "Cevapcici med Pitabröd",
+    price: 90,
+    image: "./assets/images/cevapcici-pitabrod.jpg",
+    category: "pitabrod",
+    page: "index.html",
+    desc: "Cevapcici (grillad), isbergssallad, färska tomater, gurka, lök, feferoni, vitlökssås",
+  },
+
+  // Tillbehör (index.html)
+  {
+    id: "mozzarella",
+    name: "Mozzarella",
+    price: 35,
+    image: "./assets/images/mozzarella.jpg",
+    category: "addition",
+    page: "index.html",
+    desc: "Färsk mozzarellaost, perfekt till alla rätter",
+  },
+  {
+    id: "chili-cheese",
+    name: "Chili Cheese",
+    price: 35,
+    image: "./assets/images/chili-cheese.jpg",
+    category: "addition",
+    page: "index.html",
+    desc: "Kryddig chiliost med härlig smak",
+  },
+  {
+    id: "halloumi",
+    name: "Halloumi",
+    price: 35,
+    image: "./assets/images/halloumi.jpg",
+    category: "addition",
+    page: "index.html",
+    desc: "Grillad halloumiost med härlig konsistens",
+  },
+  {
+    id: "nuggets",
+    name: "Nuggets",
+    price: 35,
+    image: "./assets/images/nuggets.jpg",
+    category: "addition",
+    page: "index.html",
+    desc: "Krispiga kycklingnuggets med saftigt kött",
+  },
+  {
+    id: "krispig-chicken",
+    name: "Krispig Chicken",
+    price: 35,
+    image: "./assets/images/krispig-chicken.jpg",
+    category: "addition",
+    page: "index.html",
+    desc: "Extra krispiga kycklingbitar med perfekt knaprighet",
+  },
+  {
+    id: "lokringar",
+    name: "Lökringar",
+    price: 35,
+    image: "./assets/images/lokringar.jpg",
+    category: "addition",
+    page: "index.html",
+    desc: "Krispiga lökringar med mild löksmak",
+  },
+]; // ==================== GLOBAL SEARCH FUNCTIONALITY ====================
 document.addEventListener("DOMContentLoaded", function () {
   const searchInput = document.getElementById("global-search");
-  const searchButton = document.getElementById("search-button");
-  const searchResults = document.getElementById("search-results");
-  const resultsContainer = document.getElementById("results-container");
+  const searchResults = document.getElementById("results-container");
   const clearSearch = document.getElementById("clear-search");
+  const searchContainer = document.querySelector(".search-results");
 
-  // Store all menu items once loaded
-  let allMenuItems = [];
+  if (searchInput && searchResults) {
+    searchInput.addEventListener("input", handleSearch);
+    searchInput.addEventListener("focus", showSearchResults);
 
-  // Initialize search functionality
-  function initSearch() {
-    // Collect all menu items
-    const menuItems = document.querySelectorAll(".menu-item");
-    allMenuItems = Array.from(menuItems).map((item) => {
-      return {
-        element: item,
-        title: item.querySelector(".menu-item-title").textContent,
-        desc: item.querySelector(".menu-item-desc")
-          ? item.querySelector(".menu-item-desc").textContent
-          : "",
-        price: item.querySelector(".menu-item-price")
-          ? item.querySelector(".menu-item-price").textContent
-          : "",
-        img: item.querySelector(".menu-item-img")
-          ? item.querySelector(".menu-item-img").src
-          : "",
-        category: item.closest(".menu-content").id.replace("-menu", ""),
-      };
+    clearSearch?.addEventListener("click", () => {
+      searchInput.value = "";
+      searchResults.innerHTML = "";
+      searchContainer.classList.remove("open");
     });
 
-    // Set up event listeners
-    searchInput.addEventListener("input", performSearch);
-    searchButton.addEventListener("click", performSearch);
-    clearSearch.addEventListener("click", clearSearchResults);
-
-    // Close results when clicking outside
     document.addEventListener("click", (e) => {
-      if (!searchResults.contains(e.target)) {
-        searchResults.style.display = "none";
+      if (!searchContainer.contains(e.target)) {
+        searchContainer.classList.remove("open");
       }
     });
   }
 
-  // Perform search
-  function performSearch() {
-    const searchTerm = searchInput.value.trim().toLowerCase();
-
-    if (searchTerm.length < 2) {
-      searchResults.style.display = "none";
+  function handleSearch() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    if (searchTerm.length === 0) {
+      searchResults.innerHTML = "";
+      searchContainer.classList.remove("open");
       return;
     }
 
-    const results = allMenuItems.filter((item) => {
-      return (
-        item.title.toLowerCase().includes(searchTerm) ||
-        item.desc.toLowerCase().includes(searchTerm)
-      );
-    });
-
-    displayResults(results, searchTerm);
-  }
-
-  // Display search results
-  function displayResults(results, searchTerm) {
-    resultsContainer.innerHTML = "";
-
-    if (results.length === 0) {
-      resultsContainer.innerHTML =
-        '<div class="no-results">Inga resultat hittades</div>';
-      searchResults.style.display = "block";
-      return;
-    }
-
-    results.forEach((item) => {
-      const highlightedTitle = highlightText(item.title, searchTerm);
-      const highlightedDesc = highlightText(item.desc, searchTerm);
-
-      const resultItem = document.createElement("div");
-      resultItem.className = "search-result-item";
-      resultItem.innerHTML = `
-            ${
-              item.img
-                ? `<img src="${item.img}" alt="${item.title}" class="search-result-img">`
-                : ""
-            }
-            <div class="search-result-content">
-              <h4 class="search-result-title">${highlightedTitle}</h4>
-              <p class="search-result-desc">${highlightedDesc}</p>
-            </div>
-            <div class="search-result-price">${item.price}</div>
-          `;
-
-      // Add click event to scroll to original item
-      resultItem.addEventListener("click", () => {
-        // Hide search results
-        searchResults.style.display = "none";
-        searchInput.value = "";
-
-        // Show the original menu section
-        document
-          .querySelectorAll(".menu-content")
-          .forEach((el) => el.classList.remove("active"));
-        document
-          .getElementById(`${item.category}-menu`)
-          .classList.add("active");
-
-        // Scroll to the item
-        item.element.scrollIntoView({ behavior: "smooth", block: "center" });
-
-        // Highlight the item temporarily
-        const originalBg = item.element.style.backgroundColor;
-        item.element.style.backgroundColor = "rgba(212, 175, 55, 0.2)";
-        setTimeout(() => {
-          item.element.style.backgroundColor = originalBg;
-        }, 2000);
-      });
-
-      resultsContainer.appendChild(resultItem);
-    });
-
-    searchResults.style.display = "block";
-  }
-
-  // Highlight search term in text
-  function highlightText(text, term) {
-    if (!text) return "";
-    const regex = new RegExp(term, "gi");
-    return text.replace(
-      regex,
-      (match) => `<span class="highlight">${match}</span>`
+    const filteredItems = menuItems.filter(
+      (item) =>
+        item.name.toLowerCase().includes(searchTerm) ||
+        (item.description &&
+          item.description.toLowerCase().includes(searchTerm))
     );
+
+    displaySearchResults(filteredItems);
+    searchContainer.classList.add("open");
   }
 
-  // Clear search results
-  function clearSearchResults() {
-    searchInput.value = "";
-    searchResults.style.display = "none";
-    resultsContainer.innerHTML = "";
+  function showSearchResults() {
+    if (searchInput.value.trim().length > 0) {
+      searchContainer.classList.add("open");
+    }
   }
 
-  // Initialize search when page is ready
-  if (document.querySelector(".menu")) {
-    initSearch();
+  function displaySearchResults(items) {
+    if (items.length === 0) {
+      searchResults.innerHTML = '<p class="no-results">No items found</p>';
+      return;
+    }
+
+    const html = items
+      .map(
+        (item) => `
+      <div class="search-result-item" data-id="${item.id}" data-page="${
+          item.page
+        }">
+        <img src="${item.image}" alt="${item.name}" class="search-result-img">
+        <div class="search-item-details">
+          <h4 class="item-name">${item.name}</h4>
+          <p class="item-desc">${
+            item.desc || "Ingen beskrivning tillgänglig"
+          }</p>
+          <p class="item-price">${item.price} kr</p>
+        </div>
+      </div>
+    `
+      )
+      .join("");
+
+    searchResults.innerHTML = html;
+
+    document.querySelectorAll(".search-result-item").forEach((item) => {
+      item.addEventListener("click", function () {
+        const id = this.dataset.id;
+        const page = this.dataset.page;
+
+        if (window.location.pathname.endsWith(page)) {
+          scrollToItem(id);
+        } else {
+          navigateToItem(page, id);
+        }
+
+        searchContainer.classList.remove("open");
+      });
+    });
+  }
+
+  function scrollToItem(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+      console.warn(`Element with id ${id} not found`);
+      return;
+    }
+
+    // Handle menu categories on index page
+    if (window.location.pathname.endsWith("index.html")) {
+      // Find which category the item belongs to
+      const category = menuItems.find((item) => item.id === id)?.category;
+      if (category) {
+        // Activate the correct menu tab
+        const menuButton = document.querySelector(
+          `.menu-btn[data-menu="${category}"]`
+        );
+        if (menuButton) {
+          // Only click if not already active
+          if (!menuButton.classList.contains("active")) {
+            menuButton.click();
+
+            // Wait for the content to load before scrolling
+            setTimeout(() => {
+              scrollToElementWithHighlight(id);
+            }, 300);
+            return;
+          }
+        }
+      }
+    }
+
+    scrollToElementWithHighlight(id);
+  }
+
+  function scrollToElementWithHighlight(id) {
+    const element = document.getElementById(id);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "center" });
+
+      // Add highlight effect
+      element.classList.add("search-highlight");
+      setTimeout(() => element.classList.remove("search-highlight"), 2000);
+    }
+  }
+
+  function navigateToItem(page, id) {
+    // Save scroll position for current page
+    sessionStorage.setItem("scrollPosition", window.pageYOffset);
+
+    // Store target for next page
+    sessionStorage.setItem("searchTarget", id);
+    sessionStorage.setItem("searchTargetPage", page);
+
+    // Navigate
+    window.location.href = page;
+  }
+
+  // Handle scroll to item when page loads
+  const targetId = sessionStorage.getItem("searchTarget");
+  const targetPage = sessionStorage.getItem("searchTargetPage");
+
+  if (targetId && targetPage && window.location.pathname.endsWith(targetPage)) {
+    scrollToItem(targetId);
+    sessionStorage.removeItem("searchTarget");
+    sessionStorage.removeItem("searchTargetPage");
   }
 });

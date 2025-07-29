@@ -1,0 +1,820 @@
+[
+  {
+    "id": "vegetaiana",
+    "title": "Vegetaiana",
+    "desc": "Tomatsås, ost, champinjoner, lök, paprika, fetaost, oliver.",
+    "price": "120 kr",
+    "img": "./assets/images/vegetaiana.jpg",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "margherita",
+    "title": "Margherita",
+    "desc": "Tomatsås, ost.",
+    "price": "120 kr",
+    "img": "./assets/images/margherita.jpg",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "vesuvio",
+    "title": "Vesuvio",
+    "desc": "Tomatsås, ost, skinka.",
+    "price": "130 kr",
+    "img": "./assets/images/vesuvio.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "funghi",
+    "title": "Funghi",
+    "desc": "Tomatsås, ost, champinjoner.",
+    "price": "130 kr",
+    "img": "./assets/images/funghi.jpg",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "hawaii",
+    "title": "Hawaii",
+    "desc": "Tomatsås, ost, skinka, ananas.",
+    "price": "130 kr",
+    "img": "./assets/images/hawaii.jpg",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "capricciosa",
+    "title": "Capricciosa",
+    "desc": "Tomatsås, ost, skinka, champinjoner.",
+    "price": "120 kr",
+    "img": "./assets/images/capricciosa.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "calzone",
+    "title": "Calzone",
+    "desc": "Tomatsås, ost, skinka. \"Inbakad\" standard.",
+    "price": "80 kr",
+    "img": "./assets/images/calzone.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "calzone-special",
+    "title": "Calzone Special",
+    "desc": "Tomatsås, ost, skinka, räkor. \"Inbakad\" standard.",
+    "price": "85 kr",
+    "img": "./assets/images/calzone-special.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "salami",
+    "title": "Salami",
+    "desc": "Tomatsås, ost, salami, lök.",
+    "price": "120 kr",
+    "img": "./assets/images/salami.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "fyra-ostar",
+    "title": "Fyra Ostar",
+    "desc": "Tomatsås, ost, mozzarellaost, fetaost, gorgonzola.",
+    "price": "120 kr",
+    "img": "./assets/images/fyra-ostar.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "salami-special",
+    "title": "Salami Special",
+    "desc": "Tomatsås, ost, salami, pepperoni.",
+    "price": "120 kr",
+    "img": "./assets/images/salami-special.jpg",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "kebabpizza",
+    "title": "Kebabpizza",
+    "desc": "Tomatsås, ost, kebabkött, lök, champinjoner.",
+    "price": "130 kr",
+    "img": "./assets/images/kebabpizza.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "kycklingpizza",
+    "title": "Kycklingpizza",
+    "desc": "Tomatsås, ost, kyckling, lök, champinjoner.",
+    "price": "130 kr",
+    "img": "./assets/images/kycklingpizza.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "växjö-pizza",
+    "title": "Växjö Pizza",
+    "desc": "Tomatsås, ost, kebab, kyckling, lök, champinjoner.",
+    "price": "120 kr",
+    "img": "./assets/images/växjö.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "tonfisk-pizza",
+    "title": "Tonfisk Pizza",
+    "desc": "Tomatsås, ost, tonfisk, lök.",
+    "price": "120 kr",
+    "img": "./assets/images/tonfisk-pizza.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "räkor-pizza",
+    "title": "Räkor Pizza",
+    "desc": "Tomatsås, ost, räkor.",
+    "price": "120 kr",
+    "img": "./assets/images/räkor-pizza.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "la-maffia",
+    "title": "La Maffia",
+    "desc": "Tomatsås, ost, bacon, lök.",
+    "price": "120 kr",
+    "img": "./assets/images/la_maffia.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "quattro",
+    "title": "Quattro",
+    "desc": "Tomatsås, ost, skinka, räkor, musslor, vitlöksolja.",
+    "price": "120 kr",
+    "img": "./assets/images/quattro.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "falafel-pizza",
+    "title": "Falafel Pizza",
+    "desc": "Tomatsås, ost, falafel, tomat, fetaost.",
+    "price": "120 kr",
+    "img": "./assets/images/falafel-pizza.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "mexikana",
+    "title": "Mexikana",
+    "desc": "Tomatsås, ost, köttfärs, jalapeno, lök.",
+    "price": "130 kr",
+    "img": "./assets/images/mexikana.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "mamma-mia",
+    "title": "Mamma Mia",
+    "desc": "Tomatsås, ost, köttfärs, salami, lök, skinka, vitlöksolja.",
+    "price": "130 kr",
+    "img": "./assets/images/mamma-mia.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "matkungen-pizza",
+    "title": "Matkungen Pizza",
+    "desc": "Tomatsås, ost, kyckling, curry, banan.",
+    "price": "130 kr",
+    "img": "./assets/images/matkungen-pizza.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "pepperoni",
+    "title": "Pepperoni",
+    "desc": "Tomatsås, ost, pepperoni, lök.",
+    "price": "130 kr",
+    "img": "./assets/images/pepperoni.png",
+    "page": "index.html",
+    "category": "pizza"
+  },
+  {
+    "id": "hamburgare-90-gram",
+    "title": "Hamburgare 90 gram",
+    "desc": "Nötfärs 90 gram, isbergssallad, tomat gurka, lök, hamburgerdressing.",
+    "price": "60 kr",
+    "img": "./assets/images/hamburgare.png",
+    "page": "index.html",
+    "category": "burgers"
+  },
+  {
+    "id": "kycklingburgare",
+    "title": "Kycklingburgare",
+    "desc": "Kycklingfärs, hamburgerbröd, isbergssallad, färska tomater, gurka, rödlök, ost, hamburgerdressing.",
+    "price": "60 kr",
+    "img": "./assets/images/Kycklingburgare.png",
+    "page": "index.html",
+    "category": "burgers"
+  },
+  {
+    "id": "hamburgeretallrik",
+    "title": "Hamburgeretallrik",
+    "desc": "Nötfärs 90 gram, pommes, isbergssallad, färska tomater, gurka, lök, hamburgerdressing, fetaost.",
+    "price": "85 kr",
+    "img": "./assets/images/hamburgeretallrik.png",
+    "page": "index.html",
+    "category": "burgers"
+  },
+  {
+    "id": "falafelsallad",
+    "title": "Falafelsallad",
+    "desc": "Falafel, isbergssallad, tomater, gurka, lök, majs, vitlöksås.",
+    "price": "70 kr",
+    "img": "./assets/images/falafelsallad.png",
+    "page": "index.html",
+    "category": "salads"
+  },
+  {
+    "id": "kebabsallad",
+    "title": "Kebabsallad",
+    "desc": "Kebabkött, isbergssallad, tomater, gurka, lök, majs, vitlöksås.",
+    "price": "80 kr",
+    "img": "./assets/images/kebabsallad.png",
+    "page": "index.html",
+    "category": "salads"
+  },
+  {
+    "id": "kycklingsallad",
+    "title": "Kycklingsallad",
+    "desc": "Kyckling sliced, isbergssallad, tomater, gurka, lök, majs, vitlöksås.",
+    "price": "80 kr",
+    "img": "./assets/images/kycklingsallad.png",
+    "page": "index.html",
+    "category": "salads"
+  },
+  {
+    "id": "halloumisallad",
+    "title": "Halloumisallad",
+    "desc": "Halloumi, isbergssallad, gurka, färska tomater, rödlök, paprika, olivolja, citron, och persilja.",
+    "price": "80 kr",
+    "img": "./assets/images/halloumisallad.png",
+    "page": "index.html",
+    "category": "salads"
+  },
+  {
+    "id": "krispigsallad",
+    "title": "Krispigsallad",
+    "desc": "Krispig kycklingfilé, isbergssallad, gurka, färska tomater, rödlök, paprika, olivolja, citron.",
+    "price": "90 kr",
+    "img": "./assets/images/krispigsallad.png",
+    "page": "index.html",
+    "category": "salads"
+  },
+  {
+    "id": "blandadsallad",
+    "title": "Blandadsallad",
+    "desc": "Kebabkött, kyckling, isbergssallad, färska tomater, gurka, rödlök, feferoni, dressing.",
+    "price": "90 kr",
+    "img": "./assets/images/Blandadsallad.png",
+    "page": "index.html",
+    "category": "salads"
+  },
+  {
+    "id": "falafelrulle",
+    "title": "Falafelrulle",
+    "desc": "Falafel, isbergssallad, hummus, färska tomater, gurka, lök.",
+    "price": "50 kr",
+    "img": "./assets/images/falafelrulle.jpg",
+    "page": "index.html",
+    "category": "rollers"
+  },
+  {
+    "id": "kebabrulle",
+    "title": "Kebabrulle",
+    "desc": "Kebabkött, isbergssallad, dressing, färska tomater, lök, feferoni.",
+    "price": "60 kr",
+    "img": "./assets/images/kebabrulle.png",
+    "page": "index.html",
+    "category": "rollers"
+  },
+  {
+    "id": "kycklingrulle",
+    "title": "Kycklingrulle",
+    "desc": "Kyckling, isbergssallad, dressing, färska tomater, lök, feferoni.",
+    "price": "60 kr",
+    "img": "./assets/images/kycklingrulle.jpg",
+    "page": "index.html",
+    "category": "rollers"
+  },
+  {
+    "id": "halloumirulle",
+    "title": "Halloumirulle",
+    "desc": "Halloumi, hummus, tortillabröd, gurka, isbergssallad, färska tomater, lök, persilja.",
+    "price": "65 kr",
+    "img": "./assets/images/halloumirulle.jpg",
+    "page": "index.html",
+    "category": "rollers"
+  },
+  {
+    "id": "blandadrulle",
+    "title": "Blandadrulle",
+    "desc": "Kebabkött, Kyckling, isbergssallad, dressing, färska tomater, lök, feferoni.",
+    "price": "70 kr",
+    "img": "./assets/images/blandadrulle.jpg",
+    "page": "index.html",
+    "category": "rollers"
+  },
+  {
+    "id": "krispigrulle",
+    "title": "Krispigrulle",
+    "desc": "Krispigt kycklingfilé, tortillabröd, gurka, isbergssallad, färska tomater, lök.",
+    "price": "70 kr",
+    "img": "./assets/images/krispigrulle.jpg",
+    "page": "index.html",
+    "category": "rollers"
+  },
+  {
+    "id": "chili-cheese-rulle",
+    "title": "Chili Cheese-rulle",
+    "desc": "Chili cheese bollar, tortillabröd, gurka, isbergssallad, färska tomater, lök, vitlöksås, riven ost.",
+    "price": "60 kr",
+    "img": "./assets/images/chili-cheese-rulle.jpg",
+    "page": "index.html",
+    "category": "rollers"
+  },
+  {
+    "id": "pommes-rulle",
+    "title": "Pommes-rulle",
+    "desc": "Pommes, tortillabröd, isbergssallad, färska tomater, jalapeno, rödlök, vitlöksås.",
+    "price": "50 kr",
+    "img": "./assets/images/pommes-rulle.jpg",
+    "page": "index.html",
+    "category": "rollers"
+  },
+  {
+    "id": "falafel-tallrik-med-ris",
+    "title": "Falafel tallrik med ris",
+    "desc": "Falafel, ris, isbergssallad, hummus, färska tomater, lök.",
+    "price": "75 kr",
+    "img": "./assets/images/falafel-tallrik.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "kebab-tallrik-med-ris",
+    "title": "Kebab tallrik med ris",
+    "desc": "Kebabkött, ris, isbergssallad, färska tomater, lök, feferoni, pommes, dressing (mildsås).",
+    "price": "80 kr",
+    "img": "./assets/images/kebab-tallrik.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "kyckling-tallrik-med-ris",
+    "title": "Kyckling tallrik med ris",
+    "desc": "Kyckling (skuren i bitar), ris, isbergssallad, färska tomater, lök, feferoni, pommes, dressing.",
+    "price": "80 kr",
+    "img": "./assets/images/kyckling-tallrik.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "blandad-tallrik-med-ris",
+    "title": "Blandad tallrik med ris",
+    "desc": "Kebabkött, Kyckling, ris, pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing.",
+    "price": "90 kr",
+    "img": "./assets/images/blandad-tallrik.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "krispig-tallrik-med-ris",
+    "title": "Krispig tallrik med ris",
+    "desc": "Krispig kycklingfilé, ris, pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing.",
+    "price": "90 kr",
+    "img": "./assets/images/krispig-tallrik.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "hamburgere-tallrik",
+    "title": "Hamburgere tallrik",
+    "desc": "Nötfärs 90 gram, pommes, isbergssallad, färska tomater, gurka, lök, hamburgerdressing, fetaost.",
+    "price": "85 kr",
+    "img": "./assets/images/hamburgere-tallrik.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "kycklingburgare-tallrik",
+    "title": "Kycklingburgare tallrik",
+    "desc": "Kycklingfärs, hamburgerbröd, isbergssallad, färska tomater, gurka, rödlök, ost, hamburgerdressing.",
+    "price": "85 kr",
+    "img": "./assets/images/kycklingburgare-tallrik.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "cevapcici-tallrik",
+    "title": "Cevapcici tallrik",
+    "desc": "Köttfärs, pommes, isbergssallad, rödlök, gräddfil, pitabröd.",
+    "price": "95 kr",
+    "img": "./assets/images/cevapcici-tallrik.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "halloumitallrik",
+    "title": "Halloumitallrik",
+    "desc": "Halloumi (grillad eller stekt), pommes, isbergssallad, färska tomater, gurka, rödlök, gräddfil.",
+    "price": "80 kr",
+    "img": "./assets/images/halloumi-tallrik.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "halloumi-burgaretallrik",
+    "title": "Halloumi-burgaretallrik",
+    "desc": "Halloumi (grillad eller stekt), pommes, isbergssallad, färska tomater, gurka, rödlök, hamburgerdressing, vitlöksås, feferoni.",
+    "price": "85 kr",
+    "img": "./assets/images/halloumi-burgare-tallrik.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "kebab-med-bosnisk-bröd",
+    "title": "Kebab med Bosnisk bröd",
+    "desc": "Kebabkött, isbergssallad, dressing, färska tomater, lök, feferoni.",
+    "price": "85 kr",
+    "img": "./assets/images/kebab-bosnisk.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "cevapcici-med-bosnisk-bröd",
+    "title": "Cevapcici med Bosnisk bröd",
+    "desc": "Köttfärs, vitlök, tomater, gurka, gräddfil.",
+    "price": "95 kr",
+    "img": "./assets/images/cevapcici-bosnisk.jpg",
+    "page": "index.html",
+    "category": "dishes"
+  },
+  {
+    "id": "falafel-box",
+    "title": "Falafel box",
+    "desc": "Falafel, isbergssallad, färska tomater, gurka, lök, vitlöksdressing.",
+    "price": "70 kr",
+    "img": "./assets/images/falafel-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "kebab-box",
+    "title": "Kebab box",
+    "desc": "Kebabkött, pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing (mildsås).",
+    "price": "80 kr",
+    "img": "./assets/images/kebab-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "kyckling-box",
+    "title": "Kyckling box",
+    "desc": "Kyckling (skuren i bitar), pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing (mildsås).",
+    "price": "80 kr",
+    "img": "./assets/images/kyckling-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "blandad-box",
+    "title": "Blandad box",
+    "desc": "Kebabkött, Kyckling, pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing.",
+    "price": "90 kr",
+    "img": "./assets/images/blandad-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "krispig-box",
+    "title": "Krispig box",
+    "desc": "Krispig kycklingfilé, pommes, isbergssallad, färska tomater, gurka, lök, feferoni, dressing.",
+    "price": "90 kr",
+    "img": "./assets/images/krispig-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "chili-cheese-box",
+    "title": "Chili cheese box",
+    "desc": "Chili cheese bollar, pommes, isbergssallad, färska tomater, gurka, lök, jalapeno, dressing.",
+    "price": "75 kr",
+    "img": "./assets/images/chili-cheese-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "nuggets-box",
+    "title": "Nuggets box",
+    "desc": "Kycklingnuggets, pommes, isbergssallad, färska tomater, gurka, rödlök, BBQ-sås/vitlöksdressing.",
+    "price": "80 kr",
+    "img": "./assets/images/nuggets-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "halloumi-box",
+    "title": "Halloumi box",
+    "desc": "Halloumi, pommes, isbergssallad, färska tomater, gurka, rödlök, feferoni, dressing.",
+    "price": "80 kr",
+    "img": "./assets/images/halloumi-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "pommes-box",
+    "title": "Pommes box",
+    "desc": "Pommes, dressing (mildsås).",
+    "price": "40 kr",
+    "img": "./assets/images/pommes-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "cheese-fries-box",
+    "title": "Cheese Fries box",
+    "desc": "Smält ost, pommes, isbergssallad, färska tomater, rödlök, jalapeno.",
+    "price": "50 kr",
+    "img": "./assets/images/cheese-fries-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "mix-box",
+    "title": "Mix box",
+    "desc": "Pommes, mozzarella 4st, Chili cheese 4st, halloumi 4st, dressing.",
+    "price": "125 kr",
+    "img": "./assets/images/mix-box.jpg",
+    "page": "index.html",
+    "category": "boxes"
+  },
+  {
+    "id": "falafel-med-pitabröd",
+    "title": "Falafel med Pitabröd",
+    "desc": "Falafel, isbergssallad, hummus, färska tomater, gurka, lök.",
+    "price": "80 kr",
+    "img": "./assets/images/falafel-pitabrod.jpg",
+    "page": "index.html",
+    "category": "pitabrod"
+  },
+  {
+    "id": "kebab-med-pitabröd",
+    "title": "Kebab med Pitabröd",
+    "desc": "Kebabkött, isbergssallad, färska tomater, gurka, lök, feferoni, vitlökssås.",
+    "price": "85 kr",
+    "img": "./assets/images/kebab-pitabrod.jpg",
+    "page": "index.html",
+    "category": "pitabrod"
+  },
+  {
+    "id": "kyckling-med-pitabröd",
+    "title": "Kyckling med Pitabröd",
+    "desc": "Kyckling (grillad), isbergssallad, färska tomater, gurka, lök, feferoni, dressing.",
+    "price": "85 kr",
+    "img": "./assets/images/kyckling-pitabrod.jpg",
+    "page": "index.html",
+    "category": "pitabrod"
+  },
+  {
+    "id": "blandad-med-pitabröd",
+    "title": "Blandad med Pitabröd",
+    "desc": "Kebabkött, Kyckling, isbergssallad, färska tomater, gurka, lök, feferoni, dressing.",
+    "price": "90 kr",
+    "img": "./assets/images/blandad-pitabrod.jpg",
+    "page": "index.html",
+    "category": "pitabrod"
+  },
+  {
+    "id": "krispig-med-pitabröd",
+    "title": "Krispig med Pitabröd",
+    "desc": "Krispig kycklingfilé, isbergssallad, färska tomater, gurka, lök, feferoni, dressing.",
+    "price": "90 kr",
+    "img": "./assets/images/krispig-pitabrod.jpg",
+    "page": "index.html",
+    "category": "pitabrod"
+  },
+  {
+    "id": "halloumi-med-pitabröd",
+    "title": "Halloumi med Pitabröd",
+    "desc": "Halloumi, isbergssallad, färska tomater, gurka, lök, hummus, persilja.",
+    "price": "85 kr",
+    "img": "./assets/images/halloumi-pitabrod.jpg",
+    "page": "index.html",
+    "category": "pitabrod"
+  },
+  {
+    "id": "cevapcici-med-pitabröd",
+    "title": "Cevapcici med Pitabröd",
+    "desc": "Cevapcici (grillad), isbergssallad, färska tomater, gurka, lök, feferoni, vitlökssås.",
+    "price": "90 kr",
+    "img": "./assets/images/cevapcici-pitabrod.jpg",
+    "page": "index.html",
+    "category": "pitabrod"
+  },
+  {
+    "id": "mozzarella",
+    "title": "Mozzarella",
+    "desc": "Färsk mozzarellaost, perfekt till alla rätter.",
+    "price": "35 kr",
+    "img": "./assets/images/mozzarella.jpg",
+    "page": "index.html",
+    "category": "addition"
+  },
+  {
+    "id": "chili-cheese",
+    "title": "Chili Cheese",
+    "desc": "Kryddig chiliost med härlig smak.",
+    "price": "35 kr",
+    "img": "./assets/images/chili-cheese.jpg",
+    "page": "index.html",
+    "category": "addition"
+  },
+  {
+    "id": "halloumi",
+    "title": "Halloumi",
+    "desc": "Grillad halloumiost med härlig konsistens.",
+    "price": "35 kr",
+    "img": "./assets/images/halloumi.jpg",
+    "page": "index.html",
+    "category": "addition"
+  },
+  {
+    "id": "nuggets",
+    "title": "Nuggets",
+    "desc": "Krispiga kycklingnuggets med saftigt kött.",
+    "price": "35 kr",
+    "img": "./assets/images/nuggets.jpg",
+    "page": "index.html",
+    "category": "addition"
+  },
+  {
+    "id": "krispig-chicken",
+    "title": "Krispig Chicken",
+    "desc": "Extra krispiga kycklingbitar med perfekt knaprighet.",
+    "price": "35 kr",
+    "img": "./assets/images/krispig-chicken.jpg",
+    "page": "index.html",
+    "category": "addition"
+  },
+  {
+    "id": "lokringar",
+    "title": "Lökringar",
+    "desc": "Krispiga lökringar med mild löksmak.",
+    "price": "35 kr",
+    "img": "./assets/images/lokringar.jpg",
+    "page": "index.html",
+    "category": "addition"
+  },
+  {
+    "id": "lunch-hamburgare-90-gram",
+    "title": "Hamburgare 90 gram",
+    "desc": "Nötfärs 90 gram, isbergssallad, tomat gurka, lök, hamburgerdressing.",
+    "price": "50 kr",
+    "img": "./assets/images/hamburgare.png",
+    "page": "lunch.html",
+    "category": "lunch"
+  },
+  {
+    "id": "lunch-falafelrulle",
+    "title": "Falafelrulle",
+    "desc": "Falafel, isbergssallad, hummus, färska tomater, gurka, lök.",
+    "price": "50 kr",
+    "img": "./assets/images/falafelrulle.jpg",
+    "page": "lunch.html",
+    "category": "lunch"
+  },
+  {
+    "id": "vegetarisk-falafelrulle",
+    "title": "Falafelrulle",
+    "desc": "Falafel, isbergssallad, hummus, färska tomater, gurka, lök.",
+    "price": "50 kr",
+    "img": "./assets/images/falafelrulle.jpg",
+    "page": "vegetarisk.html",
+    "category": "vegetarisk"
+  },
+  {
+    "id": "vegetarisk-falafelsallad",
+    "title": "Falafelsallad",
+    "desc": "Falafel, isbergssallad, tomater, gurka, lök, majs, vitlöksås.",
+    "price": "70 kr",
+    "img": "./assets/images/falafelsallad.png",
+    "page": "vegetarisk.html",
+    "category": "vegetarisk"
+  },
+  {
+    "id": "vegetarisk-halloumisallad",
+    "title": "Halloumisallad",
+    "desc": "Halloumi, isbergssallad, gurka, färska tomater, rödlök, paprika, olivolja, citron, och persilja.",
+    "price": "60 kr",
+    "img": "./assets/images/halloumisallad.png",
+    "page": "vegetarisk.html",
+    "category": "vegetarisk"
+  },
+  {
+    "id": "vegetarisk-vegetaiana",
+    "title": "Vegetaiana pizza",
+    "desc": "Tomatsås, ost, champinjoner,lök, paprika, fetaost, oliver.",
+    "price": "80 kr",
+    "img": "./assets/images/vegetaiana.jpg",
+    "page": "vegetarisk.html",
+    "category": "vegetarisk"
+  },
+  {
+    "id": "coca-cola-33-cl",
+    "title": "Coca-Cola (33 cl)",
+    "price": "15 kr",
+    "img": "./assets/images/Coca-Cola.png",
+    "page": "drycker.html",
+    "category": "drycker"
+  },
+  {
+    "id": "coca-cola-zero-33-cl",
+    "title": "Coca-Cola Zero (33 cl)",
+    "price": "15 kr",
+    "img": "./assets/images/Coca-Cola-Zero.png",
+    "page": "drycker.html",
+    "category": "drycker"
+  },
+  {
+    "id": "pepsi-33-cl",
+    "title": "Pepsi (33 cl)",
+    "price": "15 kr",
+    "img": "./assets/images/Pepsi.png",
+    "page": "drycker.html",
+    "category": "drycker"
+  },
+  {
+    "id": "pepsi-max-33-cl",
+    "title": "Pepsi Max no sugar (33 cl)",
+    "price": "15 kr",
+    "img": "./assets/images/Pepsi-Max.png",
+    "page": "drycker.html",
+    "category": "drycker"
+  },
+  {
+    "id": "fanta-33-cl",
+    "title": "Fanta (33 cl)",
+    "price": "15 kr",
+    "img": "./assets/images/Fanta.png",
+    "page": "drycker.html",
+    "category": "drycker"
+  },
+  {
+    "id": "fanta-zero-33-cl",
+    "title": "Fanta Zero (33 cl)",
+    "price": "15 kr",
+    "img": "./assets/images/Fanta-Zero.png",
+    "page": "drycker.html",
+    "category": "drycker"
+  },
+  {
+    "id": "sprite-33-cl",
+    "title": "Sprite (33 cl)",
+    "price": "15 kr",
+    "img": "./assets/images/Sprite.png",
+    "page": "drycker.html",
+    "category": "drycker"
+  },
+  {
+    "id": "7up-33-cl",
+    "title": "7Up (33 cl)",
+    "price": "15 kr",
+    "img": "./assets/images/7UP.png",
+    "page": "drycker.html",
+    "category": "drycker"
+  },
+  {
+    "id": "bonaqua-citron-33-cl",
+    "title": "Bonaqua Citron (33 cl)",
+    "price": "15 kr",
+    "img": "./assets/images/Bonaqua-Citron.png",
+    "page": "drycker.html",
+    "category": "drycker"
+  },
+  {
+    "id": "bonaqua-naturell-33-cl",
+    "title": "Bonaqua Naturell (33 cl)",
+    "price": "15 kr",
+    "img": "./assets/images/Bonaqua-Naturell.png",
+    "page": "drycker.html",
+    "category": "drycker"
+  }
+]
