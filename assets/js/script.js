@@ -189,26 +189,29 @@ document.addEventListener("DOMContentLoaded", function () {
   // ==================== PRELOADER ====================
 
   const preload = document.querySelector(".preload");
+  const content = document.querySelector("main, body");
   const progressBar = document.getElementById("progress-bar");
-  const content = document.querySelector(".content");
-  // Quick preloader for lunch page when user clicks on pizza or dishes menu buttons
+
   const skipPreload = sessionStorage.getItem("skipPreload");
   const shortPreload = sessionStorage.getItem("shortPreload");
 
-  if (skipPreload === "true") {
+  if (!preload || !progressBar) {
+    // No preloader found on this page, do nothing
+  } else if (skipPreload === "true") {
+    // Skip preloader completely
     preload.style.display = "none";
     if (content) content.style.display = "block";
     sessionStorage.removeItem("skipPreload");
   } else if (shortPreload === "true") {
-    // Quick preloader (just visual polish)
+    // Quick preloader animation
     preload.classList.add("loaded");
     setTimeout(() => {
       preload.style.display = "none";
       if (content) content.style.display = "block";
       sessionStorage.removeItem("shortPreload");
-    }, 800); // ~0.8s preloader
+    }, 800);
   } else {
-    // Full simulated loader
+    // Full simulated loading process
     let progress = 0;
     const interval = setInterval(() => {
       progress += Math.random() * 10;
@@ -216,14 +219,16 @@ document.addEventListener("DOMContentLoaded", function () {
         progress = 100;
         clearInterval(interval);
         setTimeout(() => {
-          preload.classList.add("loaded");
+          if (preload) preload.classList.add("loaded");
           setTimeout(() => {
-            preload.style.display = "none";
+            if (preload) preload.style.display = "none";
             if (content) content.style.display = "block";
           }, 800);
         }, 300);
       }
-      progressBar.style.width = `${progress}%`;
+      if (progressBar) {
+        progressBar.style.width = `${progress}%`;
+      }
     }, 150);
   }
 
@@ -2372,24 +2377,6 @@ const menuItems = [
 
   // Vegetarian (vegetarisk.html)
   {
-    id: "falafelrulle",
-    name: "Falafelrulle",
-    price: 50,
-    image: "./assets/images/falafelrulle.jpg",
-    category: "vegetarian",
-    page: "vegetarisk.html",
-    desc: "Falafel, isbergssallad, hummus, färska tomater, gurka, lök",
-  },
-  {
-    id: "falafelsallad",
-    name: "Falafelsallad",
-    price: 70,
-    image: "./assets/images/falafelsallad.png",
-    category: "vegetarian",
-    page: "vegetarisk.html",
-    desc: "Falafel, isbergssallad, tomater, gurka, lök, majs, vitlöksås",
-  },
-  {
     id: "halloumisallad-lunch-offer",
     name: "Halloumisallad (Lunch Offer)",
     price: 60,
@@ -2398,20 +2385,11 @@ const menuItems = [
     page: "vegetarisk.html",
     desc: "Lunchpris: 60 kr (11-14)",
   },
-  {
-    id: "vegetaiana",
-    name: "Vegetaiana pizza",
-    price: 80,
-    image: "./assets/images/vegetaiana.jpg",
-    category: "vegetarian",
-    page: "vegetarisk.html",
-    desc: "Tomatsås, ost, champinjoner, lök, paprika, fetaost, oliver",
-  },
 
   // Lunch (lunch.html)
   {
-    id: "hamburgare-90-gram",
-    name: "Hamburgare 90 gram",
+    id: "hamburgare-90-gram-lunch-offer",
+    name: "Hamburgare 90 gram (Lunch Offer)",
     price: 50,
     image: "./assets/images/hamburgare.png",
     category: "lunch",
@@ -2419,8 +2397,8 @@ const menuItems = [
     desc: "Nötfärs 90 gram, isbergssallad, tomat gurka, lök, hamburgerdressing",
   },
   {
-    id: "falafelrulle-lunch",
-    name: "Falafelrulle",
+    id: "falafelrulle-lunch-offer",
+    name: "Falafelrulle (Lunch Offer)",
     price: 50,
     image: "./assets/images/falafelrulle.jpg",
     category: "lunch",
@@ -2668,7 +2646,7 @@ const menuItems = [
 
   // Salads (index.html)
   {
-    id: "falafelsallad-index",
+    id: "falafelsallad",
     name: "Falafelsallad",
     price: 70,
     image: "./assets/images/falafelsallad.png",
@@ -2724,7 +2702,7 @@ const menuItems = [
 
   // Rollers (index.html)
   {
-    id: "falafelrulle-index",
+    id: "falafelrulle",
     name: "Falafelrulle",
     price: 50,
     image: "./assets/images/falafelrulle.jpg",
