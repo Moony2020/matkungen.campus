@@ -1341,8 +1341,8 @@ body.nav-active {
 
 .hero {
     position: relative;
-    padding-block: 120px;
-    min-height: 100vh;
+    height: 700px;
+    min-height: 100svh;
     overflow: hidden;
     z-index: 1;
 }
@@ -5411,21 +5411,25 @@ body.modal-open {
 /* Search Container */
 .search-container {
     position: relative;
-    width: 90%;
+    max-width: 90%;
     max-width: 500px;
-    margin: 40px auto;
+    margin: 155px auto;
     z-index: 200;
 }
 
 .search-box {
-    background: rgba(255, 255, 255, 0.15);
-    /* Blur1 بشكل افتراضي */
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.7);
+    border-radius: 50px;
+    border: 1px solid var(--gold-crayola);
+    padding: 0 20px;
+    transition: var(--transition-1);
+    overflow: hidden;
+    height: 56px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
-
-
-
 
 .search-box:focus-within {
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
@@ -5612,28 +5616,6 @@ body.modal-open {
     }
 }
 
-@media screen and (orientation: landscape) and (max-width: 1024px) {
-    .hero-content {
-        margin-top: 80px;
-        /* زيادة المسافة لأسفل البحث */
-        padding: 20px;
-    }
-
-    .search-container {
-        margin-bottom: 20px;
-        max-width: 80%;
-    }
-
-    .hero-title {
-        font-size: 2rem;
-        line-height: 2.2rem;
-        margin-top: 15px;
-    }
-
-    .hero-text {
-        font-size: 1rem;
-    }
-}
 
 /*-----------------------------------*\
   # MEDIA QUERIES
@@ -5696,7 +5678,15 @@ body.modal-open {
         margin: 6px 20px 20px auto !important;
     } */
     .search-container {
-        margin: 14px auto;
+        margin-top: 140px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        width: 90% !important;
+        /* Suitable width for the screen */
+        display: block !important;
+        /* Instead of flex to allow the input to take full width */
+        text-align: center;
+        /* Ensures centering */
     }
 
     .search-icon {

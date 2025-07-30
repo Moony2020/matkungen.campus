@@ -185,7 +185,16 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("load", autoSlide);
   }
+  // function adjustHeroHeight() {
+  //   const hero = document.querySelector(".hero");
+  //   if (hero) {
+  //     hero.style.height = window.innerHeight + "px";
+  //   }
+  // }
 
+  // window.addEventListener("load", adjustHeroHeight);
+  // window.addEventListener("resize", adjustHeroHeight);
+  // window.addEventListener("orientationchange", adjustHeroHeight);
   // ==================== PRELOADER ====================
 
   const preload = document.querySelector(".preload");
