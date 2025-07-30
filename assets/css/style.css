@@ -5443,7 +5443,7 @@ body.modal-open {
 
 .search-icon {
     color: var(--gold-crayola);
-    font-size: var(--fontSize-body-4);
+    font-size: var(--fontSize-body-5);
     transition: color 0.3s ease;
     margin-right: 10px;
 }
