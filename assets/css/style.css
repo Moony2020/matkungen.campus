@@ -5423,6 +5423,7 @@ body.modal-open {
     align-items: center;
     background: rgba(0, 0, 0, 0.7);
     border-radius: 50px;
+    backdrop-filter: blur(4px);
     border: 1px solid var(--gold-crayola);
     padding: 0 20px;
     transition: var(--transition-1);
@@ -5434,6 +5435,10 @@ body.modal-open {
 .search-box:focus-within {
     box-shadow: 0 0 20px rgba(212, 175, 55, 0.6);
     background: rgba(0, 0, 0, 0.85);
+    transform: scale(1.02);
+    /* Add slight zoom */
+    transition: all 0.3s ease;
+    /* Smooth transition */
 }
 
 .search-icon {
