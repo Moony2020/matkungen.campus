@@ -2274,8 +2274,7 @@ body.nav-active {
     transition: transform 0.4s ease, box-shadow 0.4s ease;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     position: relative;
-    /* min-height: 420px; */
-    height: 100%;
+    min-height: 420px;
     width: 100%;
     min-width: 280px;
     display: flex;
@@ -2310,20 +2309,20 @@ body.nav-active {
     left: 150%;
 }
 
-/* .menu-grid>.menu-item,
+.menu-grid>.menu-item,
 .menu-grid>li>.menu-item {
     display: flex;
     flex-direction: column;
     min-height: 420px;
     height: 100%;
-} */
+}
 
-/* .menu-grid>li {
+.menu-grid>li {
     list-style: none;
     padding: 0;
     margin: 0;
     height: 100%;
-} */
+}
 
 /* Image styling */
 .menu-item-img {
@@ -2340,8 +2339,7 @@ body.nav-active {
 
 /* Content styling */
 .menu-item-content {
-    /* flex: 1 1 auto; */
-    flex-grow: 1;
+    flex: 1 1 auto;
     display: flex;
     flex-direction: column;
     /* justify-content: flex-start; */
@@ -2395,7 +2393,7 @@ body.nav-active {
     line-height: 1.6;
     margin-bottom: 12px;
     flex-grow: 1;
-    /* min-height: 38px; */
+    min-height: 38px;
 }
 
 /* Size selector styling */
@@ -2437,9 +2435,9 @@ body.nav-active {
 }
 
 /* Add extra margin when size selector is missing like calzone & calzone special */
-/* .menu-item:not(:has(.size-selector)) .menu-item-desc {
+.menu-item:not(:has(.size-selector)) .menu-item-desc {
     margin-bottom: 30px;
-} */
+}
 
 /* Add to cart button */
 .add-to-cart-btn {
