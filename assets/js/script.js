@@ -2290,7 +2290,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 // ==================== GLOBAL SEARCH FUNCTIONALITY ====================
-// ==================== GLOBAL MENU DATA ====================
+// = GLOBAL MENU DATA =
 const menuItems = [
   // Drinks (drycker.html)
   {
