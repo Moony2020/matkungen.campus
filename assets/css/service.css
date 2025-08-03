@@ -116,7 +116,35 @@ html {
     /* ✅ Centers the full grid */
     gap: 20px;
     padding: 0 10px;
+}
+.menu-grid-service .menu-item {
+    display: flex;
+    flex-direction: column;
+    /* ... other styles ... */
+    min-height: 420px;
+}
 
+.menu-grid-service .menu-item-img {
+    /* no changes needed */
+}
+
+.menu-grid-service .menu-item-content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 20px;
+}
+
+.menu-grid-service .menu-item-desc {
+    flex: 1 1 auto;
+    min-height: 38px;
+    margin-bottom: 12px;
+}
+
+.add-to-cart-btn {
+    margin-top: auto;
+    /* ... keep other styles ... */
 }
 
 @media (max-width: 575px) {

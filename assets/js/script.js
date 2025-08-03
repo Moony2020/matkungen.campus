@@ -2417,10 +2417,10 @@ const menuItems = [
 
   // Pizza (index.html)
   {
-    id: "vegetaiana-pizza",
+    id: "vegetariana",
     name: "Vegetaiana",
     price: 120,
-    image: "./assets/images/vegetaiana.jpg",
+    image: "./assets/images/vegetariana.jpg",
     category: "pizza",
     page: "index.html",
     desc: "Tomatsås, ost, champinjoner, lök, paprika, fetaost, oliver",
