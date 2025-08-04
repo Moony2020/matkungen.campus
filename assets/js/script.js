@@ -233,7 +233,7 @@ document.addEventListener("DOMContentLoaded", function () {
             if (preload) preload.style.display = "none";
             if (content) content.style.display = "block";
           }, 800);
-        }, 300);
+        }, 200);
       }
       if (progressBar) {
         progressBar.style.width = `${progress}%`;
@@ -2626,7 +2626,7 @@ const menuItems = [
 
   // Burgers (index.html)
   {
-    id: "hamburgare-90-gram-burger",
+    id: "hamburgare-90-gram",
     name: "Hamburgare 90 gram",
     price: 60,
     image: "./assets/images/hamburgare.png",
@@ -2644,13 +2644,13 @@ const menuItems = [
     desc: "Kycklingfärs, hamburgerbröd, isbergssallad, färska tomater, gurka, rödlök, ost, hamburgerdressing",
   },
   {
-    id: "hamburgeretallrik",
-    name: "Hamburgeretallrik",
-    price: 85,
-    image: "./assets/images/hamburgere-tallrik.jpg",
+    id: "hamburgare-150-gram",
+    name: "Hamburgare 150 gram",
+    price: 80,
+    image: "./assets/images/hamburgare.png",
     category: "burgers",
     page: "index.html",
-    desc: "Nötfärs 90 gram, pommes, isbergssallad, färska tomater, gurka, lök, hamburgerdressing, fetaost",
+    desc: "Nötfärs 150 gram, isbergssallad, tomat gurka, lök, hamburgerdressing",
   },
 
   // Salads (index.html)
@@ -3096,7 +3096,9 @@ const menuItems = [
     page: "index.html",
     desc: "Krispiga lökringar med mild löksmak",
   },
-]; // ==================== GLOBAL SEARCH FUNCTIONALITY ====================
+];
+
+// ==================== GLOBAL SEARCH FUNCTIONALITY ====================
 document.addEventListener("DOMContentLoaded", function () {
   const searchInput = document.getElementById("global-search");
   const searchResults = document.getElementById("results-container");
@@ -3188,38 +3190,61 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  function scrollToItem(id) {
-    const element = document.getElementById(id);
-    if (!element) {
-      console.warn(`Element with id ${id} not found`);
-      return;
+  // Helper: Wait until the element is in the DOM and visible
+  function waitForElementVisible(id, tries = 12, delay = 100, cb) {
+    let count = 0;
+    function check() {
+      const el = document.getElementById(id);
+      if (el && el.offsetParent !== null) {
+        cb();
+      } else if (count < tries) {
+        count++;
+        setTimeout(check, delay);
+      }
     }
+    check();
+  }
 
-    // Handle menu categories on index page
-    if (window.location.pathname.endsWith("index.html")) {
-      // Find which category the item belongs to
-      const category = menuItems.find((item) => item.id === id)?.category;
-      if (category) {
-        // Activate the correct menu tab
-        const menuButton = document.querySelector(
-          `.menu-btn[data-menu="${category}"]`
-        );
-        if (menuButton) {
-          // Only click if not already active
-          if (!menuButton.classList.contains("active")) {
-            menuButton.click();
+  function scrollToItem(id) {
+    const menuItem = menuItems.find((item) => item.id === id);
 
-            // Wait for the content to load before scrolling
-            setTimeout(() => {
-              scrollToElementWithHighlight(id);
-            }, 300);
-            return;
-          }
+    // If you are on index.html (pizza section)
+    if (window.location.pathname.endsWith("index.html") && menuItem) {
+      const category = menuItem.category;
+      const menuButton = document.querySelector(
+        `.menu-btn[data-menu="${category}"]`
+      );
+      const activeCategory = document
+        .querySelector(".menu-btn.active")
+        ?.getAttribute("data-menu");
+
+      // Open the pizza tab if it is not already open
+      if (menuButton && activeCategory !== category) {
+        menuButton.click();
+      }
+
+      // ---- Support for the "Visa alla pizzor" ("Show all pizzas") button ----
+      if (category === "pizza") {
+        const pizzaMenu = document.getElementById("pizza-menu");
+        const showAllBtn = pizzaMenu?.querySelector("#show-all-pizza-btn");
+        let targetEl = document.getElementById(id);
+
+        // If the button exists and the target item is not visible, click the button!
+        if (showAllBtn && (!targetEl || targetEl.offsetParent === null)) {
+          showAllBtn.click();
+          // Wait until the item appears, then scroll to it
+          waitForElementVisible(id, 14, 120, () => {
+            scrollToElementWithHighlight(id);
+          });
+          return;
         }
       }
     }
 
-    scrollToElementWithHighlight(id);
+    // Check if the item exists, and if so, scroll to it directly
+    waitForElementVisible(id, 12, 80, () => {
+      scrollToElementWithHighlight(id);
+    });
   }
 
   function scrollToElementWithHighlight(id) {

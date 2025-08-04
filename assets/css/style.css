@@ -2255,12 +2255,23 @@ body.nav-active {
     font-weight: var(--weight-600);
 }
 
+/* 
 .menu-grid {
     display: grid;
-    /* grid-auto-rows: 1fr; */
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 30px;
     padding: 0 30px;
+    margin-bottom: 40px;
+} */
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(285px, 285px));
+    /* Fixed width */
+    justify-content: center;
+    /* ✅ Centers the full grid */
+    gap: 20px;
+    padding: 0 10px;
     margin-bottom: 40px;
 }
 
@@ -2527,7 +2538,7 @@ body.nav-active {
 /* Extra item styling */
 .extra-item {
     text-align: center;
-    margin-top: 30px;
+    margin-top: 40px;
     padding: 12px;
     background: rgba(255, 215, 0, 0.1);
     border-radius: 12px;
@@ -5641,31 +5652,54 @@ body.modal-open {
 }
 
 /* Search highlight effect */
+/* Search highlight effect (Gold glowing pulse + background shimmer) */
 .search-highlight {
-    box-shadow: 0 0 0 8px var(--gold-crayola), 0 4px 24px 4px var(--gold-crayola);
-    border-radius: 16px;
-    outline: 3px solid var(--gold-crayola);
-    animation: highlight 1.5s ease;
-    z-index: 5 !important;
     position: relative;
+    z-index: 20 !important;
+    outline: 2.5px solid var(--gold-crayola);
+    border-radius: 20px;
+    animation: highlight-glow 2s cubic-bezier(0.22, 1, 0.36, 1) both;
+    box-shadow:
+        0 0 0 8px rgba(212, 175, 55, 0.3),
+        0 0 16px 6px var(--gold-crayola),
+        0 4px 24px 4px var(--gold-crayola);
+    background: linear-gradient(120deg, rgba(255, 230, 150, 0.10) 0%, rgba(212, 175, 55, 0.12) 100%);
+    transition: background 0.5s, box-shadow 0.5s;
 }
 
-@keyframes highlight {
+/* Animation: golden glow pulse and shimmer */
+@keyframes highlight-glow {
     0% {
-        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.0);
-        outline-width: 0px;
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.0), 0 0 0 0 rgba(212, 175, 55, 0.0);
+        background: transparent;
+        outline-width: 0;
     }
 
-    50% {
-        box-shadow: 0 0 0 12px rgba(212, 175, 55, 0.2);
+    25% {
+        box-shadow: 0 0 0 10px rgba(212, 175, 55, 0.22), 0 0 16px 8px var(--gold-crayola);
+        background: linear-gradient(120deg, rgba(255, 230, 150, 0.18) 0%, rgba(212, 175, 55, 0.23) 100%);
         outline-width: 3px;
     }
 
+    50% {
+        box-shadow: 0 0 0 20px rgba(212, 175, 55, 0.13), 0 0 30px 10px var(--gold-crayola);
+        background: linear-gradient(120deg, rgba(255, 230, 150, 0.20) 0%, rgba(212, 175, 55, 0.27) 100%);
+        outline-width: 2.5px;
+    }
+
+    80% {
+        box-shadow: 0 0 0 12px rgba(212, 175, 55, 0.09), 0 0 8px 5px var(--gold-crayola);
+        background: linear-gradient(120deg, rgba(255, 230, 150, 0.13) 0%, rgba(212, 175, 55, 0.14) 100%);
+        outline-width: 2px;
+    }
+
     100% {
-        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.0);
-        outline-width: 0px;
+        box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.0), 0 0 0 0 rgba(212, 175, 55, 0.0);
+        background: transparent;
+        outline-width: 0;
     }
 }
+
 
 
 /*-----------------------------------*\
@@ -5722,7 +5756,7 @@ body.modal-open {
         margin-top: 0;
     } */
     .header .logo-container {
-        margin-left: -14px;
+        margin-left: -10px !important;
     }
 
     /* .search-container {
@@ -5835,9 +5869,58 @@ body.modal-open {
         gap: 15px;
     }
 
-    .menu-grid {
-        padding: 0 32px !important;
+    /* .container {
+        padding: 2px 16px !important;
+        margin: 0 !important;
+        box-sizing: border-box;
+    } */
+
+    .menu .container,
+    .lunch .container,
+    .vegetarian .container,
+    .drinks .container {
+        padding: 20px 12px !important;
+        margin: 0 !important;
+        box-sizing: border-box;
+    }
+
+    .menu-grid,
+    .menu-grid-service {
         grid-template-columns: 1fr !important;
+        width: 100% !important;
+        max-width: 310px !important;
+        margin: 0 auto;
+        padding: 0 0 !important;
+        box-sizing: border-box;
+    }
+
+    .menu-item {
+        min-width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 auto;
+        box-sizing: border-box;
+    }
+
+    .menu-grid>li {
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+    }
+
+    .section.menu .container {
+        padding-inline: 0 !important;
+        overflow: hidden;
+    }
+
+    .menu-content {
+        padding: 0 5px;
+    }
+
+    .extra-item {
+        margin-top: 40px !important;
+        margin-left: 10px !important;
+        margin-right: 10px !important;
+
     }
 
     .reservation .contact-number {
@@ -6126,18 +6209,29 @@ body.modal-open {
 
 /* For screens between 576px and 650px */
 @media (min-width: 576px) and (max-width: 650px) {
+    .menu .container {
+        padding: 26px 12px !important;
+        margin: 0 !important;
+        box-sizing: border-box;
+    }
 
-    .menu-grid {
-        padding: 0 20px !important;
+    .menu-grid,
+    .menu-grid-service {
         grid-template-columns: 1fr !important;
+        width: 100% !important;
+        max-width: 310px !important;
+        margin: 0 auto;
+        padding: 0 0 !important;
+        box-sizing: border-box;
     }
 }
 
 /* For screens between 651px and 768px */
 @media (min-width: 651px) and (max-width: 768px) {
 
-    .menu-grid {
-        padding: 0 4px !important;
+    .menu-grid,
+    .menu-grid-service {
+        padding: 0 0 !important;
         grid-template-columns: 1fr 1fr !important;
     }
 }
@@ -6252,10 +6346,6 @@ body.modal-open {
         /* More general */
     }
 
-    :is(.service) .container {
-        max-width: 820px;
-        /* More controlled width */
-    }
 
     :is(.service) .grid-list li:last-child {
         grid-column: 1 / 3;
@@ -6376,7 +6466,12 @@ body.modal-open {
 
     .menu-grid {
         grid-template-columns: 1fr 1fr;
-        padding: 0 70px;
+        width: 100% !important;
+        max-width: 330px;
+        margin: 0 auto;
+        padding: 0 30px;
+        box-sizing: border-box;
+
     }
 
     /* Adjust padding for menu categories from left and right */
@@ -6514,6 +6609,14 @@ body.modal-open {
         height: 100%;
         border-inline-start: 1px solid var(--white-alpha-20);
     } */
+    .menu-grid-service {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 30px;
+        justify-content: center;
+        /* center the grid even if there are less than 3 items */
+    }
+
 
     /**
    * RESERVATION
