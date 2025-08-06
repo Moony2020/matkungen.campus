@@ -1,5 +1,5 @@
 "use strict";
-
+let cart = null;
 // ==================== GLOBAL VARIABLES ====================
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
@@ -274,6 +274,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
   // ==================== SHOPPING CART ====================
+
   class Cart {
     constructor() {
       this.cart = JSON.parse(localStorage.getItem("cart")) || [];
@@ -324,21 +325,26 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     addItem(product) {
+      // Create a unique identifier based on name and price
+      const itemKey = `${product.name}-${product.price}`;
+
       const existingItem = this.cart.find(
-        (item) => item.name === product.name && item.price === product.price
+        (item) => `${item.name}-${item.price}` === itemKey
       );
 
       if (existingItem) {
         existingItem.quantity++;
       } else {
-        product.id = Date.now();
-        product.quantity = 1;
-        this.cart.push(product);
+        // Add the new item with all properties
+        this.cart.push({
+          ...product,
+          id: Date.now(), // Add unique ID
+          quantity: 1, // Initialize quantity
+        });
       }
 
       this.saveCart();
       this.updateCart();
-      this.showNotification(`${product.name} added to cart`);
     }
 
     removeItem(itemId) {
@@ -400,7 +406,14 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="cart-item" data-id="${item.id}">
               <img src="${item.img}" alt="${item.name}" width="70" height="70">
               <div class="item-details">
-                <h4>${item.name}</h4>
+                <h4>${item.name.split(" with ")[0]}</h4>
+                ${
+                  item.name.includes(" with ")
+                    ? `<div class="item-modifiers">${
+                        item.name.split(" with ")[1]
+                      }</div>`
+                    : ""
+                }
                 <div class="item-price">${item.price} kr</div>
                 <div class="item-quantity">
                   <button class="decrease-quantity">-</button>
@@ -497,7 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Initialize cart
-  const cart = new Cart();
+  cart = new Cart();
 
   // ==================== ADD TO CART FUNCTIONALITY ====================
 
@@ -507,43 +520,84 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const menuItem = btn.closest(".menu-item, .menu-card1");
 
-    const productName =
-      btn.dataset.name ||
-      menuItem?.querySelector(".menu-item-title, .menu-title1")?.textContent ||
-      "Unknown Item";
-
-    const price = parseFloat(btn.dataset.price) || 0;
-    const productImg = btn.dataset.img || "./assets/images/default-food.jpg";
-
-    const product = {
-      name: productName,
-      price: price,
-      img: productImg,
-    };
-
-    // Check if it's icon-only button
-    const isIconOnly = btn.classList.contains("icon-only");
-
-    // Store original content to restore later
-    const originalContent = btn.innerHTML;
-
-    // Change content based on type
-    if (isIconOnly) {
-      btn.innerHTML = '<i class="ri-check-line"></i>';
-    } else {
-      btn.innerHTML = '<i class="ri-check-line"></i> Added';
+    // Get selected size if exists
+    let selectedSize = null;
+    const sizeSelector = menuItem.querySelector(".size-selector");
+    if (sizeSelector) {
+      const selectedRadio = sizeSelector.querySelector(
+        'input[type="radio"]:checked'
+      );
+      if (selectedRadio) {
+        const sizeLabel = selectedRadio.nextElementSibling.textContent.trim();
+        // Extract the size name (e.g., "Medium" from "Medium (120 kr)")
+        const sizeMatch = sizeLabel.match(/(Small|Medium|Large)/);
+        selectedSize = {
+          name: sizeMatch ? sizeMatch[0] : sizeLabel.split(" ")[0],
+          price: parseFloat(selectedRadio.value),
+        };
+      }
     }
 
-    // Animate with green background
-    btn.style.backgroundColor = "#4CAF50";
+    const menuItemId = menuItem.id;
+    const menuItemData = menuItems.find((item) => item.id === menuItemId);
 
-    setTimeout(() => {
-      btn.innerHTML = originalContent;
-      btn.style.backgroundColor = "var(--gold-crayola)";
-    }, 1000);
+    // If item has modifiers, open popup instead of adding to cart
+    if (
+      menuItemData &&
+      menuItemData.modifiers &&
+      menuItemData.modifiers.length > 0
+    ) {
+      e.preventDefault();
 
-    // Add to cart
-    cart.addItem(product);
+      // Get the base product name
+      const baseName =
+        menuItem?.querySelector(".menu-item-title, .menu-title1")
+          ?.textContent || "Unknown Item";
+
+      // Create the full product name with size
+      const productName = selectedSize
+        ? `${baseName} (${selectedSize.name})`
+        : baseName;
+
+      openModifierPopup(menuItemData, productName, selectedSize);
+    } else {
+      // Existing add to cart logic for items without modifiers
+      const productName =
+        btn.dataset.name ||
+        menuItem?.querySelector(".menu-item-title, .menu-title1")
+          ?.textContent ||
+        "Unknown Item";
+
+      const price = selectedSize
+        ? selectedSize.price
+        : parseFloat(btn.dataset.price) || 0;
+      const productImg = btn.dataset.img || "./assets/images/default-food.jpg";
+
+      const product = {
+        name: productName,
+        price: price,
+        img: productImg,
+      };
+
+      // Animation code
+      const isIconOnly = btn.classList.contains("icon-only");
+      const originalContent = btn.innerHTML;
+
+      if (isIconOnly) {
+        btn.innerHTML = '<i class="ri-check-line"></i>';
+      } else {
+        btn.innerHTML = '<i class="ri-check-line"></i> Added';
+      }
+
+      btn.style.backgroundColor = "#4CAF50";
+
+      setTimeout(() => {
+        btn.innerHTML = originalContent;
+        btn.style.backgroundColor = "var(--gold-crayola)";
+      }, 1000);
+
+      cart.addItem(product);
+    }
   });
 
   // ==================== SIZE SELECTION FOR PIZZA ITEMS ====================
@@ -2303,7 +2357,179 @@ async function loadMenuItems() {
     // Optionally show error to user
   }
 }
+// ==================== MODIFIER POPUP STATE ====================
+let modifierState = {
+  currentItem: null,
+  currentItemName: "",
+  selectedModifiers: {},
+  basePrice: 0,
+};
+// Modifier Popup Functions
+// ==================== MODIFIER POPUP FUNCTIONS ====================
+function openModifierPopup(item, name, selectedSize = null) {
+  modifierState.currentItem = item;
+  modifierState.currentItemName = name;
+  modifierState.basePrice = selectedSize ? selectedSize.price : item.price;
+  modifierState.selectedModifiers = {};
 
+  // Set title using the passed name
+  document.getElementById("modifier-title").textContent = name;
+
+  // Populate content
+  const content = document.getElementById("modifier-content");
+  content.innerHTML = "";
+
+  if (item.modifiers) {
+    item.modifiers.forEach((modifier, index) => {
+      const group = document.createElement("div");
+      group.className = "modifier-group";
+      group.innerHTML = `<h4 class="modifier-group-title">${modifier.title}</h4>`;
+
+      if (modifier.type === "radio" || modifier.type === "checkbox") {
+        const optionsContainer = document.createElement("div");
+        optionsContainer.className = "modifier-options";
+
+        modifier.options.forEach((option) => {
+          const optionId = `modifier-${index}-${option.value}`;
+          const optionEl = document.createElement("div");
+          optionEl.className = "modifier-option";
+          optionEl.innerHTML = `
+            <input type="${
+              modifier.type
+            }" id="${optionId}" name="modifier-${index}" value="${
+            option.value
+          }" data-price="${option.price}">
+            <label for="${optionId}">
+              <span>${option.label}</span>
+              ${
+                option.price > 0
+                  ? `<span class="modifier-price-tag">+${option.price} kr</span>`
+                  : ""
+              }
+            </label>
+          `;
+          optionsContainer.appendChild(optionEl);
+
+          // Add event listener
+          optionEl
+            .querySelector("input")
+            .addEventListener("change", updateTotalPrice);
+        });
+
+        group.appendChild(optionsContainer);
+      } else if (modifier.type === "textarea") {
+        const textarea = document.createElement("div");
+        textarea.className = "textarea-group";
+        textarea.innerHTML = `
+          <textarea id="modifier-${index}" placeholder="${modifier.placeholder}"></textarea>
+        `;
+        group.appendChild(textarea);
+      }
+
+      content.appendChild(group);
+    });
+  }
+
+  // Set initial total
+  updateTotalPrice();
+
+  // Show popup
+  document.getElementById("modifier-popup").classList.add("active");
+  document.querySelector(".modifier-overlay").classList.add("active");
+}
+
+function closeModifierPopup() {
+  document.getElementById("modifier-popup").classList.remove("active");
+  document.querySelector(".modifier-overlay").classList.remove("active");
+}
+
+function updateTotalPrice() {
+  let total = modifierState.basePrice;
+
+  // Reset selectedModifiers
+  modifierState.selectedModifiers = {};
+
+  // Calculate modifiers price
+  document
+    .querySelectorAll(".modifier-option input:checked")
+    .forEach((input) => {
+      const price = parseFloat(input.dataset.price);
+      total += price;
+
+      // Store selected modifier
+      const groupIndex = input.name.split("-")[1];
+      if (!modifierState.selectedModifiers[groupIndex]) {
+        modifierState.selectedModifiers[groupIndex] = [];
+      }
+      modifierState.selectedModifiers[groupIndex].push({
+        label: input.parentElement.querySelector("span").textContent,
+        price: price,
+      });
+    });
+
+  // Update UI
+  document.querySelector(".total-price").textContent = `${total.toFixed(2)} kr`;
+}
+
+function addItemWithModifiers() {
+  if (!modifierState.currentItem) return;
+
+  // Get special instructions
+  const specialInstructions =
+    document.querySelector(".textarea-group textarea")?.value || "";
+
+  // Create modifier description
+  let modifierDesc = "";
+  Object.values(modifierState.selectedModifiers).forEach((group) => {
+    group.forEach((modifier) => {
+      modifierDesc += `${modifier.label} (+${modifier.price} kr), `;
+    });
+  });
+
+  // Remove trailing comma
+  if (modifierDesc) {
+    modifierDesc = modifierDesc.slice(0, -2);
+  }
+
+  // Create the full product name
+  let fullProductName = modifierState.currentItemName;
+  if (modifierDesc) {
+    fullProductName += ` with ${modifierDesc}`;
+  }
+
+  // Create cart item
+  const cartItem = {
+    name: fullProductName,
+    price: parseFloat(document.querySelector(".total-price").textContent),
+    img: modifierState.currentItem.image || "./assets/images/default-food.jpg",
+  };
+
+  // Add to cart
+  cart.addItem(cartItem);
+
+  // Create notification message
+  const baseName = modifierState.currentItemName.split(" with ")[0];
+  const notificationMessage = modifierDesc
+    ? `${baseName} with customizations added to cart`
+    : `${baseName} added to cart`;
+
+  // Show notification - ONLY ONCE HERE
+  cart.showNotification(notificationMessage);
+
+  // Close popup
+  closeModifierPopup();
+}
+
+// Event Listeners for modifier popup
+document
+  .querySelector(".close-modifier")
+  ?.addEventListener("click", closeModifierPopup);
+document
+  .querySelector(".modifier-overlay")
+  ?.addEventListener("click", closeModifierPopup);
+document
+  .querySelector(".add-with-modifiers")
+  ?.addEventListener("click", addItemWithModifiers);
 // ==================== GLOBAL SEARCH FUNCTIONALITY ====================
 
 function initGlobalSearch() {
