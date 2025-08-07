@@ -2533,46 +2533,12 @@ body.nav-active {
     animation-delay: 0.8s;
 }
 
-/* Extra item styling */
-.extra-item {
-    text-align: center;
-    margin-top: 40px;
-    padding: 12px;
-    background: rgba(255, 215, 0, 0.1);
-    border-radius: 12px;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-    border: 1px dashed var(--gold-crayola);
-}
-
-.extra-item p {
-    font-size: 1.5rem;
-    color: var(--gold-crayola);
-    font-weight: var(--weight-500);
-}
-
 /* Roller & dishes Menu*/
 /* Tillbehör section styling */
 .addition .box-container {
     display: flex;
     flex-wrap: wrap;
     gap: 1.5rem;
-}
-
-/* Styling for the extra item under the menu */
-.extra-item {
-    text-align: center;
-    margin-top: 30px;
-}
-
-/* Extra item text styling */
-.extra-item p {
-    font-size: var(--fontSize-body-5);
-    /* Adjust font size as needed */
-    color: var(--gold-crayola);
-    /* Use a consistent color */
-    font-weight: var(--weight-600);
 }
 
 /*-----------------------------------*\
@@ -6133,13 +6099,6 @@ body.modal-open {
 
     .menu-content {
         padding: 0 5px;
-    }
-
-    .extra-item {
-        margin-top: 40px !important;
-        margin-left: 10px !important;
-        margin-right: 10px !important;
-
     }
 
     .reservation .contact-number {
