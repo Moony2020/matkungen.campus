@@ -1120,15 +1120,14 @@ body.nav-active {
 .navbar .close-btn {
     color: var(--gold-crayola);
     background-color: transparent;
-    width: 36px;
-    height: 36px;
+    width: 27px;
+    height: 27px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 18px 0 15px auto;
+    margin: 18px 0 10px auto;
     transition: transform 0.4s ease, background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
-    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.25);
     cursor: pointer;
     border: 1px solid var(--gold-crayola);
 }
@@ -3020,22 +3019,27 @@ body.nav-active {
 }
 
 .close-cart {
-    background: var(--gold-crayola);
     color: var(--black);
-    border: none;
-    width: 30px;
-    height: 30px;
+    background: var(--gold-crayola);
+    width: 26px;
+    height: 26px;
+    border: 1px solid var(--gold-crayola);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--fontSize-body-1);
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: transform 0.4s ease, background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .close-cart:hover {
+    background-color: var(--gold-crayola);
+    color: var(--smoky-black-1);
     transform: rotate(90deg);
+}
+
+.close-cart i {
+    font-size: var(--fontSize-body-5);
 }
 
 .cart-items {
@@ -4283,13 +4287,12 @@ body.nav-active {
     background: var(--gold-crayola);
     color: var(--black);
     border: none;
-    width: 30px;
-    height: 30px;
+    width: 26px;
+    height: 26px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--fontSize-body-1);
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -5098,7 +5101,7 @@ body.modal-open {
 
 .user-notification.error {
     background: #ff6b6b;
-    color: white;
+    color: var(--white);
 }
 
 
@@ -5138,23 +5141,34 @@ body.modal-open {
 }
 
 .modifier-title {
-    font-size: 2.2rem;
+    font-size: var(--fontSize-title-2);
     font-weight: var(--weight-600);
     color: var(--gold-crayola);
     margin: 0;
 }
 
 .close-modifier {
-    background: none;
-    border: none;
-    font-size: 2.5rem;
-    color: var(--white);
+    color: var(--gold-crayola);
+    background-color: transparent;
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--gold-crayola);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: color 0.3s;
+    transition: transform 0.4s ease, background-color 0.4s ease, color 0.4s ease, box-shadow 0.4s ease;
 }
 
 .close-modifier:hover {
-    color: var(--gold-crayola);
+    background-color: var(--gold-crayola);
+    color: var(--smoky-black-1);
+    transform: rotate(90deg);
+}
+
+.close-modifier i {
+    font-size: var(--fontSize-body-5);
 }
 
 .modifier-content {
@@ -5167,8 +5181,15 @@ body.modal-open {
     border-bottom: 1px solid var(--white-alpha-10);
 }
 
+/* remove border and margin from last modifier group (Speciella instruktioner) */
+.modifier-group:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
 .modifier-group-title {
-    font-size: 1.8rem;
+    font-size: var(--fontSize-body-3);
     margin-bottom: 15px;
     color: var(--gold-crayola);
 }
@@ -5182,7 +5203,7 @@ body.modal-open {
 .modifier-option {
     display: flex;
     align-items: center;
-    padding: 10px;
+    padding: 10px 10px 10px 0;
     background: var(--eerie-black-1);
     border-radius: 8px;
     cursor: pointer;
@@ -5199,6 +5220,24 @@ body.modal-open {
     background: rgba(255, 215, 0, 0.1);
 }
 
+.modifier-option input[type="checkbox"],
+.modifier-option input[type="radio"] {
+    /* Bigger and left aligned */
+    margin-right: 14px;
+    /* space between box and text */
+    margin-left: 10px;
+    /* push box a little from very edge */
+    width: 16px;
+    /* increase size */
+    height: 16px;
+    /* increase size */
+    accent-color: var(--gold-crayola);
+    /* custom color for modern browsers */
+    flex-shrink: 0;
+    /* Optional for vertical center in Safari: */
+    vertical-align: middle;
+}
+
 .modifier-option input {
     margin-right: 10px;
     cursor: pointer;
@@ -5206,14 +5245,20 @@ body.modal-open {
 
 .modifier-option label {
     display: flex;
+    align-items: center;
     justify-content: space-between;
     width: 100%;
     cursor: pointer;
+    font-size: 1.7rem;
+    padding-left: 0;
+    /* Ensure no extra padding */
 }
 
 .modifier-price-tag {
     color: var(--gold-crayola);
     font-weight: var(--weight-600);
+    text-align: right;
+    min-width: 70px;
 }
 
 .textarea-group textarea {

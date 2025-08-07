@@ -2393,27 +2393,44 @@ function openModifierPopup(item, name, selectedSize = null) {
           const optionId = `modifier-${index}-${option.value}`;
           const optionEl = document.createElement("div");
           optionEl.className = "modifier-option";
-          optionEl.innerHTML = `
-            <input type="${
-              modifier.type
-            }" id="${optionId}" name="modifier-${index}" value="${
-            option.value
-          }" data-price="${option.price}">
-            <label for="${optionId}">
-              <span>${option.label}</span>
-              ${
-                option.price > 0
-                  ? `<span class="modifier-price-tag">+${option.price} kr</span>`
-                  : ""
-              }
-            </label>
-          `;
+
+          // --- Build input element ---
+          const input = document.createElement("input");
+          input.type = modifier.type;
+          input.id = optionId;
+          input.name = `modifier-${index}`;
+          input.value = option.value;
+          input.setAttribute("data-price", option.price);
+
+          // --- FIX: Default check "Normal" radio option ---
+          if (modifier.type === "radio" && option.value === "normal") {
+            input.checked = true;
+          }
+          // --- End fix ---
+
+          // Build label
+          const label = document.createElement("label");
+          label.setAttribute("for", optionId);
+
+          // Inner label html
+          const labelSpan = document.createElement("span");
+          labelSpan.textContent = option.label;
+          label.appendChild(labelSpan);
+
+          if (option.price > 0) {
+            const priceTag = document.createElement("span");
+            priceTag.className = "modifier-price-tag";
+            priceTag.textContent = `+${option.price} kr`;
+            label.appendChild(priceTag);
+          }
+
+          // Append input and label to optionEl
+          optionEl.appendChild(input);
+          optionEl.appendChild(label);
           optionsContainer.appendChild(optionEl);
 
           // Add event listener
-          optionEl
-            .querySelector("input")
-            .addEventListener("change", updateTotalPrice);
+          input.addEventListener("change", updateTotalPrice);
         });
 
         group.appendChild(optionsContainer);
@@ -2513,7 +2530,7 @@ function addItemWithModifiers() {
     ? `${baseName} with customizations added to cart`
     : `${baseName} added to cart`;
 
-  // Show notification - ONLY ONCE HERE
+  // Show notification
   cart.showNotification(notificationMessage);
 
   // Close popup
