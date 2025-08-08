@@ -400,30 +400,35 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
           `;
         } else {
+          // In Cart class updateCart() method
           cartItemsContainer.innerHTML = this.cart
             .map(
               (item) => `
-            <div class="cart-item" data-id="${item.id}">
-              <img src="${item.img}" alt="${item.name}" width="70" height="70">
-              <div class="item-details">
-                <h4>${item.name.split(" with ")[0]}</h4>
-                ${
-                  item.name.includes(" with ")
-                    ? `<div class="item-modifiers">${
-                        item.name.split(" with ")[1]
-                      }</div>`
-                    : ""
-                }
-                <div class="item-price">${item.price} kr</div>
-                <div class="item-quantity">
-                  <button class="decrease-quantity">-</button>
-                  <span>${item.quantity}</span>
-                  <button class="increase-quantity">+</button>
-                </div>
-              </div>
-              <button class="remove-item"><i class="ri-close-line"></i></button>
-            </div>
-          `
+  <div class="cart-item" data-id="${item.id}">
+    <img src="${item.img}" alt="${item.name}" width="70" height="70">
+    <div class="item-details">
+      <h4>${item.name.split(" with ")[0]}</h4>
+      ${
+        item.name.includes(" with ")
+          ? `<div class="item-modifiers">${
+              // Clean up modifier text
+              item.name
+                .split(" with ")[1]
+                .replace(/\(0 kr\)/g, "") // Remove (0 kr)
+                .replace(/, $/, "") // Remove trailing commas
+            }</div>`
+          : ""
+      }
+      <div class="item-price">${item.price} kr</div>
+      <div class="item-quantity">
+        <button class="decrease-quantity">-</button>
+        <span>${item.quantity}</span>
+        <button class="increase-quantity">+</button>
+      </div>
+    </div>
+    <button class="remove-item"><i class="ri-close-line"></i></button>
+  </div>
+`
             )
             .join("");
         }
@@ -2438,14 +2443,16 @@ function addItemWithModifiers() {
   let modifierDesc = "";
   Object.values(modifierState.selectedModifiers).forEach((group) => {
     group.forEach((modifier) => {
-      // Only include modifiers that are not default "Normal" or have price > 0
-      if (modifier.label !== "Normal" || modifier.price > 0) {
-        modifierDesc += `${modifier.label}`;
-        if (modifier.price > 0) {
-          modifierDesc += ` (+${modifier.price} kr)`;
-        }
-        modifierDesc += ", ";
+      // Skip "Normal" option with 0 kr price
+      if (modifier.label === "Normal" && modifier.price === 0) {
+        return;
       }
+
+      modifierDesc += `${modifier.label}`;
+      if (modifier.price > 0) {
+        modifierDesc += ` (+${modifier.price} kr)`;
+      }
+      modifierDesc += ", ";
     });
   });
 
