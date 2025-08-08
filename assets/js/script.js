@@ -513,7 +513,6 @@ document.addEventListener("DOMContentLoaded", function () {
   cart = new Cart();
 
   // ==================== ADD TO CART FUNCTIONALITY ====================
-
   document.addEventListener("click", function (e) {
     const btn = e.target.closest(".add-to-cart-btn");
     if (!btn) return;
@@ -529,7 +528,6 @@ document.addEventListener("DOMContentLoaded", function () {
       );
       if (selectedRadio) {
         const sizeLabel = selectedRadio.nextElementSibling.textContent.trim();
-        // Extract the size name (e.g., "Medium" from "Medium (120 kr)")
         const sizeMatch = sizeLabel.match(/(Small|Medium|Large)/);
         selectedSize = {
           name: sizeMatch ? sizeMatch[0] : sizeLabel.split(" ")[0],
@@ -540,28 +538,53 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const menuItemId = menuItem.id;
     const menuItemData = menuItems.find((item) => item.id === menuItemId);
+    const baseName =
+      menuItem?.querySelector(".menu-item-title, .menu-title1")?.textContent ||
+      "Unknown Item";
+    const productName = selectedSize
+      ? `${baseName} (${selectedSize.name})`
+      : baseName;
 
-    // If item has modifiers, open popup instead of adding to cart
-    if (
-      menuItemData &&
-      menuItemData.modifiers &&
-      menuItemData.modifiers.length > 0
-    ) {
+    if (menuItemData) {
       e.preventDefault();
 
-      // Get the base product name
-      const baseName =
-        menuItem?.querySelector(".menu-item-title, .menu-title1")
-          ?.textContent || "Unknown Item";
+      const hasModifiers =
+        Array.isArray(menuItemData.modifiers) &&
+        menuItemData.modifiers.length > 0;
 
-      // Create the full product name with size
-      const productName = selectedSize
-        ? `${baseName} (${selectedSize.name})`
-        : baseName;
+      if (!hasModifiers) {
+        const product = {
+          name: productName,
+          price: selectedSize ? selectedSize.price : menuItemData.price,
+          img: menuItemData.image || "./assets/images/default-food.jpg",
+        };
 
+        // Animation (keeps your current behavior)
+        const isIconOnly = btn.classList.contains("icon-only");
+        const originalContent = btn.innerHTML;
+        if (isIconOnly) {
+          btn.innerHTML = '<i class="ri-check-line"></i>';
+        } else {
+          btn.innerHTML = '<i class="ri-check-line"></i> Added';
+        }
+        btn.style.backgroundColor = "#4CAF50";
+        setTimeout(() => {
+          btn.innerHTML = originalContent;
+          btn.style.backgroundColor = "var(--gold-crayola)";
+        }, 1000);
+
+        cart.addItem(product);
+
+        // ✅ SHOW A VISIBLE MESSAGE (toast)
+        cart.showNotification(`${productName} added to cart`);
+        return;
+      }
+
+      // Item has modifiers → open popup
       openModifierPopup(menuItemData, productName, selectedSize);
     } else {
-      // Existing add to cart logic for items without modifiers
+      // Not in menuItems fallback
+      e.preventDefault(); // (safe if button is an <a>)
       const productName =
         btn.dataset.name ||
         menuItem?.querySelector(".menu-item-title, .menu-title1")
@@ -573,30 +596,26 @@ document.addEventListener("DOMContentLoaded", function () {
         : parseFloat(btn.dataset.price) || 0;
       const productImg = btn.dataset.img || "./assets/images/default-food.jpg";
 
-      const product = {
-        name: productName,
-        price: price,
-        img: productImg,
-      };
+      const product = { name: productName, price, img: productImg };
 
-      // Animation code
+      // same animation
       const isIconOnly = btn.classList.contains("icon-only");
       const originalContent = btn.innerHTML;
-
       if (isIconOnly) {
         btn.innerHTML = '<i class="ri-check-line"></i>';
       } else {
         btn.innerHTML = '<i class="ri-check-line"></i> Added';
       }
-
       btn.style.backgroundColor = "#4CAF50";
-
       setTimeout(() => {
         btn.innerHTML = originalContent;
         btn.style.backgroundColor = "var(--gold-crayola)";
       }, 1000);
 
       cart.addItem(product);
+
+      // ✅ toast here too
+      cart.showNotification(`${productName} added to cart`);
     }
   });
 
@@ -1137,86 +1156,6 @@ document.addEventListener("DOMContentLoaded", function () {
       console.error("Payment completion error:", error);
     }
   }
-  // ==================== CHECKOUT SUBMIT HANDLER ====================
-  // const checkoutForm = document.getElementById("checkout-form");
-  // const placeOrderBtn = document.querySelector(".place-order");
-
-  // if (checkoutForm && placeOrderBtn) {
-  //   placeOrderBtn.addEventListener("click", async function (e) {
-  //     e.preventDefault();
-
-  //     // Validate form
-  //     const name = document.getElementById("name")?.value || "";
-  //     const email = document.getElementById("email")?.value || "";
-  //     const phone = document.getElementById("phone")?.value || "";
-  //     const address = document.getElementById("address")?.value || "";
-  //     const zip = document.getElementById("zip")?.value || "";
-  //     const city = document.getElementById("city")?.value || "";
-  //     const notes = document.getElementById("notes")?.value || "";
-
-  //     // Validate required fields
-  //     if (!name || !email || !phone || !address || !zip || !city) {
-  //       cart.showNotification("Please fill in all required fields", true);
-  //       return;
-  //     }
-
-  //     // Prepare order data
-  //     const orderData = {
-  //       items: cart.cart.map((item) => ({
-  //         name: item.name,
-  //         price: item.price,
-  //         quantity: item.quantity,
-  //         img: item.img || "",
-  //       })),
-  //       customer: {
-  //         name,
-  //         email,
-  //         phone,
-  //         address: `${address}, ${zip} ${city}`,
-  //         notes,
-  //       },
-  //       paymentMethod: "Pending", // Will be updated in payment page
-  //     };
-
-  //     // Add user ID if logged in
-  //     const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-  //     if (currentUser) {
-  //       orderData.user = currentUser.id;
-  //     }
-
-  //     // Submit order to server
-  //     try {
-  //       const response = await fetch("/api/orders", {
-  //         method: "POST",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //           Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-  //         },
-  //         body: JSON.stringify(orderData),
-  //       });
-
-  //       const data = await response.json();
-
-  //       if (!response.ok) {
-  //         throw new Error(data.error || "Order submission failed");
-  //       }
-
-  //       // Store current order in localStorage for payment page
-  //       localStorage.setItem("currentOrder", JSON.stringify(data.order));
-
-  //       // Clear cart after successful order submission
-  //       // cart.clearCart();
-
-  //       // Redirect to payment page
-  //       window.location.href = "payment.html";
-  //     } catch (error) {
-  //       cart.showNotification(
-  //         "Order submission failed: " + error.message,
-  //         true
-  //       );
-  //     }
-  //   });
-  // }
 
   // ==================== CONFIRMATION PAGE FUNCTIONALITY ====================
   if (document.querySelector(".confirmation-page")) {
@@ -2495,11 +2434,18 @@ function addItemWithModifiers() {
   const specialInstructions =
     document.querySelector(".textarea-group textarea")?.value || "";
 
-  // Create modifier description
+  // Create modifier description - skip default "Normal" options
   let modifierDesc = "";
   Object.values(modifierState.selectedModifiers).forEach((group) => {
     group.forEach((modifier) => {
-      modifierDesc += `${modifier.label} (+${modifier.price} kr), `;
+      // Only include modifiers that are not default "Normal" or have price > 0
+      if (modifier.label !== "Normal" || modifier.price > 0) {
+        modifierDesc += `${modifier.label}`;
+        if (modifier.price > 0) {
+          modifierDesc += ` (+${modifier.price} kr)`;
+        }
+        modifierDesc += ", ";
+      }
     });
   });
 

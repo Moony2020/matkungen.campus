@@ -85,7 +85,7 @@
             </div>
           </li>
           <li>
-            <div class="menu-item" id="halloumisallad-lunch-offer">
+            <div class="menu-item" id="halloumisallad">
               <img
                 src="./assets/images/halloumisallad.png"
                 alt="halloumisallad"
@@ -131,7 +131,7 @@
                   class="add-to-cart-btn"
                   data-name="Vegetaiana pizza"
                   data-price="80"
-                  data-img="./assets/images/vegetaiana.jpg"
+                  data-img="./assets/images/vegetariana.jpg"
                 >
                   <i class="ri-shopping-cart-line"></i> Lägg till
                 </button>
@@ -141,6 +141,33 @@
         </ul>
       </div>
     </section>
+
+    <!-- Modifier Popup -->
+    <div class="modifier-popup" id="modifier-popup">
+      <div class="modifier-header">
+        <h3 class="modifier-title" id="modifier-title"></h3>
+        <button class="close-modifier"><i class="fas fa-times"></i></button>
+      </div>
+
+      <div class="modifier-content" id="modifier-content">
+        <!-- Content will be populated dynamically -->
+      </div>
+
+      <div class="modifier-footer">
+        <div class="modifier-price">
+          <span>Total Price:</span>
+          <span class="total-price">0 kr</span>
+        </div>
+        <!-- <button class="btn btn-primary add-with-modifiers">Add to Cart</button> -->
+
+        <a href="#" class="btn btn-primary add-with-modifiers">
+          <span class="text text-1">Add to Cart</span>
+          <span class="text text-2" aria-hidden="true">Add to Cart</span>
+        </a>
+      </div>
+    </div>
+    <div class="modifier-overlay"></div>
+
     <!-- <script src="/socket.io/socket.io.js"></script> -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="./assets/js/script.js"></script>

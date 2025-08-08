@@ -2368,6 +2368,7 @@ body.nav-active {
 }
 
 .menu-item-title {
+    display: flex;
     font-size: var(--fontSize-body-3);
     color: var(--white);
     font-weight: var(--weight-600);

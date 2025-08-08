@@ -137,6 +137,18 @@ html {
     padding: 20px;
 }
 
+.menu-item-offer {
+    font-size: var(--fontSize-label-2);
+    /* Make it smaller than the title */
+    color: var(--quick-silver);
+    /* Or use #aaa or your favorite color */
+    font-weight: var(--weight-500);
+    margin-left: 4px;
+    /* Space between name and offer */
+    vertical-align: middle;
+    letter-spacing: 0.5px;
+}
+
 .menu-grid-service .menu-item-desc {
     flex: 1 1 auto;
     min-height: 38px;

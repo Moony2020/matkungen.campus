@@ -91,37 +91,207 @@
   },
 
   {
-    "id": "halloumisallad-lunch-offer",
-    "name": "Halloumisallad (Lunch Offer)",
-    "price": 60,
-    "image": "./assets/images/halloumisallad.png",
-    "category": "vegetarian",
-    "page": "vegetarisk.html",
-    "desc": "Lunchpris: 60 kr (11-14)"
-  },
-
-  {
     "id": "hamburgare-90-gram-lunch-offer",
     "name": "Hamburgare 90 gram (Lunch Offer)",
     "price": 50,
     "image": "./assets/images/hamburgare.png",
-    "category": "lunch",
+    "category": "burgers",
     "page": "lunch.html",
-    "desc": "Nötfärs 90 gram, isbergssallad, tomat gurka, lök, hamburgerdressing"
+    "desc": "Nötfärs 90 gram, isbergssallad, tomat gurka, lök, hamburgerdressing",
+    "modifiers": [
+      {
+        "type": "checkbox",
+        "title": "Tillägg (lägg till)",
+        "options": [
+          { "label": "Bacon", "value": "bacon", "price": 15 },
+          { "label": "Ost", "value": "ost", "price": 10 },
+          { "label": "Avokado", "value": "avokado", "price": 15 },
+          { "label": "Extra Kött", "value": "extra_kott", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Sås (välj sås)",
+        "options": [
+          { "label": "BBQ sås", "value": "bbq", "price": 5 },
+          { "label": "Bearnaise sås", "value": "bearnaise", "price": 10 },
+          { "label": "Chilisås", "value": "chili", "price": 5 },
+          { "label": "Vitlöksmayo", "value": "vitlok", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Tillbehör",
+        "options": [
+          { "label": "Extra pommes", "value": "pommes", "price": 15 },
+          { "label": "Onion rings", "value": "onion_rings", "price": 12 }
+        ]
+      },
+      {
+        "type": "textarea",
+        "title": "Speciella instruktioner",
+        "placeholder": "Speciella instruktioner",
+        "optional": true
+      }
+    ]
   },
   {
     "id": "falafelrulle-lunch-offer",
     "name": "Falafelrulle (Lunch Offer)",
     "price": 50,
     "image": "./assets/images/falafelrulle.jpg",
-    "category": "lunch",
+    "category": "rollers",
     "page": "lunch.html",
-    "desc": "Falafel, isbergssallad, hummus, färska tomater, gurka, lök"
+    "desc": "Falafel, isbergssallad, hummus, färska tomater, gurka, lök",
+    "modifiers": [
+      {
+        "type": "checkbox",
+        "title": "Extra tillbehör",
+        "options": [
+          { "label": "Extra kött", "value": "kott", "price": 20 },
+          { "label": "Extra ost", "value": "ost", "price": 10 },
+          { "label": "Avokado", "value": "avokado", "price": 15 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Sås (välj sås)",
+        "options": [
+          { "label": "Stark sås", "value": "stark", "price": 5 },
+          { "label": "Vitlöksås", "value": "vitlok", "price": 5 },
+          { "label": "Mangosås", "value": "mango", "price": 5 }
+        ]
+      },
+      {
+        "type": "textarea",
+        "title": "Speciella instruktioner",
+        "placeholder": "Speciella instruktioner",
+        "optional": true
+      }
+    ]
   },
-
+  {
+    "id": "halloumisallad",
+    "name": "Halloumisallad",
+    "price": 80,
+    "image": "./assets/images/halloumisallad.png",
+    "category": "salads",
+    "page": "vegetarisk.html",
+    "desc": "Halloumi, isbergssallad, gurka, färska tomater, rödlök, paprika, olivolja, citron, och persilja",
+    "modifiers": [
+      {
+        "type": "checkbox",
+        "title": "Protein tillägg",
+        "options": [
+          { "label": "Kyckling", "value": "kyckling", "price": 20 },
+          { "label": "Räkor", "value": "rakor", "price": 25 },
+          { "label": "Tonfisk", "value": "tonfisk", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Extra tillbehör",
+        "options": [
+          { "label": "Avokado", "value": "avokado", "price": 15 },
+          { "label": "Fetaost", "value": "fetaost", "price": 10 },
+          { "label": "Nötter", "value": "notter", "price": 10 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Dressing (välj)",
+        "options": [
+          { "label": "Olivolja & balsamico", "value": "olivolja", "price": 0 },
+          { "label": "Citron dressing", "value": "citron", "price": 5 },
+          { "label": "Sesam dressing", "value": "sesam", "price": 5 }
+        ]
+      },
+      {
+        "type": "textarea",
+        "title": "Speciella instruktioner",
+        "placeholder": "Speciella instruktioner",
+        "optional": true
+      }
+    ]
+  },
   {
     "id": "vegetariana",
-    "name": "Vegetaiana",
+    "name": "Vegetariana",
+    "price": 120,
+    "image": "./assets/images/vegetariana.jpg",
+    "category": "pizza",
+    "page": "vegetarisk.html",
+    "desc": "Tomatsås, ost, champinjoner, lök, paprika, fetaost, oliver",
+    "modifiers": [
+      {
+        "type": "radio",
+        "title": "Deg (Välj deg)",
+        "options": [
+          { "label": "Normal", "value": "normal", "price": 0 },
+          { "label": "Glutenfri", "value": "glutenfri", "price": 35 },
+          { "label": "Laktosfri", "value": "laktosfri", "price": 10 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Tillägg (lägg till)",
+        "options": [
+          { "label": "Bacon", "value": "bacon", "price": 15 },
+          { "label": "Kebabkött (Nötkött)", "value": "kebab", "price": 20 },
+          { "label": "Kyckling", "value": "kyckling", "price": 20 },
+          { "label": "Extra Köttfärs", "value": "köttfärs", "price": 20 },
+          { "label": "Musslor", "value": "musslor", "price": 20 },
+          { "label": "Oxfilé", "value": "oxfilé", "price": 20 },
+          { "label": "Räkor", "value": "räkor", "price": 20 },
+          { "label": "Skinka", "value": "skinka", "price": 20 },
+          { "label": "Tonfisk", "value": "tonfisk", "price": 20 },
+          { "label": "Pepparoni", "value": "pepparoni", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Sås (välj sås)",
+        "options": [
+          { "label": "Blandad sås", "value": "blandad", "price": 10 },
+          { "label": "Kebab sås", "value": "kebab", "price": 10 },
+          { "label": "Vitlök sås", "value": "vitlök", "price": 10 },
+          { "label": "Stark sås", "value": "stark", "price": 10 },
+          { "label": "Bearnaise sås", "value": "bearnaise", "price": 10 },
+          { "label": "Ketchup", "value": "ketchup", "price": 10 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Grönsaker (lägg till)",
+        "options": [
+          { "label": "Fetaost", "value": "fetaost", "price": 15 },
+          { "label": "Avokado", "value": "avokado", "price": 10 },
+          { "label": "Lök", "value": "lök", "price": 10 },
+          { "label": "Champinjoner", "value": "champinjoner", "price": 10 },
+          { "label": "Paprika", "value": "paprika", "price": 10 },
+          { "label": "Oliver", "value": "oliver", "price": 10 },
+          { "label": "Ananas", "value": "ananas", "price": 10 },
+          { "label": "Ruccola", "value": "ruccola", "price": 10 },
+          { "label": "Sparris", "value": "sparris", "price": 10 },
+          { "label": "Tomat", "value": "tomat", "price": 10 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Extra sås",
+        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+      },
+      {
+        "type": "textarea",
+        "title": "Speciella instruktioner",
+        "placeholder": "Speciella instruktioner",
+        "optional": true
+      }
+    ]
+  },
+  {
+    "id": "vegetariana",
+    "name": "Vegetariana",
     "price": 120,
     "image": "./assets/images/vegetariana.jpg",
     "category": "pizza",
@@ -579,15 +749,6 @@
     "desc": "Tomatsås, ost, skinka. 'Inbakad' standard",
     "modifiers": [
       {
-        "type": "radio",
-        "title": "Deg (Välj deg)",
-        "options": [
-          { "label": "Normal", "value": "normal", "price": 0 },
-          { "label": "Glutenfri", "value": "glutenfri", "price": 35 },
-          { "label": "Laktosfri", "value": "laktosfri", "price": 10 }
-        ]
-      },
-      {
         "type": "checkbox",
         "title": "Tillägg (lägg till)",
         "options": [
@@ -653,15 +814,6 @@
     "page": "index.html",
     "desc": "Tomatsås, ost, skinka, räkor. 'Inbakad' standard",
     "modifiers": [
-      {
-        "type": "radio",
-        "title": "Deg (Välj deg)",
-        "options": [
-          { "label": "Normal", "value": "normal", "price": 0 },
-          { "label": "Glutenfri", "value": "glutenfri", "price": 35 },
-          { "label": "Laktosfri", "value": "laktosfri", "price": 10 }
-        ]
-      },
       {
         "type": "checkbox",
         "title": "Tillägg (lägg till)",
@@ -1844,7 +1996,6 @@
       }
     ]
   },
-
   {
     "id": "hamburgare-90-gram",
     "name": "Hamburgare 90 gram",
