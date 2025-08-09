@@ -21,6 +21,71 @@ const http = require("http");
 const socketIo = require("socket.io");
 dotenv.config();
 
+// ---------------- Opening Hours (SERVER) ----------------
+// Times in minutes from midnight, 0=Sun ... 6=Sat
+const OPENING_HOURS = {
+  0: [{ start: 12 * 60, end: 22 * 60 }], // Sun 12:00–22:00
+  1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
+  2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
+  3: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
+  4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
+  5: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
+  6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
+};
+
+function getStockholmParts() {
+  const now = new Date();
+  const hm = new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "Europe/Stockholm",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).format(now); // "23:41"
+  const [h, m] = hm.split(":").map((n) => parseInt(n, 10));
+
+  const weekday = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Europe/Stockholm",
+    weekday: "short",
+  })
+    .format(now)
+    .toLowerCase(); // mon..sun
+
+  const map = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+  const day = map[weekday.slice(0, 3)] ?? new Date().getDay();
+
+  return { day, minutes: h * 60 + m };
+}
+
+function isOpenNowServer() {
+  const { day, minutes } = getStockholmParts();
+
+  // today
+  const ints = OPENING_HOURS[day] || [];
+  for (const itv of ints) {
+    if (!itv.overnight) {
+      if (minutes >= itv.start && minutes < itv.end) return true;
+    } else {
+      if (minutes >= itv.start) return true; // until midnight
+    }
+  }
+  // spill from previous day
+  const prev = (day + 6) % 7;
+  const prevInts = OPENING_HOURS[prev] || [];
+  for (const itv of prevInts) {
+    if (itv.overnight && minutes < itv.end) return true;
+  }
+  return false;
+}
+
+function blockWhenClosed(req, res, next) {
+  if (isOpenNowServer()) return next();
+  return res.status(403).json({
+    success: false,
+    error: "We are currently closed. Please order during opening hours.",
+  });
+}
+// --------------------------------------------------------
+
 // Connect to MongoDB
 connectDB();
 const app = express();
@@ -35,6 +100,10 @@ app.use("/api/admin", adminRoutes); // For admin orders
 // Routes
 
 app.use("/api/auth", authRoutes); // For register/login
+
+// IMPORTANT: mount orders ONCE. If routes/orders.js has GET and POST,
+// you can keep this here; if you only want to block creation, put blockWhenClosed
+// inside routes/orders.js only on POST create route.
 app.use("/api/orders", orderRoutes);
 
 // app.use('/api/admin', require('./routes/orders'));
@@ -71,6 +140,8 @@ const { verifyToken } = require("./config/jwt");
 //     next(new Error("Invalid token"));
 //   }
 // });
+
+// Optional auth for admin sockets
 io.use((socket, next) => {
   const token = socket.handshake.auth?.token;
 
@@ -98,7 +169,7 @@ io.on("connection", (socket) => {
     if (userId) {
       socket.join(userId);
 
-      console.log(`Client joined user room: ${userId}`);
+      // console.log(`Client joined user room: ${userId}`);
     }
   });
 
@@ -106,7 +177,7 @@ io.on("connection", (socket) => {
   socket.on("joinOrderRoom", (orderId) => {
     socket.join(orderId);
 
-    console.log(`Client joined order room: ${orderId}`);
+    // console.log(`Client joined order room: ${orderId}`);
   });
 
   // Driver location updates
@@ -200,27 +271,21 @@ app.get("/reset-password/:token", (req, res) => {
 // Serve static files/ HTML page r
 
 app.get("/", (_, res) => res.sendFile(path.join(__dirname, "index.html")));
-
 app.get("/admin", (_, res) => res.sendFile(path.join(__dirname, "admin.html")));
-
 app.get("/payment", (_, res) =>
   res.sendFile(path.join(__dirname, "payment.html"))
 );
 
+// ---------------- Payments: BLOCK WHEN CLOSED ----------------
 // Stripe payment intent
-
-app.post("/create-payment-intent", async (req, res) => {
+app.post("/create-payment-intent", blockWhenClosed, async (req, res) => {
   try {
     const { amount } = req.body;
-
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount),
-
       currency: "sek",
-
       payment_method_types: ["card"],
     });
-
     res.send({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
     res.status(500).json({ error: "Failed to create payment intent" });
@@ -228,39 +293,25 @@ app.post("/create-payment-intent", async (req, res) => {
 });
 
 // Configure PayPal environment
-
 const paypalClient = new paypal.core.PayPalHttpClient(
   new paypal.core.SandboxEnvironment(
     process.env.PAYPAL_CLIENT_ID,
-
     process.env.PAYPAL_SECRET
   )
 );
 
 // PayPal routes
-
-app.post("/create-paypal-order", async (req, res) => {
+app.post("/create-paypal-order", blockWhenClosed, async (req, res) => {
   const { amount } = req.body;
-
   try {
     const request = new paypal.orders.OrdersCreateRequest();
-
     request.requestBody({
       intent: "CAPTURE",
-
       purchase_units: [
-        {
-          amount: {
-            currency_code: "SEK",
-
-            value: amount.toString(),
-          },
-        },
+        { amount: { currency_code: "SEK", value: amount.toString() } },
       ],
     });
-
     const order = await paypalClient.execute(request);
-
     res.json({ orderID: order.result.id });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -269,14 +320,10 @@ app.post("/create-paypal-order", async (req, res) => {
 
 app.post("/capture-paypal-order", async (req, res) => {
   const { orderID } = req.body;
-
   try {
     const request = new paypal.orders.OrdersCaptureRequest(orderID);
-
     request.requestBody({});
-
     const captureData = await paypalClient.execute(request);
-
     res.json(captureData);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -288,7 +335,6 @@ app.post("/capture-paypal-order", async (req, res) => {
 app.post("/api/orders/confirm-payment", async (req, res) => {
   try {
     const { orderId, paymentMethod } = req.body;
-
     const updatedOrder = await Order.findByIdAndUpdate(
       orderId,
       {
@@ -404,15 +450,13 @@ app.post("/api/orders/confirm-payment", async (req, res) => {
       </div>
       `;
 
-      const mailOptions = {
-        from: `"Matkungen" <${process.env.EMAIL_USER}>`,
-        to: updatedOrder.customer.email,
-        subject: `Order #${updatedOrder.orderNumber} Confirmed - Matkungen`,
-        html: emailContent,
-      };
-
       try {
-        await transporter.sendMail(mailOptions);
+        await mailer.sendMail({
+          from: `"Matkungen" <${process.env.EMAIL_USER}>`,
+          to: updatedOrder.customer.email,
+          subject: `Order #${updatedOrder.orderNumber} Confirmed - Matkungen`,
+          html: emailContent,
+        });
         console.log("📧 Email sent to", updatedOrder.customer.email);
       } catch (emailErr) {
         console.error("❌ Email sending failed:", emailErr);
@@ -434,48 +478,34 @@ const adminAuth = (req, res, next) => {
   if (!token) {
     return res.status(401).json({
       success: false,
-
       error: "No token, authorization denied",
     });
   }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
     // Verify admin role
-
     if (!decoded.role || !["admin", "superadmin"].includes(decoded.role)) {
       return res.status(403).json({
         success: false,
-
         error: "Admin privileges required",
       });
     }
-
     req.admin = decoded;
-
     next();
   } catch (err) {
-    res.status(401).json({
-      success: false,
-
-      error: "Token is not valid",
-    });
+    res.status(401).json({ success: false, error: "Token is not valid" });
   }
 };
 
 // Admin-only routes
-
 // In server.js, add this route before the server.listen()
-
 app.get("/api/admin/orders/:id", adminAuth, async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
-
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
-
     res.json({ success: true, order });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -561,6 +591,7 @@ app.get("/api/admin/stats", adminAuth, async (req, res) => {
           ])
         )[0]?.total || 0,
 
+      // New customers only from today
       newCustomers: await User.countDocuments({
         createdAt: { $gte: todayStart, $lt: todayEnd },
       }),
@@ -582,35 +613,21 @@ app.get("/api/admin/stats", adminAuth, async (req, res) => {
 app.post("/api/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
-
     // Check if user exists
-
     const existingUser = await User.findOne({ email });
-
     if (existingUser) {
       return res.status(400).json({ error: "Email already registered" });
     }
 
     // Create user
-
     const user = await User.create({ name, email, password });
-
     // Generate token
-
     const token = user.generateAuthToken();
 
     res.status(201).json({
       success: true,
-
       token,
-
-      user: {
-        id: user._id,
-
-        name: user.name,
-
-        email: user.email,
-      },
+      user: { id: user._id, name: user.name, email: user.email },
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -620,22 +637,18 @@ app.post("/api/register", async (req, res) => {
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({ error: "Incorrect email or password." });
     }
-
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(401).json({ error: "Incorrect email or password." });
     }
-
     // Generate token
     const token = user.generateAuthToken();
-
     res.json({
       success: true,
       token,
@@ -656,15 +669,12 @@ app.post("/api/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
-
     // Generate reset token
     const resetToken = user.getResetPasswordToken();
     await user.save();
-
     // Create reset URL
     const resetUrl = `${req.protocol}://${req.get(
       "host"
@@ -684,12 +694,9 @@ app.post("/api/forgot-password", async (req, res) => {
 `;
 
     // Send email
-
     await transporter.sendMail({
       to: user.email,
-
       subject: "Password Reset Request",
-
       html: message,
     });
 

@@ -2938,7 +2938,9 @@ body.nav-active {
     position: fixed;
     top: 0;
     right: -400px;
-    width: 350px;
+    width: 100%;
+    /* shrink on tiny screens */
+    max-width: 370px;
     height: 100%;
     background: var(--smoky-black-1);
     z-index: 4000;

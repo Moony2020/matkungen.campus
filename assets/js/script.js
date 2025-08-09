@@ -185,16 +185,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("load", autoSlide);
   }
-  // function adjustHeroHeight() {
-  //   const hero = document.querySelector(".hero");
-  //   if (hero) {
-  //     hero.style.height = window.innerHeight + "px";
-  //   }
-  // }
-
-  // window.addEventListener("load", adjustHeroHeight);
-  // window.addEventListener("resize", adjustHeroHeight);
-  // window.addEventListener("orientationchange", adjustHeroHeight);
   // ==================== PRELOADER ====================
 
   const preload = document.querySelector(".preload");
@@ -517,10 +507,109 @@ document.addEventListener("DOMContentLoaded", function () {
   // Initialize cart
   cart = new Cart();
 
+  /* ===================== OPENING HOURS ENFORCEMENT (CLIENT) =====================
+
+Hours map: 0=Sun, 1=Mon, ... 6=Sat
+- Use { overnight:true } when end time is after midnight (e.g., 03:00 next day)
+- Times are in minutes from midnight (local user time)
+
+Your hours:
+Mon, Tue, Thu: 11:00–22:00
+Wed, Fri:      11:00–03:00 (overnight)
+Sat:           12:00–03:00 (overnight)
+Sun:           12:00–22:00
+*/
+  const OPENING_HOURS = {
+    0: [{ start: 12 * 60, end: 22 * 60 }], // Sun 12:00–22:00
+    1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
+    2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
+    3: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
+    4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
+    5: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
+    6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
+  };
+
+  function minutesNow() {
+    const now = new Date();
+    return now.getHours() * 60 + now.getMinutes();
+  }
+  function today() {
+    return new Date().getDay();
+  }
+  function prevDay(d) {
+    return (d + 6) % 7;
+  }
+
+  function isOpenNow() {
+    const d = today();
+    const m = minutesNow();
+
+    // today's intervals
+    const todayIntervals = OPENING_HOURS[d] || [];
+    for (const itv of todayIntervals) {
+      if (!itv.overnight) {
+        if (m >= itv.start && m < itv.end) return true;
+      } else {
+        // same-day part: from start until midnight
+        if (m >= itv.start) return true;
+      }
+    }
+
+    // spillover from previous day
+    const pd = prevDay(d);
+    const prevIntervals = OPENING_HOURS[pd] || [];
+    for (const itv of prevIntervals) {
+      if (itv.overnight && m < itv.end) return true;
+    }
+
+    return false;
+  }
+
+  function updateOpenStateUI() {
+    const open = isOpenNow();
+
+    // Disable order-related buttons when closed
+    document
+      .querySelectorAll(".add-to-cart-btn, .make-order-btn, .checkout-btn")
+      .forEach((b) => {
+        if (!b) return;
+        b.disabled = !open;
+        b.setAttribute("aria-disabled", String(!open));
+      });
+
+    // Optional badge
+    const badge = document.querySelector("#open-status");
+    if (badge) badge.textContent = open ? "Öppet nu" : "Stängt";
+  }
+
+  // Run once + every minute
+  document.addEventListener("DOMContentLoaded", () => {
+    updateOpenStateUI();
+    setInterval(updateOpenStateUI, 60_000);
+  });
+
   // ==================== ADD TO CART FUNCTIONALITY ====================
   document.addEventListener("click", function (e) {
     const btn = e.target.closest(".add-to-cart-btn");
     if (!btn) return;
+
+    // 🔒 HARD GUARD: block adding when closed
+    if (!isOpenNow()) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (typeof e.stopImmediatePropagation === "function") {
+        e.stopImmediatePropagation();
+      }
+
+      if (typeof cart?.showNotification === "function") {
+        cart.showNotification(
+          "Vi är stängda just nu. Välkommen åter under öppettiderna."
+        );
+      } else {
+        alert("Vi är stängda just nu. Välkommen åter under öppettiderna.");
+      }
+      return;
+    }
 
     const menuItem = btn.closest(".menu-item, .menu-card1");
 
@@ -564,7 +653,7 @@ document.addEventListener("DOMContentLoaded", function () {
           img: menuItemData.image || "./assets/images/default-food.jpg",
         };
 
-        // Animation (keeps your current behavior)
+        // Button Animation
         const isIconOnly = btn.classList.contains("icon-only");
         const originalContent = btn.innerHTML;
         if (isIconOnly) {
@@ -623,7 +712,23 @@ document.addEventListener("DOMContentLoaded", function () {
       cart.showNotification(`${productName} added to cart`);
     }
   });
+  /* ===================== CHECKOUT GUARD =====================
 
+Prevents proceeding to payment when closed.
+Attach this to your existing "Make Order" / "Checkout" buttons.
+*/
+  document.addEventListener("click", function (e) {
+    const makeOrder = e.target.closest(".make-order-btn, .checkout-btn");
+    if (!makeOrder) return;
+
+    if (!isOpenNow()) {
+      e.preventDefault();
+      cart?.showNotification?.(
+        "Vi är stängda just nu. Välkommen åter under öppettiderna."
+      );
+      return;
+    }
+  });
   // ==================== SIZE SELECTION FOR PIZZA ITEMS ====================
   document
     .querySelectorAll(".size-selector input[type='radio']")
