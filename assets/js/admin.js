@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Update Dashboard Stats
       this.socket.on("stats-update", (stats) => {
         this.updateDashboardStats(stats);
-        updateOrderInRecent;
+        // updateOrderInRecent;
       });
 
       // 🚗 Location updates (if using driver tracking)

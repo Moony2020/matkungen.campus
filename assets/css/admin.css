@@ -30,6 +30,14 @@
     --light-blue-hover: #f5faff;
     --card-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
     --transition: all 0.25s cubic-bezier(0.645, 0.045, 0.355, 1);
+    --white: hsla(0, 0%, 100%, 1);
+    --black: hsla(0, 0%, 0%, 1);
+
+
+
+
+
+
 }
 
 [data-theme="dark"] {
@@ -1331,8 +1339,8 @@ tr:hover {
     position: fixed;
     bottom: 20px;
     right: 20px;
-    background: var(--dark-color);
-    color: white;
+    background: var(--black);
+    color: var(--white);
     padding: 12px 20px;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);

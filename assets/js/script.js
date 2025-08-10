@@ -520,7 +520,7 @@ Sat:           12:00–03:00 (overnight)
 Sun:           12:00–22:00
 */
   const OPENING_HOURS = {
-    0: [{ start: 12 * 60, end: 22 * 60 }], // Sun 12:00–22:00
+    0: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
     1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
     2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
     3: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
@@ -2092,22 +2092,10 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
           <div class="order-total">${order.total?.toFixed(2) || "0.00"} kr</div>
         </div>
 
-        <div class="order-actions">
-          <button class="btn btn-outline view-order" data-order="${
-            order.orderNumber
-          }">
-            View Details
-          </button>
-          ${
-            order.status === "On the Way"
-              ? `
-            <button class="btn btn-primary track-order" data-order="${order.orderNumber}">
-              <i class="ri-map-pin-line"></i> Track
-            </button>
-          `
-              : ""
-          }
-        </div>
+     <div class="order-actions">
+
+</div>
+
       </div>
     `;
     }

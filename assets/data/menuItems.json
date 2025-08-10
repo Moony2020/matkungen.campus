@@ -220,81 +220,6 @@
     "price": 120,
     "image": "./assets/images/vegetariana.jpg",
     "category": "pizza",
-    "page": "vegetarisk.html",
-    "desc": "Tomatsås, ost, champinjoner, lök, paprika, fetaost, oliver",
-    "modifiers": [
-      {
-        "type": "radio",
-        "title": "Deg (Välj deg)",
-        "options": [
-          { "label": "Normal", "value": "normal", "price": 0 },
-          { "label": "Glutenfri", "value": "glutenfri", "price": 35 },
-          { "label": "Laktosfri", "value": "laktosfri", "price": 10 }
-        ]
-      },
-      {
-        "type": "checkbox",
-        "title": "Tillägg (lägg till)",
-        "options": [
-          { "label": "Bacon", "value": "bacon", "price": 15 },
-          { "label": "Kebabkött (Nötkött)", "value": "kebab", "price": 20 },
-          { "label": "Kyckling", "value": "kyckling", "price": 20 },
-          { "label": "Extra Köttfärs", "value": "köttfärs", "price": 20 },
-          { "label": "Musslor", "value": "musslor", "price": 20 },
-          { "label": "Oxfilé", "value": "oxfilé", "price": 20 },
-          { "label": "Räkor", "value": "räkor", "price": 20 },
-          { "label": "Skinka", "value": "skinka", "price": 20 },
-          { "label": "Tonfisk", "value": "tonfisk", "price": 20 },
-          { "label": "Pepparoni", "value": "pepparoni", "price": 20 }
-        ]
-      },
-      {
-        "type": "checkbox",
-        "title": "Sås (välj sås)",
-        "options": [
-          { "label": "Blandad sås", "value": "blandad", "price": 10 },
-          { "label": "Kebab sås", "value": "kebab", "price": 10 },
-          { "label": "Vitlök sås", "value": "vitlök", "price": 10 },
-          { "label": "Stark sås", "value": "stark", "price": 10 },
-          { "label": "Bearnaise sås", "value": "bearnaise", "price": 10 },
-          { "label": "Ketchup", "value": "ketchup", "price": 10 }
-        ]
-      },
-      {
-        "type": "checkbox",
-        "title": "Grönsaker (lägg till)",
-        "options": [
-          { "label": "Fetaost", "value": "fetaost", "price": 15 },
-          { "label": "Avokado", "value": "avokado", "price": 10 },
-          { "label": "Lök", "value": "lök", "price": 10 },
-          { "label": "Champinjoner", "value": "champinjoner", "price": 10 },
-          { "label": "Paprika", "value": "paprika", "price": 10 },
-          { "label": "Oliver", "value": "oliver", "price": 10 },
-          { "label": "Ananas", "value": "ananas", "price": 10 },
-          { "label": "Ruccola", "value": "ruccola", "price": 10 },
-          { "label": "Sparris", "value": "sparris", "price": 10 },
-          { "label": "Tomat", "value": "tomat", "price": 10 }
-        ]
-      },
-      {
-        "type": "checkbox",
-        "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
-      },
-      {
-        "type": "textarea",
-        "title": "Speciella instruktioner",
-        "placeholder": "Speciella instruktioner",
-        "optional": true
-      }
-    ]
-  },
-  {
-    "id": "vegetariana",
-    "name": "Vegetariana",
-    "price": 120,
-    "image": "./assets/images/vegetariana.jpg",
-    "category": "pizza",
     "page": "index.html",
     "desc": "Tomatsås, ost, champinjoner, lök, paprika, fetaost, oliver",
     "modifiers": [
@@ -354,7 +279,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -429,7 +354,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -504,7 +429,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -579,7 +504,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -654,7 +579,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -729,7 +654,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -795,7 +720,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -861,7 +786,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -936,7 +861,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1011,7 +936,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1086,7 +1011,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1161,7 +1086,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1236,7 +1161,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1311,7 +1236,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1386,7 +1311,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1461,7 +1386,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1536,7 +1461,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1611,7 +1536,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1686,7 +1611,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1761,7 +1686,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1836,7 +1761,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1911,7 +1836,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
@@ -1986,7 +1911,7 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Ja tack", "value": "extrasaas", "price": 10 }]
+        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
       },
       {
         "type": "textarea",
