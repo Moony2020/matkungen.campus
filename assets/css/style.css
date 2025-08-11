@@ -189,6 +189,8 @@ body.loaded {
     overflow: overlay;
 }
 
+body.cart-active,
+body.user-active,
 body.nav-active {
     overflow: hidden;
 }
@@ -1305,20 +1307,27 @@ body.nav-active {
 /* Overlay */
 .overlay {
     position: fixed;
-    top: 0;
+    /* top: 0;
     left: 0;
     bottom: 0;
-    right: 0;
+    right: 0; */
+    inset: 0;
+    /* top/left/right/bottom: 0 */
     background-color: var(--black-alpha-80);
     opacity: 0;
     pointer-events: none;
     transition: var(--transition-2);
     z-index: 1;
+    visibility: hidden;
+    touch-action: none;
+    /* block pointer scrolling on overlay */
 }
 
 .overlay.active {
     opacity: 1;
     pointer-events: all;
+    visibility: visible;
+    /* makes the overlay visible */
 }
 
 
@@ -2956,6 +2965,12 @@ body.nav-active {
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
+
+    overflow-y: auto;
+    /* scroll inside panel */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    /* stop scroll chaining */
 }
 
 .cart-sidebar.open {
@@ -2977,7 +2992,9 @@ body.nav-active {
 
 .cart-overlay.open {
     opacity: 1;
+    pointer-events: all;
     visibility: visible;
+
 }
 
 .cart-header {
@@ -4208,7 +4225,8 @@ body.nav-active {
     position: fixed;
     top: 0;
     right: -400px;
-    width: 350px;
+    max-width: 370px;
+    width: 100%;
     background: var(--smoky-black-1) !important;
     height: 100vh !important;
     /* Full viewport height */
@@ -4220,6 +4238,12 @@ body.nav-active {
     box-shadow: -5px 0 15px rgba(0, 0, 0, 0.2);
     display: flex;
     flex-direction: column;
+
+    overflow-y: auto;
+    /* scroll inside panel */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    /* stop scroll chaining */
 }
 
 .user-sidebar.open {
@@ -4228,19 +4252,24 @@ body.nav-active {
 
 .user-overlay {
     position: fixed;
-    top: 0;
+    /* top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
+    bottom: 0; */
+    inset: 0;
+    /* top/left/right/bottom: 0 */
     background: rgba(0, 0, 0, 0.7);
     z-index: 3999;
     opacity: 0;
     visibility: hidden;
     transition: all 0.3s ease;
+    touch-action: none;
+    /* block pointer scrolling on overlay */
 }
 
 .user-overlay.open {
     opacity: 1;
+    pointer-events: all;
     visibility: visible;
 }
 

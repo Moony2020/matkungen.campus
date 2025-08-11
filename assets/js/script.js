@@ -287,16 +287,19 @@ document.addEventListener("DOMContentLoaded", function () {
         cartBtn.addEventListener("click", () => {
           cartSidebar.classList.add("open");
           cartOverlay.classList.add("open");
+          document.body.classList.add("cart-active"); // Add class to body for styling
         });
 
         closeCartBtn.addEventListener("click", () => {
           cartSidebar.classList.remove("open");
           cartOverlay.classList.remove("open");
+          document.body.classList.remove("cart-active"); // Remove class from body
         });
 
         cartOverlay.addEventListener("click", () => {
           cartSidebar.classList.remove("open");
           cartOverlay.classList.remove("open");
+          document.body.classList.remove("cart-active"); // Remove class from body
         });
       }
 
@@ -1534,19 +1537,54 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         userBtn.addEventListener("click", () => {
           userSidebar.classList.add("open");
           userOverlay.classList.add("open");
+          document.body.classList.add("user-active"); // Prevent body scroll
           this.checkAuthState();
         });
 
         closeUserBtn.addEventListener("click", () => {
           userSidebar.classList.remove("open");
           userOverlay.classList.remove("open");
+          document.body.classList.remove("user-active"); // Prevent body scroll
         });
 
         userOverlay.addEventListener("click", () => {
           userSidebar.classList.remove("open");
           userOverlay.classList.remove("open");
+          document.body.classList.remove("user-active"); // Prevent body scroll
         });
       }
+
+      // click Escape to close user sidebar, cart sidebar and navbar
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          // close user sidebar and overlay
+          const userSidebar = document.querySelector(".user-sidebar");
+          const userOverlay = document.querySelector(".user-overlay");
+          if (userSidebar && userOverlay) {
+            userSidebar.classList.remove("open");
+            userOverlay.classList.remove("open");
+            document.body.classList.remove("user-active");
+          }
+
+          // close cart sidebar and overlay
+          const cartSidebar = document.querySelector(".cart-sidebar");
+          const cartOverlay = document.querySelector(".cart-overlay");
+          if (cartSidebar && cartOverlay) {
+            cartSidebar.classList.remove("open");
+            cartOverlay.classList.remove("open");
+            document.body.classList.remove("cart-active");
+          }
+
+          // close navbar and overlay
+          const navbar = document.querySelector(".navbar");
+          const navOverlay = document.querySelector(".overlay");
+          if (navbar && navOverlay) {
+            navbar.classList.remove("active");
+            navOverlay.classList.remove("active");
+            document.body.classList.remove("nav-active");
+          }
+        }
+      });
 
       // Form switching
       document
