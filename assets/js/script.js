@@ -2163,7 +2163,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         </div>
         <div class="step-label">${step.status}</div>
       </div>
-    `
+     `
         )
         .join("");
     }

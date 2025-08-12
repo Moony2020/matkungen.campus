@@ -3830,7 +3830,7 @@ body.nav-active {
 }
 
 /* Order Items Styles */
-.order-item-detail {
+.user-sidebar .order-item-detail {
     display: flex;
     align-items: center;
     margin-bottom: 15px;
@@ -3838,7 +3838,7 @@ body.nav-active {
     border-bottom: 1px solid #eee;
 }
 
-.order-item-image {
+.user-sidebar .order-item-image {
     width: 80px;
     height: 80px;
     object-fit: cover;
@@ -3846,7 +3846,7 @@ body.nav-active {
     margin-right: 15px;
 }
 
-.order-item-info {
+.user-sidebar .order-item-info {
     flex: 1;
 }
 
@@ -4663,8 +4663,8 @@ body.nav-active {
 }
 
 /* Order Cards */
-.order-card {
-    background: white;
+.user-sidebar .order-card {
+    background: var(--white);
     border-radius: 12px;
     padding: 16px;
     margin-bottom: 16px;
@@ -4672,40 +4672,39 @@ body.nav-active {
     transition: transform 0.2s;
 }
 
-.order-card:hover {
+.user-sidebar .order-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-.order-header {
+.user-sidebar .order-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 9px;
+    margin-bottom: 6px;
 }
 
-.order-number {
+.user-sidebar .order-number {
     font-weight: var(--weight-600);
     color: var(--gold-crayola);
 }
 
-.order-date {
+.user-sidebar .order-date {
     color: var(--quick-silver);
     font-size: var(--fontSize-label-2);
 }
 
 /* Status Badges */
-.order-status {
+.user-sidebar .order-status {
     display: inline-flex;
     align-items: center;
     padding: 4px 12px;
     border-radius: 20px;
     font-size: 0.85em;
     font-weight: var(--weight-500);
-
-    margin-bottom: 16px;
+    margin-bottom: 6px;
 }
 
-.order-status i {
+.user-sidebar .order-status i {
     margin-right: 6px;
 }
 
@@ -4738,7 +4737,8 @@ body.nav-active {
 .order-progress {
     display: flex;
     justify-content: space-between;
-    margin: 20px 0;
+    margin: 18px 0 -30px 0;
+    /* top | right | bottom | left */
     position: relative;
 }
 
@@ -4776,7 +4776,7 @@ body.nav-active {
 
 .progress-step.active .step-icon {
     background: var(--gold-crayola);
-    color: white;
+    color: var(--white);
 }
 
 .step-label {
@@ -6229,11 +6229,6 @@ body.modal-open {
 
     .reset-container h2 {
         font-size: var(--fontSize-title-3);
-    }
-
-    .user-sidebar {
-        width: 100%;
-        max-width: 330px;
     }
 
     .user-btn {
