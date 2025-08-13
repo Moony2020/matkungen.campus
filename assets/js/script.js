@@ -879,7 +879,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       orderItems.innerHTML = cart.cart
         .map(
           (item) => `
-          <div class="order-item">
+          <div class="order-item-checkout">
             <div class="item-name">${item.name} × ${item.quantity}</div>
             <div class="item-price">${(item.price * item.quantity).toFixed(
               2
@@ -969,7 +969,6 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     renderOrderSummary();
   }
 
-  // ==================== PAYMENT PAGE LOGIC ====================
   // ==================== PAYMENT PAGE LOGIC ====================
   if (document.querySelector(".payment-page")) {
     // Get the pending order from localStorage
@@ -1318,7 +1317,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       orderItemsEl.innerHTML = currentOrder.items
         .map(
           (item) => `
-        <div class="order-item">
+        <div class="order-item-confirmation">
           <div class="item-name">${item.name} × ${item.quantity}</div>
           <div class="item-price">${(item.price * item.quantity).toFixed(
             2
@@ -2082,60 +2081,67 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       };
 
       return `
-      <div class="order-card">
-        <div class="order-header">
-          <span class="order-number">#${order.orderNumber}</span>
-          <span class="order-date">
-            ${new Date(order.createdAt).toLocaleDateString("sv-SE", {
-              day: "numeric",
-              month: "short",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
-        </div>
-
-        <div class="order-status ${statusInfo.class}">
-          <i class="${statusInfo.icon}"></i>
-          ${statusInfo.label}
-        </div>
-
-        <div class="order-progress">
-          ${this.createProgressSteps(order.status)}
-        </div>
-
-        <div class="order-summary">
-          <div class="order-items-preview">
-            ${order.items
-              .slice(0, 2)
-              .map(
-                (item) => `
-              <div class="preview-item">
-                <img src="${item.img || "./assets/images/default-food.jpg"}"
-                    alt="${item.name}" width="40" height="40">
-                <span>${item.name}</span>
-              </div>
-            `
-              )
-              .join("")}
-            ${
-              order.items.length > 2
-                ? `<div class="more-items">+${
-                    order.items.length - 2
-                  } more</div>`
-                : ""
-            }
-          </div>
-
-          <div class="order-total">${order.total?.toFixed(2) || "0.00"} kr</div>
-        </div>
-
-     <div class="order-actions">
-
-</div>
-
+    <div class="order-card">
+      <div class="order-header">
+        <span class="order-number">#${order.orderNumber}</span>
+        <span class="order-date">
+          ${new Date(order.createdAt).toLocaleDateString("sv-SE", {
+            day: "numeric",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}
+        </span>
       </div>
-    `;
+
+      <div class="order-status ${statusInfo.class}">
+        <i class="${statusInfo.icon}"></i> ${statusInfo.label}
+      </div>
+
+      <div class="order-progress">
+        ${this.createProgressSteps(order.status)}
+      </div>
+
+      <div class="order-items">
+        ${order.items
+          .map((item) => {
+            // Split item name into base name and modifiers
+            const baseName = item.name.split(" with ")[0];
+            const modifiers = item.name.includes(" with ")
+              ? item.name
+                  .split(" with ")[1]
+                  .replace(/\(0 kr\)/g, "") // Remove (0 kr)
+                  .replace(/, $/, "") // Remove trailing commas
+              : null;
+
+            return `
+            <div class="cart-item">
+              <div class="cart-item-image">
+                <img src="${
+                  item.img || "./assets/images/default-food.jpg"
+                }" alt="${item.name}">
+              </div>
+              <div class="cart-item-details">
+                <h4>${baseName}</h4>
+                ${
+                  modifiers
+                    ? `<div class="item-modifiers">${modifiers}</div>`
+                    : ""
+                }
+                ${
+                  item.description
+                    ? `<p class="item-desc">${item.description}</p>`
+                    : ""
+                }
+                <span class="item-price">${item.price} kr</span>
+              </div>
+            </div>
+          `;
+          })
+          .join("")}
+      </div>
+    </div>
+  `;
     }
 
     createProgressSteps(currentStatus) {
