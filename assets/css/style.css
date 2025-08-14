@@ -3365,6 +3365,105 @@ body.nav-active {
     color: var(--black);
 }
 
+.order-item-confirmation {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.item-name {
+    grid-column: 1;
+    font-size: var(--fontSize-body-5);
+    line-height: 1.5;
+    color: var(--white);
+}
+
+.modifiers {
+    font-size: var(--fontSize-label-1);
+    color: var(--gold-crayola);
+    display: block;
+    margin-top: 5px;
+}
+
+.modifiers::before {
+    content: "+ ";
+}
+
+.quantity {
+    display: inline-block;
+    margin-left: 8px;
+    font-weight: var(--weight-600);
+    color: var(--gold-crayola);
+}
+
+.item-price {
+    grid-column: 2;
+    font-size: var(--fontSize-body-5);
+    font-weight: var(--weight-600);
+    color: var(--gold-crayola);
+    white-space: nowrap;
+    text-align: right;
+}
+
+.order-totals {
+    margin-top: 20px;
+}
+
+.order-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+}
+
+.order-row.total {
+    font-weight: var(--weight-600);
+    font-size: var(--fontSize-body-4);
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.delivery-estimate {
+    background: var(--gold-crayola);
+    color: var(--smoky-black-1);
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: var(--weight-600);
+    display: inline-block;
+    margin-top: 15px;
+}
+
+.confirmation-actions {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn {
+    display: inline-block;
+    padding: 14px 30px;
+    background: transparent;
+    color: var(--gold-crayola);
+    border: 2px solid var(--gold-crayola);
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    text-align: center;
+}
+
+.btn:hover {
+    background: var(--gold-crayola);
+    color: var(--smoky-black-1);
+    transform: translateY(-3px);
+}
+
 /*-----------------------------------*\
   #CONFIRMATION PAGE
 \*-----------------------------------*/
