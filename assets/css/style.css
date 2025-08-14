@@ -3222,6 +3222,40 @@ body.nav-active {
     color: var(--gold-crayola);
 }
 
+/* Modifiers styling in checkout page */
+.checkout-page .order-item-checkout .modifiers {
+    font-size: var(--fontSize-label-2);
+    color: var(--gold-crayola);
+    display: block;
+    /* Ensure it appears on new line */
+    margin-top: 4px;
+    opacity: 0.9;
+}
+
+/* Price styling */
+.checkout-page .item-price {
+    grid-column: 2;
+    font-size: var(--fontSize-body-5);
+    font-weight: var(--weight-600);
+    color: var(--gold-crayola);
+    white-space: nowrap;
+    text-align: right;
+}
+
+/* Quantity styling */
+.checkout-page .order-item-checkout .quantity {
+    margin-left: 5px;
+    font-weight: var(--weight-600);
+    background-color: var(--gold-crayola);
+    color: var(--black);
+    width: 5px;
+    border-radius: 33px;
+    font-size: var(--fontSize-label-2);
+    min-width: 30px;
+    text-align: center;
+    transition: background-color 0.3s ease;
+}
+
 .checkout-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -5087,7 +5121,8 @@ body.modal-open {
     transform: translateX(-50%);
     padding: 14px 32px;
     border-radius: 12px;
-    color: var(--text-color);
+    background: var(--gold-crayola);
+    color: var(--black);
     font-weight: var(--weight-500);
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
     z-index: 10000;

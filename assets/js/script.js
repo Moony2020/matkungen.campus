@@ -527,7 +527,7 @@ Sun:           12:00–22:00
     1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
     2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
     3: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-    4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
+    4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
     5: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
     6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
   };
@@ -877,16 +877,32 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       }
 
       orderItems.innerHTML = cart.cart
-        .map(
-          (item) => `
-          <div class="order-item-checkout">
-            <div class="item-name">${item.name} × ${item.quantity}</div>
-            <div class="item-price">${(item.price * item.quantity).toFixed(
-              2
-            )} kr</div>
-          </div>
-        `
-        )
+        .map((item) => {
+          // Split item name into base name and modifiers
+          const parts = item.name.split(" with ");
+          const baseName = parts[0];
+          const modifiers = parts.length > 1 ? parts[1] : null;
+
+          // Format modifiers: remove "with", add + prefix
+          let modifiersHtml = "";
+          if (modifiers) {
+            // Replace "with" with + and wrap in gold span
+            modifiersHtml = `<div class="modifiers">+ ${modifiers}</div>`;
+          }
+
+          return `
+      <div class="order-item-checkout">
+        <div class="item-name">
+          ${baseName}
+          ${modifiersHtml}
+          <span class="quantity"> ${item.quantity}</span>
+        </div>
+        <div class="item-price">${(item.price * item.quantity).toFixed(
+          2
+        )} kr</div>
+      </div>
+    `;
+        })
         .join("");
 
       const subtotal = cart.cart.reduce(
@@ -1966,90 +1982,113 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         this.showNotification(error.message, true);
       }
     }
+    restoreAuth() {
+      // Pull from localStorage on page load/refresh
+      if (!this.currentUser) {
+        try {
+          this.currentUser = JSON.parse(
+            localStorage.getItem("currentUser") || "{}"
+          );
+        } catch {
+          this.currentUser = {};
+        }
+      }
+      if (!this.token) {
+        // prefer "authToken"; fall back to old "token" if you had it before
+        this.token =
+          localStorage.getItem("authToken") ||
+          localStorage.getItem("token") ||
+          "";
+      }
+    }
 
     async loadUserOrders() {
       const ordersList = document.getElementById("orders-list");
-      if (!ordersList || !this.currentUser) return;
+      if (!ordersList) return;
+
+      // Ensure we have fresh in-memory auth after a refresh
+      this.restoreAuth();
+
+      const userId = this.currentUser?.id || this.currentUser?._id;
+      const token = this.token;
+
+      if (!userId || !token) {
+        ordersList.innerHTML = `
+      <div class="no-orders">
+        <i class="ri-shopping-bag-line"></i>
+        <p>Please log in to view your orders</p>
+      </div>`;
+        return;
+      }
+
+      // Small loader so UI doesn’t flash “no orders” during fetch
+      ordersList.innerHTML = `<p>Loading your orders…</p>`;
 
       try {
-        const response = await fetch(
-          `/api/orders/user/${this.currentUser.id}`,
-          {
-            headers: {
-              Authorization: `Bearer ${this.token}`,
-            },
-          }
-        );
+        const response = await fetch(`/api/orders/user/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.error || "Failed to load orders");
-        }
-
-        if (data.orders.length === 0) {
+        // If token expired/invalid on server, clear and show login message
+        if (response.status === 401 || response.status === 403) {
+          localStorage.removeItem("authToken");
+          localStorage.removeItem("currentUser");
+          localStorage.removeItem("rememberUser");
           ordersList.innerHTML = `
-            <div class="no-orders">
-              <i class="ri-shopping-bag-line"></i>
-              <p>You don't have any previous orders</p>
-              <p class="small">Start ordering from our menu!</p>
-            </div>
-          `;
+        <div class="no-orders">
+          <i class="ri-shopping-bag-line"></i>
+          <p>Please log in to view your orders</p>
+        </div>`;
           return;
         }
 
-        // Group orders by date
-        const ordersByDate = {};
-        data.orders.forEach((order) => {
-          const date = new Date(order.createdAt).toLocaleDateString("sv-SE", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          });
+        const data = await response.json();
+        if (!response.ok)
+          throw new Error(data?.error || "Failed to load orders");
 
-          if (!ordersByDate[date]) {
-            ordersByDate[date] = [];
-          }
-          ordersByDate[date].push(order);
-        });
+        if (!Array.isArray(data.orders) || data.orders.length === 0) {
+          ordersList.innerHTML = `
+        <div class="no-orders">
+          <i class="ri-shopping-bag-line"></i>
+          <p>You don't have any previous orders</p>
+          <p class="small">Start ordering from our menu!</p>
+        </div>`;
+          return;
+        }
 
-        // Create HTML for each date group
-        ordersList.innerHTML = Object.entries(ordersByDate)
-          .map(([date, dateOrders]) => {
-            return `
-            <div class="order-date-group">
-              <h4 class="order-date-header">${date}</h4>
-              ${dateOrders
-                .map((order) => this.createOrderItemHTML(order))
-                .join("")}
-            </div>
-          `;
-          })
+        // Group by date
+        const groups = {};
+        for (const order of data.orders) {
+          const dateKey = new Date(order.createdAt).toLocaleDateString(
+            "sv-SE",
+            {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+            }
+          );
+          (groups[dateKey] ||= []).push(order);
+        }
+
+        // Render
+        ordersList.innerHTML = Object.entries(groups)
+          .map(
+            ([date, dateOrders]) => `
+        <div class="order-date-group">
+          <h4 class="order-date-header">${date}</h4>
+          ${dateOrders.map((o) => this.createOrderItemHTML(o)).join("")}
+        </div>`
+          )
           .join("");
 
-        // Add event listeners
         this.addOrderEventListeners();
-        // 💡 Listen for live updates
-        socket.on("orderUpdate", (updatedOrder) => {
-          if (!updatedOrder?.user || updatedOrder.user !== this.currentUser?.id)
-            return;
-
-          // Optional: avoid duplicate updates
-          console.log("🔁 Live order update received:", updatedOrder.status);
-
-          this.showNotification(
-            `Order #${updatedOrder.orderNumber} updated to "${updatedOrder.status}"`
-          );
-          this.loadUserOrders(); // 🔁 Re-fetch & update UI
-        });
-      } catch (error) {
-        console.error("Error loading orders:", error);
+      } catch (err) {
+        console.error("Error loading orders:", err);
         ordersList.innerHTML = `
-          <div class="error-loading">
-            <i class="ri-error-warning-line"></i>
-            <p>Failed to load orders</p>
-          </div>
-        `;
+      <div class="error-loading">
+        <i class="ri-error-warning-line"></i>
+        <p>Failed to load orders</p>
+      </div>`;
       }
     }
 
