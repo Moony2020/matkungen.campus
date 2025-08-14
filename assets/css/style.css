@@ -3300,6 +3300,7 @@ body.nav-active {
     overflow-y: auto;
     margin-bottom: 20px;
     padding-right: 10px;
+    color: var(--white);
 }
 
 .order-totals {
@@ -4688,6 +4689,11 @@ body.nav-active {
     margin-right: 6px;
 }
 
+/* Hide step labels  like Completed, On the Way, Delivered from user sidebar when user is logged in*/
+.user-sidebar .step-label {
+    display: none;
+}
+
 .order-status.pending {
     background: #fff3e0;
     color: #e65100;
@@ -4717,7 +4723,7 @@ body.nav-active {
 .user-sidebar .order-progress {
     display: flex;
     justify-content: space-between;
-    margin: 18px 0 -3px 0;
+    margin: 18px 0 10px 0;
     /* top | right | bottom | left */
     position: relative;
 }
