@@ -1,5 +1,6 @@
 // utils/createPdf.js
-const puppeteer = require("puppeteer");
+const chromium = require("@sparticuz/chromium");
+const puppeteer = require("puppeteer-core");
 
 function receiptHtml(order) {
   const now = new Date();
@@ -115,10 +116,14 @@ function receiptHtml(order) {
 </html>`;
 }
 
-const createReceiptPdf = async (order) => {
+async function createReceiptPdf(order) {
   const browser = await puppeteer.launch({
-    args: ["--no-sandbox", "--disable-setuid-sandbox"], // helpful on many hosts
+    args: chromium.args,
+    defaultViewport: chromium.defaultViewport,
+    executablePath: await chromium.executablePath(), // Render/Lambda-compatible path
+    headless: chromium.headless, // true on server
   });
+
   try {
     const page = await browser.newPage();
     await page.setContent(receiptHtml(order), { waitUntil: "networkidle0" });
@@ -131,6 +136,6 @@ const createReceiptPdf = async (order) => {
   } finally {
     await browser.close();
   }
-};
+}
 
 module.exports = createReceiptPdf;
