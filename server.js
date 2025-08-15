@@ -256,7 +256,7 @@ function buildOrderEmailHtml(order) {
           ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>`
           : ""
       }
-      <p><strong>Estimated Delivery:</strong> 25–40 minutes</p>
+      <p><strong>Estimated Delivery:</strong> 20-35 minutes</p>
     </div>
 
     <div style="text-align:center;padding:20px;">

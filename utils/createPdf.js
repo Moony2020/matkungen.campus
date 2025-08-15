@@ -86,7 +86,7 @@ function receiptHtml(order) {
           </div>
           <div class="detail-row">
             <span>Estimated Delivery:</span>
-            <span>25-40 minutes</span>
+            <span>20-35 minutes</span>
           </div>
         </div>
 

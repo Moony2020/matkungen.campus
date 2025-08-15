@@ -3223,8 +3223,10 @@ body.nav-active {
 }
 
 /* Modifiers styling in checkout page */
-.checkout-page .order-item-checkout .modifiers {
-    font-size: var(--fontSize-label-2);
+.checkout-page .order-item-checkout .modifiers,
+.payment-page .modifiers,
+.confirmation-page .modifiers {
+    font-size: var(--fontSize-label-1);
     color: var(--gold-crayola);
     display: block;
     /* Ensure it appears on new line */
@@ -3241,24 +3243,6 @@ body.nav-active {
     white-space: nowrap;
     text-align: right;
 }
-
-/* Quantity styling */
-.checkout-page .order-item-checkout .quantity {
-    display: inline-flex;
-    /* center horizontally + vertically */
-    align-items: center;
-    justify-content: center;
-    margin-left: 5px;
-    font-weight: var(--weight-600);
-    font-size: var(--fontSize-label-1);
-    background-color: var(--gold-crayola);
-    color: var(--black);
-    min-width: 30px;
-    height: 21px;
-    border-radius: 22px;
-    transition: background-color 0.3s ease;
-}
-
 
 .checkout-grid {
     display: grid;
@@ -3341,17 +3325,32 @@ body.nav-active {
     color: var(--white);
 }
 
-.order-totals {
+.checkout-grid .order-totals {
     margin-top: 20px;
 }
 
-.order-row {
+.checkout-grid .order-row,
+.confirmation-content .order-row {
     display: flex;
     justify-content: space-between;
     padding: 10px 0;
+
 }
 
+.checkout-grid .order-row strong,
+.order-totals #subtotal,
 .order-row.total {
+    color: var(--white);
+    font-weight: var(--weight-500);
+}
+
+#order-subtotal {
+    color: var(--gold-crayola);
+}
+
+.checkout-grid .order-row.total,
+.payment-grid .order-row.total,
+.confirmation-content .order-row.total {
     font-weight: bold;
     font-size: 18px;
     border-top: 1px solid var(--white-alpha-20);
@@ -3494,14 +3493,31 @@ body.nav-active {
     color: var(--white);
 }
 
-.order-item-price {
-    color: var(--gold-crayola);
-    font-weight: var(--weight-bold);
+/* Keep the price aligned to the top line of the item name */
+.confirmation-page .order-item-confirmation,
+.payment-page .order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    /* ⬅ top-aligns the right price with the first line */
+    gap: 12px;
+    border-bottom: 1px solid var(--white-alpha-10);
 }
 
-.order-item-quantity {
-    color: var(--quick-silver);
-    font-size: var(--fontSize-label-1);
+/* Gold color for Payment Method and Estimated Delivery labels */
+.checkout-page .delivery-info strong,
+.confirmation-page .delivery-info strong,
+#delivery-fee,
+.order-subtotal {
+    color: var(--gold-crayola);
+}
+
+.order-item-confirmation .item-price {
+    font-size: var(--fontSize-body-5);
+    font-weight: var(--weight-600);
+    color: var(--gold-crayola);
+    white-space: nowrap;
+    text-align: right;
 }
 
 .detail-row {
@@ -3879,8 +3895,22 @@ body.nav-active {
     font-weight: bold;
 }
 
-.order-item-quantity {
-    color: #666;
+/* Make quantity badge match checkout on payment & confirmation too */
+.checkout-page .order-item-checkout .quantity,
+.payment-page .quantity,
+.confirmation-page .quantity {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 5px;
+    font-weight: var(--weight-600);
+    font-size: var(--fontSize-label-1);
+    background-color: var(--gold-crayola);
+    color: var(--black);
+    min-width: 30px;
+    height: 21px;
+    border-radius: 22px;
+    transition: background-color 0.3s ease;
 }
 
 /* ==================== PRINT STYLES ==================== */
@@ -4757,8 +4787,8 @@ body.nav-active {
     color: #b71c1c;
 }
 
-/* Progress Steps */
-.user-sidebar .order-progress {
+/* Progress Steps in user sidebar and tracking page*/
+.order-progress {
     display: flex;
     justify-content: space-between;
     margin: 18px 0 10px 0;
@@ -4766,7 +4796,7 @@ body.nav-active {
     position: relative;
 }
 
-.user-sidebar .order-progress::before {
+.order-progress::before {
     content: "";
     position: absolute;
     top: 15px;
@@ -4777,7 +4807,7 @@ body.nav-active {
     z-index: 1;
 }
 
-.user-sidebar .progress-step {
+.progress-step {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -4785,7 +4815,7 @@ body.nav-active {
     z-index: 2;
 }
 
-.user-sidebar .step-icon {
+.step-icon {
     width: 32px;
     height: 32px;
     border-radius: 50%;

@@ -861,7 +861,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
   // ==================== CHECKOUT PAGE FUNCTIONALITY ====================
   if (window.location.pathname.includes("checkout.html")) {
     const orderItems = document.querySelector(".order-items");
-    const orderSubtotal = document.querySelector(".order-subtotal");
+    const orderSubtotal = document.querySelector("#order-subtotal");
     const orderTotal = document.querySelector(".order-total");
     const checkoutForm = document.getElementById("checkout-form");
     const deliveryFee = 20; // Delivery fee in kr
@@ -1230,33 +1230,52 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
   function renderOrderSummary(order) {
     const orderItemsContainer = document.querySelector(".order-items");
-    const orderSubtotal = document.querySelector(".order-subtotal");
+    const orderSubtotal = document.querySelector("#order-subtotal");
     const orderTotal = document.querySelector(".order-total");
 
-    if (!orderItemsContainer || !orderSubtotal || !orderTotal) return;
+    if (!orderItemsContainer || !orderSubtotal || !orderTotal || !order?.items)
+      return;
 
-    // Clear existing items
+    // Clear
     orderItemsContainer.innerHTML = "";
 
-    // Add each item to the summary
+    // Render each item (with the gold quantity badge)
     order.items.forEach((item) => {
-      const itemElement = document.createElement("div");
-      itemElement.className = "order-item";
-      itemElement.innerHTML = `
-        <div class="item-name">${item.name} × ${item.quantity}</div>
-        <div class="item-price">${(item.price * item.quantity).toFixed(
-          2
-        )} kr</div>
-      `;
-      orderItemsContainer.appendChild(itemElement);
+      const itemEl = document.createElement("div");
+      itemEl.className = "order-item";
+
+      // Split “name with modifiers” like checkout
+      const parts = (item.name || "").split(" with ");
+      const baseName = parts[0];
+      const modifiers = parts.length > 1 ? parts[1] : null;
+
+      const modifiersHtml = modifiers
+        ? `<div class="modifiers">+ ${modifiers
+            .replace(/\(0 kr\)/g, "")
+            .replace(/, $/, "")}</div>`
+        : "";
+
+      itemEl.innerHTML = `
+      <div class="item-name">
+        ${baseName}
+        ${modifiersHtml}
+        <span class="quantity">${item.quantity}</span>
+      </div>
+      <div class="item-price">${(item.price * item.quantity).toFixed(
+        2
+      )} kr</div>
+    `;
+
+      orderItemsContainer.appendChild(itemEl);
     });
 
-    // Update totals
+    // Totals
     const subtotal = order.items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
+      (sum, i) => sum + i.price * i.quantity,
       0
     );
-    const deliveryFee = 20; // Fixed delivery fee
+    const deliveryFee =
+      typeof order.deliveryFee === "number" ? order.deliveryFee : 20;
     const total = subtotal + deliveryFee;
 
     orderSubtotal.textContent = `${subtotal.toFixed(2)} kr`;
@@ -1283,6 +1302,61 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     } catch (error) {
       console.error("Payment completion error:", error);
     }
+  }
+  // ==================== RENDER ORDER SUMMARY (Payment Page) ====================
+  function renderPaymentOrderSummary(orderData) {
+    const orderItemsContainer = document.querySelector(
+      ".payment-page .order-items"
+    );
+    if (!orderItemsContainer || !orderData || !orderData.items) return;
+
+    orderItemsContainer.innerHTML = "";
+
+    orderData.items.forEach((item) => {
+      const itemDiv = document.createElement("div");
+      itemDiv.classList.add("order-item");
+
+      itemDiv.innerHTML = `
+      <img src="${item.image}" alt="${item.name}">
+      <div class="item-details">
+        <div class="item-name">
+          ${item.name} <span class="quantity">${item.quantity}</span>
+        </div>
+        <div class="item-price">${(item.price * item.quantity).toFixed(
+          2
+        )} kr</div>
+      </div>
+    `;
+      orderItemsContainer.appendChild(itemDiv);
+    });
+  }
+
+  // ==================== RENDER ORDER SUMMARY (Confirmation Page) ====================
+  function renderConfirmationOrderSummary(orderData) {
+    const orderItemsContainer = document.querySelector(
+      ".confirmation-page .order-items"
+    );
+    if (!orderItemsContainer || !orderData || !orderData.items) return;
+
+    orderItemsContainer.innerHTML = "";
+
+    orderData.items.forEach((item) => {
+      const itemDiv = document.createElement("div");
+      itemDiv.classList.add("order-item");
+
+      itemDiv.innerHTML = `
+      <img src="${item.image}" alt="${item.name}">
+      <div class="item-details">
+        <div class="item-name">
+          ${item.name} <span class="quantity">${item.quantity}</span>
+        </div>
+        <div class="item-price">${(item.price * item.quantity).toFixed(
+          2
+        )} kr</div>
+      </div>
+    `;
+      orderItemsContainer.appendChild(itemDiv);
+    });
   }
 
   // ==================== CONFIRMATION PAGE FUNCTIONALITY ====================
@@ -1330,17 +1404,32 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
     const orderItemsEl = document.getElementById("order-items");
     if (orderItemsEl) {
+      orderItemsEl.innerHTML = currentOrder.items;
+      // In the confirmation renderer where you build each item:
       orderItemsEl.innerHTML = currentOrder.items
-        .map(
-          (item) => `
-        <div class="order-item-confirmation">
-          <div class="item-name">${item.name} × ${item.quantity}</div>
-          <div class="item-price">${(item.price * item.quantity).toFixed(
-            2
-          )} kr</div>
-        </div>
-      `
-        )
+        .map((item) => {
+          const parts = (item.name || "").split(" with ");
+          const baseName = parts[0];
+          const modifiers = parts.length > 1 ? parts[1] : null;
+
+          const modifiersHtml = modifiers
+            ? `<div class="modifiers">+ ${modifiers
+                .replace(/\(0 kr\)/g, "")
+                .replace(/, $/, "")}</div>`
+            : "";
+
+          return `
+    <div class="order-item-confirmation">
+      <div class="item-name">
+        ${baseName} <span class="quantity">${item.quantity}</span>
+        ${modifiersHtml}
+      </div>
+      <div class="item-price">${(item.price * item.quantity).toFixed(
+        2
+      )} kr</div>
+    </div>
+  `;
+        })
         .join("");
     }
 
@@ -1432,7 +1521,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
               </div>
               <div class="detail-row">
                 <span>Estimated Delivery:</span>
-                <span id="delivery-time">25-40 minutes</span>
+                <span id="delivery-time">20-35 minutes</span>
               </div>
             </div>
 

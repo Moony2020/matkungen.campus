@@ -126,7 +126,7 @@ function updateStatusLabel(status) {
   if (etaElement) {
     switch (status) {
       case "Confirmed":
-        etaElement.textContent = "25–40 minutes";
+        etaElement.textContent = "20–35 minutes";
         break;
       case "On the Way":
         etaElement.textContent = "10–20 minutes";

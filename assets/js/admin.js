@@ -1060,7 +1060,7 @@ document.addEventListener("DOMContentLoaded", function () {
             </div>
             <div class="detail-row">
               <span>Estimated Delivery:</span>
-              <span id="delivery-time">25-40 minutes</span>
+              <span id="delivery-time">20-35 minutes</span>
             </div>
           </div>
 
