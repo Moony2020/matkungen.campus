@@ -32,8 +32,8 @@ const OPENING_HOURS = {
   1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
   2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
   3: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-  4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
-  5: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
+  4: [{ start: 11 * 60, end: 3 * 22 * 60 }], // Thu 11:00–22:00
+  5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
   6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
 };
 
