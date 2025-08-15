@@ -270,7 +270,6 @@ function buildOrderEmailHtml(order) {
 
     <div style="padding:16px 32px;background:#f4f4f4;text-align:center;font-size:14px;color:#777;">
       <p style="margin:0;">📞 Need help? Call us at <strong>0769 666 666</strong></p>
-      <p style="margin:4px 0 0;">You’ll receive another update when your order is on the way.</p>
       <p style="margin:4px 0 0;">Matkungen © ${new Date().getFullYear()}</p>
     </div>
   </div>`;
