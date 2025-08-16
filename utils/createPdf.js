@@ -85,7 +85,7 @@ function receiptHtml(order) {
               order.paymentMethod || "Ej angivet"
             }</span></div>
             <div class="detail-row"><span>Orderdatum:</span><span>${orderDate}</span></div>
-            <div class="detail-row"><span>Beräknad leverans:</span><span>20–35 minuter</span></div>
+            <div class="detail-row"><span>Beräknad leveranstid:</span><span>20–35 minuter</span></div>
           </div>
 
           <div class="order-summary">

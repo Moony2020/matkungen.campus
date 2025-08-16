@@ -238,30 +238,30 @@ function buildOrderEmailHtml(order) {
     </div>
 
     <div style="padding:24px 32px;">
-      <h3 style="color:#000;margin-top:0;">Order Summary:</h3>
+      <h3 style="color:#000;margin-top:0;">Ordersammanfattning:</h3>
       <ul style="padding-left:20px;margin:0 0 15px;">${itemsHtml}</ul>
-      <p><strong>Subtotal:</strong> ${(order.subtotal ?? 0).toFixed(2)} kr</p>
-      <p><strong>Delivery Fee:</strong> ${(order.deliveryFee ?? 0).toFixed(
+      <p><strong>Delsumma:</strong> ${(order.subtotal ?? 0).toFixed(2)} kr</p>
+      <p><strong>Leveransavgift:</strong> ${(order.deliveryFee ?? 0).toFixed(
         2
       )} kr</p>
-      <p style="font-size:18px;"><strong>Total:</strong> ${(
+      <p style="font-size:18px;"><strong>Totalt:</strong> ${(
         order.total ?? 0
       ).toFixed(2)} kr</p>
-      <p><strong>Payment Method:</strong> ${order.paymentMethod}</p>
+      <p><strong>Betalningsmetod:</strong> ${order.paymentMethod}</p>
     </div>
 
     <hr style="border:none;border-top:1px solid #e0e0e0;" />
     <div style="padding:24px 32px;">
-      <h3 style="margin-top:0;">Delivery Information</h3>
-      <p><strong>Name:</strong> ${order.customer?.name || ""}</p>
-      <p><strong>Phone:</strong> ${order.customer?.phone || ""}</p>
-      <p><strong>Address:</strong> ${order.customer?.address || ""}</p>
+      <h3 style="margin-top:0;">Leveransinformation</h3>
+      <p><strong>Namn:</strong> ${order.customer?.name || ""}</p>
+      <p><strong>Telefon:</strong> ${order.customer?.phone || ""}</p>
+      <p><strong>Adress:</strong> ${order.customer?.address || ""}</p>
       ${
         order.customer?.notes
           ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>`
           : ""
       }
-      <p><strong>Estimated Delivery:</strong> 20-35 minutes</p>
+      <p><strong>Beräknad leveranstid:</strong> 20-35 minutes</p>
     </div>
 
     <div style="text-align:center;padding:20px;">

@@ -1395,9 +1395,9 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     if (details && currentOrder.customer) {
       const { name, phone, address, notes } = currentOrder.customer;
       details.innerHTML = `
-        <p><strong>Name:</strong> ${name || "N/A"}</p>
-        <p><strong>Phone:</strong> ${phone || "N/A"}</p>
-        <p><strong>Address:</strong> ${address || "N/A"}</p>
+        <p><strong>Namn:</strong> ${name || "N/A"}</p>
+        <p><strong>Telefon:</strong> ${phone || "N/A"}</p>
+        <p><strong>Adress:</strong> ${address || "N/A"}</p>
         ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ""}
       `;
     }
@@ -1486,23 +1486,23 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
           <div class="confirmation-content">
             <div class="delivery-info">
-              <h2>Delivery Information</h2>
+              <h2>Leveransinformation</h2>
               <div id="customer-details">
                 ${
                   currentOrder.customer
                     ? `
-                  <p><strong>Name:</strong> ${
+                  <p><strong>Namn:</strong> ${
                     currentOrder.customer.name || "N/A"
                   }</p>
-                  <p><strong>Phone:</strong> ${
+                  <p><strong>Telefon:</strong> ${
                     currentOrder.customer.phone || "N/A"
                   }</p>
-                  <p><strong>Address:</strong> ${
+                  <p><strong>Adress:</strong> ${
                     currentOrder.customer.address || "N/A"
                   }</p>
                   ${
                     currentOrder.customer.notes
-                      ? `<p><strong>Notes:</strong> ${currentOrder.customer.notes}</p>`
+                      ? `<p><strong>Noteringar:</strong> ${currentOrder.customer.notes}</p>`
                       : ""
                   }
                 `
@@ -1510,23 +1510,23 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
                 }
               </div>
               <div class="detail-row">
-                <span>Payment Method:</span>
+                <span>Betalningsmetod:</span>
                 <span id="payment-method">${
                   currentOrder.paymentMethod || "Not specified"
                 }</span>
               </div>
               <div class="detail-row">
-                <span>Order Date:</span>
+                <span>Orderdatum:</span>
                 <span>${orderDate}</span>
               </div>
               <div class="detail-row">
-                <span>Estimated Delivery:</span>
+                <span>Beräknad leveranstid:</span>
                 <span id="delivery-time">20-35 minutes</span>
               </div>
             </div>
 
             <div class="order-summary">
-              <h2>Order Summary</h2>
+              <h2>Ordersammanfattning</h2>
               <div class="order-items" id="order-items">
                 ${
                   currentOrder.items
@@ -1546,19 +1546,19 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
               <div class="order-totals">
                 <div class="order-row">
-                  <span>Subtotal</span>
+                  <span>Delsumma</span>
                   <span id="order-subtotal">${
                     currentOrder.subtotal?.toFixed(2) || "0.00"
                   } kr</span>
                 </div>
                 <div class="order-row">
-                  <span>Delivery Fee</span>
+                  <span>Leveransavgift</span>
                   <span id="delivery-fee">${
                     currentOrder.deliveryFee?.toFixed(2) || "0.00"
                   } kr</span>
                 </div>
                 <div class="order-row total">
-                  <span>Total</span>
+                  <span>Totalt</span>
                   <span id="order-total">${
                     currentOrder.total?.toFixed(2) || "0.00"
                   } kr</span>
@@ -2427,20 +2427,20 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
                 <span>${order.subtotal.toFixed(2)} kr</span>
               </div>
               <div class="summary-row">
-                <span>Delivery Fee:</span>
+                <span>Leveransavgift:</span>
                 <span>${order.deliveryFee.toFixed(2)} kr</span>
               </div>
               <div class="summary-row total">
-                <span>Total:</span>
+                <span>Totalt:</span>
                 <span>${order.total.toFixed(2)} kr</span>
               </div>
             </div>
             
             <div class="customer-info">
               <h5>Customer Information</h5>
-              <p><strong>Name:</strong> ${order.customer?.name || "N/A"}</p>
-              <p><strong>Phone:</strong> ${order.customer?.phone || "N/A"}</p>
-              <p><strong>Address:</strong> ${
+              <p><strong>Namn:</strong> ${order.customer?.name || "N/A"}</p>
+              <p><strong>Telefon:</strong> ${order.customer?.phone || "N/A"}</p>
+              <p><strong>Adress:</strong> ${
                 order.customer?.address || "N/A"
               }</p>
               ${

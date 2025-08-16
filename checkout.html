@@ -50,41 +50,41 @@
 
     <main class="checkout-page">
       <div class="container">
-        <h1 class="headline-1 text-center">Checkout</h1>
+        <h1 class="headline-1 text-center">Kassan</h1>
 
         <div class="checkout-grid">
           <!-- Customer Information -->
           <div class="checkout-form">
-            <h2>Customer Information</h2>
+            <h2>Kundinformation</h2>
             <form id="checkout-form">
               <div class="form-group">
-                <label for="name">Full Name*</label>
+                <label for="name">Fullständigt namn*</label>
                 <input type="text" id="name" required />
               </div>
               <div class="form-group">
-                <label for="email">Email*</label>
+                <label for="email">E-post*</label>
                 <input type="email" id="email" required />
               </div>
               <div class="form-group">
-                <label for="phone">Phone Number*</label>
+                <label for="phone">Telefonnummer*</label>
                 <input type="tel" id="phone" required />
               </div>
               <div class="form-group">
-                <label for="address">Delivery Address*</label>
+                <label for="address">Leveransadress*</label>
                 <textarea id="address" rows="2" required></textarea>
               </div>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="city">City*</label>
+                  <label for="city">Stad*</label>
                   <input type="text" id="city" required />
                 </div>
                 <div class="form-group">
-                  <label for="zip">Postal Code*</label>
+                  <label for="zip">Postnummer*</label>
                   <input type="text" id="zip" required />
                 </div>
               </div>
               <div class="form-group">
-                <label for="notes">Order Note</label>
+                <label for="notes">Ordernotering</label>
                 <textarea id="notes" rows="2"></textarea>
               </div>
             </form>
@@ -92,22 +92,22 @@
 
           <!-- Order Summary -->
           <div class="order-summary">
-            <h2>Your Order</h2>
+            <h2>Din beställning</h2>
             <div class="order-items">
               <!-- Items will be populated by JavaScript -->
             </div>
 
             <div class="order-totals">
               <div class="order-row">
-                <span id="subtotal">Subtotal</span>
+                <span id="subtotal">Delsumma</span>
                 <span id="order-subtotal">0 kr</span>
               </div>
               <div class="order-row">
-                <span><strong>Delivery Fee</strong></span>
+                <span><strong>Leveransavgift</strong></span>
                 <span class="delivery-fee">20 kr</span>
               </div>
               <div class="order-row total">
-                <span>Total</span>
+                <span>Totalt</span>
                 <span class="order-total">0 </span>
               </div>
             </div>
@@ -117,9 +117,9 @@
               form="checkout-form"
               class="btn btn-primary place-order"
             >
-              <span class="text text-1">Continue to Payment</span>
+              <span class="text text-1">Fortsätt till betalning</span>
               <span class="text text-2" aria-hidden="true"
-                >Continue to Payment</span
+                >Fortsätt till betalning</span
               >
             </button>
           </div>
@@ -133,7 +133,7 @@
     <!-- Shopping Cart Sidebar -->
     <div class="cart-sidebar">
       <div class="cart-header">
-        <h3>Your Cart</h3>
+        <h3>Din varukorg</h3>
         <a href="#" class="close-cart"><i class="ri-close-line"></i></a>
       </div>
       <div class="cart-items">
@@ -141,13 +141,13 @@
       </div>
       <div class="cart-totals">
         <div class="cart-subtotal">
-          <span>Subtotal:</span>
+          <span>Delsumma:</span>
           <span class="subtotal-price">0 kr</span>
         </div>
         <a href="./checkout.html" class="btn btn-primary checkout-btn">
-          <span class="text text-1">Checkout</span>
+          <span class="text text-1">Kassan</span>
 
-          <span class="text text-2" aria-hidden="true">Checkout</span>
+          <span class="text text-2" aria-hidden="true">Kassan</span>
         </a>
       </div>
     </div>

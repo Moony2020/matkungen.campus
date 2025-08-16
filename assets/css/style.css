@@ -5364,6 +5364,7 @@ body.modal-open {
 
 .modifier-footer {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
     align-items: center;
     padding-top: 20px;
@@ -5377,8 +5378,20 @@ body.modal-open {
 
 .total-price {
     color: var(--gold-crayola);
-    margin-left: 10px;
     font-size: var(--fontSize-body-2);
+}
+
+/* Add with modifiers button add to cart button move to second line if there is no space*/
+.add-with-modifiers {
+    flex: 0 0 auto;
+    /* don't shrink */
+    display: flex;
+    align-items: center;
+    padding: 9px 13px;
+    font-size: var(--fontSize-label-1);
+    font-weight: var(--weight-600);
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .modifier-overlay {
