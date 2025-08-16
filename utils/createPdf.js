@@ -1,8 +1,6 @@
 // utils/createPdf.js
-const { getLogoDataUrl } = require("./logo");
 
 function receiptHtml(order) {
-  const logo = getLogoDataUrl();
   const now = new Date();
   const orderDate = now.toLocaleDateString("sv-SE", {
     year: "numeric",
@@ -32,10 +30,10 @@ function receiptHtml(order) {
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color:#111; margin:0; background:#fff; }
     .page { padding: 28px; }
-    .confirmation-card { max-width: 800px; margin: 0 auto; border:1px solid #eee; border-radius:12px; padding:0; overflow:hidden; }
-    .brand-header { background:#000; padding:28px 24px; text-align:center; }
-    .brand-header h1 { margin:8px 0 0; letter-spacing: 1px; font-weight:700; font-size:26px; color:#f4c430; }
-    .confirmation-inner { padding:28px; }
+    .confirmation-card { max-width: 800px; margin: 0 auto; border:1px solid #eee; border-radius:12px; padding:0; overflow:hidden; background:#fff; }
+    .text-header { padding:24px; text-align:center; border-bottom:1px solid #eee; }
+    .text-header h1 { margin:0; font-weight:800; font-size:26px; letter-spacing:0.5px; color:#111; }
+    .confirmation-inner { padding:24px; }
     .confirmation-header { text-align:center; margin-bottom:18px; }
     .confirmation-text { margin:8px 0 0; color:#555; }
     .badge { display:inline-block; padding:6px 10px; border-radius:6px; background:#f5f5f5; }
@@ -50,62 +48,60 @@ function receiptHtml(order) {
     .order-row { display:flex; justify-content:space-between; margin:6px 0; }
     .order-row.total { border-top:1px solid #e9e9e9; margin-top:10px; padding-top:10px; font-weight:700; }
     .muted { color:#666; }
-    img.logo { display:block; margin:0 auto; width:120px; height:auto; }
   </style>
 </head>
 <body>
   <div class="page">
     <div class="confirmation-card">
-      <div class="brand-header">
-        <img class="logo" src="${logo}" alt="Matkungen" />
+      <div class="text-header">
         <h1>Matkungen</h1>
       </div>
 
       <div class="confirmation-inner">
         <div class="confirmation-header">
           <p class="confirmation-text">
-            <span class="badge">Order Number</span><br/>
+            <span class="badge">Ordernummer</span><br/>
             ${order.orderNumber || ""}
           </p>
         </div>
 
         <div class="confirmation-content">
           <div class="delivery-info">
-            <div class="section-title">Delivery Information</div>
+            <div class="section-title">Leveransinformation</div>
             <div id="customer-details" class="muted">
-              <p><strong>Name:</strong> ${order.customer?.name || "N/A"}</p>
-              <p><strong>Phone:</strong> ${order.customer?.phone || "N/A"}</p>
-              <p><strong>Address:</strong> ${
+              <p><strong>Namn:</strong> ${order.customer?.name || "N/A"}</p>
+              <p><strong>Telefon:</strong> ${order.customer?.phone || "N/A"}</p>
+              <p><strong>Adress:</strong> ${
                 order.customer?.address || "N/A"
               }</p>
               ${
                 order.customer?.notes
-                  ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>`
+                  ? `<p><strong>Noteringar:</strong> ${order.customer.notes}</p>`
                   : ""
               }
             </div>
 
-            <div class="detail-row"><span>Payment Method:</span><span>${
-              order.paymentMethod || "Not specified"
+            <div class="detail-row"><span>Betalningsmetod:</span><span>${
+              order.paymentMethod || "Ej angivet"
             }</span></div>
-            <div class="detail-row"><span>Order Date:</span><span>${orderDate}</span></div>
-            <div class="detail-row"><span>Estimated Delivery:</span><span>20-35 minutes</span></div>
+            <div class="detail-row"><span>Orderdatum:</span><span>${orderDate}</span></div>
+            <div class="detail-row"><span>Beräknad leverans:</span><span>20–35 minuter</span></div>
           </div>
 
           <div class="order-summary">
-            <div class="section-title">Order Summary</div>
+            <div class="section-title">Ordersammanfattning</div>
             <div class="order-items">
-              ${itemsHtml || "<p class='muted'>No items in order</p>"}
+              ${itemsHtml || "<p class='muted'>Inga artiklar i ordern</p>"}
             </div>
 
             <div class="order-totals">
-              <div class="order-row"><span>Subtotal</span><span>${(
+              <div class="order-row"><span>Delsumma</span><span>${(
                 Number(order.subtotal) || 0
               ).toFixed(2)} kr</span></div>
-              <div class="order-row"><span>Delivery Fee</span><span>${(
+              <div class="order-row"><span>Leveransavgift</span><span>${(
                 Number(order.deliveryFee) || 0
               ).toFixed(2)} kr</span></div>
-              <div class="order-row total"><span>Total</span><span>${(
+              <div class="order-row total"><span>Totalt</span><span>${(
                 Number(order.total) || 0
               ).toFixed(2)} kr</span></div>
             </div>
@@ -119,9 +115,6 @@ function receiptHtml(order) {
 }
 
 async function launchBrowser() {
-  // Force which engine to use via env:
-  //   PUPPETEER_MODE=chromium  -> puppeteer-core + @sparticuz/chromium (Render)
-  //   PUPPETEER_MODE=puppeteer -> full puppeteer (local dev)
   const mode = (process.env.PUPPETEER_MODE || "").toLowerCase();
 
   if (mode === "chromium") {
@@ -138,7 +131,6 @@ async function launchBrowser() {
     });
   }
 
-  // Default: try full puppeteer first (best for Windows/Mac dev)
   try {
     console.log("🖨️  PDF engine: puppeteer (full)");
     const puppeteer = require("puppeteer");

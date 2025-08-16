@@ -13,6 +13,8 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
+const fs = require("fs");
+
 const connectDB = require("./config/db");
 const { verifyToken } = require("./config/jwt");
 const User = require("./models/User");
@@ -24,7 +26,7 @@ const adminRoutes = require("./routes/admin");
 
 // Utility functions for PDF and email
 const createReceiptPdf = require("./utils/createPdf");
-const sendOrderEmail = require("./utils/sendEmail"); // uses its own transporter or you can wire to the above
+const { sendOrderEmail } = require("./utils/sendEmail"); // uses its own transporter or you can wire to the above
 
 // ---------- Opening Hours ----------
 const OPENING_HOURS = {
@@ -217,16 +219,19 @@ function buildOrderEmailHtml(order) {
   const FRONTEND = process.env.FRONTEND_URL || "http://localhost:4000";
 
   return `
-  <div style="max-width:600px;margin:auto;font-family:'Segoe UI',sans-serif;color:#333;background:#fff;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;">
-    <div style="background:#000;padding:20px;text-align:center;">
-      <img src="${FRONTEND}/assets/images/logo.png" alt="Matkungen" style="height:60px;" onerror="this.style.display='none';" />
-      <h2 style="margin:10px 0 0;color:#FFD700;">Matkungen</h2>
-    </div>
+  <div style="max-width: 600px; margin: auto; font-family: 'Segoe UI', sans-serif; color: #333; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
+        <!-- LOGO -->
+        <div style="background: #000; padding: 20px; text-align: center;">
+          <img src="https://matkungen-campus.onrender.com/assets/images/logo.png" alt="Matkungen" style="height: 60px;"
+            onerror="this.style.display='none';" />
+          <h2 style="margin: 10px 0 0; color: #FFD700;">Matkungen</h2>
+        </div>
 
-    <div style="padding:24px 32px;text-align:center;background:#000;color:#FFD700;">
-      <h2 style="margin:0;">Tack för din beställning, ${
-        order.customer?.name || ""
-      }!</h2>
+        <!-- HEADER -->
+        <div style="padding: 24px 32px; text-align: center; background: #000; color: #FFD700;">
+          <h2 style="margin: 0;">Tack för din beställning, ${
+            order.customer?.name || ""
+          }!</h3>
       <p style="margin:5px 0 0;font-size:18px;">Order #${
         order.orderNumber
       } har mottagits och kommer att hanteras snart</p>
