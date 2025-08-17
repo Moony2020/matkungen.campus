@@ -1970,7 +1970,7 @@
     "id": "kycklingburgare",
     "name": "Kycklingburgare",
     "price": 60,
-    "image": "./assets/images/Kycklingburgare.png",
+    "image": "./assets/images/kycklingburgare.png",
     "category": "burgers",
     "page": "index.html",
     "desc": "Kycklingfärs, hamburgerbröd, isbergssallad, färska tomater, gurka, rödlök, ost, hamburgerdressing",
