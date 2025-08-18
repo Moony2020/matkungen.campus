@@ -14,7 +14,6 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 
-
 const connectDB = require("./config/db");
 const { verifyToken } = require("./config/jwt");
 const User = require("./models/User");
@@ -99,7 +98,12 @@ app.use("/assets", express.static(path.join(__dirname, "assets")));
 // ---------- HTTP + Socket.IO ----------
 const server = http.createServer(app);
 const io = socketIo(server, {
-  cors: { origin: "*", methods: ["GET", "POST"] },
+  cors: {
+    origin: process.env.FRONTEND_URL || "http://localhost:4000",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+  transports: ["websocket", "polling"], // force websocket first
 });
 
 // Make io/app accessible from routes/others

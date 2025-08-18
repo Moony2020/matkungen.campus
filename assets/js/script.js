@@ -4,10 +4,9 @@ let cart = null;
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
 
-  const socket = io("http://localhost:4000", {
-    auth: {
-      token: token,
-    },
+  const socket = io("https://matkungen-campus.onrender.com", {
+    transports: ["websocket", "polling"], // try websocket first, fallback if blocked
+    auth: { token: token },
   });
 
   // Store socket globally if needed
