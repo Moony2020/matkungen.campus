@@ -1,12 +1,11 @@
 // server.js
 require("dotenv").config();
-
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+const { Server } = require("socket.io");
 const fs = require("fs");
 const http = require("http");
-const socketIo = require("socket.io");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const paypal = require("@paypal/checkout-server-sdk");
 const bcrypt = require("bcrypt");
@@ -33,7 +32,7 @@ const OPENING_HOURS = {
   1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
   2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
   3: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-  4: [{ start: 11 * 60, end: 3 * 22 * 60 }], // Thu 11:00–22:00
+  4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
   5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
   6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
 };
@@ -87,23 +86,47 @@ function blockWhenClosed(req, res, next) {
 // ---------- DB ----------
 connectDB();
 
+// CORS for REST routes
+const allowedOrigins = [
+  "http://localhost:4000",
+  "https://matkungen-campus.onrender.com",
+];
+
 // ---------- App / Middleware ----------
 const app = express();
-app.use(cors());
-app.use(express.json());
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
-app.use(express.static(__dirname));
+app.use(express.json());
+// 📂  static files if im going to move all html and assets to public file an remove the below assets and html
+// app.use(express.static(path.join(__dirname, "public")));
+// 📂  assets all (images, JS, CSS …)
 app.use("/assets", express.static(path.join(__dirname, "assets")));
+
+app.use(
+  express.static(__dirname, {
+    extensions: ["html"], //   /checkout instead of checkout.html
+    index: "index.html", // default file
+  })
+);
+// Trust proxy (needed behind Render/other proxies for correct headers)
+app.set("trust proxy", 1);
 
 // ---------- HTTP + Socket.IO ----------
 const server = http.createServer(app);
-const io = socketIo(server, {
+
+// CORS for Socket.IO
+const io = new Server(server, {
+  path: "/socket.io",
   cors: {
-    origin: process.env.FRONTEND_URL || "http://localhost:4000",
+    origin: allowedOrigins,
     methods: ["GET", "POST"],
     credentials: true,
   },
-  transports: ["websocket", "polling"], // force websocket first
 });
 
 // Make io/app accessible from routes/others

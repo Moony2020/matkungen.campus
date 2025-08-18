@@ -4,9 +4,17 @@ let cart = null;
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
 
-  const socket = io("https://matkungen-campus.onrender.com", {
-    transports: ["websocket", "polling"], // try websocket first, fallback if blocked
-    auth: { token: token },
+  // Use same-origin in prod, localhost in dev
+  const SOCKET_URL =
+    location.hostname === "localhost" ||
+    location.hostname.startsWith("192.168.")
+      ? "http://localhost:4000"
+      : location.origin; // e.g. https://matkungen-campus.onrender.com
+
+  const socket = io(SOCKET_URL, {
+    transports: ["websocket", "polling"], // try WS first, fall back if needed
+    withCredentials: true,
+    auth: { token: localStorage.getItem("token") },
   });
 
   // Store socket globally if needed
@@ -526,7 +534,7 @@ Sun:           12:00–22:00
     1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
     2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
     3: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-    4: [{ start: 11 * 60, end: 3 * 22 * 60 }], // Thu 11:00–22:00
+    4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
     5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
     6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
   };

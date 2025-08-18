@@ -73,7 +73,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     initSocket() {
-      this.socket = io("http://localhost:4000", {
+      const socketUrl =
+        window.location.hostname === "localhost"
+          ? "http://localhost:4000"
+          : "https://matkungen-campus.onrender.com";
+
+      this.socket = io(socketUrl, {
         auth: {
           token: localStorage.getItem("adminToken"),
         },
