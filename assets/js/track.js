@@ -1,6 +1,13 @@
 // track.js
 let orderNumber = null;
-const socket = io("http://localhost:4000");
+
+// ✅ Dynamic socket URL: localhost in dev, live URL in prod
+const SOCKET_URL =
+  window.location.hostname === "localhost"
+    ? "http://localhost:4000"
+    : "https://matkungen-campus.onrender.com";
+
+const socket = io(SOCKET_URL);
 
 document.addEventListener("DOMContentLoaded", async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -15,6 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   try {
+    // ✅ Always fetch from same origin (auto works for localhost/prod)
     const res = await fetch(`/api/orders/track/${orderNumber}`);
     const data = await res.json();
 
@@ -34,7 +42,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     infoBox.style.display = "block";
     statusText.style.display = "none";
 
-    // ✅ JOIN ROOM BY MONGO _ID
+    // ✅ Join socket room by Mongo _id
     socket.emit("joinOrderRoom", data.order._id);
     console.log("🟢 Joining socket room:", data.order._id);
   } catch (err) {
@@ -45,7 +53,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 // ✅ REAL-TIME UPDATES
 socket.on("orderUpdate", (updatedOrder) => {
-  console.log("📦 Received update via socket:", updatedOrder.status); // ← تحقق من القيمة هنا
+  console.log("📦 Received update via socket:", updatedOrder.status);
 
   if (updatedOrder.orderNumber === orderNumber) {
     // document.getElementById("order-status").textContent = updatedOrder.status;

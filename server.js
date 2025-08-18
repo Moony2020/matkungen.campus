@@ -243,7 +243,11 @@ function buildOrderEmailHtml(order) {
     )
     .join("");
 
-  const FRONTEND = process.env.FRONTEND_URL || "http://localhost:4000";
+  // ✅ Detect env: localhost in dev, production URL online
+  const FRONTEND =
+    process.env.NODE_ENV === "production"
+      ? "https://matkungen-campus.onrender.com"
+      : "http://localhost:4000";
 
   return `
   <div style="max-width: 600px; margin: auto; font-family: 'Segoe UI', sans-serif; color: #333; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
