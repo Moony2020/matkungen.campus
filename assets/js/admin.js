@@ -89,6 +89,11 @@ document.addEventListener("DOMContentLoaded", function () {
         this.updateOrderInUI(order);
         this.updateOrderInRecent(order); // NEW: Update recent orders section
 
+        // Add this condition to update revenue
+        if (order.status === "Delivered") {
+          this.updateRevenue(order.total);
+        }
+
         this.showNotification(
           `Order #${order.orderNumber} updated to ${order.status}`
         );
