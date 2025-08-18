@@ -1335,6 +1335,7 @@ tr:hover {
 }
 
 /* Notification Toast in admin panel when the status is updated by admin order ... updated to On the way ,,,etc*/
+/* Notification Toast */
 .notification-toast {
     position: fixed;
     bottom: 20px;
@@ -1352,9 +1353,33 @@ tr:hover {
 }
 
 .notification-toast.show {
-    transform: translateX(-50%) !important;
-    opacity: 1;
+    display: block;
+    animation: fadeToast 3s ease forwards;
+    /* 👈 3 seconds */
 }
+
+@keyframes fadeToast {
+    0% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+
+    10% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    80% {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translateX(-50%) translateY(20px);
+    }
+}
+
 
 /*admin login*/
 .admin-login-container,
@@ -1579,14 +1604,13 @@ tr:hover {
     bottom: 55px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 14px 32px;
     border-radius: 12px;
     color: white;
     font-weight: 500;
     box-shadow: 0 6px 25px rgba(0, 0, 0, 0.15);
     z-index: 10000;
     text-align: center;
-    max-width: 320px;
+    max-width: 350px;
     width: 100%;
     /* Narrower width */
     white-space: normal;
