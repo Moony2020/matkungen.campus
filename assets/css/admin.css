@@ -1334,11 +1334,12 @@ tr:hover {
     overflow: hidden;
 }
 
-/* Notification Toast */
+/* Notification Toast in admin panel when the status is updated by admin order ... updated to On the way ,,,etc*/
 .notification-toast {
     position: fixed;
     bottom: 20px;
-    right: 20px;
+    left: 50%;
+    transform: translateX(-50%);
     background: var(--black);
     color: var(--white);
     padding: 12px 20px;
@@ -1346,16 +1347,14 @@ tr:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     z-index: 1100;
     display: none;
-    transform: translateY(100px);
     opacity: 0;
     transition: all 0.3s ease;
 }
 
 .notification-toast.show {
-    transform: translateY(0);
+    transform: translateX(-50%) !important;
     opacity: 1;
 }
-
 
 /*admin login*/
 .admin-login-container,
