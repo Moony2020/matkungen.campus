@@ -10,19 +10,18 @@ document.addEventListener("DOMContentLoaded", function () {
       this.socket = null;
       this.currentPage = 1;
       this.ordersPerPage = 10;
-      this.headerSearchInput = document.querySelector(
-        ".header-right .search-bar input"
-      );
+
       this.headerSearchInput = document.querySelector(
         ".header-right .search-bar input"
       );
       this.ordersSearchInput = document.getElementById("orders-search");
-      this.headerSearchInput = document.querySelector(
-        ".header-right .search-bar input"
-      );
-      this.init();
+
       this.targetOrderNumber = null;
       this.showingAllRecent = false;
+
+      this.pollingInterval = null; // track polling to clear it later
+
+      this.init();
     }
 
     async init() {
@@ -73,15 +72,17 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     initSocket() {
-      const socketUrl =
-        window.location.hostname === "localhost"
+      // Use same-origin in prod, localhost in dev
+      const SOCKET_URL =
+        location.hostname === "localhost" ||
+        location.hostname.startsWith("192.168.")
           ? "http://localhost:4000"
-          : "https://matkungen-campus.onrender.com";
+          : location.origin; // e.g. https://matkungen-campus.onrender.com
 
-      this.socket = io(socketUrl, {
-        auth: {
-          token: localStorage.getItem("adminToken"),
-        },
+      this.socket = io(SOCKET_URL, {
+        transports: ["websocket", "polling"], // try WS first, fall back if needed
+        withCredentials: true,
+        auth: { token: localStorage.getItem("adminToken") },
       });
 
       // 🟢 When any order status is updated (e.g., by driver/admin)
@@ -94,9 +95,9 @@ document.addEventListener("DOMContentLoaded", function () {
           this.updateRevenue(order.total);
         }
 
-        this.showNotification(
-          `Order #${order.orderNumber} updated to ${order.status}`
-        );
+        // this.showNotification(
+        //   `Order #${order.orderNumber} updated to ${order.status}`
+        // );
       });
 
       this.socket.on("connect", () => {
@@ -243,6 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     initPolling() {
+      if (this.pollingInterval) return; // already initialized
       this.pollingInterval = setInterval(() => {
         this.loadRecentOrders(); // ✅ clean, dynamic, and reusable
       }, 10000);
@@ -367,13 +369,25 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // And ensure updateDashboardStats is properly updating the UI
     updateDashboardStats(stats) {
-      document.getElementById("today-orders").textContent = stats.todayOrders;
+      // ✅ Safely update today's orders (fallback to 0 if missing/invalid)
+      document.getElementById("today-orders").textContent =
+        Number(stats.todayOrders) || 0;
+
+      // ✅ Safely update pending orders badge
       document.getElementById("pending-orders-badge").textContent =
-        stats.pendingOrders;
-      document.getElementById(
-        "today-revenue"
-      ).textContent = `${stats.revenue.toFixed(2)} kr`;
-      document.getElementById("new-customers").textContent = stats.newCustomers;
+        Number(stats.pendingOrders) || 0;
+
+      // ✅ Convert revenue to number (handles null/undefined/string cases)
+      const revenue = Number(stats.revenue) || 0;
+
+      // ✅ Show revenue with 2 decimals, fallback is always "0.00 kr"
+      document.getElementById("today-revenue").textContent = `${revenue.toFixed(
+        2
+      )} kr`;
+
+      // ✅ Safely update new customers (fallback to 0)
+      document.getElementById("new-customers").textContent =
+        Number(stats.newCustomers) || 0;
     }
 
     updateRevenue(amount) {
@@ -390,11 +404,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Extract numeric value safely
         const currentText = revenueElement.textContent || "0";
-        const numericString = currentText.replace(/[^0-9.]/g, "");
-        const currentRevenue = parseFloat(numericString) || 0;
+        const currentRevenue =
+          parseFloat(currentText.replace(/[^0-9.]/g, "")) || 0;
+        const add = parseFloat(amount) || 0;
 
         // Calculate new value
-        const newValue = currentRevenue + (parseFloat(amount) || 0);
+        const newValue = currentRevenue + add;
 
         // Update element
         revenueElement.textContent = `${newValue.toFixed(2)} kr`;
@@ -816,7 +831,7 @@ document.addEventListener("DOMContentLoaded", function () {
             "Confirmed",
             "On the Way",
             "Delivered",
-            "cancelled",
+            "Cancelled",
           ],
 
           datasets: [
@@ -1548,10 +1563,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         const { order } = await response.json();
         if (!response.ok) throw new Error("Failed to update order status");
-
-        // Emit socket event after successful update
-        this.socket.emit("adminOrderUpdate", order);
-
+        // UI update logic goes here like updating the order in the table or card view
         this.updateOrderInUI(order);
         this.showNotification(
           `Order #${order.orderNumber} updated to ${newStatus}`

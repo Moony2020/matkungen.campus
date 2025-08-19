@@ -3,11 +3,11 @@ let orderNumber = null;
 
 // ✅ Dynamic socket URL: localhost in dev, live URL in prod
 const SOCKET_URL =
-  window.location.hostname === "localhost"
+  location.hostname === "localhost" || location.hostname.startsWith("192.168.")
     ? "http://localhost:4000"
-    : "https://matkungen-campus.onrender.com";
+    : location.origin;
 
-const socket = io(SOCKET_URL);
+const socket = io(SOCKET_URL, { transports: ["websocket", "polling"] });
 
 document.addEventListener("DOMContentLoaded", async () => {
   const urlParams = new URLSearchParams(window.location.search);
