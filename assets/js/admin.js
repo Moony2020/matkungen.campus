@@ -95,9 +95,9 @@ document.addEventListener("DOMContentLoaded", function () {
           this.updateRevenue(order.total);
         }
 
-        // this.showNotification(
-        //   `Order #${order.orderNumber} updated to ${order.status}`
-        // );
+        this.showNotification(
+          `Order #${order.orderNumber} updated to ${order.status}`
+        );
       });
 
       this.socket.on("connect", () => {
