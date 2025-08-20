@@ -272,6 +272,52 @@ router.get("/orders/recent", adminAuth, async (req, res) => {
   }
 });
 
+// ✅ Get order status counts for chart
+router.get("/orders/status-counts", adminAuth, async (req, res) => {
+  try {
+    const { period } = req.query;
+    let startDate;
+    const now = new Date();
+
+    if (period === "today") {
+      startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    } else if (period === "week") {
+      startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 7);
+    } else if (period === "month") {
+      startDate = new Date(now);
+      startDate.setMonth(startDate.getMonth() - 1);
+    } else {
+      startDate = new Date(0); // All time
+    }
+
+    const statusCounts = await Order.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate },
+          paymentStatus: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: "$status",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+
+    // Format the result
+    const result = {};
+    statusCounts.forEach((item) => {
+      result[item._id] = item.count;
+    });
+
+    res.json({ success: true, statusCounts: result });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET single order by ID for Admin
 router.get("/admin/orders/:id", adminAuth, async (req, res) => {
   try {
@@ -481,10 +527,17 @@ router.put("/orders/:id/status", adminAuth, async (req, res) => {
       .get("io")
       .to(order._id.toString())
       .emit("orderUpdate", updatedOrder);
+
     req.app
       .get("io")
       .to(order.user?.toString())
       .emit("orderUpdate", updatedOrder);
+
+    // After updating the order status, emit to the admin room
+    req.app.get("io").to("admin").emit("chart-update", {
+      orderId: order._id,
+      newStatus: status,
+    });
 
     res.json({
       success: true,

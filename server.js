@@ -31,7 +31,7 @@ const OPENING_HOURS = {
   0: [{ start: 12 * 60, end: 22 * 60 }], // Sun 12:00–22:00
   1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
   2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
-  3: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
+  3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
   4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
   5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
   6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
@@ -149,6 +149,12 @@ io.use((socket, next) => {
 
 io.on("connection", (socket) => {
   console.log(`Client connected: ${socket.id}`);
+
+  // Admin room for admin dashboard updates
+  socket.on("joinAdminRoom", () => {
+    socket.join("admin");
+    console.log(`Admin joined admin room: ${socket.id}`);
+  });
 
   socket.on("joinUserRoom", (userId) => {
     if (userId) socket.join(userId);
@@ -387,6 +393,7 @@ app.post("/capture-paypal-order", async (req, res) => {
 });
 
 // ---------- Payment confirmation (sends email via app event) ----------
+// In the payment confirmation route in server.js
 app.post("/api/orders/confirm-payment", async (req, res) => {
   try {
     const { orderId, paymentMethod } = req.body;
@@ -410,6 +417,59 @@ app.post("/api/orders/confirm-payment", async (req, res) => {
 
     if (!updatedOrder)
       return res.status(404).json({ error: "Order not found" });
+
+    // Get current date boundaries for stats calculation
+    const now = new Date();
+    const todayStart = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    );
+    const todayEnd = new Date(todayStart);
+    todayEnd.setDate(todayEnd.getDate() + 1);
+
+    // Calculate fresh stats for the dashboard
+    const stats = {
+      todayOrders: await Order.countDocuments({
+        createdAt: { $gte: todayStart, $lt: todayEnd },
+        paymentStatus: "Completed",
+      }),
+      pendingOrders: await Order.countDocuments({
+        status: "Pending",
+        paymentStatus: "Completed",
+      }),
+      revenue:
+        (
+          await Order.aggregate([
+            {
+              $match: {
+                status: "Delivered",
+                paymentStatus: "Completed",
+                createdAt: { $gte: todayStart, $lt: todayEnd },
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                total: { $sum: "$total" },
+              },
+            },
+          ])
+        )[0]?.total || 0,
+      newCustomers: await User.countDocuments({
+        createdAt: { $gte: todayStart, $lt: todayEnd },
+      }),
+    };
+
+    // Emit updated stats to all admins
+    io.to("admin").emit("stats-update", stats);
+
+    // Emit to admin room for chart update
+    io.to("admin").emit("chart-update", {
+      orderId: updatedOrder._id,
+      newStatus: "Confirmed",
+      isNewOrder: true, // Add flag to indicate this is a new order
+    });
 
     // notify dashboards
     io.emit("new-order", updatedOrder);

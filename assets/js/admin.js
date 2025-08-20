@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", function () {
       this.socket = null;
       this.currentPage = 1;
       this.ordersPerPage = 10;
+      this.statusChart = null;
+      this.revenueChart = null;
 
       this.headerSearchInput = document.querySelector(
         ".header-right .search-bar input"
@@ -20,6 +22,7 @@ document.addEventListener("DOMContentLoaded", function () {
       this.showingAllRecent = false;
 
       this.pollingInterval = null; // track polling to clear it later
+      this.currentChartPeriod = "today"; // default chart period
 
       this.init();
     }
@@ -94,14 +97,33 @@ document.addEventListener("DOMContentLoaded", function () {
         if (order.status === "Delivered") {
           this.updateRevenue(order.total);
         }
-
-        this.showNotification(
-          `Order #${order.orderNumber} updated to ${order.status}`
-        );
+        // ❌ Keep notifications only in updateOrderStatus() to avoid double-toasts
+        // this.showNotification(
+        //   `Order #${order.orderNumber} updated to ${order.status}`
+        // );
       });
 
       this.socket.on("connect", () => {
         console.log("✅ Socket connected");
+        this.socket.emit("joinAdminRoom"); // Join admin room
+        // Clear polling if still running
+        if (this.pollingInterval) {
+          clearInterval(this.pollingInterval);
+          this.pollingInterval = null;
+        }
+      });
+
+      // Add this new event listener for chart updates
+      this.socket.on("chart-update", (data) => {
+        console.log("Chart update received", data);
+
+        // If it's a new order, we need to refresh the entire dashboard
+        if (data.isNewOrder) {
+          this.loadDashboard(); // Reload the entire dashboard
+        } else {
+          // If it's just a status change, update only the chart
+          this.fetchAndUpdateStatusChart(this.currentChartPeriod);
+        }
       });
 
       // ✅ Real-time broadcast when user creates a new order
@@ -123,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
         notificationBtn.classList.add("notification-ping");
         setTimeout(
           () => notificationBtn.classList.remove("notification-ping"),
-          1000
+          2000
         );
 
         // Add to recent orders / 🔄 Dynamic injection
@@ -131,6 +153,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Increment today's orders count / ✅ Real "Today's Orders" only
         this.incrementTodayOrders();
+
+        // Refresh the chart to include the new order / ✅ Real "Today's Orders" in chart
+        this.fetchAndUpdateStatusChart(this.currentChartPeriod);
       });
 
       // ✅ When order is marked as delivered by admin
@@ -143,8 +168,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Update Dashboard Stats
       this.socket.on("stats-update", (stats) => {
-        this.updateDashboardStats(stats);
+        const safeStats = {
+          revenue: Number(stats.revenue ?? stats.todayRevenue) || 0,
+          todayOrders: Number(stats.todayOrders) || 0,
+          pendingOrders: Number(stats.pendingOrders) || 0,
+          newCustomers: Number(stats.newCustomers) || 0,
+        };
         // updateOrderInRecent;
+        this.updateDashboardStats(safeStats);
+        this.initCharts(stats); // rebuild charts with fresh weekly data
       });
 
       // 🚗 Location updates (if using driver tracking)
@@ -156,15 +188,42 @@ document.addEventListener("DOMContentLoaded", function () {
       this.socket.on("connect_error", (err) => {
         console.error("Socket connection error:", err);
         this.showNotification("Realtime connection lost - using polling", true);
-        this.initPolling();
+        if (!this.pollingInterval) {
+          this.initPolling();
+        }
       });
 
       // 🔄 On reconnect
       this.socket.on("reconnect", () => {
         this.showNotification("Realtime connection restored");
+        if (this.pollingInterval) {
+          clearInterval(this.pollingInterval);
+          this.pollingInterval = null;
+        }
       });
     }
 
+    // fetch and update the chart order status counts
+    async fetchAndUpdateStatusChart(period = "today") {
+      try {
+        const token = localStorage.getItem("adminToken");
+        const response = await fetch(
+          `/api/admin/orders/status-counts?period=${period}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to fetch status counts");
+
+        const data = await response.json();
+        if (data.success) {
+          this.updateStatusChart(data.statusCounts);
+        }
+      } catch (error) {
+        console.error("Error updating chart:", error);
+      }
+    }
     updateOrderInRecent(order) {
       const table = document.getElementById("recent-orders-table");
       if (!table) return;
@@ -278,7 +337,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Initialize charts
         this.initCharts(stats);
-
+        // Add this line to fetch initial chart data
+        this.fetchAndUpdateStatusChart("today");
         // Load recent orders
         await this.loadRecentOrders();
         this.updateViewAllButton();
@@ -388,6 +448,18 @@ document.addEventListener("DOMContentLoaded", function () {
       // ✅ Safely update new customers (fallback to 0)
       document.getElementById("new-customers").textContent =
         Number(stats.newCustomers) || 0;
+
+      // optional monthly widgets
+      const monthRevenueEl = document.getElementById("month-revenue");
+      if (monthRevenueEl) {
+        monthRevenueEl.textContent = `${(
+          Number(stats.thisMonthRevenue) || 0
+        ).toFixed(2)} kr`;
+      }
+      const monthOrdersEl = document.getElementById("month-orders");
+      if (monthOrdersEl) {
+        monthOrdersEl.textContent = Number(stats.thisMonthOrders) || 0;
+      }
     }
 
     updateRevenue(amount) {
@@ -496,6 +568,41 @@ document.addEventListener("DOMContentLoaded", function () {
           const orderRow = this.createOrderRow(order);
           ordersTable.appendChild(orderRow);
         });
+        // Keep a copy for reuse
+        this.recentOrders = orders;
+
+        // 🔁 Fallback: build TODAY status breakdown from recent orders
+        try {
+          const period =
+            document.getElementById("status-chart-filter")?.value || "today";
+          if (this.statusChart && period === "today" && Array.isArray(orders)) {
+            const counts = {
+              Pending: 0,
+              Confirmed: 0,
+              "On the Way": 0,
+              Delivered: 0,
+              Cancelled: 0,
+            };
+
+            // today window
+            const start = new Date();
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(start);
+            end.setDate(end.getDate() + 1);
+
+            for (const o of orders) {
+              const t = new Date(o.createdAt);
+              if (t >= start && t < end) {
+                if (counts[o.status] !== undefined) counts[o.status]++;
+              }
+            }
+
+            // Update the doughnut
+            this.updateStatusChart(counts);
+          }
+        } catch (e) {
+          console.warn("Status chart fallback failed:", e);
+        }
 
         // Toggle scrollable class based on view mode
         if (showAll) {
@@ -817,104 +924,211 @@ document.addEventListener("DOMContentLoaded", function () {
       return card;
     }
 
-    initCharts(stats) {
-      // Initialize status chart
+    updateStatusChart(statusCounts) {
+      if (!this.statusChart) return;
 
+      const values = [
+        statusCounts?.Pending || 0,
+        statusCounts?.Confirmed || 0,
+        statusCounts?.["On the Way"] || 0,
+        statusCounts?.Delivered || 0,
+        statusCounts?.Cancelled || 0,
+      ];
+      const total = values.reduce((a, b) => a + b, 0);
+
+      const labels =
+        total === 0
+          ? ["No data"]
+          : ["Pending", "Confirmed", "On the Way", "Delivered", "Cancelled"];
+
+      const colors =
+        total === 0
+          ? ["#E0E0E0"]
+          : ["#FFA726", "#3e9e43", "#42A5F5", "#1B5E20", "#C62828"];
+
+      this.statusChart.data.labels = labels;
+      this.statusChart.data.datasets[0].data = total === 0 ? [1] : values;
+      this.statusChart.data.datasets[0].backgroundColor = colors;
+
+      // Toggle tooltip when empty
+      this.statusChart.options.plugins.tooltip.enabled = total !== 0;
+
+      this.statusChart.update();
+    }
+
+    // Add this method to check if Chart.js is loaded
+    checkChartJS() {
+      if (typeof Chart === "undefined") {
+        console.error(
+          "Chart.js is not loaded. Please include it in your HTML."
+        );
+        this.showNotification(
+          "Chart library not loaded. Charts will not display.",
+          true
+        );
+        return false;
+      }
+      return true;
+    }
+
+    // Update the initCharts method
+    initCharts(stats) {
+      // Check if Chart.js is available
+      if (!this.checkChartJS()) {
+        return;
+      }
+
+      // Store the stats for later use
+      this.stats = stats;
+
+      // ---- STATUS DOUGHNUT ----
       const statusCtx = document.getElementById("order-status-chart");
 
-      new Chart(statusCtx, {
-        type: "doughnut",
+      if (!statusCtx) {
+        console.error("Status chart canvas element not found");
+        return;
+      }
 
-        data: {
-          labels: [
-            "Pending",
-            "Confirmed",
-            "On the Way",
-            "Delivered",
-            "Cancelled",
-          ],
+      try {
+        // Get status data with fallbacks
+        const statusBreakdown = stats.statusBreakdown || {};
+        const initialPeriod =
+          document.getElementById("status-chart-filter")?.value || "today";
+        const initialStatusData = statusBreakdown[initialPeriod] || {
+          Pending: 0,
+          Confirmed: 0,
+          "On the Way": 0,
+          Delivered: 0,
+          Cancelled: 0,
+        };
 
-          datasets: [
-            {
-              data: [
-                stats.pendingOrders,
+        if (this.statusChart) this.statusChart.destroy();
 
-                stats.todayOrders - stats.pendingOrders,
-
-                0,
-                0,
-                0,
-              ],
-
-              backgroundColor: [
-                "#FFA726",
-
-                "#3e9e43",
-
-                "#42A5F5",
-
-                "#1B5E20",
-
-                "#C62828",
-              ],
-            },
-          ],
-        },
-
-        options: {
-          responsive: true,
-
-          plugins: {
-            legend: {
-              position: "bottom",
+        this.statusChart = new Chart(statusCtx, {
+          type: "doughnut",
+          data: {
+            labels: [
+              "Pending",
+              "Confirmed",
+              "On the Way",
+              "Delivered",
+              "Cancelled",
+            ],
+            datasets: [
+              {
+                data: [
+                  initialStatusData.Pending || 0,
+                  initialStatusData.Confirmed || 0,
+                  initialStatusData["On the Way"] || 0,
+                  initialStatusData.Delivered || 0,
+                  initialStatusData.Cancelled || 0,
+                ],
+                backgroundColor: [
+                  "#FFA726",
+                  "#3e9e43",
+                  "#42A5F5",
+                  "#1B5E20",
+                  "#C62828",
+                ],
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false, // <-- important
+            cutout: "65%", // nice donut hole
+            plugins: {
+              legend: { position: "bottom" },
+              tooltip: {
+                callbacks: {
+                  label: function (context) {
+                    const label = context.label || "";
+                    const value = context.raw || 0;
+                    const total = context.dataset.data.reduce(
+                      (a, b) => a + b,
+                      0
+                    );
+                    const pct =
+                      total > 0 ? Math.round((value / total) * 100) : 0;
+                    return `${label}: ${value} (${pct}%)`;
+                  },
+                },
+              },
             },
           },
-        },
-      });
+        });
 
-      // Initialize revenue chart
+        console.log("Status chart initialized successfully");
+      } catch (error) {
+        console.error("Error initializing status chart:", error);
+      }
 
+      // ---- REVENUE CHART ----
       const revenueCtx = document.getElementById("revenue-analytics-chart");
 
-      new Chart(revenueCtx, {
-        type: "line",
+      if (revenueCtx) {
+        try {
+          const weeklyLabels = stats.weeklyLabels || [
+            "Mon",
+            "Tue",
+            "Wed",
+            "Thu",
+            "Fri",
+            "Sat",
+            "Sun",
+          ];
+          const weeklyRevenue = stats.weeklyRevenue || [0, 0, 0, 0, 0, 0, 0];
 
-        data: {
-          labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
-
-          datasets: [
-            {
-              label: "Revenue (kr)",
-
-              data: [1200, 1900, 1500, 2000, 2500, 2200, 3000],
-
-              borderColor: "#4CAF50",
-
-              backgroundColor: "rgba(76, 175, 80, 0.1)",
-
-              fill: true,
-
-              tension: 0.3,
+          if (this.revenueChart) this.revenueChart.destroy();
+          this.revenueChart = new Chart(revenueCtx, {
+            type: "line",
+            data: {
+              labels: weeklyLabels,
+              datasets: [
+                {
+                  label: "Revenue (kr)",
+                  data: weeklyRevenue,
+                  borderColor: "#4CAF50",
+                  backgroundColor: "rgba(76, 175, 80, 0.1)",
+                  fill: true,
+                  tension: 0.3,
+                },
+              ],
             },
-          ],
-        },
-
-        options: {
-          responsive: true,
-
-          plugins: {
-            legend: {
-              display: false,
+            options: {
+              responsive: true,
+              maintainAspectRatio: false, // allow full height
+              cutout: "65%", // optional donut hole
+              plugins: { legend: { display: false } },
+              scales: { y: { beginAtZero: true } },
             },
-          },
+          });
 
-          scales: {
-            y: {
-              beginAtZero: true,
-            },
-          },
-        },
-      });
+          console.log("Revenue chart initialized successfully");
+        } catch (error) {
+          console.error("Error initializing revenue chart:", error);
+        }
+      } else {
+        console.error("Revenue chart canvas element not found");
+      }
+    }
+
+    // Update the debugChartIssues method
+    debugChartIssues() {
+      const statusCtx = document.getElementById("order-status-chart");
+
+      if (!statusCtx) {
+        console.error("Status chart canvas element not found");
+        return false;
+      }
+
+      if (typeof Chart === "undefined") {
+        console.error("Chart.js is not loaded");
+        return false;
+      }
+
+      console.log("Chart.js is available, canvas element found");
+      return true;
     }
 
     async showOrderDetails(orderId) {
@@ -1789,79 +2003,91 @@ document.addEventListener("DOMContentLoaded", function () {
           this.loadRecentOrders(!this.showingAllRecent);
         });
 
-      document.getElementById("logout-btn").addEventListener("click", () => {
-        localStorage.removeItem("adminToken");
-        window.location.href = "/admin-login.html";
-      });
+      // Add event listener for status chart filter
+      const statusChartFilter = document.getElementById("status-chart-filter");
+      if (statusChartFilter) {
+        if (statusChartFilter) {
+          statusChartFilter.addEventListener("change", (e) => {
+            const period = e.target.value;
+            this.currentChartPeriod = period; // Store the current period
+            this.fetchAndUpdateStatusChart(period);
+          });
+        }
 
-      if (this.headerSearchInput) {
-        let searchDebounce;
-        this.headerSearchInput.addEventListener("input", (e) => {
-          const searchTerm = e.target.value.trim();
-          clearTimeout(searchDebounce);
-          searchDebounce = setTimeout(() => {
-            if (
-              document
-                .getElementById("orders-section")
-                ?.classList.contains("active")
-            ) {
-              if (this.ordersSearchInput) {
-                this.ordersSearchInput.value = searchTerm;
+        document.getElementById("logout-btn").addEventListener("click", () => {
+          localStorage.removeItem("adminToken");
+          window.location.href = "/admin-login.html";
+        });
+
+        if (this.headerSearchInput) {
+          let searchDebounce;
+          this.headerSearchInput.addEventListener("input", (e) => {
+            const searchTerm = e.target.value.trim();
+            clearTimeout(searchDebounce);
+            searchDebounce = setTimeout(() => {
+              if (
+                document
+                  .getElementById("orders-section")
+                  ?.classList.contains("active")
+              ) {
+                if (this.ordersSearchInput) {
+                  this.ordersSearchInput.value = searchTerm;
+                }
+                this.loadOrders(1, { search: searchTerm });
+              } else if (
+                document
+                  .getElementById("dashboard-section")
+                  ?.classList.contains("active")
+              ) {
+                this.showSearchResults(searchTerm);
               }
-              this.loadOrders(1, { search: searchTerm });
-            } else if (
-              document
-                .getElementById("dashboard-section")
-                ?.classList.contains("active")
-            ) {
-              this.showSearchResults(searchTerm);
+            }, 500);
+          });
+        }
+
+        const deleteAllBtn = document.getElementById("delete-all-orders");
+        const modal = document.getElementById("confirm-modal");
+        const confirmYes = document.getElementById("confirm-yes");
+        const confirmNo = document.getElementById("confirm-no");
+
+        if (deleteAllBtn && modal && confirmYes && confirmNo) {
+          deleteAllBtn.addEventListener("click", () => {
+            modal.style.display = "flex";
+          });
+
+          confirmNo.addEventListener("click", () => {
+            modal.style.display = "none";
+          });
+
+          confirmYes.addEventListener("click", async () => {
+            modal.style.display = "none";
+            try {
+              const response = await fetch("/api/admin/orders/delete-all", {
+                method: "DELETE",
+                headers: {
+                  Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+                },
+              });
+
+              const result = await response.json();
+
+              if (response.ok) {
+                this.showNotification("✅ All orders deleted successfully.");
+                document.getElementById("orders-list").innerHTML =
+                  '<div class="empty-state">No orders found.</div>';
+                document.getElementById("recent-orders-table").innerHTML =
+                  '<div class="empty-state">No recent orders.</div>';
+              } else {
+                this.showNotification("❌ Failed to delete orders.");
+              }
+            } catch (error) {
+              console.error("Error:", error);
+              this.showNotification(
+                "❌ An error occurred while deleting orders."
+              );
             }
-          }, 500);
-        });
-      }
-
-      const deleteAllBtn = document.getElementById("delete-all-orders");
-      const modal = document.getElementById("confirm-modal");
-      const confirmYes = document.getElementById("confirm-yes");
-      const confirmNo = document.getElementById("confirm-no");
-
-      if (deleteAllBtn && modal && confirmYes && confirmNo) {
-        deleteAllBtn.addEventListener("click", () => {
-          modal.style.display = "flex";
-        });
-
-        confirmNo.addEventListener("click", () => {
-          modal.style.display = "none";
-        });
-
-        confirmYes.addEventListener("click", async () => {
-          modal.style.display = "none";
-          try {
-            const response = await fetch("/api/admin/orders/delete-all", {
-              method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-              },
-            });
-
-            const result = await response.json();
-
-            if (response.ok) {
-              this.showNotification("✅ All orders deleted successfully.");
-              document.getElementById("orders-list").innerHTML =
-                '<div class="empty-state">No orders found.</div>';
-              document.getElementById("recent-orders-table").innerHTML =
-                '<div class="empty-state">No recent orders.</div>';
-            } else {
-              this.showNotification("❌ Failed to delete orders.");
-            }
-          } catch (error) {
-            console.error("Error:", error);
-            this.showNotification(
-              "❌ An error occurred while deleting orders."
-            );
-          }
-        });
+          });
+        }
       }
     }
 
