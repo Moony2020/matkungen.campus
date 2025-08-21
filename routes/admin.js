@@ -318,6 +318,85 @@ router.get("/orders/status-counts", adminAuth, async (req, res) => {
   }
 });
 
+// Get revenue data for charts (Revenue Analytics) (week, month, year)
+router.get("/revenue", adminAuth, async (req, res) => {
+  try {
+    const { period } = req.query;
+    console.log("Revenue request for period:", period);
+    let startDate = new Date();
+
+    // Set start date based on period
+    if (period === "week") {
+      startDate.setDate(startDate.getDate() - 7);
+    } else if (period === "month") {
+      startDate.setMonth(startDate.getMonth() - 1);
+    } else if (period === "year") {
+      startDate.setFullYear(startDate.getFullYear() - 1);
+    } else {
+      return res.status(400).json({ error: "Invalid period" });
+    }
+
+    // Aggregate revenue data
+    const revenueData = await Order.aggregate([
+      {
+        $match: {
+          status: "Delivered",
+          paymentStatus: "Completed",
+          createdAt: { $gte: startDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            // Group by day, week, or month based on period
+            ...(period === "week" && {
+              day: { $dayOfWeek: "$createdAt" },
+            }),
+            ...(period === "month" && {
+              day: { $dayOfMonth: "$createdAt" },
+            }),
+            ...(period === "year" && {
+              month: { $month: "$createdAt" },
+            }),
+          },
+          revenue: { $sum: "$total" },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // Format the response based on period
+    let formattedData = [];
+    if (period === "week") {
+      // Create an array for each day of the week
+      formattedData = Array(7).fill(0);
+      revenueData.forEach((item) => {
+        // MongoDB dayOfWeek: 1 (Sunday) to 7 (Saturday)
+        // Adjust to our labels: 0 (Monday) to 6 (Sunday)
+        const dayIndex = (item._id.day + 5) % 7;
+        formattedData[dayIndex] = item.revenue;
+      });
+    } else if (period === "month") {
+      // Create an array for each day of the month
+      const daysInMonth = new Date().getDate();
+      formattedData = Array(daysInMonth).fill(0);
+      revenueData.forEach((item) => {
+        formattedData[item._id.day - 1] = item.revenue;
+      });
+    } else if (period === "year") {
+      // Create an array for each month of the year
+      formattedData = Array(12).fill(0);
+      revenueData.forEach((item) => {
+        formattedData[item._id.month - 1] = item.revenue;
+      });
+    }
+
+    res.json({ success: true, revenueData: formattedData });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // GET single order by ID for Admin
 router.get("/admin/orders/:id", adminAuth, async (req, res) => {
   try {

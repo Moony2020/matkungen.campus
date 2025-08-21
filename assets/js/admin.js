@@ -145,7 +145,7 @@ document.addEventListener("DOMContentLoaded", function () {
         notificationBtn.classList.add("notification-ping");
         setTimeout(
           () => notificationBtn.classList.remove("notification-ping"),
-          2000
+          1000
         );
 
         // Add to recent orders / 🔄 Dynamic injection
@@ -224,6 +224,70 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Error updating chart:", error);
       }
     }
+
+    // Add this method to the AdminPanel class
+    async fetchAndUpdateRevenueChart(period = "week") {
+      try {
+        console.log("Fetching revenue data for period:", period);
+        const token = localStorage.getItem("adminToken");
+        const response = await fetch(`/api/admin/revenue?period=${period}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log("Revenue response status:", response.status);
+
+        if (!response.ok) throw new Error("Failed to fetch revenue data");
+
+        const data = await response.json();
+        if (data.success) {
+          this.updateRevenueChart(data.revenueData, period);
+        }
+      } catch (error) {
+        console.error("Error updating revenue chart:", error);
+        this.showNotification("Failed to load revenue data", true);
+      }
+    }
+
+    // Add this method to update the revenue chart
+    updateRevenueChart(revenueData, period) {
+      if (!this.revenueChart) return;
+
+      // Format labels based on period
+      let labels = [];
+      if (period === "week") {
+        labels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      } else if (period === "month") {
+        // Generate labels for the last 30 days
+        labels = Array.from({ length: 30 }, (_, i) => {
+          const date = new Date();
+          date.setDate(date.getDate() - (29 - i));
+          return date.toLocaleDateString("en-US", {
+            day: "numeric",
+            month: "short",
+          });
+        });
+      } else if (period === "year") {
+        labels = [
+          "Jan",
+          "Feb",
+          "Mar",
+          "Apr",
+          "May",
+          "Jun",
+          "Jul",
+          "Aug",
+          "Sep",
+          "Oct",
+          "Nov",
+          "Dec",
+        ];
+      }
+
+      this.revenueChart.data.labels = labels;
+      this.revenueChart.data.datasets[0].data = revenueData;
+      this.revenueChart.update();
+    }
+
     updateOrderInRecent(order) {
       const table = document.getElementById("recent-orders-table");
       if (!table) return;
@@ -315,9 +379,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!token) {
           this.showNotification("Please log in again", true);
-
           window.location.href = "/admin-login.html";
-
           return;
         }
 
@@ -337,8 +399,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         // Initialize charts
         this.initCharts(stats);
-        // Add this line to fetch initial chart data
-        this.fetchAndUpdateStatusChart("today");
+
+        // Always fetch chart data from server
+        await this.fetchAndUpdateStatusChart("today");
+
+        // Fetch revenue analytics chart data when the dashboard loads
+        await this.fetchAndUpdateRevenueChart("week");
         // Load recent orders
         await this.loadRecentOrders();
         this.updateViewAllButton();
@@ -570,39 +636,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         // Keep a copy for reuse
         this.recentOrders = orders;
-
-        // 🔁 Fallback: build TODAY status breakdown from recent orders
-        try {
-          const period =
-            document.getElementById("status-chart-filter")?.value || "today";
-          if (this.statusChart && period === "today" && Array.isArray(orders)) {
-            const counts = {
-              Pending: 0,
-              Confirmed: 0,
-              "On the Way": 0,
-              Delivered: 0,
-              Cancelled: 0,
-            };
-
-            // today window
-            const start = new Date();
-            start.setHours(0, 0, 0, 0);
-            const end = new Date(start);
-            end.setDate(end.getDate() + 1);
-
-            for (const o of orders) {
-              const t = new Date(o.createdAt);
-              if (t >= start && t < end) {
-                if (counts[o.status] !== undefined) counts[o.status]++;
-              }
-            }
-
-            // Update the doughnut
-            this.updateStatusChart(counts);
-          }
-        } catch (e) {
-          console.warn("Status chart fallback failed:", e);
-        }
 
         // Toggle scrollable class based on view mode
         if (showAll) {
@@ -1065,29 +1098,19 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // ---- REVENUE CHART ----
       const revenueCtx = document.getElementById("revenue-analytics-chart");
-
+      console.log("Revenue chart canvas:", revenueCtx);
       if (revenueCtx) {
         try {
-          const weeklyLabels = stats.weeklyLabels || [
-            "Mon",
-            "Tue",
-            "Wed",
-            "Thu",
-            "Fri",
-            "Sat",
-            "Sun",
-          ];
-          const weeklyRevenue = stats.weeklyRevenue || [0, 0, 0, 0, 0, 0, 0];
-
+          // Initialize with empty data - we'll fetch real data next
           if (this.revenueChart) this.revenueChart.destroy();
           this.revenueChart = new Chart(revenueCtx, {
             type: "line",
             data: {
-              labels: weeklyLabels,
+              labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
               datasets: [
                 {
                   label: "Revenue (kr)",
-                  data: weeklyRevenue,
+                  data: [0, 0, 0, 0, 0, 0, 0],
                   borderColor: "#4CAF50",
                   backgroundColor: "rgba(76, 175, 80, 0.1)",
                   fill: true,
@@ -1097,12 +1120,14 @@ document.addEventListener("DOMContentLoaded", function () {
             },
             options: {
               responsive: true,
-              maintainAspectRatio: false, // allow full height
-              cutout: "65%", // optional donut hole
+              maintainAspectRatio: false,
               plugins: { legend: { display: false } },
               scales: { y: { beginAtZero: true } },
             },
           });
+
+          // Fetch initial revenue data
+          this.fetchAndUpdateRevenueChart("week");
 
           console.log("Revenue chart initialized successfully");
         } catch (error) {
@@ -1764,20 +1789,65 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // updateOrderStatus method
+    // In the updateOrderStatus method, add this logic
     async updateOrderStatus(orderId, newStatus) {
       try {
+        // First get the current order to check previous status
+        const token = localStorage.getItem("adminToken");
+        const currentOrderResponse = await fetch(
+          `/api/admin/orders/${orderId}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        if (!currentOrderResponse.ok)
+          throw new Error("Failed to fetch current order");
+
+        const { order: currentOrder } = await currentOrderResponse.json();
+        const previousStatus = currentOrder.status;
+
+        // Now update the status
         const response = await fetch(`/api/admin/orders/${orderId}/status`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ status: newStatus }),
         });
 
         const { order } = await response.json();
         if (!response.ok) throw new Error("Failed to update order status");
-        // UI update logic goes here like updating the order in the table or card view
+
+        // Update revenue based on status change
+        const revenueElement = document.getElementById("today-revenue");
+        let currentRevenue = 0;
+
+        if (revenueElement) {
+          // Extract numeric value from revenue text
+          const revenueText = revenueElement.textContent || "0";
+          currentRevenue = parseFloat(revenueText.replace(/[^0-9.]/g, "")) || 0;
+        }
+
+        // If status changed from Delivered to something else, subtract the amount
+        if (previousStatus === "Delivered" && newStatus !== "Delivered") {
+          currentRevenue -= order.total || 0;
+          if (revenueElement) {
+            revenueElement.textContent = `${Math.max(0, currentRevenue).toFixed(
+              2
+            )} kr`;
+          }
+        }
+        // If status changed to Delivered from something else, add the amount
+        else if (previousStatus !== "Delivered" && newStatus === "Delivered") {
+          currentRevenue += order.total || 0;
+          if (revenueElement) {
+            revenueElement.textContent = `${currentRevenue.toFixed(2)} kr`;
+          }
+        }
+
+        // UI update logic
         this.updateOrderInUI(order);
         this.showNotification(
           `Order #${order.orderNumber} updated to ${newStatus}`
@@ -2003,7 +2073,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.loadRecentOrders(!this.showingAllRecent);
         });
 
-      // Add event listener for status chart filter
+      // event listener for status chart filter
       const statusChartFilter = document.getElementById("status-chart-filter");
       if (statusChartFilter) {
         if (statusChartFilter) {
@@ -2088,6 +2158,19 @@ document.addEventListener("DOMContentLoaded", function () {
             }
           });
         }
+      }
+      const revenueChartFilter = document.getElementById(
+        "revenue-chart-filter"
+      );
+      console.log("Revenue filter element:", revenueChartFilter);
+      if (revenueChartFilter) {
+        revenueChartFilter.addEventListener("change", (e) => {
+          console.log("Revenue filter changed to:", e.target.value);
+          const period = e.target.value;
+          this.fetchAndUpdateRevenueChart(period);
+        });
+      } else {
+        console.error("Revenue chart filter element not found!");
       }
     }
 
