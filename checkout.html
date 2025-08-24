@@ -56,6 +56,68 @@
           <!-- Customer Information -->
           <div class="checkout-form">
             <h2>Kundinformation</h2>
+
+            <!-- Order Type Selection -->
+            <div class="form-group">
+              <label for="order-type">Ordertyp</label>
+
+              <div
+                class="ordertype-select is-delivery"
+                id="order-type-dropdown"
+              >
+                <!-- native select kept for form/JS compatibility -->
+                <select
+                  id="order-type"
+                  class="sr-only"
+                  aria-hidden="true"
+                  tabindex="-1"
+                >
+                  <option value="delivery" selected>
+                    Leverans – 20–30 min (20 kr)
+                  </option>
+                  <option value="pickup">Avhämtning – 10 min (gratis)</option>
+                </select>
+
+                <!-- trigger (what you see when closed) -->
+                <button
+                  type="button"
+                  class="order-type-trigger"
+                  aria-haspopup="listbox"
+                  aria-expanded="false"
+                >
+                  <i class="ri-car-line icon-left"></i>
+                  <span class="label">Leverans – 20–30 min (20 kr)</span>
+                  <i class="ri-arrow-down-s-line caret"></i>
+                </button>
+
+                <!-- menu -->
+                <ul class="order-type-menu" role="listbox">
+                  <li
+                    class="option"
+                    role="option"
+                    data-value="delivery"
+                    aria-selected="true">
+                    <i class="ri-car-line"></i>
+                    <span>Leverans – 20–30 min (20 kr)</span>
+                  </li>
+                  <li class="option" role="option" data-value="pickup">
+                    <i class="ri-store-2-line"></i>
+                    <span>Avhämtning – 10 min (gratis)</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Pickup Info (same as before) -->
+            <div id="pickup-info" class="pickup-info">
+              <h3>Upphämtningsinformation</h3>
+              <p>
+                <strong>Adress:</strong> Matkungen, P G Vejdes väg, 352 52 Växjö
+              </p>
+              <p><strong>Telefon:</strong> 0769 666 666</p>
+              <p>Din order kommer att vara redo inom ca 10 minuter.</p>
+            </div>
+
             <form id="checkout-form">
               <div class="form-group">
                 <label for="name">Fullständigt namn*</label>

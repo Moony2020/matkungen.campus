@@ -22,6 +22,13 @@ const orderSchema = new mongoose.Schema(
       notes: { type: String },
     },
 
+    orderType: {
+      type: String,
+      enum: ["delivery", "pickup"],
+      required: true,
+      default: "delivery",
+    },
+
     subtotal: { type: Number, required: true },
     deliveryFee: { type: Number, required: true, default: 20 },
     total: { type: Number, required: true },

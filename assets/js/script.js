@@ -270,6 +270,7 @@ document.addEventListener("DOMContentLoaded", function () {
       setTimeout(() => ripple.remove(), 600);
     });
   });
+
   // ==================== SHOPPING CART ====================
 
   class Cart {
@@ -534,7 +535,7 @@ Sun:           12:00–22:00
     1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
     2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
     3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-    4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
+    4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
     5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
     6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
   };
@@ -864,56 +865,153 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       showAllBtn.addEventListener("click", showAllPizzas);
     }
   }
-
   // ==================== CHECKOUT PAGE FUNCTIONALITY ====================
   if (window.location.pathname.includes("checkout.html")) {
     const orderItems = document.querySelector(".order-items");
     const orderSubtotal = document.querySelector("#order-subtotal");
     const orderTotal = document.querySelector(".order-total");
     const checkoutForm = document.getElementById("checkout-form");
-    const deliveryFee = 20; // Delivery fee in kr
 
-    function renderOrderSummary() {
+    // Default to delivery with 20 kr fee
+    let deliveryFee = 20;
+    let orderType = "delivery";
+
+    // === Elements ===
+    const orderTypeSelect = document.getElementById("order-type"); // hidden/native select
+    const dropdown = document.getElementById("order-type-dropdown"); // custom dropdown wrapper
+    const orderTypeWrap =
+      dropdown || document.querySelector(".ordertype-select") || null; // <-- define it!
+    const triggerBtn = orderTypeWrap?.querySelector(".order-type-trigger");
+    const labelSpan = triggerBtn?.querySelector(".label");
+    const iconLeft = triggerBtn?.querySelector(".icon-left");
+    const menu = orderTypeWrap?.querySelector(".order-type-menu");
+    const optionsEls = menu ? Array.from(menu.querySelectorAll(".option")) : [];
+
+    const addressFields = document
+      .getElementById("address")
+      ?.closest(".form-group");
+    const cityFields = document.getElementById("city")?.closest(".form-group");
+    const zipFields = document.getElementById("zip")?.closest(".form-group");
+    const pickupInfo = document.getElementById("pickup-info");
+    const deliveryFeeElement = document.querySelector(".delivery-fee");
+
+    // ---------- SAFE CART GETTER (no side effects) ----------
+    function getCartItems() {
+      if (window.cart && Array.isArray(cart.cart)) return cart.cart;
+      try {
+        const raw =
+          localStorage.getItem("cart") || localStorage.getItem("cartItems");
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch {
+        return [];
+      }
+    }
+
+    // ---------- Business logic: apply order type + update UI ----------
+    function applyOrderType(value) {
+      orderType = value;
+
+      const addr = document.getElementById("address");
+      const city = document.getElementById("city");
+      const zip = document.getElementById("zip");
+
+      const hideAddress = () => {
+        if (addressFields) addressFields.style.display = "none";
+        if (cityFields) cityFields.style.display = "none";
+        if (zipFields) zipFields.style.display = "none";
+        if (pickupInfo) pickupInfo.style.display = "block";
+
+        // disable so HTML5 validation doesn't block pickup
+        [addr, city, zip].forEach((el) => {
+          if (!el) return;
+          el.dataset.wasRequired = el.required ? "1" : "";
+          el.required = false;
+          el.disabled = true;
+        });
+
+        deliveryFee = 0;
+        if (deliveryFeeElement) deliveryFeeElement.textContent = "Gratis";
+
+        if (orderTypeWrap) {
+          orderTypeWrap.classList.remove("is-delivery");
+          orderTypeWrap.classList.add("is-pickup");
+        }
+        if (iconLeft) {
+          iconLeft.classList.remove("ri-car-line", "ri-truck-line");
+          iconLeft.classList.add("ri-store-2-line");
+        }
+        if (labelSpan) labelSpan.textContent = "Avhämtning – 10 min (gratis)";
+      };
+
+      const showAddress = () => {
+        if (addressFields) addressFields.style.display = "block";
+        if (cityFields) cityFields.style.display = "block";
+        if (zipFields) zipFields.style.display = "block";
+        if (pickupInfo) pickupInfo.style.display = "none";
+
+        // re-enable + restore required exactly as before
+        [addr, city, zip].forEach((el) => {
+          if (!el) return;
+          el.disabled = false;
+          el.required = el.dataset.wasRequired === "1";
+        });
+
+        deliveryFee = 20;
+        if (deliveryFeeElement) deliveryFeeElement.textContent = "20 kr";
+
+        if (orderTypeWrap) {
+          orderTypeWrap.classList.remove("is-pickup");
+          orderTypeWrap.classList.add("is-delivery");
+        }
+        if (iconLeft) {
+          iconLeft.classList.remove("ri-store-2-line");
+          iconLeft.classList.add("ri-car-line");
+        }
+        if (labelSpan) labelSpan.textContent = "Leverans – 20–30 min (20 kr)";
+      };
+
+      if (value === "pickup") hideAddress();
+      else showAddress();
+      updateOrderSummary();
+    }
+
+    // ---------- Render order summary ----------
+    function updateOrderSummary() {
       if (!orderItems) return;
 
-      if (cart.cart.length === 0) {
+      const items = getCartItems();
+      if (!items || items.length === 0) {
         orderItems.innerHTML = "<p>Your cart is empty</p>";
         if (orderSubtotal) orderSubtotal.textContent = "0 kr";
         if (orderTotal) orderTotal.textContent = "0 kr";
         return;
       }
 
-      orderItems.innerHTML = cart.cart
+      orderItems.innerHTML = items
         .map((item) => {
-          // Split item name into base name and modifiers
-          const parts = item.name.split(" with ");
+          const parts = String(item.name || "").split(" with ");
           const baseName = parts[0];
           const modifiers = parts.length > 1 ? parts[1] : null;
-
-          // Format modifiers: remove "with", add + prefix
-          let modifiersHtml = "";
-          if (modifiers) {
-            // Replace "with" with + and wrap in gold span
-            modifiersHtml = `<div class="modifiers">+ ${modifiers}</div>`;
-          }
-
+          const modifiersHtml = modifiers
+            ? `<div class="modifiers">+ ${modifiers}</div>`
+            : "";
+          const line = Number(item.price || 0) * Number(item.quantity || 0);
           return `
-      <div class="order-item-checkout">
-        <div class="item-name">
-          ${baseName}
-          ${modifiersHtml}
-          <span class="quantity"> ${item.quantity}</span>
-        </div>
-        <div class="item-price">${(item.price * item.quantity).toFixed(
-          2
-        )} kr</div>
-      </div>
-    `;
+          <div class="order-item-checkout">
+            <div class="item-name">
+              ${baseName}
+              ${modifiersHtml}
+              <span class="quantity"> ${item.quantity}</span>
+            </div>
+            <div class="item-price">${line.toFixed(2)} kr</div>
+          </div>
+        `;
         })
         .join("");
 
-      const subtotal = cart.cart.reduce(
-        (total, item) => total + item.price * item.quantity,
+      const subtotal = items.reduce(
+        (t, it) => t + Number(it.price || 0) * Number(it.quantity || 0),
         0
       );
       const total = subtotal + deliveryFee;
@@ -922,74 +1020,141 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         orderSubtotal.textContent = `${subtotal.toFixed(2)} kr`;
       if (orderTotal) orderTotal.textContent = `${total.toFixed(2)} kr`;
     }
+
+    // ---------- Custom dropdown wiring ----------
+    function setAriaSelected(value) {
+      optionsEls.forEach((li) =>
+        li.setAttribute(
+          "aria-selected",
+          li.dataset.value === value ? "true" : "false"
+        )
+      );
+    }
+    function selectOption(value) {
+      if (orderTypeSelect) orderTypeSelect.value = value; // sync hidden/native select
+      setAriaSelected(value);
+      applyOrderType(value);
+      closeMenu();
+    }
+    function openMenu() {
+      if (!orderTypeWrap) return;
+      orderTypeWrap.classList.add("open");
+      triggerBtn?.setAttribute("aria-expanded", "true");
+    }
+    function closeMenu() {
+      if (!orderTypeWrap) return;
+      orderTypeWrap.classList.remove("open");
+      triggerBtn?.setAttribute("aria-expanded", "false");
+    }
+
+    triggerBtn?.addEventListener("click", () => {
+      if (orderTypeWrap.classList.contains("open")) closeMenu();
+      else openMenu();
+    });
+    document.addEventListener("click", (e) => {
+      if (orderTypeWrap && !orderTypeWrap.contains(e.target)) closeMenu();
+    });
+    optionsEls.forEach((li) => {
+      li.addEventListener("click", () => selectOption(li.dataset.value));
+    });
+
+    // Fallback: native <select> change
+    orderTypeSelect?.addEventListener("change", (e) => {
+      const v = e.target.value;
+      setAriaSelected(v);
+      applyOrderType(v);
+    });
+
+    // ---------- Form submit (unchanged, uses safe getter) ----------
     if (checkoutForm) {
       checkoutForm.addEventListener("submit", async function (e) {
         e.preventDefault();
 
-        if (cart.cart.length === 0) {
-          cart.showNotification("Your cart is empty", true);
+        const items = getCartItems();
+        if (!items || items.length === 0) {
+          if (window.cart && typeof cart.showNotification === "function") {
+            cart.showNotification("Your cart is empty", true);
+          } else {
+            alert("Your cart is empty");
+          }
           return;
         }
 
-        // Collect all necessary data
+        const selectedOrderType = orderTypeSelect
+          ? orderTypeSelect.value
+          : "delivery";
+
         const name = document.getElementById("name")?.value || "";
         const email = document.getElementById("email")?.value || "";
         const phone = document.getElementById("phone")?.value || "";
-        const address = document.getElementById("address")?.value || "";
-        const zip = document.getElementById("zip")?.value || "";
-        const city = document.getElementById("city")?.value || "";
+
+        let address = "",
+          zip = "",
+          city = "";
+        if (selectedOrderType === "delivery") {
+          address = document.getElementById("address")?.value || "";
+          zip = document.getElementById("zip")?.value || "";
+          city = document.getElementById("city")?.value || "";
+        }
+
         const notes = document.getElementById("notes")?.value || "";
 
-        // Validate required fields
-        if (!name || !email || !phone || !address || !zip || !city) {
-          cart.showNotification("Please fill in all required fields", true);
+        if (!name || !email || !phone) {
+          cart.showNotification?.("Please fill in all required fields", true);
+          return;
+        }
+        if (selectedOrderType === "delivery" && (!address || !zip || !city)) {
+          cart.showNotification?.(
+            "Please fill in all address fields for delivery",
+            true
+          );
           return;
         }
 
-        // Calculate totals
-        const subtotal = cart.cart.reduce(
-          (total, item) => total + item.price * item.quantity,
+        const subtotal = items.reduce(
+          (t, it) => t + Number(it.price || 0) * Number(it.quantity || 0),
           0
         );
-        const total = subtotal + deliveryFee;
+        const appliedDeliveryFee = selectedOrderType === "delivery" ? 20 : 0;
+        const total = subtotal + appliedDeliveryFee;
 
-        // Prepare order data WITHOUT creating in DB yet
         const orderData = {
+          orderType: selectedOrderType,
           customer: {
             name,
             email,
             phone,
-            address: `${address}, ${zip} ${city}`,
+            address:
+              selectedOrderType === "delivery"
+                ? `${address}, ${zip} ${city}`
+                : "Avhämtning",
             notes,
           },
-          items: cart.cart.map((item) => ({
-            name: item.name,
-            price: item.price,
-            quantity: item.quantity,
-            img: item.img || "",
+          items: items.map((it) => ({
+            name: it.name,
+            price: it.price,
+            quantity: it.quantity,
+            img: it.img || "",
           })),
           subtotal,
-          deliveryFee,
+          deliveryFee: appliedDeliveryFee,
           total,
-          paymentMethod: "Pending", // Will be updated in payment page
+          paymentMethod: "Pending",
         };
 
-        // Add user ID if logged in
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
-        if (currentUser) {
-          orderData.user = currentUser.id;
-        }
+        if (currentUser) orderData.user = currentUser.id;
 
-        // Store order data in localStorage for payment page
         localStorage.setItem("pendingOrder", JSON.stringify(orderData));
-
-        // Redirect to payment page
         window.location.href = "payment.html";
       });
     }
 
-    // Initialize order summary
-    renderOrderSummary();
+    // ---------- Init ----------
+    const initialValue = orderTypeSelect?.value || "delivery";
+    setAriaSelected(initialValue);
+    applyOrderType(initialValue); // sets fee + shows/hides address + totals
+    updateOrderSummary(); // render items
   }
 
   // ==================== PAYMENT PAGE LOGIC ====================
@@ -1237,56 +1402,62 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
   function renderOrderSummary(order) {
     const orderItemsContainer = document.querySelector(".order-items");
-    const orderSubtotal = document.querySelector("#order-subtotal");
-    const orderTotal = document.querySelector(".order-total");
+    const orderSubtotalEl = document.querySelector("#order-subtotal");
+    const orderTotalEl = document.querySelector(".order-total");
+    const deliveryFeeEl = document.querySelector(".delivery-fee"); // inside #delivery-fee-row
 
-    if (!orderItemsContainer || !orderSubtotal || !orderTotal || !order?.items)
+    if (
+      !orderItemsContainer ||
+      !orderSubtotalEl ||
+      !orderTotalEl ||
+      !order?.items
+    )
       return;
 
     // Clear
     orderItemsContainer.innerHTML = "";
-
     // Render each item (with the gold quantity badge)
     order.items.forEach((item) => {
-      const itemEl = document.createElement("div");
-      itemEl.className = "order-item";
-
-      // Split “name with modifiers” like checkout
       const parts = (item.name || "").split(" with ");
       const baseName = parts[0];
       const modifiers = parts.length > 1 ? parts[1] : null;
-
       const modifiersHtml = modifiers
         ? `<div class="modifiers">+ ${modifiers
             .replace(/\(0 kr\)/g, "")
             .replace(/, $/, "")}</div>`
         : "";
 
-      itemEl.innerHTML = `
+      const line = Number(item.price || 0) * Number(item.quantity || 0);
+      const el = document.createElement("div");
+      el.className = "order-item";
+      el.innerHTML = `
       <div class="item-name">
         ${baseName}
         ${modifiersHtml}
         <span class="quantity">${item.quantity}</span>
       </div>
-      <div class="item-price">${(item.price * item.quantity).toFixed(
-        2
-      )} kr</div>
+      <div class="item-price">${line.toFixed(2)} kr</div>
     `;
-
-      orderItemsContainer.appendChild(itemEl);
+      orderItemsContainer.appendChild(el);
     });
 
-    // Totals
+    // Totals (respect orderType)
     const subtotal = order.items.reduce(
-      (sum, i) => sum + i.price * i.quantity,
+      (s, i) => s + Number(i.price || 0) * Number(i.quantity || 0),
       0
     );
-    const deliveryFee =
-      typeof order.deliveryFee === "number" ? order.deliveryFee : 20;
-    const total = subtotal + deliveryFee;
+    // fee: if pickup => 0, else use provided fee (number/string) or fallback 20
+    const fee =
+      order.orderType === "pickup" ? 0 : Number(order.deliveryFee ?? 20);
+    const total = subtotal + fee;
 
-    orderSubtotal.textContent = `${subtotal.toFixed(2)} kr`;
-    orderTotal.textContent = `${total.toFixed(2)} kr`;
+    // Update DOM
+    orderSubtotalEl.textContent = `${subtotal.toFixed(2)} kr`;
+    orderTotalEl.textContent = `${total.toFixed(2)} kr`;
+
+    if (deliveryFeeEl) {
+      deliveryFeeEl.textContent = fee === 0 ? "Gratis" : `${fee.toFixed(2)} kr`;
+    }
   }
 
   // Replace all payment success handlers with this:
@@ -1369,82 +1540,115 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
   // ==================== CONFIRMATION PAGE FUNCTIONALITY ====================
   if (document.querySelector(".confirmation-page")) {
     const currentOrder = JSON.parse(localStorage.getItem("currentOrder")) || {};
-
     if (!currentOrder || !currentOrder.items) {
       console.warn("No valid order found, redirecting to home");
       window.location.href = "index.html";
       return;
     }
 
-    // Display confirmation details
-    document.getElementById("payment-method").textContent =
-      currentOrder.paymentMethod || "Not specified";
+    // --- Store pickup constants ---
+    const STORE_NAME = "Matkungen";
+    const STORE_ADDRESS = "P G Vejdes väg, 352 52 Växjö";
+    const STORE_PHONE = "0769 666 666";
 
-    document.getElementById("order-number").textContent =
-      currentOrder.orderNumber || "N/A";
+    // Robust pickup detection
+    const isPickup =
+      String(currentOrder.orderType || "").toLowerCase() === "pickup" ||
+      /avh[aä]mtning/i.test(currentOrder.customer?.address || "");
 
-    document.getElementById("customer-email").textContent =
-      currentOrder.customer?.email || "Not provided";
+    // Basic details
+    const pmEl = document.getElementById("payment-method");
+    const noEl = document.getElementById("order-number");
+    const mailEl = document.getElementById("customer-email");
+    pmEl && (pmEl.textContent = currentOrder.paymentMethod || "Not specified");
+    noEl && (noEl.textContent = currentOrder.orderNumber || "N/A");
+    mailEl &&
+      (mailEl.textContent = currentOrder.customer?.email || "Not provided");
 
-    document.getElementById("order-subtotal").textContent = `${(
-      currentOrder.subtotal || 0
-    ).toFixed(2)} kr`;
+    // Totals (Gratis for pickup)
+    const subtotal = Number(currentOrder.subtotal ?? 0);
+    const fee = isPickup ? 0 : Number(currentOrder.deliveryFee ?? 20);
+    const total = subtotal + fee;
 
-    document.getElementById("order-total").textContent = `${(
-      currentOrder.total || 0
-    ).toFixed(2)} kr`;
+    const subEl = document.getElementById("order-subtotal");
+    const feeEl = document.getElementById("delivery-fee");
+    const totEl = document.getElementById("order-total");
+    subEl && (subEl.textContent = `${subtotal.toFixed(2)} kr`);
+    feeEl &&
+      (feeEl.textContent = fee === 0 ? "Gratis" : `${fee.toFixed(2)} kr`);
+    totEl && (totEl.textContent = `${total.toFixed(2)} kr`);
 
-    document.getElementById("delivery-fee").textContent = `${(
-      currentOrder.deliveryFee || 0
-    ).toFixed(2)} kr`;
+    // Heading + ETA
+    const deliveryHeader = document.querySelector(".delivery-info h2");
+    if (deliveryHeader) {
+      deliveryHeader.textContent = isPickup
+        ? "Upphämtningsinformation"
+        : "Leveransinformation";
+    }
+    const etaEl = document.getElementById("delivery-time");
+    if (etaEl) etaEl.textContent = isPickup ? " 10 minuter" : "20–35 minuter";
 
+    // Customer / pickup details
     const details = document.getElementById("customer-details");
     if (details && currentOrder.customer) {
       const { name, phone, address, notes } = currentOrder.customer;
-      details.innerHTML = `
+      details.innerHTML = isPickup
+        ? `
+        <p><strong>Namn:</strong> ${name || "N/A"}</p>
+        <p><strong>Telefon:</strong> ${phone || "N/A"}</p>
+        <p><strong>Upphämtningsställe:</strong> ${STORE_NAME}</p>
+        <p><strong>Adress:</strong> ${STORE_ADDRESS}</p>
+        <p><strong>Restaurangens telefon:</strong> ${STORE_PHONE}</p>
+        ${notes ? `<p><strong>Noteringar:</strong> ${notes}</p>` : ""}
+      `
+        : `
         <p><strong>Namn:</strong> ${name || "N/A"}</p>
         <p><strong>Telefon:</strong> ${phone || "N/A"}</p>
         <p><strong>Adress:</strong> ${address || "N/A"}</p>
-        ${notes ? `<p><strong>Notes:</strong> ${notes}</p>` : ""}
+        ${notes ? `<p><strong>Noteringar:</strong> ${notes}</p>` : ""}
       `;
     }
 
+    // Items
     const orderItemsEl = document.getElementById("order-items");
     if (orderItemsEl) {
-      orderItemsEl.innerHTML = currentOrder.items;
-      // In the confirmation renderer where you build each item:
       orderItemsEl.innerHTML = currentOrder.items
         .map((item) => {
           const parts = (item.name || "").split(" with ");
           const baseName = parts[0];
           const modifiers = parts.length > 1 ? parts[1] : null;
-
           const modifiersHtml = modifiers
             ? `<div class="modifiers">+ ${modifiers
                 .replace(/\(0 kr\)/g, "")
                 .replace(/, $/, "")}</div>`
             : "";
-
           return `
-    <div class="order-item-confirmation">
-      <div class="item-name">
-        ${baseName} <span class="quantity">${item.quantity}</span>
-        ${modifiersHtml}
-      </div>
-      <div class="item-price">${(item.price * item.quantity).toFixed(
-        2
-      )} kr</div>
-    </div>
-  `;
+          <div class="order-item-confirmation">
+            <div class="item-name">
+              ${baseName} <span class="quantity">${item.quantity}</span>
+              ${modifiersHtml}
+            </div>
+            <div class="item-price">${(
+              Number(item.price || 0) * Number(item.quantity || 0)
+            ).toFixed(2)} kr</div>
+          </div>
+        `;
         })
         .join("");
     }
 
-    // ✅ Update Track Order Button
+    // Track button: hide for pickup
     const trackBtn = document.getElementById("track-order-btn");
-    if (trackBtn && currentOrder.orderNumber) {
-      trackBtn.href = `track-order.html?order=${currentOrder.orderNumber}`;
+    if (trackBtn) {
+      if (isPickup) {
+        trackBtn.style.display = "none";
+      } else if (currentOrder.orderNumber) {
+        trackBtn.href = `track-order.html?order=${currentOrder.orderNumber}`;
+        trackBtn.style.display = "";
+      }
     }
+
+    if (isPickup) document.body.classList.add("is-pickup");
   }
 
   // ==================== PRINT RECEIPT FUNCTION ====================
@@ -1453,141 +1657,169 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     ?.addEventListener("click", function () {
       const currentOrder =
         JSON.parse(localStorage.getItem("currentOrder")) || {};
+      const isPickup =
+        String(currentOrder.orderType || "").toLowerCase() === "pickup" ||
+        /avh[aä]mtning/i.test(currentOrder.customer?.address || "");
 
-      // Create a hidden iframe for printing
+      // Store pickup details
+      const STORE_NAME = "Matkungen";
+      const STORE_ADDRESS = "P G Vejdes väg, 352 52 Växjö";
+      const STORE_PHONE = "0769 666 666";
+
+      // Use the order's creation date if available (fallback to now)
+      const created = currentOrder.createdAt
+        ? new Date(currentOrder.createdAt)
+        : new Date();
+      const orderDate =
+        created.toString() !== "Invalid Date"
+          ? created.toLocaleDateString("sv-SE", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : new Date().toLocaleDateString("sv-SE", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+
+      // Totals
+      const subtotalFromItems = Array.isArray(currentOrder.items)
+        ? currentOrder.items.reduce(
+            (s, i) => s + Number(i.price || 0) * Number(i.quantity || 0),
+            0
+          )
+        : 0;
+      const subP = Number(currentOrder.subtotal ?? subtotalFromItems);
+      const feeP = isPickup ? 0 : Number(currentOrder.deliveryFee ?? 20);
+      const totP = subP + feeP;
+
+      const feeText = feeP === 0 ? "Gratis" : `${feeP.toFixed(2)} kr`;
+      const etaText = isPickup ? " 10 minuter" : "20–35 minuter";
+      const sectionTitle = isPickup
+        ? "Upphämtningsinformation"
+        : "Leveransinformation";
+
+      // Build customer details
+      const c = currentOrder.customer || {};
+      const customerDetailsHtml = isPickup
+        ? `
+      <p><strong>Namn:</strong> ${c.name || "N/A"}</p>
+      <p><strong>Telefon:</strong> ${c.phone || "N/A"}</p>
+      <p><strong>Upphämtningsställe:</strong> ${STORE_NAME}</p>
+      <p><strong>Adress:</strong> ${STORE_ADDRESS}</p>
+      <p><strong>Restaurangens telefon:</strong> ${STORE_PHONE}</p>
+      ${c.notes ? `<p><strong>Noteringar:</strong> ${c.notes}</p>` : ""}
+    `
+        : `
+      <p><strong>Namn:</strong> ${c.name || "N/A"}</p>
+      <p><strong>Telefon:</strong> ${c.phone || "N/A"}</p>
+      <p><strong>Adress:</strong> ${c.address || "N/A"}</p>
+      ${c.notes ? `<p><strong>Noteringar:</strong> ${c.notes}</p>` : ""}
+    `;
+
+      // Hidden iframe
       const iframe = document.createElement("iframe");
       iframe.style.position = "absolute";
       iframe.style.left = "-9999px";
       document.body.appendChild(iframe);
-
       const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-
-      // Get current date and time
-      const now = new Date();
-      const orderDate = now.toLocaleDateString("sv-SE", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
 
       iframeDoc.open();
       iframeDoc.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>Order Receipt - ${currentOrder.orderNumber || ""}</title>
-        <link rel="stylesheet" href="./assets/css/style.css">
-      </head>
-      <body class="print-view">
-        <div class="confirmation-card">
-          <div class="confirmation-header">
-            <h1>Matkungen</h1>
-            <p class="confirmation-text">
-              Order Number <span id="order-number">${
-                currentOrder.orderNumber || ""
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Order Receipt - ${currentOrder.orderNumber || ""}</title>
+      <link rel="stylesheet" href="./assets/css/style.css">
+    </head>
+    <body class="print-view">
+      <div class="confirmation-card">
+        <div class="confirmation-header">
+          <h1>Matkungen</h1>
+          <p class="confirmation-text">
+            Order Number <span id="order-number">${
+              currentOrder.orderNumber || ""
+            }</span>
+          </p>
+        </div>
+
+        <div class="confirmation-content">
+          <div class="delivery-info">
+            <h2>${sectionTitle}</h2>
+            <div id="customer-details">
+              ${customerDetailsHtml}
+            </div>
+            <div class="detail-row">
+              <span>Betalningsmetod:</span>
+              <span id="payment-method">${
+                currentOrder.paymentMethod || "Not specified"
               }</span>
-            </p>
+            </div>
+            <div class="detail-row">
+              <span>Orderdatum:</span>
+              <span>${orderDate}</span>
+            </div>
+            <div class="detail-row">
+              <span>Beräknad leveranstid:</span>
+              <span id="delivery-time">${etaText}</span>
+            </div>
           </div>
 
-          <div class="confirmation-content">
-            <div class="delivery-info">
-              <h2>Leveransinformation</h2>
-              <div id="customer-details">
-                ${
-                  currentOrder.customer
-                    ? `
-                  <p><strong>Namn:</strong> ${
-                    currentOrder.customer.name || "N/A"
-                  }</p>
-                  <p><strong>Telefon:</strong> ${
-                    currentOrder.customer.phone || "N/A"
-                  }</p>
-                  <p><strong>Adress:</strong> ${
-                    currentOrder.customer.address || "N/A"
-                  }</p>
-                  ${
-                    currentOrder.customer.notes
-                      ? `<p><strong>Noteringar:</strong> ${currentOrder.customer.notes}</p>`
-                      : ""
-                  }
-                `
-                    : "<p>No customer information available</p>"
-                }
-              </div>
-              <div class="detail-row">
-                <span>Betalningsmetod:</span>
-                <span id="payment-method">${
-                  currentOrder.paymentMethod || "Not specified"
-                }</span>
-              </div>
-              <div class="detail-row">
-                <span>Orderdatum:</span>
-                <span>${orderDate}</span>
-              </div>
-              <div class="detail-row">
-                <span>Beräknad leveranstid:</span>
-                <span id="delivery-time">20-35 minutes</span>
-              </div>
-            </div>
-
-            <div class="order-summary">
-              <h2>Ordersammanfattning</h2>
-              <div class="order-items" id="order-items">
-                ${
-                  currentOrder.items
-                    ?.map(
-                      (item) => `
+          <div class="order-summary">
+            <h2>Ordersammanfattning</h2>
+            <div class="order-items" id="order-items">
+              ${
+                currentOrder.items
+                  ?.map(
+                    (item) => `
                   <div class="order-item">
                     <div class="item-name">${item.name} × ${item.quantity}</div>
                     <div class="item-price">${(
-                      item.price * item.quantity
+                      Number(item.price || 0) * Number(item.quantity || 0)
                     ).toFixed(2)} kr</div>
                   </div>
                 `
-                    )
-                    .join("") || "<p>No items in order</p>"
-                }
-              </div>
+                  )
+                  .join("") || "<p>No items in order</p>"
+              }
+            </div>
 
-              <div class="order-totals">
-                <div class="order-row">
-                  <span>Delsumma</span>
-                  <span id="order-subtotal">${
-                    currentOrder.subtotal?.toFixed(2) || "0.00"
-                  } kr</span>
-                </div>
-                <div class="order-row">
-                  <span>Leveransavgift</span>
-                  <span id="delivery-fee">${
-                    currentOrder.deliveryFee?.toFixed(2) || "0.00"
-                  } kr</span>
-                </div>
-                <div class="order-row total">
-                  <span>Totalt</span>
-                  <span id="order-total">${
-                    currentOrder.total?.toFixed(2) || "0.00"
-                  } kr</span>
-                </div>
+            <div class="order-totals">
+              <div class="order-row">
+                <span>Delsumma</span>
+                <span id="order-subtotal">${subP.toFixed(2)} kr</span>
+              </div>
+              <div class="order-row">
+                <span>Leveransavgift</span>
+                <span id="delivery-fee">${feeText}</span>
+              </div>
+              <div class="order-row total">
+                <span>Totalt</span>
+                <span id="order-total">${totP.toFixed(2)} kr</span>
               </div>
             </div>
           </div>
         </div>
+      </div>
 
-        <script>
-          window.onload = function() {
+      <script>
+        window.onload = function() {
+          setTimeout(function() {
+            window.print();
             setTimeout(function() {
-              window.print();
-              setTimeout(function() {
-                window.parent.document.body.removeChild(window.frameElement);
-              }, 1000);
-            }, 200);
-          };
-        </script>
-      </body>
-      </html>
-    `);
+              window.parent.document.body.removeChild(window.frameElement);
+            }, 1000);
+          }, 200);
+        };
+      </script>
+    </body>
+    </html>
+  `);
       iframeDoc.close();
     });
 

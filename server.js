@@ -32,7 +32,7 @@ const OPENING_HOURS = {
   1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
   2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
   3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-  4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
+  4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
   5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
   6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
 };
@@ -238,18 +238,43 @@ app.on("order:paid", async (order) => {
     console.error("❌ order:paid email failed:", e);
   }
 });
-
 function buildOrderEmailHtml(order) {
-  const itemsHtml = (order.items || [])
+  const isPickup = String(order.orderType).toLowerCase() === "pickup";
+
+  // Safe math
+  const items = Array.isArray(order.items) ? order.items : [];
+  const subtotal =
+    typeof order.subtotal === "number"
+      ? order.subtotal
+      : items.reduce(
+          (s, i) => s + Number(i.price || 0) * Number(i.quantity || 0),
+          0
+        );
+
+  const rawFee = Number(order.deliveryFee ?? 0);
+  const deliveryFee = isPickup ? 0 : rawFee;
+  const total = subtotal + deliveryFee;
+
+  const feeText = deliveryFee === 0 ? "Gratis" : `${deliveryFee.toFixed(2)} kr`;
+  const etaText = isPickup ? "≈ 10 minuter" : "20–35 minuter";
+  const sectionTitle = isPickup
+    ? "Upphämtningsinformation"
+    : "Leveransinformation";
+
+  // Address line: show pickup location for avhämtning, otherwise the customer's address
+  const addressText = isPickup
+    ? "Avhämtning – Matkungen, P G Vejdes väg, 352 52 Växjö"
+    : order.customer?.address || "";
+
+  const itemsHtml = items
     .map(
       (i) =>
         `<li style="margin-bottom:6px;">${i.name} × ${i.quantity} = ${(
-          i.price * i.quantity
+          Number(i.price || 0) * Number(i.quantity || 0)
         ).toFixed(2)} kr</li>`
     )
     .join("");
 
-  // ✅ Detect env: localhost in dev, production URL online
   const FRONTEND =
     process.env.NODE_ENV === "production"
       ? "https://matkungen-campus.onrender.com"
@@ -257,61 +282,61 @@ function buildOrderEmailHtml(order) {
 
   return `
   <div style="max-width: 600px; margin: auto; font-family: 'Segoe UI', sans-serif; color: #333; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
-        <!-- LOGO -->
-        <div style="background: #000; padding: 20px; text-align: center;">
-          <img src="https://matkungen-campus.onrender.com/assets/images/logo.png" alt="Matkungen" style="height: 60px;"
-            onerror="this.style.display='none';" />
-          <h2 style="margin: 10px 0 0; color: #FFD700;">Matkungen</h2>
-        </div>
+    <!-- LOGO -->
+    <div style="background: #000; padding: 20px; text-align: center;">
+      <img src="https://matkungen-campus.onrender.com/assets/images/logo.png" alt="Matkungen" style="height: 60px;" onerror="this.style.display='none';" />
+      <h2 style="margin: 10px 0 0; color: #FFD700;">Matkungen</h2>
+    </div>
 
-        <!-- HEADER -->
-        <div style="padding: 24px 32px; text-align: center; background: #000; color: #FFD700;">
-          <h2 style="margin: 0;">Tack för din beställning, ${
-            order.customer?.name || ""
-          }!</h3>
+    <!-- HEADER -->
+    <div style="padding: 24px 32px; text-align: center; background: #000; color: #FFD700;">
+      <h2 style="margin: 0;">Tack för din beställning, ${
+        order.customer?.name || ""
+      }!</h2>
       <p style="margin:5px 0 0;font-size:18px;">Order #${
         order.orderNumber
       } har mottagits och kommer att hanteras snart</p>
     </div>
 
     <div style="padding:24px 32px;">
-      <h3 style="color:#000;margin-top:0;">Ordersammanfattning:</h3>
+      <h3 style="color:#000;margin-top:0;">Ordersammanfattning</h3>
       <ul style="padding-left:20px;margin:0 0 15px;">${itemsHtml}</ul>
-      <p><strong>Delsumma:</strong> ${(order.subtotal ?? 0).toFixed(2)} kr</p>
-      <p><strong>Leveransavgift:</strong> ${(order.deliveryFee ?? 0).toFixed(
+      <p><strong>Delsumma:</strong> ${subtotal.toFixed(2)} kr</p>
+      <p><strong>Leveransavgift:</strong> ${feeText}</p>
+      <p style="font-size:18px;"><strong>Totalt:</strong> ${total.toFixed(
         2
       )} kr</p>
-      <p style="font-size:18px;"><strong>Totalt:</strong> ${(
-        order.total ?? 0
-      ).toFixed(2)} kr</p>
-      <p><strong>Betalningsmetod:</strong> ${order.paymentMethod}</p>
+      <p><strong>Betalningsmetod:</strong> ${order.paymentMethod || "—"}</p>
     </div>
 
     <hr style="border:none;border-top:1px solid #e0e0e0;" />
     <div style="padding:24px 32px;">
-      <h3 style="margin-top:0;">Leveransinformation</h3>
+      <h3 style="margin-top:0;">${sectionTitle}</h3>
       <p><strong>Namn:</strong> ${order.customer?.name || ""}</p>
       <p><strong>Telefon:</strong> ${order.customer?.phone || ""}</p>
-      <p><strong>Adress:</strong> ${order.customer?.address || ""}</p>
+      <p><strong>Adress:</strong> ${addressText}</p>
       ${
         order.customer?.notes
-          ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>`
+          ? `<p><strong>Noteringar:</strong> ${order.customer.notes}</p>`
           : ""
       }
-      <p><strong>Beräknad leveranstid:</strong> 20-35 minutes</p>
+      <p><strong>Beräknad tid:</strong> ${etaText}</p>
     </div>
 
+    ${
+      !isPickup
+        ? `
     <div style="text-align:center;padding:20px;">
-      <a href="${FRONTEND}/track-order.html?order=${
-    order.orderNumber
-  }" target="_blank"
+      <a href="${FRONTEND}/track-order.html?order=${order.orderNumber}" target="_blank"
          style="display:inline-block;padding:12px 24px;background:#FFD700;color:#000;font-weight:bold;text-decoration:none;border-radius:6px;">
-        Track Your Order
+        Spåra din leverans
       </a>
-    </div>
+    </div>`
+        : ""
+    }
 
     <div style="padding:16px 32px;background:#f4f4f4;text-align:center;font-size:14px;color:#777;">
-      <p style="margin:0;">📞 Need help? Call us at <strong>0769 666 666</strong></p>
+      <p style="margin:0;">📞 Behöver du hjälp? Ring <strong>0769 666 666</strong></p>
       <p style="margin:4px 0 0;">Matkungen © ${new Date().getFullYear()}</p>
     </div>
   </div>`;

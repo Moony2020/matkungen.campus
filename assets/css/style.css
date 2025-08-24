@@ -413,9 +413,9 @@ body.nav-active {
 .btn {
     position: relative;
     color: var(--gold-crayola);
-    font-size: var(--fontSize-label-2);
+    font-size: var(--fontSize-body-4);
     font-weight: var(--weight-bold);
-    text-transform: uppercase;
+    /* text-transform: uppercase; */
     letter-spacing: var(--letterSpacing-5);
     max-width: max-content;
     border: 2px solid var(--gold-crayola);
@@ -3269,22 +3269,147 @@ body.nav-active {
 }
 
 .checkout-grid .form-group {
-    margin-bottom: 20px;
+    margin-bottom: 6px;
 }
 
 .checkout-grid .form-group label {
     display: block;
-    margin-bottom: 8px;
+    /* block for full width clickable area */
 }
 
 .checkout-grid .form-group input,
 .checkout-grid .form-group textarea {
     width: 100%;
-    padding: 10px;
+    height: 44px;
     background: var(--eerie-black-1);
     border: 1px solid var(--white-alpha-10);
     color: var(--white);
     border-radius: 5px;
+    padding-left: 8px;
+}
+
+/* hide native select but keep in DOM */
+.sr-only {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* wrapper */
+.ordertype-select {
+    position: relative;
+}
+
+/* trigger (closed control) */
+.order-type-trigger {
+    width: 100%;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0 48px 0 54px;
+    background: var(--eerie-black-1);
+    color: var(--gold-crayola);
+    border: 1px solid var(--white-alpha-10);
+    border-radius: 5px;
+    cursor: pointer;
+    font: inherit;
+}
+
+.order-type-trigger:focus {
+    outline: 2px solid var(--gold-crayola);
+    outline-offset: 2px;
+}
+
+.order-type-trigger .icon-left {
+    position: absolute;
+    left: 12px;
+    font-size: 20px;
+}
+
+.order-type-trigger .caret {
+    position: absolute;
+    right: 12px;
+    font-size: 20px;
+    opacity: .85;
+}
+
+/* menu (open list) */
+.order-type-menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    background: var(--eerie-black-1);
+    color: var(--gold-crayola);
+    border: 1px solid var(--white-alpha-10);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+    padding: 6px;
+    max-height: 260px;
+    overflow-y: auto;
+    display: none;
+    z-index: 20;
+}
+
+/* show when open */
+.ordertype-select.open .order-type-menu {
+    display: block;
+}
+
+/* options */
+.order-type-menu .option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 11px 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    user-select: none;
+    border: 1px solid var(--white-alpha-10);
+}
+
+.order-type-menu .option i {
+    font-size: 18px;
+}
+
+/* space between options */
+.order-type-menu .option+.option {
+    margin-top: 6px;
+}
+
+.order-type-menu .option:hover,
+.order-type-menu .option[aria-selected="true"] {
+    background: var(--black-alpha-80);
+    color: var(--gold-crayola);
+}
+
+
+.order-type-menu::-webkit-scrollbar-track {
+    background: var(--eerie-black-1);
+}
+
+.order-type-menu::-webkit-scrollbar-thumb {
+    background: var(--gold-crayola);
+    border-radius: 8px;
+}
+
+
+/* pickup info stays as you have */
+.pickup-info {
+    border-left: 4px solid #FFD700;
+    background: var(--eerie-black-1);
+    display: none;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
 
 .checkout-grid .checkout-form {
@@ -3361,7 +3486,6 @@ body.nav-active {
 .order-summary .place-order {
     width: 100%;
     margin-top: 20px;
-    font-size: var(--fontSize-label-1);
 }
 
 .order-summary .place-order:hover {
@@ -3435,9 +3559,24 @@ body.nav-active {
 
 .confirmation-content {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 30px;
-    margin: 40px 0;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: start;
+}
+
+/* Kill the collapsed top margin on the left column heading */
+.confirmation-page .delivery-info {
+    margin-top: 0;
+    padding-top: 0;
+    /* prevents extra offset */
+}
+
+/* silver divider under customer's phone */
+.confirmation-page .delivery-info #customer-details .user-phone {
+    border-bottom: 1px solid #C0C0C0;
+    /* silver */
+    padding-bottom: 6px;
+    margin-bottom: 10px;
 }
 
 .confirmation-content .order-summary h2,
@@ -3706,7 +3845,7 @@ body.nav-active {
 }
 
 #card-element {
-    padding: 15px;
+    padding: 16px;
     background: var(--white);
     border: 1px solid #e0e0e0;
     border-radius: 5px;
@@ -3971,15 +4110,15 @@ body.nav-active {
 
     .confirmation-header {
         text-align: center;
-        margin-bottom: 20px;
-        padding-bottom: 15px;
+        margin-bottom: -10px;
+        padding-bottom: 0;
         border-bottom: 2px solid #ddd;
     }
 
     .confirmation-header h1 {
         color: #000 !important;
         font-size: 24pt !important;
-        margin: 10px 0 5px !important;
+        margin: 8px 0 5px !important;
     }
 
     .confirmation-icon {
@@ -3987,8 +4126,8 @@ body.nav-active {
     }
 
     .confirmation-text {
-        font-size: 12pt !important;
-        margin: 15px 0 !important;
+        font-size: var(--fontSize-body-2) !important;
+        margin: 10px 0 !important;
     }
 
     /* Order details styling */
@@ -4001,11 +4140,19 @@ body.nav-active {
     .delivery-info,
     .order-summary {
         width: 100% !important;
-        margin-bottom: 10px;
+        margin-bottom: 2px;
         page-break-inside: avoid;
+        border-bottom: 1px solid #eee;
     }
 
-    .delivery-info h2,
+    .delivery-info h2 {
+        font-size: var(--fontSize-title-2) !important;
+        color: var(--gold-crayola) !important;
+        margin: -10px 0 10px !important;
+        padding-bottom: 5px;
+        border-bottom: 1px solid #c1c1c1;
+    }
+
     .order-summary h2 {
         font-size: var(--fontSize-title-2) !important;
         color: var(--gold-crayola) !important;
@@ -4019,12 +4166,19 @@ body.nav-active {
         display: flex;
         justify-content: space-between;
         margin: 8px 0;
-        font-size: 11pt;
+        font-size: var(--fontSize-body-4);
     }
 
     .detail-row span:first-child,
     .order-row span:first-child {
         font-weight: var(--weight-600);
+    }
+
+    /* When printing the iframe receipt (body has .print-view) */
+    .print-view .delivery-info #customer-details+.detail-row {
+        border-top: 1px solid #eee;
+        margin-top: 12px !important;
+        padding-top: 10px !important;
     }
 
     .order-row.total {

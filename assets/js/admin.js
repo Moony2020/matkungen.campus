@@ -856,7 +856,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const card = document.createElement("div");
       card.className = "order-card";
       card.dataset.orderId = order._id;
-      // store order number on the card
       card.dataset.orderNumber = order.orderNumber;
 
       const statusMap = {
@@ -866,94 +865,105 @@ document.addEventListener("DOMContentLoaded", function () {
         Delivered: { class: "delivered", icon: "ri-check-double-line" },
         Cancelled: { class: "cancelled", icon: "ri-close-circle-line" },
       };
-
       const statusInfo = statusMap[order.status] || statusMap["Pending"];
+
+      // --- NEW: safe fee text (Gratis for pickup or 0) ---
+      const isPickup =
+        String(order.orderType || "").toLowerCase() === "pickup" ||
+        /avh[aä]mtning/i.test(order.customer?.address || "");
+
+      const feeNum = Number(order.deliveryFee ?? (isPickup ? 0 : 20));
+      const deliveryFeeText =
+        feeNum <= 0 ? "Gratis" : `${feeNum.toFixed(2)} kr`;
+
       card.innerHTML = `
-        <div class="order-header">
-          <div class="order-meta">
-            <span class="order-number">#${order.orderNumber}</span>
-            <span class="order-date">${new Date(
-              order.createdAt
-            ).toLocaleString()}</span>
+    <div class="order-header">
+      <div class="order-meta">
+        <span class="order-number">#${order.orderNumber}</span>
+        <span class="order-date">${new Date(
+          order.createdAt
+        ).toLocaleString()}</span>
+      </div>
+      <div class="order-status ${statusInfo.class}">
+        <i class="${statusInfo.icon}"></i>
+        ${order.status}
+      </div>
+    </div>
+
+    <div class="order-customer">
+      <div class="customer-name">${order.customer.name}</div>
+      <div class="customer-phone">${order.customer.phone}</div>
+      <div class="customer-address">${order.customer.address}</div>
+    </div>
+
+    <div class="order-summary">
+      <div class="order-items-preview">
+        ${order.items
+          .slice(0, 3)
+          .map(
+            (item) => `
+          <div class="preview-item">
+            <span>${item.name} × ${item.quantity}</span>
+            <span>${(Number(item.price) * Number(item.quantity)).toFixed(
+              2
+            )} kr</span>
           </div>
-          <div class="order-status ${statusInfo.class}">
-            <i class="${statusInfo.icon}"></i>
-            ${order.status}
-          </div>
+        `
+          )
+          .join("")}
+        ${
+          order.items.length > 3
+            ? `<div class="more-items">+${
+                order.items.length - 3
+              } more items</div>`
+            : ""
+        }
+      </div>
+
+      <div class="order-totals">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>${Number(order.subtotal ?? 0).toFixed(2)} kr</span>
         </div>
-        <div class="order-customer">
-          <div class="customer-name">${order.customer.name}</div>
-          <div class="customer-phone">${order.customer.phone}</div>
-          <div class="customer-address">${order.customer.address}</div>
+        <div class="total-row">
+          <span>Delivery:</span>
+          <span>${deliveryFeeText}</span>   <!-- ← shows Gratis when pickup/0 -->
         </div>
-        <div class="order-summary">
-          <div class="order-items-preview">
-            ${order.items
-              .slice(0, 3)
-              .map(
-                (item) => `
-              <div class="preview-item">
-                <span>${item.name} × ${item.quantity}</span>
-                <span>${(item.price * item.quantity).toFixed(2)} kr</span>
-              </div>
-            `
-              )
-              .join("")}
-            ${
-              order.items.length > 3
-                ? `<div class="more-items">+${
-                    order.items.length - 3
-                  } more items</div>`
-                : ""
-            }
-         </div>
-         <div class="order-totals">
-           <div class="total-row">
-             <span>Subtotal:</span>
-             <span>${order.subtotal.toFixed(2)} kr</span>
-           </div>
-           <div class="total-row">
-             <span>Delivery:</span>
-             <span>${order.deliveryFee.toFixed(2)} kr</span>
-           </div>
-           <div class="total-row grand-total">
-             <span>Total:</span>
-             <span>${order.total.toFixed(2)} kr</span>
-           </div>
-         </div>
-         </div>
-         <div class="order-actions">
-           <button class="btn btn-outline print-receipt" data-order="${
-             order._id
-           }">
-             Print Receipt
-           </button>
-           <div class="status-actions">
-             <select class="status-select" data-order="${order._id}">
-               <option value="Pending" ${
-                 order.status === "Pending" ? "selected" : ""
-               }>Pending</option>
-               <option value="Confirmed" ${
-                 order.status === "Confirmed" ? "selected" : ""
-               }>Confirmed</option>
-              <option value="On the Way" ${
-                order.status === "On the Way" ? "selected" : ""
-              }>On the Way</option>
-              <option value="Delivered" ${
-                order.status === "Delivered" ? "selected" : ""
-              }>Delivered</option>
-              <option value="Cancelled" ${
-                order.status === "Cancelled" ? "selected" : ""
-              }>Cancelled</option>
-            </select>
-            <button class="btn btn-primary update-status" data-order="${
-              order._id
-            }">
-              Update
-            </button>
-          </div>
+        <div class="total-row grand-total">
+          <span>Total:</span>
+          <span>${Number(order.total ?? 0).toFixed(2)} kr</span>
         </div>
-      `;
+      </div>
+    </div>
+
+    <div class="order-actions">
+      <button class="btn btn-outline print-receipt" data-order="${order._id}">
+        Print Receipt
+      </button>
+      <div class="status-actions">
+        <select class="status-select" data-order="${order._id}">
+          <option value="Pending" ${
+            order.status === "Pending" ? "selected" : ""
+          }>Pending</option>
+          <option value="Confirmed" ${
+            order.status === "Confirmed" ? "selected" : ""
+          }>Confirmed</option>
+          <option value="On the Way" ${
+            order.status === "On the Way" ? "selected" : ""
+          }>On the Way</option>
+          <option value="Delivered" ${
+            order.status === "Delivered" ? "selected" : ""
+          }>Delivered</option>
+          <option value="Cancelled" ${
+            order.status === "Cancelled" ? "selected" : ""
+          }>Cancelled</option>
+        </select>
+        <button class="btn btn-primary update-status" data-order="${
+          order._id
+        }">Update</button>
+      </div>
+    </div>
+  `;
       return card;
     }
 
@@ -1203,7 +1213,43 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
     }
+
+    // ==================== PRINT RECEIPT FUNCTION ADMIN PAGE ====================
     printOrderReceipt(order) {
+      // Guard
+      if (!order) return;
+
+      // Detect pickup even if address is "Avhämtning"
+      const isPickup =
+        order.orderType === "pickup" ||
+        (order.customer?.address || "").toLowerCase().includes("avhämtning");
+
+      // Compute numbers safely
+      const subtotalFromItems = Array.isArray(order.items)
+        ? order.items.reduce(
+            (s, i) => s + Number(i.price || 0) * Number(i.quantity || 0),
+            0
+          )
+        : 0;
+
+      const sub = Number(
+        order.subtotal != null ? order.subtotal : subtotalFromItems
+      );
+
+      const fee = isPickup ? 0 : Number(order.deliveryFee ?? 20);
+      const tot = sub + fee;
+
+      const feeText = fee === 0 ? "Gratis" : `${fee.toFixed(2)} kr`;
+      const sectionTitle = isPickup
+        ? "Pickup Information"
+        : "Delivery Information";
+      const etaText = isPickup ? " 10 minutes" : "20–35 minutes";
+
+      // Your store pickup location (used for pickup instead of "Adress: Avhämtning")
+      const STORE_NAME = "Matkungen";
+      const STORE_ADDRESS = "P G Vejdes väg, 352 52 Växjö";
+      const STORE_PHONE = "0769 666 666";
+
       // Create a hidden iframe for printing
       const iframe = document.createElement("iframe");
       iframe.style.position = "absolute";
@@ -1212,14 +1258,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
       const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
-      // Use the order's creation date instead of current date
-      const orderDate = new Date(order.createdAt).toLocaleDateString("sv-SE", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      // Use order's creation date (fallback to now if missing/invalid)
+      const created = order.createdAt ? new Date(order.createdAt) : new Date();
+      const orderDate =
+        created.toString() !== "Invalid Date"
+          ? created.toLocaleDateString("sv-SE", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            })
+          : new Date().toLocaleDateString("sv-SE", {
+              year: "numeric",
+              month: "2-digit",
+              day: "2-digit",
+              hour: "2-digit",
+              minute: "2-digit",
+            });
 
       iframeDoc.open();
       iframeDoc.write(`
@@ -1228,57 +1284,6 @@ document.addEventListener("DOMContentLoaded", function () {
     <head>
       <title>Order Receipt - ${order.orderNumber || ""}</title>
       <link rel="stylesheet" href="./assets/css/style.css">
-      <style>
-        body { background: white; padding: 20px; }
-        .print-view .confirmation-card { 
-          max-width: 600px; 
-          margin: 0 auto;
-          box-shadow: none;
-          border: none;
-        }
-        .print-view .confirmation-header {
-          text-align: center;
-          padding: 20px 0;
-          border-bottom: 2px solid #000;
-        }
-        .print-view .confirmation-content {
-          display: block;
-          padding: 20px 0;
-        }
-        .print-view .delivery-info, 
-        .print-view .order-summary {
-          width: 100%;
-          margin-bottom: 30px;
-        }
-        .print-view .detail-row {
-          display: flex;
-          justify-content: space-between;
-          margin: 10px 0;
-        }
-        .print-view .order-item {
-          display: flex;
-          justify-content: space-between;
-          margin: 5px 0;
-        }
-        .print-view .order-totals {
-          margin-top: 20px;
-          border-top: 1px solid #ccc;
-          padding-top: 10px;
-        }
-        .print-view .order-row {
-          display: flex;
-          justify-content: space-between;
-          margin: 5px 0;
-        }
-        .print-view .order-row.total {
-          font-weight: bold;
-          font-size: 1.2em;
-          margin-top: 10px;
-        }
-        @media print {
-          body { padding: 0; }
-        }
-      </style>
     </head>
     <body class="print-view">
       <div class="confirmation-card">
@@ -1293,16 +1298,26 @@ document.addEventListener("DOMContentLoaded", function () {
 
         <div class="confirmation-content">
           <div class="delivery-info">
-            <h2>Delivery Information</h2>
+            <h2>${sectionTitle}</h2>
             <div id="customer-details">
               ${
                 order.customer
                   ? `
                 <p><strong>Name:</strong> ${order.customer.name || "N/A"}</p>
                 <p><strong>Phone:</strong> ${order.customer.phone || "N/A"}</p>
-                <p><strong>Address:</strong> ${
-                  order.customer.address || "N/A"
-                }</p>
+                ${
+                  isPickup
+                    ? `
+                      <p><strong>Pickup Location:</strong> ${STORE_NAME}</p>
+                      <p><strong>Address:</strong> ${STORE_ADDRESS}</p>
+                      <p><strong>Restaurant Phone:</strong> ${STORE_PHONE}</p>
+                    `
+                    : `
+                      <p><strong>Address:</strong> ${
+                        order.customer.address || "N/A"
+                      }</p>
+                    `
+                }
                 ${
                   order.customer.notes
                     ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>`
@@ -1323,8 +1338,8 @@ document.addEventListener("DOMContentLoaded", function () {
               <span>${orderDate}</span>
             </div>
             <div class="detail-row">
-              <span>Estimated Delivery:</span>
-              <span id="delivery-time">20-35 minutes</span>
+              <span>Estimated ${isPickup ? "Time" : "Delivery"}:</span>
+              <span id="delivery-time">${etaText}</span>
             </div>
           </div>
 
@@ -1335,13 +1350,13 @@ document.addEventListener("DOMContentLoaded", function () {
                 order.items
                   ?.map(
                     (item) => `
-                <div class="order-item">
-                  <div class="item-name">${item.name} × ${item.quantity}</div>
-                  <div class="item-price">${(
-                    item.price * item.quantity
-                  ).toFixed(2)} kr</div>
-                </div>
-              `
+                  <div class="order-item">
+                    <div class="item-name">${item.name} × ${item.quantity}</div>
+                    <div class="item-price">${(
+                      Number(item.price || 0) * Number(item.quantity || 0)
+                    ).toFixed(2)} kr</div>
+                  </div>
+                `
                   )
                   .join("") || "<p>No items in order</p>"
               }
@@ -1350,21 +1365,15 @@ document.addEventListener("DOMContentLoaded", function () {
             <div class="order-totals">
               <div class="order-row">
                 <span>Subtotal</span>
-                <span id="order-subtotal">${
-                  order.subtotal?.toFixed(2) || "0.00"
-                } kr</span>
+                <span id="order-subtotal">${sub.toFixed(2)} kr</span>
               </div>
               <div class="order-row">
                 <span>Delivery Fee</span>
-                <span id="delivery-fee">${
-                  order.deliveryFee?.toFixed(2) || "0.00"
-                } kr</span>
+                <span id="delivery-fee">${feeText}</span>
               </div>
               <div class="order-row total">
                 <span>Total</span>
-                <span id="order-total">${
-                  order.total?.toFixed(2) || "0.00"
-                } kr</span>
+                <span id="order-total">${tot.toFixed(2)} kr</span>
               </div>
             </div>
           </div>
