@@ -3314,7 +3314,7 @@ body.nav-active {
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 0 48px 0 54px;
+    padding: 0 28px 0 44px;
     background: var(--eerie-black-1);
     color: var(--gold-crayola);
     border: 1px solid var(--white-alpha-10);
@@ -3330,13 +3330,13 @@ body.nav-active {
 
 .order-type-trigger .icon-left {
     position: absolute;
-    left: 12px;
+    left: 10px;
     font-size: 20px;
 }
 
 .order-type-trigger .caret {
     position: absolute;
-    right: 12px;
+    right: 10px;
     font-size: 20px;
     opacity: .85;
 }
