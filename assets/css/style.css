@@ -3314,7 +3314,7 @@ body.nav-active {
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 0 28px 0 44px;
+    padding: 0 28px 0 40px;
     background: var(--eerie-black-1);
     color: var(--gold-crayola);
     border: 1px solid var(--white-alpha-10);
@@ -3506,7 +3506,7 @@ body.nav-active {
     max-width: 850px;
     margin: 0 auto;
     background: var(--eerie-black-2);
-    padding: 40px;
+    padding: 24px;
     border-radius: 15px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
     border: 1px solid var(--white-alpha-20);
@@ -3585,7 +3585,13 @@ body.nav-active {
     margin-bottom: 1rem;
     padding-bottom: 1rem;
     color: var(--gold-crayola);
+    font-size: var(--fontSize-body-2);
     border-bottom: 1px solid var(--white-alpha-10);
+
+
+    overflow-wrap: anywhere;
+    /* break long words if needed */
+
 }
 
 .confirmation-section {
@@ -6698,6 +6704,11 @@ body.modal-open {
         padding: 0 0 !important;
         grid-template-columns: 1fr 1fr !important;
     }
+
+    /* .confirmation-content {
+        grid-template-columns: 1fr 1fr !important;
+    } */
+
 }
 
 
@@ -6745,6 +6756,10 @@ body.modal-open {
         grid-template-columns: 1fr;
         max-width: 500px;
         margin-inline: auto;
+    }
+
+    .confirmation-content {
+        grid-template-columns: 1fr;
     }
 
     .header.active {

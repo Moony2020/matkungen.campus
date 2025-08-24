@@ -531,7 +531,7 @@ Sat:           12:00–03:00 (overnight)
 Sun:           12:00–22:00
 */
   const OPENING_HOURS = {
-    0: [{ start: 12 * 60, end: 22 * 60 }], // Sun 12:00–22:00
+    0: [{ start: 12 * 60, end: 24 * 60 }], // Sun 12:00–22:00
     1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
     2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
     3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
@@ -1640,27 +1640,15 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     // Track/Map: hide for pickup
     const trackBtn = document.getElementById("track-order-btn");
     if (trackBtn) {
-      const STORE_NAME = "Matkungen";
-      const STORE_ADDRESS = "P G Vejdes väg, 352 52 Växjö";
-      const mapsUrl =
-        "https://www.google.com/maps/dir/56.8535951,14.8251036/CAMPUS+MATKUNGEN+I+V%C3%84XJ%C3%96,+P+G+Vejdes+v%C3%A4g,+352+52+V%C3%A4xj%C3%B6" +
-        encodeURIComponent(`${STORE_NAME}, ${STORE_ADDRESS}`);
-
       if (isPickup) {
-        trackBtn.href = mapsUrl;
-        trackBtn.target = "_blank";
-        trackBtn.innerHTML = '<i class="ri-map-pin-line"></i> Visa karta';
-        trackBtn.style.display = ""; // show as map
+        trackBtn.style.display = "none";
       } else if (currentOrder.orderNumber) {
         trackBtn.href = `track-order.html?order=${currentOrder.orderNumber}`;
-        trackBtn.removeAttribute("target");
-        trackBtn.innerHTML =
-          '<i class="ri-map-pin-line"></i> Spåra din leverans';
         trackBtn.style.display = "";
-      } else {
-        trackBtn.style.display = "none";
       }
     }
+
+    if (isPickup) document.body.classList.add("is-pickup");
   }
 
   // ==================== PRINT RECEIPT FUNCTION ====================
