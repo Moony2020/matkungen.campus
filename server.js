@@ -239,7 +239,17 @@ app.on("order:paid", async (order) => {
   }
 });
 function buildOrderEmailHtml(order) {
-  const isPickup = String(order.orderType).toLowerCase() === "pickup";
+  const isPickup =
+    String(order.orderType || "").toLowerCase() === "pickup" ||
+    /avh[aä]mtning/i.test(order.customer?.address || "");
+
+  // Store location (edit if needed)
+  const STORE_NAME = "Matkungen";
+  const STORE_ADDRESS = "P G Vejdes väg, 352 52 Växjö";
+  const STORE_PHONE = "0769 666 666";
+  const mapsUrl =
+    "https://www.google.com/maps/search/?api=1&query=" +
+    encodeURIComponent(`${STORE_NAME}, ${STORE_ADDRESS}`);
 
   // Safe math
   const items = Array.isArray(order.items) ? order.items : [];
@@ -256,14 +266,13 @@ function buildOrderEmailHtml(order) {
   const total = subtotal + deliveryFee;
 
   const feeText = deliveryFee === 0 ? "Gratis" : `${deliveryFee.toFixed(2)} kr`;
-  const etaText = isPickup ? "≈ 10 minuter" : "20–35 minuter";
+  const etaText = isPickup ? "10 minuter" : "20–35 minuter";
   const sectionTitle = isPickup
     ? "Upphämtningsinformation"
     : "Leveransinformation";
 
-  // Address line: show pickup location for avhämtning, otherwise the customer's address
-  const addressText = isPickup
-    ? "Avhämtning – Matkungen, P G Vejdes väg, 352 52 Växjö"
+  const addressLine = isPickup
+    ? `${STORE_NAME}, ${STORE_ADDRESS}`
     : order.customer?.address || "";
 
   const itemsHtml = items
@@ -281,16 +290,14 @@ function buildOrderEmailHtml(order) {
       : "http://localhost:4000";
 
   return `
-  <div style="max-width: 600px; margin: auto; font-family: 'Segoe UI', sans-serif; color: #333; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden;">
-    <!-- LOGO -->
-    <div style="background: #000; padding: 20px; text-align: center;">
-      <img src="https://matkungen-campus.onrender.com/assets/images/logo.png" alt="Matkungen" style="height: 60px;" onerror="this.style.display='none';" />
-      <h2 style="margin: 10px 0 0; color: #FFD700;">Matkungen</h2>
+  <div style="max-width:600px;margin:auto;font-family:'Segoe UI',sans-serif;color:#333;background:#fff;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;">
+    <div style="background:#000;padding:20px;text-align:center;">
+      <img src="https://matkungen-campus.onrender.com/assets/images/logo.png" alt="Matkungen" style="height:60px;" onerror="this.style.display='none';" />
+      <h2 style="margin:10px 0 0;color:#FFD700;">Matkungen</h2>
     </div>
 
-    <!-- HEADER -->
-    <div style="padding: 24px 32px; text-align: center; background: #000; color: #FFD700;">
-      <h2 style="margin: 0;">Tack för din beställning, ${
+    <div style="padding:24px 32px;text-align:center;background:#000;color:#FFD700;">
+      <h2 style="margin:0;">Tack för din beställning, ${
         order.customer?.name || ""
       }!</h2>
       <p style="margin:5px 0 0;font-size:18px;">Order #${
@@ -314,7 +321,12 @@ function buildOrderEmailHtml(order) {
       <h3 style="margin-top:0;">${sectionTitle}</h3>
       <p><strong>Namn:</strong> ${order.customer?.name || ""}</p>
       <p><strong>Telefon:</strong> ${order.customer?.phone || ""}</p>
-      <p><strong>Adress:</strong> ${addressText}</p>
+      <p><strong>Adress:</strong> ${addressLine}</p>
+      ${
+        isPickup
+          ? `<p><strong>Restaurangens telefon:</strong> ${STORE_PHONE}</p>`
+          : ""
+      }
       ${
         order.customer?.notes
           ? `<p><strong>Noteringar:</strong> ${order.customer.notes}</p>`
@@ -324,19 +336,25 @@ function buildOrderEmailHtml(order) {
     </div>
 
     ${
-      !isPickup
+      isPickup
         ? `
+    <div style="text-align:center;padding:20px;">
+      <a href="${mapsUrl}" target="_blank"
+         style="display:inline-block;padding:12px 24px;background:#FFD700;color:#000;font-weight:bold;text-decoration:none;border-radius:6px;">
+        Visa karta
+      </a>
+    </div>`
+        : `
     <div style="text-align:center;padding:20px;">
       <a href="${FRONTEND}/track-order.html?order=${order.orderNumber}" target="_blank"
          style="display:inline-block;padding:12px 24px;background:#FFD700;color:#000;font-weight:bold;text-decoration:none;border-radius:6px;">
         Spåra din leverans
       </a>
     </div>`
-        : ""
     }
 
     <div style="padding:16px 32px;background:#f4f4f4;text-align:center;font-size:14px;color:#777;">
-      <p style="margin:0;">📞 Behöver du hjälp? Ring <strong>0769 666 666</strong></p>
+      <p style="margin:0;">📞 Behöver du hjälp? Ring <strong>${STORE_PHONE}</strong></p>
       <p style="margin:4px 0 0;">Matkungen © ${new Date().getFullYear()}</p>
     </div>
   </div>`;

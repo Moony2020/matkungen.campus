@@ -1637,18 +1637,30 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         .join("");
     }
 
-    // Track button: hide for pickup
+    // Track/Map: hide for pickup
     const trackBtn = document.getElementById("track-order-btn");
     if (trackBtn) {
+      const STORE_NAME = "Matkungen";
+      const STORE_ADDRESS = "P G Vejdes väg, 352 52 Växjö";
+      const mapsUrl =
+        "https://www.google.com/maps/dir/56.8535951,14.8251036/CAMPUS+MATKUNGEN+I+V%C3%84XJ%C3%96,+P+G+Vejdes+v%C3%A4g,+352+52+V%C3%A4xj%C3%B6" +
+        encodeURIComponent(`${STORE_NAME}, ${STORE_ADDRESS}`);
+
       if (isPickup) {
-        trackBtn.style.display = "none";
+        trackBtn.href = mapsUrl;
+        trackBtn.target = "_blank";
+        trackBtn.innerHTML = '<i class="ri-map-pin-line"></i> Visa karta';
+        trackBtn.style.display = ""; // show as map
       } else if (currentOrder.orderNumber) {
         trackBtn.href = `track-order.html?order=${currentOrder.orderNumber}`;
+        trackBtn.removeAttribute("target");
+        trackBtn.innerHTML =
+          '<i class="ri-map-pin-line"></i> Spåra din leverans';
         trackBtn.style.display = "";
+      } else {
+        trackBtn.style.display = "none";
       }
     }
-
-    if (isPickup) document.body.classList.add("is-pickup");
   }
 
   // ==================== PRINT RECEIPT FUNCTION ====================
