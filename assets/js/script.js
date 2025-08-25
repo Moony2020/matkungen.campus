@@ -532,7 +532,7 @@ Sun:           12:00–22:00
 */
   const OPENING_HOURS = {
     0: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
-    1: [{ start: 11 * 60, end: 22 * 60 }], // Mon 11:00–22:00
+    1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
     2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
     3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
     4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
@@ -1735,7 +1735,6 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
       iframeDoc.open();
       iframeDoc.write(`
-    <!DOCTYPE html>
     <html>
     <head>
       <title>Order Receipt - ${currentOrder.orderNumber || ""}</title>

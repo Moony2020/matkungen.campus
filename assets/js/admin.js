@@ -94,9 +94,9 @@ document.addEventListener("DOMContentLoaded", function () {
         this.updateOrderInRecent(order); // NEW: Update recent orders section
 
         // Add this condition to update revenue
-        if (order.status === "Delivered") {
-          this.updateRevenue(order.total);
-        }
+        // if (order.status === "Delivered") {
+        //   this.updateRevenue(order.total);
+        // }
         // ❌ Keep notifications only in updateOrderStatus() to avoid double-toasts
         // this.showNotification(
         //   `Order #${order.orderNumber} updated to ${order.status}`
@@ -163,7 +163,7 @@ document.addEventListener("DOMContentLoaded", function () {
         this.showNotification(
           `Order #${order.orderNumber} marked as Delivered`
         );
-        this.updateRevenue(order.total); // or this.updateTodayRevenue(order.total)
+        // this.updateRevenue(order.total); // or this.updateTodayRevenue(order.total)
       });
 
       // Update Dashboard Stats
@@ -923,20 +923,24 @@ document.addEventListener("DOMContentLoaded", function () {
       <div class="order-totals">
         <div class="total-row">
           <span>Subtotal:</span>
-          <span>${Number(order.subtotal ?? 0).toFixed(2)} kr</span>
+          <span>${Number(order.subtotal || 0).toFixed(2)} kr</span>
         </div>
         <div class="total-row">
           <span>Delivery:</span>
-          <span>${deliveryFeeText}</span>   <!-- ← shows Gratis when pickup/0 -->
+          <span>${
+            String(order.orderType || "").toLowerCase() === "pickup" ||
+            Number(order.deliveryFee) === 0
+              ? "Gratis"
+              : `${Number(order.deliveryFee || 0).toFixed(2)} kr`
+          }</span>
         </div>
         <div class="total-row grand-total">
           <span>Total:</span>
-          <span>${Number(order.total ?? 0).toFixed(2)} kr</span>
+          <span>${Number(order.total || 0).toFixed(2)} kr</span>
         </div>
       </div>
-    </div>
 
-    <div class="order-actions">
+      <div class="order-actions">
       <button class="btn btn-outline print-receipt" data-order="${order._id}">
         Print Receipt
       </button>
@@ -1799,25 +1803,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // updateOrderStatus method
     // In the updateOrderStatus method, add this logic
-    async updateOrderStatus(orderId, newStatus) {
+    // replace the old:  async updateOrderStatus(orderId, newStatus) { ... }
+    updateOrderStatus = async (orderId, newStatus) => {
       try {
-        // First get the current order to check previous status
+        // 1) fetch the current order to know the previous status
         const token = localStorage.getItem("adminToken");
-        const currentOrderResponse = await fetch(
-          `/api/admin/orders/${orderId}`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
+        const prevRes = await fetch(`/api/admin/orders/${orderId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!prevRes.ok) throw new Error("Failed to fetch current order");
+        const prevJson = await prevRes.json();
+        const previousStatus = prevJson.order?.status;
 
-        if (!currentOrderResponse.ok)
-          throw new Error("Failed to fetch current order");
-
-        const { order: currentOrder } = await currentOrderResponse.json();
-        const previousStatus = currentOrder.status;
-
-        // Now update the status
-        const response = await fetch(`/api/admin/orders/${orderId}/status`, {
+        // 2) update the status on the server
+        const res = await fetch(`/api/admin/orders/${orderId}/status`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -1826,46 +1825,43 @@ document.addEventListener("DOMContentLoaded", function () {
           body: JSON.stringify({ status: newStatus }),
         });
 
-        const { order } = await response.json();
-        if (!response.ok) throw new Error("Failed to update order status");
+        const data = await res.json();
+        if (!res.ok)
+          throw new Error(data.error || "Failed to update order status");
 
-        // Update revenue based on status change
-        const revenueElement = document.getElementById("today-revenue");
-        let currentRevenue = 0;
+        // 3) revenue widget handling
+        // If server sent fresh stats (it does when you set to Delivered for a today order),
+        // use them; otherwise adjust locally so demotions also reflect immediately.
+        if (data.stats) {
+          this.updateDashboardStats(data.stats);
+        } else {
+          const el = document.getElementById("today-revenue");
+          if (el) {
+            const current =
+              parseFloat((el.textContent || "0").replace(/[^0-9.]/g, "")) || 0;
+            const amount = Number(data.order?.total || 0);
 
-        if (revenueElement) {
-          // Extract numeric value from revenue text
-          const revenueText = revenueElement.textContent || "0";
-          currentRevenue = parseFloat(revenueText.replace(/[^0-9.]/g, "")) || 0;
-        }
-
-        // If status changed from Delivered to something else, subtract the amount
-        if (previousStatus === "Delivered" && newStatus !== "Delivered") {
-          currentRevenue -= order.total || 0;
-          if (revenueElement) {
-            revenueElement.textContent = `${Math.max(0, currentRevenue).toFixed(
-              2
-            )} kr`;
-          }
-        }
-        // If status changed to Delivered from something else, add the amount
-        else if (previousStatus !== "Delivered" && newStatus === "Delivered") {
-          currentRevenue += order.total || 0;
-          if (revenueElement) {
-            revenueElement.textContent = `${currentRevenue.toFixed(2)} kr`;
+            if (previousStatus === "Delivered" && newStatus !== "Delivered") {
+              el.textContent = `${Math.max(0, current - amount).toFixed(2)} kr`;
+            } else if (
+              previousStatus !== "Delivered" &&
+              newStatus === "Delivered"
+            ) {
+              el.textContent = `${(current + amount).toFixed(2)} kr`;
+            }
           }
         }
 
-        // UI update logic
-        this.updateOrderInUI(order);
+        // 4) update the card/table UI
+        this.updateOrderInUI(data.order);
         this.showNotification(
-          `Order #${order.orderNumber} updated to ${newStatus}`
+          `Order #${data.order.orderNumber} updated to ${newStatus}`
         );
-      } catch (error) {
-        console.error("Error updating order status:", error);
+      } catch (err) {
+        console.error("Error updating order status:", err);
         this.showNotification("Failed to update order status", true);
       }
-    }
+    };
 
     getStatusClass(status) {
       const map = {
@@ -1912,6 +1908,37 @@ document.addEventListener("DOMContentLoaded", function () {
         if (statusSelect) {
           statusSelect.value = updatedOrder.status;
         }
+
+        // refresh totals in the card
+        const card = orderCard; // same element
+        // subtotal
+        const subEl = card.querySelector(
+          ".order-totals .total-row:nth-child(1) span:last-child"
+        );
+        if (subEl)
+          subEl.textContent = `${Number(updatedOrder.subtotal || 0).toFixed(
+            2
+          )} kr`;
+
+        // delivery (Gratis for pickup/0)
+        const delEl = card.querySelector(
+          ".order-totals .total-row:nth-child(2) span:last-child"
+        );
+        if (delEl) {
+          const isPickup =
+            String(updatedOrder.orderType || "").toLowerCase() === "pickup";
+          const fee = isPickup ? 0 : Number(updatedOrder.deliveryFee || 0);
+          delEl.textContent = fee <= 0 ? "Gratis" : `${fee.toFixed(2)} kr`;
+        }
+
+        // total
+        const totEl = card.querySelector(
+          ".order-totals .grand-total span:last-child"
+        );
+        if (totEl)
+          totEl.textContent = `${Number(updatedOrder.total || 0).toFixed(
+            2
+          )} kr`;
       }
     }
 
