@@ -3310,6 +3310,7 @@ body.nav-active {
 .order-type-trigger {
     width: 100%;
     height: 44px;
+    position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -3321,6 +3322,11 @@ body.nav-active {
     border-radius: 5px;
     cursor: pointer;
     font: inherit;
+
+
+    /* allow text to clip inside the trigger */
+    min-width: 0;
+    overflow: hidden;
 }
 
 .order-type-trigger:focus {
@@ -3376,10 +3382,12 @@ body.nav-active {
     cursor: pointer;
     user-select: none;
     border: 1px solid var(--white-alpha-10);
-}
 
-.order-type-menu .option i {
-    font-size: 18px;
+    min-width: 0;
+    /* allows flex children to shrink */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* space between options */
@@ -3428,7 +3436,8 @@ body.nav-active {
     top: 0;
     height: fit-content;
     align-self: start;
-    margin-top: 0;
+    padding-block: 28px;
+    /* add top/bottom space */
 }
 
 .checkout-grid .order-summary h2 {
@@ -6452,6 +6461,15 @@ body.modal-open {
         padding-top: 1.7rem;
     }
 
+    /* Checkout Form */
+    .checkout-form {
+        /* Remove padding if needed */
+        padding-inline: 10px !important;
+        /* left/right stay 10px */
+        padding-block: 22px !important;
+        /* add top/bottom space */
+    }
+
     .confirmation-actions {
         flex-direction: column;
         align-items: center;
@@ -6493,6 +6511,7 @@ body.modal-open {
         max-width: 300px;
         bottom: 60px;
     }
+
 }
 
 @media (min-width: 575px) {
