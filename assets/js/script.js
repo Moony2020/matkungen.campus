@@ -886,6 +886,10 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     const iconLeft = triggerBtn?.querySelector(".icon-left");
     const menu = orderTypeWrap?.querySelector(".order-type-menu");
     const optionsEls = menu ? Array.from(menu.querySelectorAll(".option")) : [];
+    const triggerLabel = document.querySelector(
+      "#order-type-dropdown .order-type-trigger .label"
+    );
+    if (triggerLabel) triggerLabel.title = triggerLabel.textContent.trim();
 
     const addressFields = document
       .getElementById("address")

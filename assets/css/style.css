@@ -3315,7 +3315,7 @@ body.nav-active {
     align-items: center;
     justify-content: space-between;
     gap: 10px;
-    padding: 0 22px 0 32px;
+    padding: 0 28px 0 32px;
     background: var(--eerie-black-1);
     color: var(--gold-crayola);
     border: 1px solid var(--white-alpha-10);
@@ -3324,9 +3324,21 @@ body.nav-active {
     font: inherit;
 
 
-    /* allow text to clip inside the trigger */
-    min-width: 0;
     overflow: hidden;
+    /* required for ellipsis */
+    min-width: 0;
+    /* allow flex children to shrink */
+}
+
+/* The text inside the closed control */
+.ordertype-select .order-type-trigger .label {
+    min-width: 0;
+    /* CRUCIAL for flex truncation */
+    white-space: nowrap;
+    /* single line only */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    /* show … */
 }
 
 .order-type-trigger:focus {
@@ -3382,12 +3394,19 @@ body.nav-active {
     cursor: pointer;
     user-select: none;
     border: 1px solid var(--white-alpha-10);
-
     min-width: 0;
     /* allows flex children to shrink */
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.order-type-menu .option span {
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* space between options */
@@ -3401,7 +3420,6 @@ body.nav-active {
     color: var(--gold-crayola);
 }
 
-
 .order-type-menu::-webkit-scrollbar-track {
     background: var(--eerie-black-1);
 }
@@ -3410,7 +3428,6 @@ body.nav-active {
     background: var(--gold-crayola);
     border-radius: 8px;
 }
-
 
 /* pickup info stays as you have */
 .pickup-info {
