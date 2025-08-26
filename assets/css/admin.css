@@ -43,6 +43,7 @@
 [data-theme="dark"] {
     --bg-color: #121212;
     --card-bg: #1e1e1e;
+    --dashboard-bg: #1b1b1bc3;
     /* Add these new variables */
     --card-bg-light: #2a2a2a;
     --card-bg-lighter: #353535;
@@ -52,6 +53,12 @@
     --text-lighter: #6c757d;
     --border-color: #2d2d2d;
     --card-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    --gold-crayola: hwb(38 56% 11%);
+}
+
+[data-theme="dark"] .admin-header {
+    color: var(--gold-crayola) !important;
+    background-color: var(--dashboard-bg) !important;
 }
 
 /* Add this to your dark mode styles */
@@ -129,13 +136,16 @@ body {
 .sidebar .logo {
     display: flex;
     align-items: center;
-    padding: 0 20px 20px;
+    padding: 0 20px 14px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 16px;
 }
 
 .sidebar .logo img {
-    width: 40px;
-    height: 40px;
+    position: relative;
+    top: 5px;
+    width: 50px;
+    height: 50px;
     margin-right: 10px;
     border-radius: 8px;
 }

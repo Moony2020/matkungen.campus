@@ -1610,15 +1610,30 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       (feeEl.textContent = fee === 0 ? "Gratis" : `${fee.toFixed(2)} kr`);
     totEl && (totEl.textContent = `${total.toFixed(2)} kr`);
 
-    // Heading + ETA
+    // Heading + ETA (label & value)
     const deliveryHeader = document.querySelector(".delivery-info h2");
     if (deliveryHeader) {
       deliveryHeader.textContent = isPickup
         ? "Upphämtningsinformation"
         : "Leveransinformation";
     }
+
     const etaEl = document.getElementById("delivery-time");
-    if (etaEl) etaEl.textContent = isPickup ? " 10 minuter" : "20–35 minuter";
+    if (etaEl) {
+      // value
+      etaEl.textContent = isPickup ? " 10 minuter" : "20–35 minuter";
+
+      // label (left side)
+      const etaRow = etaEl.closest(".detail-row");
+      if (etaRow) {
+        const labelSpan = etaRow.querySelector("span:first-child");
+        if (labelSpan) {
+          labelSpan.innerHTML = `<strong>${
+            isPickup ? "Beräknad tid" : "Beräknad leveranstid"
+          }:</strong>`;
+        }
+      }
+    }
 
     // Customer / pickup details
     const details = document.getElementById("customer-details");
@@ -1669,18 +1684,30 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         .join("");
     }
 
-    // Track/Map: hide for pickup
+    // Track/Map: reuse the same button; show "Visa karta" for pickup
     const trackBtn = document.getElementById("track-order-btn");
     if (trackBtn) {
+      // Google Maps link for the restaurant
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        `${STORE_NAME}, ${STORE_ADDRESS}`
+      )}`;
+
       if (isPickup) {
-        trackBtn.style.display = "none";
+        // Turn the Track button into "Visa karta"
+        trackBtn.href = mapsUrl;
+        trackBtn.target = "_blank";
+        trackBtn.rel = "noopener";
+        trackBtn.innerHTML = `<i class="ri-map-pin-2-line"></i> Visa karta`;
+        trackBtn.style.display = "";
       } else if (currentOrder.orderNumber) {
+        // Keep normal tracking for delivery
         trackBtn.href = `track-order.html?order=${currentOrder.orderNumber}`;
+        trackBtn.target = "";
+        trackBtn.rel = "";
+        trackBtn.innerHTML = `<i class="ri-route-line"></i> Spåra leverans`;
         trackBtn.style.display = "";
       }
     }
-
-    if (isPickup) document.body.classList.add("is-pickup");
   }
 
   // ==================== PRINT RECEIPT FUNCTION ====================
