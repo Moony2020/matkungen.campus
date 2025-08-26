@@ -387,12 +387,17 @@ app.get("/config", (req, res) => {
 // ---------- Stripe / PayPal (block when closed where relevant) ----------
 app.post("/create-payment-intent", blockWhenClosed, async (req, res) => {
   try {
-    const { amount } = req.body;
+    const { amount, cardholderName } = req.body;
+    if (!cardholderName || !cardholderName.trim()) {
+      return res.status(400).json({ error: "Cardholder name is required" });
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount),
       currency: "sek",
-      payment_method_types: ["card"],
+      metadata: { cardholderName }, // for your records
     });
+
     res.send({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
     res.status(500).json({ error: "Failed to create payment intent" });

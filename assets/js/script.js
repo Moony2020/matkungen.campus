@@ -1279,40 +1279,68 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         }
       }
 
-      // 5. Stripe Payment Handler
+      // 5. Stripe Payment Handler (requires an <input id="card-name">)
       document
         .getElementById("stripe-pay-btn")
-        ?.addEventListener("click", async () => {
-          const { error, paymentMethod } = await stripe.createPaymentMethod({
-            type: "card",
-            card: cardElement,
-          });
+        ?.addEventListener("click", async (e) => {
+          e.preventDefault();
 
-          if (error) {
-            document.getElementById("card-errors").textContent = error.message;
+          const nameEl = document.getElementById("card-name");
+          const cardholderName = (nameEl?.value || "").trim();
+          const errEl = document.getElementById("card-errors");
+          errEl.textContent = "";
+
+          // Require name
+          if (!cardholderName) {
+            errEl.textContent = "Please enter the cardholder name.";
+            nameEl?.focus();
+            return;
+          }
+
+          // Create a PaymentMethod with the name
+          const { error: pmError, paymentMethod } =
+            await stripe.createPaymentMethod({
+              type: "card",
+              card: cardElement, // your initialized Stripe Element
+              billing_details: { name: cardholderName },
+            });
+
+          if (pmError) {
+            errEl.textContent = pmError.message;
             return;
           }
 
           try {
-            const response = await fetch("/create-payment-intent", {
+            // Ask your server to create a PaymentIntent and enforce name presence there too
+            const res = await fetch("/create-payment-intent", {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ amount: total }),
+              body: JSON.stringify({
+                amount: total, // make sure this is in öre (e.g., 95.00 kr => 9500)
+                cardholderName, // server can validate it's not empty
+              }),
             });
 
-            const { clientSecret } = await response.json();
+            const data = await res.json();
+            if (!res.ok || data.error) {
+              throw new Error(data.error || "Failed to create payment intent.");
+            }
+
+            // Confirm the payment using the PaymentMethod we just created
             const { error: confirmError, paymentIntent } =
-              await stripe.confirmCardPayment(clientSecret, {
+              await stripe.confirmCardPayment(data.clientSecret, {
                 payment_method: paymentMethod.id,
               });
 
             if (confirmError) throw confirmError;
 
-            if (paymentIntent.status === "succeeded") {
+            if (paymentIntent?.status === "succeeded") {
               await handlePaymentSuccess("Credit Card");
             }
           } catch (err) {
-            document.getElementById("card-errors").textContent = err.message;
+            errEl.textContent =
+              err.message ||
+              "Something went wrong while processing the payment.";
           }
         });
 

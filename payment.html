@@ -205,10 +205,15 @@
                     id="card-name"
                     placeholder="John Doe"
                     required
+                    pattern="[A-Za-zÀ-ÿ'. \-]{2,}"
                   />
                 </div>
 
-                <button id="stripe-pay-btn" class="btn btn-primary">
+                <button
+                  id="stripe-pay-btn"
+                  class="btn btn-primary"
+                  type="submit"
+                >
                   <span class="text text-1">Betala nu</span>
                   <span class="text text-2" aria-hidden="true">Betala nu</span>
                 </button>
