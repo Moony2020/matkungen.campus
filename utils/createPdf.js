@@ -66,7 +66,28 @@ function receiptHtml(order) {
 <head>
   <meta charset="utf-8" />
   <title>Order Receipt - ${order.orderNumber || ""}</title>
-   <link rel="stylesheet" href="./assets/css/style.css">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color:#111; margin:0; background:#fff; }
+    .page { padding: 28px; }
+    .confirmation-card { max-width: 800px; margin: 0 auto; border:1px solid #eee; border-radius:12px; padding:0; overflow:hidden; background:#fff; }
+    .text-header { padding:24px; text-align:center; border-bottom:1px solid #eee; }
+    .text-header h1 { margin:0; font-weight:800; font-size:26px; letter-spacing:0.5px; color:#111; }
+    .confirmation-inner { padding:24px; }
+    .confirmation-header { text-align:center; margin-bottom:18px; }
+    .confirmation-text { margin:8px 0 0; color:#555; }
+    .badge { display:inline-block; padding:6px 10px; border-radius:6px; background:#f5f5f5; }
+    .section-title { font-size:18px; margin:18px 0 10px; color:#7a6b2f; font-weight:700; }
+    .confirmation-content { display:flex; gap:24px; flex-wrap:wrap; }
+    .delivery-info, .order-summary { flex:1 1 320px; }
+    .detail-row { display:flex; justify-content:space-between; margin:6px 0; color:#333; }
+    .order-items { border:1px solid #eee; border-radius:10px; padding:8px 12px; }
+    .order-item { display:flex; justify-content:space-between; padding:8px 4px; border-bottom:1px dashed #eee; }
+    .order-item:last-child { border-bottom:none; }
+    .order-totals { margin-top:12px; }
+    .order-row { display:flex; justify-content:space-between; margin:6px 0; }
+    .order-row.total { border-top:1px solid #e9e9e9; margin-top:10px; padding-top:10px; font-weight:700; }
+    .muted { color:#666; }
+  </style>
 </head>
 <body>
   <div class="page">

@@ -1768,7 +1768,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
               <span>${orderDate}</span>
             </div>
             <div class="detail-row">
-              <span>Beräknad leveranstid:</span>
+              <span>Beräknad tid:</span>
               <span id="delivery-time">${etaText}</span>
             </div>
           </div>
