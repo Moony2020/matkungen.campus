@@ -1,12 +1,20 @@
 // utils/createPdf.js
+const fs = require("fs");
+const path = require("path");
 
 function receiptHtml(order) {
-  // ---- robust pickup detection ----
+  // --- pickup detection (same as server/client) ---
   const isPickup =
-    String(order.orderType || "").toLowerCase() === "pickup" ||
+    /pickup/i.test(String(order.fulfillmentMethod || order.orderType || "")) ||
     /avh[aä]mtning/i.test(order?.customer?.address || "");
 
-  // ---- order date: use createdAt if present ----
+  const etaLabel = isPickup ? "Beräknad tid" : "Beräknad leveranstid";
+  const etaText = isPickup ? "10 minuter" : "20–35 minuter";
+  const sectionLbl = isPickup
+    ? "Upphämtningsinformation"
+    : "Leveransinformation";
+
+  // --- order date ---
   const created = order.createdAt ? new Date(order.createdAt) : new Date();
   const orderDate = created.toLocaleDateString("sv-SE", {
     year: "numeric",
@@ -16,7 +24,7 @@ function receiptHtml(order) {
     minute: "2-digit",
   });
 
-  // ---- safe math ----
+  // --- math (safe) ---
   const items = Array.isArray(order.items) ? order.items : [];
   const subtotal =
     typeof order.subtotal === "number"
@@ -25,126 +33,105 @@ function receiptHtml(order) {
           (s, i) => s + Number(i.price || 0) * Number(i.quantity || 0),
           0
         );
-
   const rawFee = Number(order.deliveryFee ?? 0);
-  const deliveryFee = isPickup ? 0 : rawFee;
-  const total = subtotal + deliveryFee;
+  const isPickupFee = isPickup ? 0 : rawFee;
+  const total = subtotal + isPickupFee;
 
-  const feeText = deliveryFee === 0 ? "Gratis" : `${deliveryFee.toFixed(2)} kr`;
-  const etaText = isPickup ? " 10 minuter" : "20–35 minuter";
-  const sectionTitle = isPickup
-    ? "Upphämtningsinformation"
-    : "Leveransinformation";
-
-  // ---- pickup location shown nicely ----
+  const c = order.customer || {};
   const STORE_NAME = "Matkungen";
   const STORE_ADDRESS = "P G Vejdes väg, 352 52 Växjö";
   const STORE_PHONE = "0769 666 666";
 
-  const addressBlock = isPickup
-    ? `
-      <p><strong>Upphämtningsställe:</strong> ${STORE_NAME}</p>
-      <p><strong>Adress:</strong> ${STORE_ADDRESS}</p>
-      <p><strong>Restaurangens telefon:</strong> ${STORE_PHONE}</p>
-    `
-    : `<p><strong>Adress:</strong> ${order.customer?.address || "N/A"}</p>`;
-
   const itemsHtml = items
-    .map((item) => {
-      const qty = Number(item.quantity || 1);
-      const price = Number(item.price || 0);
+    .map((i) => {
+      const qty = Number(i.quantity || 1);
+      const price = Number(i.price || 0);
       return `
-        <div class="order-item">
-          <div class="item-name">${item.name} × ${qty}</div>
-          <div class="item-price">${(price * qty).toFixed(2)} kr</div>
-        </div>`;
+      <div class="order-item">
+        <div class="item-name">${i.name} × ${qty}</div>
+        <div class="item-price">${(price * qty).toFixed(2)} kr</div>
+      </div>`;
     })
     .join("");
 
-  return `<!DOCTYPE html>
+  return `<!doctype html>
 <html>
 <head>
   <meta charset="utf-8" />
   <title>Order Receipt - ${order.orderNumber || ""}</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; color:#111; margin:0; background:#fff; }
-    .page { padding: 28px; }
-    .confirmation-card { max-width: 800px; margin: 0 auto; border:1px solid #eee; border-radius:12px; padding:0; overflow:hidden; background:#fff; }
-    .text-header { padding:24px; text-align:center; border-bottom:1px solid #eee; }
-    .text-header h1 { margin:0; font-weight:800; font-size:26px; letter-spacing:0.5px; color:#111; }
-    .confirmation-inner { padding:24px; }
-    .confirmation-header { text-align:center; margin-bottom:18px; }
-    .confirmation-text { margin:8px 0 0; color:#555; }
-    .badge { display:inline-block; padding:6px 10px; border-radius:6px; background:#f5f5f5; }
-    .section-title { font-size:18px; margin:18px 0 10px; color:#7a6b2f; font-weight:700; }
-    .confirmation-content { display:flex; gap:24px; flex-wrap:wrap; }
-    .delivery-info, .order-summary { flex:1 1 320px; }
-    .detail-row { display:flex; justify-content:space-between; margin:6px 0; color:#333; }
-    .order-items { border:1px solid #eee; border-radius:10px; padding:8px 12px; }
-    .order-item { display:flex; justify-content:space-between; padding:8px 4px; border-bottom:1px dashed #eee; }
-    .order-item:last-child { border-bottom:none; }
-    .order-totals { margin-top:12px; }
-    .order-row { display:flex; justify-content:space-between; margin:6px 0; }
-    .order-row.total { border-top:1px solid #e9e9e9; margin-top:10px; padding-top:10px; font-weight:700; }
-    .muted { color:#666; }
-  </style>
 </head>
-<body>
+<body class="print-view">
   <div class="page">
     <div class="confirmation-card">
-      <div class="text-header">
+      <div class="confirmation-header">
         <h1>Matkungen</h1>
+        <p class="confirmation-text">
+          Ordernummer<br><span id="order-number">${
+            order.orderNumber || ""
+          }</span>
+        </p>
       </div>
 
-      <div class="confirmation-inner">
-        <div class="confirmation-header">
-          <p class="confirmation-text">
-            <span class="badge">Ordernummer</span><br/>
-            ${order.orderNumber || ""}
-          </p>
-        </div>
+      <div class="confirmation-content">
+        <div class="delivery-info">
+          <h2>${sectionLbl}</h2>
 
-        <div class="confirmation-content">
-          <div class="delivery-info">
-            <div class="section-title">${sectionTitle}</div>
-            <div id="customer-details" class="muted">
-              <p><strong>Namn:</strong> ${order.customer?.name || "N/A"}</p>
-              <p><strong>Telefon:</strong> ${order.customer?.phone || "N/A"}</p>
-              ${addressBlock}
-              ${
-                order.customer?.notes
-                  ? `<p><strong>Noteringar:</strong> ${order.customer.notes}</p>`
-                  : ""
-              }
-            </div>
+          <!-- all rows inline: label then value -->
+          <div class="detail-row inline"><span>Namn:</span><span>${
+            c.name || "-"
+          }</span></div>
+          <div class="detail-row inline"><span>Telefon:</span><span>${
+            c.phone || "-"
+          }</span></div>
 
-            <div class="detail-row"><span>Betalningsmetod:</span><span>${
-              order.paymentMethod || "Ej angivet"
+          ${
+            isPickup
+              ? `
+                <div class="detail-row inline"><span>Upphämtningsställe:</span><span>${STORE_NAME}</span></div>
+                <div class="detail-row inline"><span>Adress:</span><span>${STORE_ADDRESS}</span></div>
+                <div class="detail-row inline"><span>Restaurangens telefon:</span><span>${STORE_PHONE}</span></div>
+              `
+              : `<div class="detail-row inline"><span>Adress:</span><span>${
+                  c.address || "-"
+                }</span></div>`
+          }
+
+          ${
+            c.notes
+              ? `<div class="detail-row inline"><span>Noteringar:</span><span>${c.notes}</span></div>`
+              : ""
+          }
+
+   <!-- these three were two-column before; now forced inline -->
+   <div class="detail-row value-right"><span>Betalningsmetod:</span><span>${
+     order.paymentMethod || "—"
+   }</span></div>
+   <div class="detail-row value-right"><span>Orderdatum:</span><span>${orderDate}</span></div>
+   <div class="detail-row value-right"><span>${etaLabel}:</span><span>${etaText}</span></div>
+
+   </div>
+
+   <div class="order-summary">
+     <h2>Ordersammanfattning</h2>
+     <div class="order-items">
+       ${itemsHtml || "<p class='muted'>Inga artiklar i ordern</p>"}
+     </div>
+
+          <div class="order-totals">
+            <div class="order-row"><span>Delsumma</span><span>${subtotal.toFixed(
+              2
+            )} kr</span></div>
+            <div class="order-row"><span>Leveransavgift</span><span>${
+              isPickupFee === 0 ? "Gratis" : isPickupFee.toFixed(2) + " kr"
             }</span></div>
-            <div class="detail-row"><span>Orderdatum:</span><span>${orderDate}</span></div>
-            <div class="detail-row"><span>Beräknad tid:</span><span>${etaText}</span></div>
-          </div>
-
-          <div class="order-summary">
-            <div class="section-title">Ordersammanfattning</div>
-            <div class="order-items">
-              ${itemsHtml || "<p class='muted'>Inga artiklar i ordern</p>"}
-            </div>
-
-            <div class="order-totals">
-              <div class="order-row"><span>Delsumma</span><span>${subtotal.toFixed(
-                2
-              )} kr</span></div>
-              <div class="order-row"><span>Leveransavgift</span><span>${feeText}</span></div>
-              <div class="order-row total"><span>Totalt</span><span>${total.toFixed(
-                2
-              )} kr</span></div>
-            </div>
+            <div class="order-row total"><span>Totalt</span><span>${total.toFixed(
+              2
+            )} kr</span></div>
           </div>
         </div>
-      </div><!-- /.confirmation-inner -->
-    </div><!-- /.confirmation-card -->
-  </div><!-- /.page -->
+      </div>
+    </div>
+  </div>
 </body>
 </html>`;
 }
@@ -194,7 +181,62 @@ async function createReceiptPdf(order) {
   const browser = await launchBrowser();
   try {
     const page = await browser.newPage();
+
+    // 1) HTML
     await page.setContent(receiptHtml(order), { waitUntil: "networkidle0" });
+
+    // 2) Your site CSS (so variables like --gold-crayola exist)
+    const cssPath = path.join(__dirname, "..", "assets", "css", "style.css");
+    const css = fs.readFileSync(cssPath, "utf8");
+    await page.addStyleTag({ content: css });
+
+    // 3) PDF-only overrides: inline rows + dark-gold labels + centered header
+    await page.addStyleTag({
+      content: `
+    /* Header centering */
+    .print-view .confirmation-header { text-align:center; }
+    .print-view .confirmation-header h1 { margin:0 0 .25rem 0; }
+
+    /* Base detail rows: inline label + value */
+    .print-view .delivery-info .detail-row{
+      display:flex !important;
+      justify-content:flex-start !important;
+      align-items:baseline;
+      gap:.5rem;
+      margin:6px 0;
+    }
+    .print-view .delivery-info .detail-row span:first-child{
+      color: var(--gold-crayola);
+      font-weight: 600;
+      min-width: max-content;
+    }
+    .print-view .delivery-info .detail-row span:last-child{
+       color: var(--gold-crayola);
+      font-weight: 400;
+    }
+
+    /* Only these rows push value to the far right */
+    .print-view .delivery-info .detail-row.value-right{
+      justify-content: space-between !important;
+      gap: 1rem;
+    }
+    .print-view .delivery-info .detail-row.value-right span:last-child{
+      margin-left: auto;
+      text-align: right;
+    }
+
+    /* Totals stay left/right */
+    .print-view .order-summary .order-row{
+      display:flex;
+      justify-content:space-between;
+    }
+  `,
+    });
+
+    // 4) Apply print media
+    await page.emulateMediaType("print");
+
+    // 5) PDF buffer
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,

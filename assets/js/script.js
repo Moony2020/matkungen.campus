@@ -533,7 +533,7 @@ Sun:           12:00–22:00
   const OPENING_HOURS = {
     0: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
     1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
-    2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
+    2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
     3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
     4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
     5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
@@ -1069,7 +1069,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       applyOrderType(v);
     });
 
-    // ---------- Form submit (unchanged, uses safe getter) ----------
+    // ---------- Form submit ( uses safe getter) ----------
     if (checkoutForm) {
       checkoutForm.addEventListener("submit", async function (e) {
         e.preventDefault();
@@ -1584,9 +1584,11 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     const STORE_PHONE = "0769 666 666";
 
     // Robust pickup detection
+    // script.js (confirmation page + print receipt)
     const isPickup =
-      String(currentOrder.orderType || "").toLowerCase() === "pickup" ||
-      /avh[aä]mtning/i.test(currentOrder.customer?.address || "");
+      /pickup/i.test(
+        String(currentOrder.fulfillmentMethod || currentOrder.orderType || "")
+      ) || /avh[aä]mtning/i.test(currentOrder.customer?.address || "");
 
     // Basic details
     const pmEl = document.getElementById("payment-method");
@@ -1684,28 +1686,34 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         .join("");
     }
 
-    // Track/Map: reuse the same button; show "Visa karta" for pickup
+    // Track / Map buttons (use separate buttons defined in HTML)
     const trackBtn = document.getElementById("track-order-btn");
-    if (trackBtn) {
-      // Google Maps link for the restaurant
-      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        `${STORE_NAME}, ${STORE_ADDRESS}`
-      )}`;
+    const mapBtn = document.getElementById("show-map-btn");
 
-      if (isPickup) {
-        // Turn the Track button into "Visa karta"
-        trackBtn.href = mapsUrl;
-        trackBtn.target = "_blank";
-        trackBtn.rel = "noopener";
-        trackBtn.innerHTML = `<i class="ri-map-pin-2-line"></i> Visa karta`;
-        trackBtn.style.display = "";
-      } else if (currentOrder.orderNumber) {
-        // Keep normal tracking for delivery
-        trackBtn.href = `track-order.html?order=${currentOrder.orderNumber}`;
-        trackBtn.target = "";
-        trackBtn.rel = "";
-        trackBtn.innerHTML = `<i class="ri-route-line"></i> Spåra leverans`;
-        trackBtn.style.display = "";
+    if (isPickup) {
+      // Hide tracking button for pickup
+      if (trackBtn) trackBtn.style.display = "none";
+
+      // Show "Visa karta" with Google Maps link to the restaurant
+      if (mapBtn) {
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+          `${STORE_NAME}, ${STORE_ADDRESS}`
+        )}`;
+        mapBtn.href = mapsUrl;
+        mapBtn.target = "_blank";
+        mapBtn.rel = "noopener";
+        mapBtn.style.display = ""; // unhide
+      }
+    } else {
+      // Delivery: show Track Order and hide Visa karta
+      if (mapBtn) mapBtn.style.display = "none";
+      if (trackBtn) {
+        if (currentOrder.orderNumber) {
+          trackBtn.href = `track-order.html?order=${currentOrder.orderNumber}`;
+          trackBtn.style.display = ""; // unhide
+        } else {
+          trackBtn.style.display = "none";
+        }
       }
     }
   }
@@ -1716,9 +1724,11 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     ?.addEventListener("click", function () {
       const currentOrder =
         JSON.parse(localStorage.getItem("currentOrder")) || {};
+      // script.js (confirmation page + print receipt)
       const isPickup =
-        String(currentOrder.orderType || "").toLowerCase() === "pickup" ||
-        /avh[aä]mtning/i.test(currentOrder.customer?.address || "");
+        /pickup/i.test(
+          String(currentOrder.fulfillmentMethod || currentOrder.orderType || "")
+        ) || /avh[aä]mtning/i.test(currentOrder.customer?.address || "");
 
       // Store pickup details
       const STORE_NAME = "Matkungen";
@@ -1759,6 +1769,8 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
       const feeText = feeP === 0 ? "Gratis" : `${feeP.toFixed(2)} kr`;
       const etaText = isPickup ? " 10 minuter" : "20–35 minuter";
+      const etaLabel = isPickup ? "Beräknad tid" : "Beräknad leveranstid";
+
       const sectionTitle = isPickup
         ? "Upphämtningsinformation"
         : "Leveransinformation";
@@ -1790,17 +1802,20 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
       iframeDoc.open();
       iframeDoc.write(`
-    <html>
-    <head>
-      <title>Order Receipt - ${currentOrder.orderNumber || ""}</title>
-      <link rel="stylesheet" href="./assets/css/style.css">
-    </head>
-    <body class="print-view">
-      <div class="confirmation-card">
+      <html>
+
+      <head>
+        <title>Order Receipt - ${currentOrder.orderNumber || ""}</title>
+        <base href="${location.origin}/">
+        <link rel="stylesheet" href="assets/css/style.css">
+      </head>
+
+      <body class="print-view">
+        <div class="confirmation-card">
         <div class="confirmation-header">
           <h1>Matkungen</h1>
           <p class="confirmation-text">
-            Order Number <span id="order-number">${
+            Ordernummer <span id="order-number">${
               currentOrder.orderNumber || ""
             }</span>
           </p>
@@ -1823,7 +1838,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
               <span>${orderDate}</span>
             </div>
             <div class="detail-row">
-              <span>Beräknad tid:</span>
+              <span>${etaLabel}:</span>
               <span id="delivery-time">${etaText}</span>
             </div>
           </div>

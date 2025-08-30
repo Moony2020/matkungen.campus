@@ -30,7 +30,7 @@ const { sendOrderEmail } = require("./utils/sendEmail"); // uses its own transpo
 const OPENING_HOURS = {
   0: [{ start: 12 * 60, end: 22 * 60 }], // Sun 12:00–22:00
   1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
-  2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
+  2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
   3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
   4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
   5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
@@ -239,9 +239,13 @@ app.on("order:paid", async (order) => {
   }
 });
 function buildOrderEmailHtml(order) {
+  // Determine if pickup or delivery , /pickup/i has the i flag → it matches pickup, Pickup, PICKUP, PickUp, etc., without you having to lowercase first.
   const isPickup =
-    String(order.orderType || "").toLowerCase() === "pickup" ||
+    /pickup/i.test(String(order.fulfillmentMethod || order.orderType || "")) ||
     /avh[aä]mtning/i.test(order.customer?.address || "");
+
+  //  const etaText = isPickup ? "10 minutes" : "20–35 minutes";
+  const etaLabel = isPickup ? "Beräknad tid" : "Beräknad leveranstid";
 
   // Store location (edit if needed)
   const STORE_NAME = "Matkungen";
@@ -332,7 +336,7 @@ function buildOrderEmailHtml(order) {
           ? `<p><strong>Noteringar:</strong> ${order.customer.notes}</p>`
           : ""
       }
-      <p><strong>Beräknad tid:</strong> ${etaText}</p>
+      <p><strong>${etaLabel}:</strong> ${etaText}</p>
     </div>
 
     ${

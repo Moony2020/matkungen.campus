@@ -15,6 +15,8 @@
    * COLORS
    */
     --gold-crayola: hwb(38 56% 11%);
+    --gold-crayola-pdf: #7f650f;
+    /* or #A67C00 */
     --gold-crayola-hover: hwb(38 69% 4%);
     --davys-grey: hsla(30, 3%, 34%, 1);
     --light-dark: rgba(67, 67, 67, 0.562);
@@ -3497,6 +3499,7 @@ body.nav-active {
     font-weight: var(--weight-500);
 }
 
+/*Delsumma number 70 ,,,,, in confirmation page ,,,, */
 #order-subtotal {
     color: var(--gold-crayola);
 }
@@ -3540,14 +3543,14 @@ body.nav-active {
     border: 1px solid var(--white-alpha-20);
 }
 
-.confirmation-header {
+.confirmation-page .confirmation-header {
     text-align: center;
     margin-bottom: 40px;
     padding-bottom: 20px;
     border-bottom: 1px solid var(--white-alpha-20);
 }
 
-.confirmation-header h1 {
+.confirmation-page .confirmation-header h1 {
     font-size: 3.2rem;
     color: var(--gold-crayola);
     margin-bottom: 15px;
@@ -3573,19 +3576,19 @@ body.nav-active {
     }
 }
 
-.confirmation-text {
+.confirmation-page .confirmation-text {
     font-size: var(--fontSize-body-4);
     line-height: 1.6;
     color: var(--quick-silver);
     margin-bottom: 10px;
 }
 
-.confirmation-text strong {
+.confirmation-page .confirmation-text strong {
     color: var(--gold-crayola);
     font-weight: var(--weight-bold);
 }
 
-.confirmation-content {
+.confirmation-page .confirmation-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 32px;
@@ -3620,13 +3623,14 @@ body.nav-active {
     /* break long words if needed */
 }
 
-.confirmation-section {
+.confirmation-page .confirmation-section {
     background: var(--eerie-black-1);
     padding: 25px;
     border-radius: 10px;
     border: 1px solid var(--white-alpha-10);
 }
 
+/* 
 .confirmation-section h2 {
     font-size: 2.2rem;
     color: var(--gold-crayola);
@@ -3635,7 +3639,7 @@ body.nav-active {
     padding-bottom: 10px;
     border-bottom: 1px solid var(--white-alpha-20);
     font-family: var(--fontFamily-forum);
-}
+} */
 
 .confirmation-section .order-item-detail {
     display: flex;
@@ -4090,7 +4094,7 @@ body.nav-active {
     /* Reset and basic styling for print */
     * {
         background: transparent !important;
-        color: var(--eerie-black-3);
+        color: var(--eerie-black-3) !important;
         box-shadow: none !important;
         text-shadow: none !important;
     }
@@ -4144,11 +4148,12 @@ body.nav-active {
         text-align: center;
         margin-bottom: -10px;
         padding-bottom: 0;
-        border-bottom: 2px solid #ddd;
+        border-bottom: 2px solid #da3131;
     }
 
+    /* the header  of pdf (Matkungen) */
     .confirmation-header h1 {
-        color: #000 !important;
+        color: var(--black) !important;
         font-size: 24pt !important;
         margin: 8px 0 5px !important;
     }
@@ -4157,6 +4162,7 @@ body.nav-active {
         display: none;
     }
 
+    /* Ordernummer for print */
     .confirmation-text {
         font-size: var(--fontSize-body-2) !important;
         margin: 10px 0 !important;
@@ -4177,20 +4183,18 @@ body.nav-active {
         border-bottom: 1px solid #eee;
     }
 
-    .delivery-info h2 {
-        font-size: var(--fontSize-title-2) !important;
-        color: var(--gold-crayola) !important;
-        margin: -10px 0 10px !important;
-        padding-bottom: 5px;
-        border-bottom: 1px solid #c1c1c1;
+    /* no  border on the last section on order-row (total)  */
+    .print-view .confirmation-content>.order-summary:last-child {
+        border-bottom: 0 !important;
     }
 
-    .order-summary h2 {
-        font-size: var(--fontSize-title-2) !important;
-        color: var(--gold-crayola) !important;
-        margin: 15px 0 10px !important;
-        padding-bottom: 5px;
-        border-bottom: 1px solid #c1c1c1;
+    /* Gold color for section headings */
+    .print-view .delivery-info h2,
+    .print-view .order-summary h2 {
+        color: var(--gold-crayola-pdf) !important;
+        font-weight: var(--weight-bold) !important;
+        padding-bottom: 8px !important;
+        margin: 15px 0 !important;
     }
 
     .detail-row,
@@ -4204,6 +4208,14 @@ body.nav-active {
     .detail-row span:first-child,
     .order-row span:first-child {
         font-weight: var(--weight-600);
+    }
+
+    .confirmation-content #order-subtotal {
+        color: var(--black) !important;
+    }
+
+    .order-summary #delivery-fee {
+        color: var(--black) !important;
     }
 
     /* When printing the iframe receipt (body has .print-view) */
@@ -4235,10 +4247,10 @@ body.nav-active {
     }
 
     /* Page breaks */
-    .confirmation-card {
+    /* .confirmation-card {
         page-break-after: avoid;
         page-break-inside: avoid;
-    }
+    } */
 
     /* Links */
     a {
@@ -5309,11 +5321,17 @@ body.nav-active {
     font-size: var(--fontSize-body-4);
 }
 
-.delivery-info p {
+/* Delivery info in confirmation page and pdf ,,,, */
+/* .delivery-info p {
     color: var(--white);
     margin-bottom: 8px;
-}
+} */
 
+/* Delivery info like Namn: Sarah Allen
+Telefon: 
+Upphämtningsställe: 
+Adress:
+Restaurangens telefon:,,, in pdf ,,,, */
 .delivery-info p strong {
     color: var(--gold-crayola);
 }
@@ -6207,8 +6225,6 @@ body.modal-open {
         outline-width: 0;
     }
 }
-
-
 
 /*-----------------------------------*\
   # MEDIA QUERIES
