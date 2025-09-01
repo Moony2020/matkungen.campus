@@ -9,7 +9,7 @@ function receiptHtml(order) {
     /avh[aä]mtning/i.test(order?.customer?.address || "");
 
   const etaLabel = isPickup ? "Beräknad tid" : "Beräknad leveranstid";
-  const etaText = isPickup ? "10 minuter" : "20–35 minuter";
+  const etaText = isPickup ? "10 minuter" : "20-35 minuter";
   const sectionLbl = isPickup
     ? "Upphämtningsinformation"
     : "Leveransinformation";
@@ -103,9 +103,9 @@ function receiptHtml(order) {
           }
 
    <!-- these three were two-column before; now forced inline -->
-   <div class="detail-row value-right"><span>Betalningsmetod:</span><span>${
-     order.paymentMethod || "—"
-   }</span></div>
+  <div class="detail-row value-right topline"><span>Betalningsmetod:</span><span>${
+    order.paymentMethod || "—"
+  }</span></div>
    <div class="detail-row value-right"><span>Orderdatum:</span><span>${orderDate}</span></div>
    <div class="detail-row value-right"><span>${etaLabel}:</span><span>${etaText}</span></div>
 
@@ -190,47 +190,63 @@ async function createReceiptPdf(order) {
     const css = fs.readFileSync(cssPath, "utf8");
     await page.addStyleTag({ content: css });
 
-    // 3) PDF-only overrides: inline rows + dark-gold labels + centered header
+    // 3) PDF-only overrides: inline rows, darker gold labels, centered header, topline on Betalningsmetod
     await page.addStyleTag({
       content: `
-    /* Header centering */
-    .print-view .confirmation-header { text-align:center; }
-    .print-view .confirmation-header h1 { margin:0 0 .25rem 0; }
+        /* Header centering */
+        .print-view .confirmation-header { text-align: center; }
+        .print-view .confirmation-header h1 { margin: 0 0 .25rem 0; }
 
-    /* Base detail rows: inline label + value */
-    .print-view .delivery-info .detail-row{
-      display:flex !important;
-      justify-content:flex-start !important;
-      align-items:baseline;
-      gap:.5rem;
-      margin:6px 0;
-    }
-    .print-view .delivery-info .detail-row span:first-child{
-      color: var(--gold-crayola);
-      font-weight: 600;
-      min-width: max-content;
-    }
-    .print-view .delivery-info .detail-row span:last-child{
-       color: var(--gold-crayola);
-      font-weight: 400;
-    }
+        /* Section titles (match confirmation page dark gold) */
+        .print-view .delivery-info h2,
+        .print-view .order-summary h2 {
+          color: var(--gold-crayola-dark, var(--gold-crayola));
+        }
 
-    /* Only these rows push value to the far right */
-    .print-view .delivery-info .detail-row.value-right{
-      justify-content: space-between !important;
-      gap: 1rem;
-    }
-    .print-view .delivery-info .detail-row.value-right span:last-child{
-      margin-left: auto;
-      text-align: right;
-    }
+        /* Base detail rows: inline label + value */
+        .print-view .delivery-info .detail-row{
+          display: flex !important;
+          justify-content: flex-start !important;
+          align-items: baseline;
+          gap: .5rem;
+          margin: 6px 0;
+          border-top: none;
+        }
 
-    /* Totals stay left/right */
-    .print-view .order-summary .order-row{
-      display:flex;
-      justify-content:space-between;
-    }
-  `,
+        /* Label = dark gold + semi-bold; Value = normal black */
+        .print-view .delivery-info .detail-row span:first-child{
+          color: var(--gold-crayola-dark, var(--gold-crayola));
+          font-weight: 600;
+          min-width: max-content;
+        }
+        .print-view .delivery-info .detail-row span:last-child{
+          color: #111; /* keep values readable like the page */
+          font-weight: 400;
+        }
+
+        /* Only these rows push the value to the far right */
+        .print-view .delivery-info .detail-row.value-right{
+          justify-content: space-between !important;
+          gap: 1rem;
+        }
+        .print-view .delivery-info .detail-row.value-right span:last-child{
+          margin-left: auto;
+          text-align: right;
+        }
+
+        /* Thin divider above “Betalningsmetod” only (row has .topline) */
+        .print-view .delivery-info .detail-row.topline{
+          border-top: 1px solid #eee !important;
+          margin-top: 10px;
+          padding-top: 10px;
+        }
+
+        /* Totals stay left/right */
+        .print-view .order-summary .order-row{
+          display: flex;
+          justify-content: space-between;
+        }
+      `,
     });
 
     // 4) Apply print media
@@ -246,6 +262,24 @@ async function createReceiptPdf(order) {
   } finally {
     await browser.close();
   }
+}
+
+function computeDeliveryFee(order) {
+  const BASE_DELIVERY_FEE = 20;
+  const FREE_DELIVERY_MIN = 100;
+
+  if (String(order.orderType || "").toLowerCase() !== "delivery") return 0;
+
+  const items = Array.isArray(order.items) ? order.items : [];
+  const subtotal =
+    typeof order.subtotal === "number"
+      ? order.subtotal
+      : items.reduce(
+          (s, i) => s + Number(i.price || 0) * Number(i.quantity || 0),
+          0
+        );
+
+  return subtotal >= FREE_DELIVERY_MIN ? 0 : BASE_DELIVERY_FEE;
 }
 
 module.exports = createReceiptPdf;

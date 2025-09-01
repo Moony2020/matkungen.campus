@@ -1,5 +1,10 @@
 "use strict";
 let cart = null;
+
+// delivery fee rules (shared by checkout, payment, confirmation, print)
+const BASE_DELIVERY_FEE = 20; // kr
+const FREE_DELIVERY_MIN = 100; // free delivery from 100 kr
+
 // ==================== GLOBAL VARIABLES ====================
 document.addEventListener("DOMContentLoaded", () => {
   const token = localStorage.getItem("token");
@@ -872,8 +877,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     const orderTotal = document.querySelector(".order-total");
     const checkoutForm = document.getElementById("checkout-form");
 
-    // Default to delivery with 20 kr fee
-    let deliveryFee = 20;
+    let deliveryFee = BASE_DELIVERY_FEE;
     let orderType = "delivery";
 
     // === Elements ===
@@ -989,6 +993,11 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         orderItems.innerHTML = "<p>Your cart is empty</p>";
         if (orderSubtotal) orderSubtotal.textContent = "0 kr";
         if (orderTotal) orderTotal.textContent = "0 kr";
+        if (deliveryFeeElement) deliveryFeeElement.textContent = "0 kr";
+
+        // NEW: clear the hint when empty
+        const hint = document.getElementById("free-delivery-hint");
+        if (hint) hint.textContent = "";
         return;
       }
 
@@ -1014,15 +1023,41 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         })
         .join("");
 
+      // Calculate totals
       const subtotal = items.reduce(
         (t, it) => t + Number(it.price || 0) * Number(it.quantity || 0),
         0
       );
-      const total = subtotal + deliveryFee;
+
+      // ✅ FREE DELIVERY from 100 kr for delivery orders
+      const fee =
+        orderType === "delivery"
+          ? subtotal >= FREE_DELIVERY_MIN
+            ? 0
+            : BASE_DELIVERY_FEE
+          : 0;
+
+      const total = subtotal + fee;
 
       if (orderSubtotal)
         orderSubtotal.textContent = `${subtotal.toFixed(2)} kr`;
       if (orderTotal) orderTotal.textContent = `${total.toFixed(2)} kr`;
+      if (deliveryFeeElement)
+        deliveryFeeElement.textContent =
+          fee === 0 ? "Gratis" : `${fee.toFixed(2)} kr`;
+
+      // NEW: update the “free delivery” hint
+      const hint = document.getElementById("free-delivery-hint");
+      if (hint) {
+        if (orderType === "delivery" && subtotal < FREE_DELIVERY_MIN) {
+          const diff = (FREE_DELIVERY_MIN - subtotal).toFixed(2);
+          hint.textContent = `Gratis leverans från 100 kr (saknas ${diff} kr)`;
+        } else if (orderType === "delivery") {
+          hint.textContent = `Fri leverans aktiverad 🎉`;
+        } else {
+          hint.textContent = "";
+        }
+      }
     }
 
     // ---------- Custom dropdown wiring ----------
@@ -1119,7 +1154,12 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
           (t, it) => t + Number(it.price || 0) * Number(it.quantity || 0),
           0
         );
-        const appliedDeliveryFee = selectedOrderType === "delivery" ? 20 : 0;
+        const appliedDeliveryFee =
+          selectedOrderType === "delivery"
+            ? subtotal >= FREE_DELIVERY_MIN
+              ? 0
+              : BASE_DELIVERY_FEE
+            : 0;
         const total = subtotal + appliedDeliveryFee;
 
         const orderData = {
@@ -1480,7 +1520,12 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     );
     // fee: if pickup => 0, else use provided fee (number/string) or fallback 20
     const fee =
-      order.orderType === "pickup" ? 0 : Number(order.deliveryFee ?? 20);
+      order.orderType === "pickup"
+        ? 0
+        : subtotal >= FREE_DELIVERY_MIN
+        ? 0
+        : Number(order.deliveryFee ?? BASE_DELIVERY_FEE);
+
     const total = subtotal + fee;
 
     // Update DOM
@@ -1599,9 +1644,13 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     mailEl &&
       (mailEl.textContent = currentOrder.customer?.email || "Not provided");
 
-    // Totals (Gratis for pickup)
+    // Totals (Gratis for pickup / free delivery over 100)
     const subtotal = Number(currentOrder.subtotal ?? 0);
-    const fee = isPickup ? 0 : Number(currentOrder.deliveryFee ?? 20);
+    const fee = isPickup
+      ? 0
+      : subtotal >= FREE_DELIVERY_MIN
+      ? 0
+      : Number(currentOrder.deliveryFee ?? BASE_DELIVERY_FEE);
     const total = subtotal + fee;
 
     const subEl = document.getElementById("order-subtotal");
@@ -1623,7 +1672,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     const etaEl = document.getElementById("delivery-time");
     if (etaEl) {
       // value
-      etaEl.textContent = isPickup ? " 10 minuter" : "20–35 minuter";
+      etaEl.textContent = isPickup ? "10 minuter" : "20-35 minuter";
 
       // label (left side)
       const etaRow = etaEl.closest(".detail-row");
@@ -1764,11 +1813,15 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
           )
         : 0;
       const subP = Number(currentOrder.subtotal ?? subtotalFromItems);
-      const feeP = isPickup ? 0 : Number(currentOrder.deliveryFee ?? 20);
+      const feeP = isPickup
+        ? 0
+        : subP >= FREE_DELIVERY_MIN
+        ? 0
+        : Number(currentOrder.deliveryFee ?? BASE_DELIVERY_FEE);
       const totP = subP + feeP;
 
       const feeText = feeP === 0 ? "Gratis" : `${feeP.toFixed(2)} kr`;
-      const etaText = isPickup ? " 10 minuter" : "20–35 minuter";
+      const etaText = isPickup ? "10 minuter" : "20-35 minuter";
       const etaLabel = isPickup ? "Beräknad tid" : "Beräknad leveranstid";
 
       const sectionTitle = isPickup

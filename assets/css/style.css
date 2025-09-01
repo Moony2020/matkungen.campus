@@ -3610,6 +3610,10 @@ body.nav-active {
     margin-bottom: 10px;
 }
 
+.confirmation-page .delivery-info #customer-details {
+    margin-bottom: 10px;
+}
+
 .confirmation-content .order-summary h2,
 .confirmation-content .delivery-info h2 {
     margin-top: -1rem;
@@ -3695,15 +3699,15 @@ body.nav-active {
     text-align: right;
 }
 
-.detail-row {
+.confirmation-page .detail-row {
     display: flex;
     justify-content: space-between;
     padding: 8px 0;
-    border-bottom: 1px solid var(--white-alpha-10);
+    border-top: 1px solid var(--white-alpha-10);
 }
 
 .detail-row:last-child {
-    border-bottom: none;
+    border-top: none;
 }
 
 .detail-label {
@@ -3978,6 +3982,11 @@ body.nav-active {
     margin-top: 20px;
 }
 
+/* Payment page: make the “Leveransavgift” value (e.g. “Gratis”) gold */
+.payment-page .order-totals .delivery-fee {
+    color: var(--gold-crayola);
+}
+
 .payment-grid .order-row {
     display: flex;
     justify-content: space-between;
@@ -4148,7 +4157,7 @@ body.nav-active {
         text-align: center;
         margin-bottom: -10px;
         padding-bottom: 0;
-        border-bottom: 2px solid #da3131;
+        border-bottom: 2px solid #ddd;
     }
 
     /* the header  of pdf (Matkungen) */
@@ -4195,6 +4204,7 @@ body.nav-active {
         font-weight: var(--weight-bold) !important;
         padding-bottom: 8px !important;
         margin: 15px 0 !important;
+        border-bottom: 0 !important;
     }
 
     .detail-row,
@@ -4225,13 +4235,13 @@ body.nav-active {
         padding-top: 10px !important;
     }
 
-    .order-row.total {
+    /* .order-row.total {
         font-weight: bold;
         font-size: 12pt;
         margin-top: 15px;
         padding-top: 10px;
         border-top: 2px solid #ddd;
-    }
+    } */
 
     /* Order items styling */
     .order-items {
@@ -4292,8 +4302,7 @@ body.nav-active {
 
     /* Delivery estimate */
     #delivery-time {
-        font-weight: bold;
-        color: #000 !important;
+        color: var(--black) !important;
     }
 }
 
