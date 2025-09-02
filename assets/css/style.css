@@ -1028,6 +1028,155 @@ body.nav-active {
     gap: 8px;
 }
 
+/* Place under search, right side (tighter) */
+/* Nudge it closer to the search (higher on the page) */
+.hero #store-status {
+    position: absolute;
+    top: calc(100% + 8px);
+    /* 8px under the search box */
+    right: 0;
+    margin: 0;
+    max-width: 300px;
+    z-index: 30;
+}
+
+/* Card look */
+.store-status {
+    border: 1px solid var(--white-alpha-10, rgba(255, 255, 255, .12));
+    background: rgba(0, 0, 0, .45);
+    border-radius: 14px;
+    padding: .55rem .65rem .65rem;
+    backdrop-filter: blur(4px);
+    text-align: left;
+    /* override any center in hero */
+}
+
+/* Header */
+.store-status .status-summary {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .25rem;
+}
+
+.store-status .address-short {
+    color: var(--primary-light);
+    font-weight: var(--weight-500);
+    line-height: 1.2;
+}
+
+.store-status .state-line {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    margin: 0;
+    cursor: pointer;
+    color: inherit;
+}
+
+.store-status .caret {
+    transition: transform .18s ease;
+    opacity: .9;
+    color: var(--gold-crayola);
+}
+
+.store-status.expanded .caret {
+    transform: rotate(180deg);
+}
+
+.store-status .dot {
+    width: .6rem;
+    height: .6rem;
+    border-radius: 999px;
+    background: #ef4444;
+}
+
+.store-status.open .dot {
+    background: #22c55e;
+}
+
+.store-status .status-text {
+    font-weight: var(--weight-600);
+    font-size: var(--fontSize-label-2)
+}
+
+.store-status.open .status-text {
+    color: #22c55e;
+}
+
+.store-status.closed .status-text {
+    color: var(--gold-crayola);
+    font-size: var(--fontSize-body-5);
+}
+
+/* Hours (rows, bigger text, tight columns) */
+.store-status .hours {
+    margin-top: .5rem;
+    padding-top: .5rem;
+    border-top: 1px solid var(--white-alpha-10);
+}
+
+.store-status .hours-rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    row-gap: .22rem;
+}
+
+/* Left: days (grow as needed, left-aligned)
+   Right: time (fixed width, right-aligned) -> perfect column alignment */
+.store-status .hours-rows li {
+    display: grid;
+    grid-template-columns: 1fr 11ch;
+    /* 11ch fits “11:00–03:00” */
+    column-gap: 10px;
+    /* small, tight gap */
+    align-items: center;
+}
+
+.store-status .hours-rows .days {
+    font-weight: var(--weight-bold);
+    color: var(--primary-light);
+    font-size: var(--fontSize-label-1);
+    line-height: var(--lineHeight-5);
+    text-align: left;
+    /* force left */
+    white-space: nowrap;
+    /* keep day groups on one line */
+}
+
+.store-status .hours-rows .time {
+    color: var(--gold-crayola-dark, var(--gold-crayola));
+    font-size: var(--fontSize-label-1);
+    line-height: var(--lineHeight-5);
+    text-align: right;
+    /* right edge aligned */
+    font-variant-numeric: tabular-nums;
+    /* clean numeric columns */
+    white-space: nowrap;
+}
+
+/* Mobile: still overlay, but give a little more width */
+@media (max-width: 768px) {
+    .hero #store-status {
+        max-width: min(90vw, 320px);
+        top: calc(100% + 6px);
+        right: 8px;
+    }
+
+    .store-status .hours-rows .days,
+    .store-status .hours-rows .time {
+        font-size: 1.08rem;
+    }
+}
+
+
+
+
 .header .logo-container {
     display: flex;
     align-items: center;

@@ -601,7 +601,14 @@ Sun:           12:00–22:00
   // Run once + every minute
   document.addEventListener("DOMContentLoaded", () => {
     updateOpenStateUI();
-    setInterval(updateOpenStateUI, 60_000);
+    initStoreStatus(); // <-- add
+    updateStoreStatus(); // <-- add (first render)
+
+    // refresh both once per minute
+    setInterval(() => {
+      updateOpenStateUI();
+      updateStoreStatus();
+    }, 60_000);
   });
 
   // ==================== ADD TO CART FUNCTIONALITY ====================
@@ -2916,6 +2923,208 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
   // Also run when hash changes
   window.addEventListener("hashchange", handleHashNavigation);
 });
+
+// ---------- Store status bar (self-contained) ----------
+(function initStoreStatusBar() {
+  const el = document.getElementById("store-status");
+  if (!el) return;
+
+  // --- CONFIG ---
+  const SHORT_ADDRESS = "P G Vejdes väg 30";
+
+  // Use +1 on "end" for past-midnight spans
+  const HOURS = {
+    mon: [{ start: "11:00", end: "22:00" }],
+    tue: [{ start: "11:00", end: "22:00" }],
+    wed: [{ start: "11:00", end: "03:00+1" }],
+    thu: [{ start: "11:00", end: "22:00" }],
+    fri: [{ start: "11:00", end: "03:00+1" }],
+    sat: [{ start: "12:00", end: "03:00+1" }],
+    sun: [{ start: "12:00", end: "22:00" }],
+  };
+
+  const dayOrder = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]; // Mon → Sun
+  const dayLabels = {
+    mon: "Mån",
+    tue: "Tis",
+    wed: "Ons",
+    thu: "Tors",
+    fri: "Fre",
+    sat: "Lör",
+    sun: "Sön",
+  };
+
+  // --- HELPERS ---
+  const pad = (n) => String(n).padStart(2, "0");
+  const minutesToHHMM = (mins) =>
+    `${pad(Math.floor(mins / 60))}:${pad(mins % 60)}`;
+
+  const toMinutes = (hhmm) => {
+    // "03:00+1" -> { minutes: 180, plus1: true }
+    const [h, restRaw] = hhmm.split(":");
+    const plus1 = restRaw.endsWith("+1");
+    const rest = plus1 ? restRaw.slice(0, -2) : restRaw;
+    const m = parseInt(rest, 10);
+    return { minutes: parseInt(h, 10) * 60 + m, plus1 };
+  };
+
+  function getTodaySlots(now) {
+    const dowIdx = (now.getDay() + 6) % 7; // convert Sun(0)→6 ... Sat(6)→5 ; we want Mon=0
+    const key = dayOrder[dowIdx];
+    return { key, idx: dowIdx, slots: HOURS[key] || [] };
+  }
+
+  function isOpenNow(now = new Date()) {
+    const { idx, slots } = getTodaySlots(now);
+    const minsNow = now.getHours() * 60 + now.getMinutes();
+
+    // Today
+    for (const s of slots) {
+      const start = toMinutes(s.start);
+      const end = toMinutes(s.end);
+      if (!end.plus1) {
+        if (minsNow >= start.minutes && minsNow < end.minutes) {
+          return { open: true, closes: end.minutes, closesDayOffset: 0 };
+        }
+      } else {
+        // spans past midnight (e.g., 11:00–03:00+1)
+        if (minsNow >= start.minutes) {
+          return { open: true, closes: end.minutes, closesDayOffset: 1 };
+        }
+      }
+    }
+
+    // Yesterday spillover (if yesterday had +1 and we're before its end)
+    const yIdx = (idx + 6) % 7;
+    const yKey = dayOrder[yIdx];
+    for (const s of HOURS[yKey] || []) {
+      const end = toMinutes(s.end);
+      if (end.plus1 && minsNow < end.minutes) {
+        return { open: true, closes: end.minutes, closesDayOffset: 0 };
+      }
+    }
+
+    return { open: false };
+  }
+
+  function nextChange(now = new Date()) {
+    const state = isOpenNow(now);
+    if (state.open)
+      return {
+        type: "close",
+        at: state.closes,
+        dayOffset: state.closesDayOffset,
+      };
+
+    // Find next opening
+    let probe = new Date(now);
+    for (let d = 0; d < 8; d++) {
+      const { idx, slots } = getTodaySlots(probe);
+      const minsNow = d === 0 ? probe.getHours() * 60 + probe.getMinutes() : -1;
+
+      for (const s of slots) {
+        const start = toMinutes(s.start).minutes;
+        if (d > 0 || minsNow < start) {
+          return { type: "open", at: start, dayOffset: d };
+        }
+      }
+
+      // advance to start of next day
+      probe.setDate(probe.getDate() + 1);
+      probe.setHours(0, 0, 0, 0);
+    }
+    return null;
+  }
+
+  // --- RENDER SUMMARY (top two lines) ---
+  const addrEl = el.querySelector(".address-short");
+  const textEl = el.querySelector(".status-text");
+  const button = el.querySelector(".state-line");
+  const hoursWrap = el.querySelector(".hours");
+
+  if (addrEl) addrEl.textContent = SHORT_ADDRESS;
+
+  function renderSummary() {
+    const now = new Date();
+    const state = isOpenNow(now);
+    const change = nextChange(now);
+
+    el.classList.toggle("open", state.open);
+    el.classList.toggle("closed", !state.open);
+
+    if (!textEl) return;
+
+    if (state.open) {
+      if (change && change.type === "close") {
+        textEl.textContent = `Öppet – stänger ${minutesToHHMM(change.at)}`;
+      } else {
+        textEl.textContent = "Öppet";
+      }
+    } else {
+      if (change && change.type === "open") {
+        const targetIdx = (((now.getDay() + 6) % 7) + change.dayOffset) % 7; // Mon=0
+        const targetKey = dayOrder[targetIdx];
+        textEl.textContent = `Stängt – öppnar ${
+          dayLabels[targetKey]
+        } ${minutesToHHMM(change.at)}`;
+      } else {
+        textEl.textContent = "Stängt – öppnar snart";
+      }
+    }
+  }
+
+  // --- RENDER GROUPED HOURS ---
+  function renderHours() {
+    const list = el.querySelector(".hours-rows");
+    if (!list) return;
+
+    // Group by identical slot ranges (display end without +1)
+    const groups = new Map(); // key = "11:00–22:00", value = [dayKeys...]
+
+    for (const key of dayOrder) {
+      const slots = HOURS[key] || [];
+      const label =
+        slots.length === 0
+          ? "Stängt"
+          : slots
+              .map((s) => `${s.start}–${s.end.replace("+1", "")}`)
+              .join(", ");
+      if (!groups.has(label)) groups.set(label, []);
+      groups.get(label).push(key);
+    }
+
+    // Sort groups by the earliest day index they contain (keep Mon→Sun flow)
+    const sorted = [...groups.entries()].sort((a, b) => {
+      const aMin = Math.min(...a[1].map((k) => dayOrder.indexOf(k)));
+      const bMin = Math.min(...b[1].map((k) => dayOrder.indexOf(k)));
+      return aMin - bMin;
+    });
+
+    // Build rows like: "Mån – Tis – Tors" | "11:00–22:00"
+    list.innerHTML = sorted
+      .map(([timeLabel, daysArr]) => {
+        const daysText = daysArr.map((k) => dayLabels[k]).join(" – ");
+        return `<li><span class="days">${daysText}</span><span class="time">${timeLabel}</span></li>`;
+      })
+      .join("");
+  }
+
+  // --- TOGGLE HOURS ---
+  if (button && hoursWrap) {
+    button.addEventListener("click", () => {
+      const expanded = button.getAttribute("aria-expanded") === "true";
+      button.setAttribute("aria-expanded", String(!expanded));
+      hoursWrap.hidden = expanded;
+      el.classList.toggle("expanded", !expanded);
+    });
+  }
+
+  // Initial paint + refresh every minute
+  renderHours();
+  renderSummary();
+  setInterval(renderSummary, 60 * 1000);
+})();
+
 // ==================== LOAD MENU DATA FROM JSON ====================
 
 let menuItems = [];

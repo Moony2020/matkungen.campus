@@ -130,7 +130,6 @@
           <p>Taste The Difference</p>
         </div>
       </div>
-
       <!-- Mobile Navigation Menu -->
       <nav class="navbar" data-navbar>
         <button class="close-btn" aria-label="close menu" data-nav-toggler>
@@ -234,7 +233,6 @@
           <span class="line line-3"></span>
         </button>
       </div>
-    </div>
     </div>
   </header>
   <!-- User Login Sidebar -->
@@ -480,7 +478,6 @@
           </button>
         </div>
         <!-- search to appear -->
-        <!-- Add this inside the header section -->
         <div class="search-container">
           <div class="search-box">
             <div class="search-icon" id="search-button">
@@ -488,6 +485,23 @@
             </div>
             <input type="text" id="global-search" placeholder="Sök efter mat, dryck eller tillbehör..." />
           </div>
+
+            <!-- Store status lives INSIDE search-container -->
+  <div id="store-status" class="store-status collapsed" aria-live="polite">
+    <div class="status-summary">
+      <span class="address-short">P G Vejdes väg 30</span>
+
+      <button class="state-line" type="button" aria-expanded="false">
+        <i class="ri-arrow-down-s-line caret" aria-hidden="true"></i>
+        <span class="dot" aria-hidden="true"></span>
+        <span class="status-text">Öppettider</span>
+      </button>
+    </div>
+
+    <div class="hours" hidden>
+      <ul class="hours-rows"></ul>
+    </div>
+  </div>
 
           <div class="search-results" id="search-results">
             <div class="search-results-header">
@@ -497,6 +511,8 @@
             <div id="results-container"></div>
           </div>
         </div>
+
+
       </section>
 
       <!--  #SERVICE  -->
@@ -2573,7 +2589,9 @@
               <li><a href="#" class="social-icon">
                   <div class="icon-circle"><i class="bx bxl-youtube"></i></div><span>YouTube</span>
                 </a></li>
-              <li><a href="https://www.google.com/maps/dir/56.8535951,14.8251036/CAMPUS+MATKUNGEN+I+V%C3%84XJ%C3%96,+P+G+Vejdes+v%C3%A4g,+352+52+V%C3%A4xj%C3%B6" class="social-icon">
+              <li><a
+                  href="https://www.google.com/maps/dir/56.8535951,14.8251036/CAMPUS+MATKUNGEN+I+V%C3%84XJ%C3%96,+P+G+Vejdes+v%C3%A4g,+352+52+V%C3%A4xj%C3%B6"
+                  class="social-icon">
                   <div class="icon-circle"><i class="ri-map-pin-fill"></i></div><span>Hitta oss</span>
                 </a></li>
             </ul>
@@ -2607,7 +2625,7 @@
       <div class="decoration-circle circle-4"></div>
     </div>
   </footer>
-  
+
   <!-- Modifier Popup -->
   <div class="modifier-popup" id="modifier-popup">
     <div class="modifier-header">
