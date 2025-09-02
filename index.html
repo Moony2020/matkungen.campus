@@ -486,22 +486,7 @@
             <input type="text" id="global-search" placeholder="Sök efter mat, dryck eller tillbehör..." />
           </div>
 
-            <!-- Store status lives INSIDE search-container -->
-  <div id="store-status" class="store-status collapsed" aria-live="polite">
-    <div class="status-summary">
-      <span class="address-short">P G Vejdes väg 30</span>
 
-      <button class="state-line" type="button" aria-expanded="false">
-        <i class="ri-arrow-down-s-line caret" aria-hidden="true"></i>
-        <span class="dot" aria-hidden="true"></span>
-        <span class="status-text">Öppettider</span>
-      </button>
-    </div>
-
-    <div class="hours" hidden>
-      <ul class="hours-rows"></ul>
-    </div>
-  </div>
 
           <div class="search-results" id="search-results">
             <div class="search-results-header">
@@ -511,7 +496,20 @@
             <div id="results-container"></div>
           </div>
         </div>
-
+<!-- STATUS lives OUTSIDE the search-container -->
+<div id="store-status" class="store-status collapsed" aria-live="polite">
+  <div class="status-summary">
+    <span class="address-short">P G Vejdes väg 30</span>
+    <button class="state-line" type="button" aria-expanded="false">
+      <span class="dot" aria-hidden="true"></span>
+      <span class="status-text">Kontrollerar öppettider…</span>
+      <i class="ri-arrow-down-s-line caret" aria-hidden="true"></i>
+    </button>
+  </div>
+  <div class="hours" hidden>
+    <ul class="hours-rows"></ul>
+  </div>
+</div>
 
       </section>
 

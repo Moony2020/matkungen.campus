@@ -3124,6 +3124,21 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
   renderSummary();
   setInterval(renderSummary, 60 * 1000);
 })();
+function positionStoreStatus() {
+  const status = document.getElementById("store-status");
+  const hero = document.querySelector(".hero");
+  const searchBox = document.querySelector(".search-container .search-box");
+  if (!status || !hero || !searchBox) return;
+
+  const heroTop = hero.getBoundingClientRect().top + window.scrollY;
+  const rect = searchBox.getBoundingClientRect();
+  const top = rect.bottom + window.scrollY - heroTop + 8; // 8px gap under search
+  status.style.top = `${Math.round(top)}px`;
+}
+
+// run once and on resize
+window.addEventListener("load", positionStoreStatus);
+window.addEventListener("resize", positionStoreStatus);
 
 // ==================== LOAD MENU DATA FROM JSON ====================
 

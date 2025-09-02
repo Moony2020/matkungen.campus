@@ -1028,19 +1028,18 @@ body.nav-active {
     gap: 8px;
 }
 
-/* Place under search, right side (tighter) */
-/* Nudge it closer to the search (higher on the page) */
+/* status pinned to the right; top is set from JS for perfect alignment */
 .hero #store-status {
     position: absolute;
-    top: calc(100% + 8px);
-    /* 8px under the search box */
-    right: 0;
+    right: 24px;
+    top: 0;
+    /* JS updates this */
     margin: 0;
     max-width: 300px;
     z-index: 30;
 }
 
-/* Card look */
+/* card */
 .store-status {
     border: 1px solid var(--white-alpha-10, rgba(255, 255, 255, .12));
     background: rgba(0, 0, 0, .45);
@@ -1048,10 +1047,9 @@ body.nav-active {
     padding: .55rem .65rem .65rem;
     backdrop-filter: blur(4px);
     text-align: left;
-    /* override any center in hero */
 }
 
-/* Header */
+/* header */
 .store-status .status-summary {
     display: flex;
     flex-direction: column;
@@ -1062,24 +1060,25 @@ body.nav-active {
 .store-status .address-short {
     color: var(--primary-light);
     font-weight: var(--weight-500);
-    line-height: 1.2;
+    line-height: var(--lineHeight-4);
 }
 
+/* caret at the END */
 .store-status .state-line {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: .45rem;
+    width: 100%;
     border: 0;
     background: transparent;
     padding: 0;
     margin: 0;
     cursor: pointer;
-    color: inherit;
 }
 
 .store-status .caret {
+    margin-left: auto;
     transition: transform .18s ease;
-    opacity: .9;
     color: var(--gold-crayola);
 }
 
@@ -1099,8 +1098,8 @@ body.nav-active {
 }
 
 .store-status .status-text {
-    font-weight: var(--weight-600);
-    font-size: var(--fontSize-label-2)
+    font-weight: var(--weight-bold);
+    font-size: 1.05rem;
 }
 
 .store-status.open .status-text {
@@ -1112,7 +1111,7 @@ body.nav-active {
     font-size: var(--fontSize-body-5);
 }
 
-/* Hours (rows, bigger text, tight columns) */
+/* hours: two neat columns */
 .store-status .hours {
     margin-top: .5rem;
     padding-top: .5rem;
@@ -1127,45 +1126,33 @@ body.nav-active {
     row-gap: .22rem;
 }
 
-/* Left: days (grow as needed, left-aligned)
-   Right: time (fixed width, right-aligned) -> perfect column alignment */
 .store-status .hours-rows li {
     display: grid;
     grid-template-columns: 1fr 11ch;
-    /* 11ch fits “11:00–03:00” */
     column-gap: 10px;
-    /* small, tight gap */
     align-items: center;
 }
 
 .store-status .hours-rows .days {
-    font-weight: var(--weight-bold);
+    font-weight: var(--weight-600);
     color: var(--primary-light);
     font-size: var(--fontSize-label-1);
-    line-height: var(--lineHeight-5);
-    text-align: left;
-    /* force left */
     white-space: nowrap;
-    /* keep day groups on one line */
+    text-align: left;
 }
 
 .store-status .hours-rows .time {
     color: var(--gold-crayola-dark, var(--gold-crayola));
     font-size: var(--fontSize-label-1);
-    line-height: var(--lineHeight-5);
     text-align: right;
-    /* right edge aligned */
     font-variant-numeric: tabular-nums;
-    /* clean numeric columns */
     white-space: nowrap;
 }
 
-/* Mobile: still overlay, but give a little more width */
 @media (max-width: 768px) {
     .hero #store-status {
-        max-width: min(90vw, 320px);
-        top: calc(100% + 6px);
         right: 8px;
+        max-width: min(90vw, 320px);
     }
 
     .store-status .hours-rows .days,
@@ -1173,7 +1160,6 @@ body.nav-active {
         font-size: 1.08rem;
     }
 }
-
 
 
 
