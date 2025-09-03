@@ -1151,7 +1151,7 @@ body.nav-active {
 
     .store-status .hours-rows .days,
     .store-status .hours-rows .time {
-        font-size: 1.08rem;
+        font-size: var(--fontSize-label-1);
     }
 }
 
