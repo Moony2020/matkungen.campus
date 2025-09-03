@@ -1093,16 +1093,16 @@ body.nav-active {
 
 .store-status .status-text {
     font-weight: var(--weight-bold);
-    font-size: 1.05rem;
 }
 
 .store-status.open .status-text {
     color: #22c55e;
+    font-size: var(--fontSize-label-1);
 }
 
 .store-status.closed .status-text {
     color: var(--gold-crayola);
-    font-size: var(--fontSize-body-5);
+    font-size: var(--fontSize-label-1);
 }
 
 /* hours: two neat columns */
@@ -1110,6 +1110,34 @@ body.nav-active {
     margin-top: .5rem;
     padding-top: .5rem;
     border-top: 1px solid var(--white-alpha-10);
+}
+
+.store-status .hours .address-line {
+    margin: .1rem 0 .5rem;
+}
+
+.store-status .hours .address-link {
+    display: inline-flex;
+    /* keeps icon and text on one line */
+    align-items: center;
+    gap: .45rem;
+    font-size: var(--fontSize-label-1);
+    color: var(--primary-light);
+    font-weight: var(--weight-600);
+    text-decoration: none;
+    white-space: nowrap;
+    /* prevent icon above text */
+}
+
+.store-status .hours .address-link:hover,
+.store-status .hours .address-link:focus-visible {
+    color: var(--gold-crayola);
+}
+
+.store-status .hours .address-line .ri-map-pin-2-line {
+    font-size: var(--fontSize-label-1);
+    color: var(--gold-crayola);
+    opacity: .9;
 }
 
 .store-status .hours-rows {
@@ -1122,8 +1150,8 @@ body.nav-active {
 
 .store-status .hours-rows li {
     display: grid;
-    grid-template-columns: 1fr 11ch;
-    column-gap: 10px;
+    grid-template-columns: 1fr 8ch;
+    column-gap: 6px;
     align-items: center;
 }
 
@@ -1154,8 +1182,6 @@ body.nav-active {
         font-size: var(--fontSize-label-1);
     }
 }
-
-
 
 .header .logo-container {
     display: flex;

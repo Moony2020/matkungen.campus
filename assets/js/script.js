@@ -2931,6 +2931,9 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
   // --- CONFIG ---
   const SHORT_ADDRESS = "P G Vejdes väg 30";
+  // Your fixed Google Maps directions URL:
+  const MAPS_URL =
+    "https://www.google.com/maps/dir/56.8535951,14.8251036/CAMPUS+MATKUNGEN+I+V%C3%84XJ%C3%96,+P+G+Vejdes+v%C3%A4g,+352+52+V%C3%A4xj%C3%B6";
 
   // Use +1 on "end" for past-midnight spans
   const HOURS = {
@@ -2943,7 +2946,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     sun: [{ start: "12:00", end: "22:00" }],
   };
 
-  const dayOrder = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]; // Mon → Sun
+  const dayOrder = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]; // Mon→Sun
   const dayLabels = {
     mon: "Mån",
     tue: "Tis",
@@ -2955,21 +2958,20 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
   };
 
   // --- HELPERS ---
+  const $ = (sel, base = el) => base.querySelector(sel);
   const pad = (n) => String(n).padStart(2, "0");
   const minutesToHHMM = (mins) =>
     `${pad(Math.floor(mins / 60))}:${pad(mins % 60)}`;
-
   const toMinutes = (hhmm) => {
     // "03:00+1" -> { minutes: 180, plus1: true }
-    const [h, restRaw] = hhmm.split(":");
-    const plus1 = restRaw.endsWith("+1");
-    const rest = plus1 ? restRaw.slice(0, -2) : restRaw;
-    const m = parseInt(rest, 10);
+    const [h, raw] = hhmm.split(":");
+    const plus1 = raw.endsWith("+1");
+    const m = parseInt(plus1 ? raw.slice(0, -2) : raw, 10);
     return { minutes: parseInt(h, 10) * 60 + m, plus1 };
   };
 
   function getTodaySlots(now) {
-    const dowIdx = (now.getDay() + 6) % 7; // convert Sun(0)→6 ... Sat(6)→5 ; we want Mon=0
+    const dowIdx = (now.getDay() + 6) % 7; // Mon=0 … Sun=6
     const key = dayOrder[dowIdx];
     return { key, idx: dowIdx, slots: HOURS[key] || [] };
   }
@@ -2986,15 +2988,13 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         if (minsNow >= start.minutes && minsNow < end.minutes) {
           return { open: true, closes: end.minutes, closesDayOffset: 0 };
         }
-      } else {
-        // spans past midnight (e.g., 11:00–03:00+1)
-        if (minsNow >= start.minutes) {
-          return { open: true, closes: end.minutes, closesDayOffset: 1 };
-        }
+      } else if (minsNow >= start.minutes) {
+        // spans midnight
+        return { open: true, closes: end.minutes, closesDayOffset: 1 };
       }
     }
 
-    // Yesterday spillover (if yesterday had +1 and we're before its end)
+    // Yesterday spillover
     const yIdx = (idx + 6) % 7;
     const yKey = dayOrder[yIdx];
     for (const s of HOURS[yKey] || []) {
@@ -3003,7 +3003,6 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         return { open: true, closes: end.minutes, closesDayOffset: 0 };
       }
     }
-
     return { open: false };
   }
 
@@ -3019,27 +3018,34 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     // Find next opening
     let probe = new Date(now);
     for (let d = 0; d < 8; d++) {
-      const { idx, slots } = getTodaySlots(probe);
+      const { slots } = getTodaySlots(probe);
       const minsNow = d === 0 ? probe.getHours() * 60 + probe.getMinutes() : -1;
-
       for (const s of slots) {
         const start = toMinutes(s.start).minutes;
         if (d > 0 || minsNow < start) {
           return { type: "open", at: start, dayOffset: d };
         }
       }
-
-      // advance to start of next day
       probe.setDate(probe.getDate() + 1);
       probe.setHours(0, 0, 0, 0);
     }
     return null;
   }
 
-  // --- RENDER SUMMARY (top two lines) ---
-  const textEl = el.querySelector(".status-text");
-  const button = el.querySelector(".state-line");
-  const hoursWrap = el.querySelector(".hours");
+  // --- ADDRESS ROW: fill text + link (keeps icon and text on the same line) ---
+  const addrText = $(".hours .address-short");
+  const addrLink = $(".hours .address-link");
+  if (addrText) addrText.textContent = SHORT_ADDRESS;
+  if (addrLink) {
+    addrLink.href = MAPS_URL;
+    addrLink.target = "_blank";
+    addrLink.rel = "noopener";
+  }
+
+  // --- RENDER SUMMARY (top line) ---
+  const textEl = $(".status-text");
+  const button = $(".state-line");
+  const hoursBox = $(".hours");
 
   function renderSummary() {
     const now = new Date();
@@ -3052,14 +3058,13 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     if (!textEl) return;
 
     if (state.open) {
-      if (change && change.type === "close") {
-        textEl.textContent = `Öppet – stänger ${minutesToHHMM(change.at)}`;
-      } else {
-        textEl.textContent = "Öppet";
-      }
+      textEl.textContent =
+        change && change.type === "close"
+          ? `Öppet – stänger ${minutesToHHMM(change.at)}`
+          : "Öppet";
     } else {
       if (change && change.type === "open") {
-        const targetIdx = (((now.getDay() + 6) % 7) + change.dayOffset) % 7; // Mon=0
+        const targetIdx = (((now.getDay() + 6) % 7) + change.dayOffset) % 7;
         const targetKey = dayOrder[targetIdx];
         textEl.textContent = `Stängt – öppnar ${
           dayLabels[targetKey]
@@ -3070,57 +3075,51 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     }
   }
 
-  // --- RENDER GROUPED HOURS ---
+  // --- RENDER GROUPED HOURS (e.g., “Mån – Tis – Tors | 11:00–22:00”) ---
   function renderHours() {
-    const list = el.querySelector(".hours-rows");
+    const list = $(".hours-rows");
     if (!list) return;
 
-    // Group by identical slot ranges (display end without +1)
-    const groups = new Map(); // key = "11:00–22:00", value = [dayKeys...]
-
-    for (const key of dayOrder) {
-      const slots = HOURS[key] || [];
-      const label =
-        slots.length === 0
-          ? "Stängt"
-          : slots
-              .map((s) => `${s.start}–${s.end.replace("+1", "")}`)
-              .join(", ");
+    const groups = new Map(); // key = "11:00–22:00" ; value = [mon,tue,...]
+    for (const k of dayOrder) {
+      const slots = HOURS[k] || [];
+      const label = slots.length
+        ? slots.map((s) => `${s.start}–${s.end.replace("+1", "")}`).join(", ")
+        : "Stängt";
       if (!groups.has(label)) groups.set(label, []);
-      groups.get(label).push(key);
+      groups.get(label).push(k);
     }
 
-    // Sort groups by the earliest day index they contain (keep Mon→Sun flow)
     const sorted = [...groups.entries()].sort((a, b) => {
-      const aMin = Math.min(...a[1].map((k) => dayOrder.indexOf(k)));
-      const bMin = Math.min(...b[1].map((k) => dayOrder.indexOf(k)));
-      return aMin - bMin;
+      const amin = Math.min(...a[1].map((k) => dayOrder.indexOf(k)));
+      const bmin = Math.min(...b[1].map((k) => dayOrder.indexOf(k)));
+      return amin - bmin;
     });
 
-    // Build rows like: "Mån – Tis – Tors" | "11:00–22:00"
     list.innerHTML = sorted
-      .map(([timeLabel, daysArr]) => {
-        const daysText = daysArr.map((k) => dayLabels[k]).join(" – ");
-        return `<li><span class="days">${daysText}</span><span class="time">${timeLabel}</span></li>`;
+      .map(([time, days]) => {
+        const daysText = days.map((k) => dayLabels[k]).join(" – ");
+        return `<li><span class="days">${daysText}</span><span class="time">${time}</span></li>`;
       })
       .join("");
   }
 
-  // --- TOGGLE HOURS ---
-  if (button && hoursWrap) {
+  // Toggle dropdown
+  if (button && hoursBox) {
     button.addEventListener("click", () => {
       const expanded = button.getAttribute("aria-expanded") === "true";
       button.setAttribute("aria-expanded", String(!expanded));
-      hoursWrap.hidden = expanded;
+      hoursBox.hidden = expanded;
       el.classList.toggle("expanded", !expanded);
     });
   }
 
-  // Initial paint + refresh every minute
   renderHours();
   renderSummary();
-  setInterval(renderSummary, 60 * 1000);
+  setInterval(renderSummary, 60_000);
 })();
+
+// ---------- Position the pill just under the search (to the right) ----------
 function positionStoreStatus() {
   const status = document.getElementById("store-status");
   const hero = document.querySelector(".hero");
@@ -3129,13 +3128,16 @@ function positionStoreStatus() {
 
   const heroTop = hero.getBoundingClientRect().top + window.scrollY;
   const rect = searchBox.getBoundingClientRect();
-  const top = rect.bottom + window.scrollY - heroTop + 8; // 8px gap under search
+  const top = rect.bottom + window.scrollY - heroTop + 8; // 8px below search
   status.style.top = `${Math.round(top)}px`;
 }
 
-// run once and on resize
-window.addEventListener("load", positionStoreStatus);
+window.addEventListener("load", () => {
+  positionStoreStatus();
+  setTimeout(positionStoreStatus, 120); // nudge after fonts/layout settle
+});
 window.addEventListener("resize", positionStoreStatus);
+window.addEventListener("orientationchange", positionStoreStatus);
 
 // ==================== LOAD MENU DATA FROM JSON ====================
 
