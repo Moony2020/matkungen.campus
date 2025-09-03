@@ -6957,13 +6957,21 @@ body.modal-open {
         /* Reduce bottom padding */
     }
 
+    .hero .slider-item {
+        top: 53%;
+    }
+
+    .hero .slider-arrows {
+        top: 54%;
+    }
+
     .hero .slider-arrows button {
         width: 35px;
         height: 35px;
     }
 
     .hero .slider-arrows button i {
-        font-size: 1.6rem;
+        font-size: var(--fontSize-body-4);
     }
 
     .section.features {
