@@ -1036,7 +1036,7 @@ body.nav-active {
     /* JS updates this */
     margin: 0;
     max-width: 300px;
-    z-index: 30;
+    z-index: 100;
 }
 
 /* card */
@@ -1055,12 +1055,6 @@ body.nav-active {
     flex-direction: column;
     align-items: flex-start;
     gap: .25rem;
-}
-
-.store-status .address-short {
-    color: var(--primary-light);
-    font-weight: var(--weight-500);
-    line-height: var(--lineHeight-4);
 }
 
 /* caret at the END */

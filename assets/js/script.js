@@ -3037,12 +3037,9 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
   }
 
   // --- RENDER SUMMARY (top two lines) ---
-  const addrEl = el.querySelector(".address-short");
   const textEl = el.querySelector(".status-text");
   const button = el.querySelector(".state-line");
   const hoursWrap = el.querySelector(".hours");
-
-  if (addrEl) addrEl.textContent = SHORT_ADDRESS;
 
   function renderSummary() {
     const now = new Date();
