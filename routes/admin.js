@@ -225,9 +225,27 @@ router.get("/stats", adminAuth, async (req, res) => {
             },
           ])
         )[0]?.total || 0,
-      newCustomers: await User.countDocuments({
-        createdAt: { $gte: todayStart, $lt: todayEnd },
-      }),
+      // NEW: Count unique customers from today's orders (by email)
+      // This includes both registered users and guest customers
+      newCustomers:
+        (
+          await Order.aggregate([
+            {
+              $match: {
+                createdAt: { $gte: todayStart, $lt: todayEnd },
+                paymentStatus: "Completed",
+              },
+            },
+            {
+              $group: {
+                _id: "$customer.email", // Group by customer email to get unique customers
+              },
+            },
+            {
+              $count: "uniqueCustomers", // Count the unique groups
+            },
+          ])
+        )[0]?.uniqueCustomers || 0,
     };
 
     res.json({ success: true, stats });
