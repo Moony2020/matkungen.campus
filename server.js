@@ -229,7 +229,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("newOrder", (order) => {
-    io.emit("newOrderNotification", order);
+    io.to("admin").emit("new-order", order); // send only to admins
   });
 
   socket.on("disconnect", () => {

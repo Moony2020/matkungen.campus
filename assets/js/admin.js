@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     initSocket() {
-      // Avoid double-initializing
+      // Avoid double-initializing the socket connection itself
       if (this.socket) return;
 
       // Use same-origin in prod, localhost in dev
@@ -146,81 +146,90 @@ document.addEventListener("DOMContentLoaded", function () {
           : location.origin;
 
       this.socket = io(SOCKET_URL, {
-        transports: ["websocket", "polling"], // try WS first, fall back if needed
+        transports: ["websocket", "polling"],
         withCredentials: true,
         auth: { token: localStorage.getItem("adminToken") },
       });
 
-      // (optional) expose globally for debugging in console
+      // expose for console debugging
       window.socket = this.socket;
 
-      // Connected
+      // ---- connection lifecycle ----
       this.socket.on("connect", () => {
         console.log("✅ Socket connected");
-        this.socket.emit("joinAdminRoom"); // join the admin room on server
+        this.socket.emit("joinAdminRoom");
 
-        // stop polling fallback if it was running
         if (this.pollingInterval) {
           clearInterval(this.pollingInterval);
           this.pollingInterval = null;
         }
       });
 
-      // Any order status updated
+      this.socket.on("connect_error", (err) => {
+        console.error("Socket connection error:", err);
+        this.showNotification("Realtime connection lost - using polling", true);
+        if (!this.pollingInterval) this.initPolling();
+      });
+
+      this.socket.on("reconnect", () => {
+        this.showNotification("Realtime connection restored");
+        if (this.pollingInterval) {
+          clearInterval(this.pollingInterval);
+          this.pollingInterval = null;
+        }
+      });
+
+      // ---- business events ----
       this.socket.on("orderUpdate", (order) => {
         this.updateOrderInUI(order);
         this.updateOrderInRecent(order);
       });
 
-      // Chart nudges (status changes / new orders)
       this.socket.on("chart-update", (data = {}) => {
         console.log("Chart update received", data);
         if (data.isNewOrder) {
-          // full refresh when a brand-new order lands
           this.loadDashboard();
         } else {
-          // just refresh the counts for current period
           this.fetchAndUpdateStatusChart(this.currentChartPeriod);
         }
       });
 
-      // New order (paid)
-      this.socket.on("new-order", (order) => {
-        if (order.paymentStatus !== "Completed") return;
+      // Ensure we never attach multiple 'new-order' handlers (hot reloads / re-init)
+      if (!this._wiredNewOrder) {
+        // clear any previous just in case (defensive)
+        this.socket.off?.("new-order");
 
-        this.playNotificationSound();
+        this.socket.on("new-order", (order) => {
+          // if you only want fully paid orders, keep this guard:
+          if (order?.paymentStatus !== "Completed") return;
 
-        // badge + ping
-        const badge = document.querySelector(".notification-badge");
-        const currentCount = parseInt(badge?.textContent || "0", 10);
-        if (badge) {
-          badge.textContent = currentCount + 1;
-          badge.style.display = "inline-block";
-        }
-        const notificationBtn = document.querySelector(".notification-btn");
-        notificationBtn?.classList.add("notification-ping");
-        setTimeout(
-          () => notificationBtn?.classList.remove("notification-ping"),
-          1000
-        );
+          // sound + ping on bell
+          this.playNotificationSound();
+          const notificationBtn = document.querySelector(".notification-btn");
+          notificationBtn?.classList.add("notification-ping");
+          setTimeout(
+            () => notificationBtn?.classList.remove("notification-ping"),
+            1000
+          );
 
-        // UI updates
-        this.addOrderToRecent(order);
-        this.incrementTodayOrders();
-        this.fetchAndUpdateStatusChart(this.currentChartPeriod);
-        // NEW: add to dropdown panel
-        this.pushNotification(order);
-      });
+          // UI updates
+          this.addOrderToRecent(order);
+          this.incrementTodayOrders();
+          this.fetchAndUpdateStatusChart(this.currentChartPeriod);
 
-      // Marked delivered toast
+          // add to dropdown panel
+          this.pushNotification(order);
+        });
+
+        this._wiredNewOrder = true;
+      }
+
       this.socket.on("order-delivered", (order) => {
         this.showNotification(
           `Order #${order.orderNumber} marked as Delivered`
         );
       });
 
-      // 🔴 Live dashboard stats
-      // If server emits full stats, update; if it only emits a ping, re-fetch.
       this.socket.on("stats-update", (stats) => {
         if (stats && typeof stats === "object") {
           const safeStats = {
@@ -230,35 +239,14 @@ document.addEventListener("DOMContentLoaded", function () {
             newCustomers: Number(stats.newCustomers) || 0,
           };
           this.updateDashboardStats(safeStats);
-        } else {
-          // fallback: re-pull dashboard (handles auth headers etc.)
-          if (document.getElementById("dashboard-section")) {
-            this.loadDashboard();
-          }
+        } else if (document.getElementById("dashboard-section")) {
+          this.loadDashboard();
         }
-        // keep the doughnut chart aligned
         this.fetchAndUpdateStatusChart(this.currentChartPeriod);
       });
 
-      // Driver location (if you use it)
       this.socket.on("driverLocationUpdate", ({ orderId, location }) => {
         this.updateDriverLocation(orderId, location);
-      });
-
-      // Connection hiccups → start polling
-      this.socket.on("connect_error", (err) => {
-        console.error("Socket connection error:", err);
-        this.showNotification("Realtime connection lost - using polling", true);
-        if (!this.pollingInterval) this.initPolling();
-      });
-
-      // Reconnected → stop polling
-      this.socket.on("reconnect", () => {
-        this.showNotification("Realtime connection restored");
-        if (this.pollingInterval) {
-          clearInterval(this.pollingInterval);
-          this.pollingInterval = null;
-        }
       });
     }
 
@@ -2104,7 +2092,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // ---------- Global delegated clicks (orders UI) ----------
       document.addEventListener("click", (e) => {
-        // View order
         const viewBtn = e.target.closest(".view-order");
         if (viewBtn) {
           const orderId = viewBtn.dataset.order;
@@ -2112,7 +2099,6 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // Print receipt
         const printReceiptBtn = e.target.closest(".print-receipt");
         if (printReceiptBtn) {
           const orderId = printReceiptBtn.dataset.order;
@@ -2120,7 +2106,6 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // Update status
         const updateStatusBtn = e.target.closest(".update-status");
         if (updateStatusBtn) {
           const orderId = updateStatusBtn.dataset.order;
@@ -2134,7 +2119,6 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // Track order (if implemented)
         const trackBtn = e.target.closest(".track-order");
         if (trackBtn) {
           const orderId = trackBtn.dataset.order;
@@ -2225,12 +2209,11 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-      // ---------- Danger zone: delete all orders (confirm modal) ----------
+      // ---------- Delete all (confirm) ----------
       const deleteAllBtn = document.getElementById("delete-all-orders");
       const modal = document.getElementById("confirm-modal");
       const confirmYes = document.getElementById("confirm-yes");
       const confirmNo = document.getElementById("confirm-no");
-
       if (deleteAllBtn && modal && confirmYes && confirmNo) {
         deleteAllBtn.addEventListener(
           "click",
@@ -2291,13 +2274,12 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Revenue chart filter element not found!");
       }
 
-      // ========== Notifications dropdown + bell behavior ==========
+      // ---------- Notifications dropdown (UI only here) ----------
       const notifBtn = document.querySelector(".notification-btn");
       const notifBadge = document.querySelector(".notification-badge");
       const notifPanel = document.getElementById("notification-panel");
       const notifList = document.getElementById("notif-list");
       const notifClear = document.getElementById("notif-clear");
-      let notifCount = 0;
 
       const openNotif = () => {
         if (notifPanel) notifPanel.hidden = false;
@@ -2309,78 +2291,24 @@ document.addEventListener("DOMContentLoaded", function () {
         if (notifPanel) notifPanel.hidden ? openNotif() : closeNotif();
       };
 
-      // Bell: open/close dropdown (no navigation)
       notifBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
         toggleNotif();
       });
-
-      // Close when clicking outside
       document.addEventListener("click", (e) => {
         if (!notifPanel || !notifBtn) return;
-        const insidePanel = notifPanel.contains(e.target);
-        const onBell = notifBtn.contains(e.target);
-        if (!insidePanel && !onBell) closeNotif();
+        if (!notifPanel.contains(e.target) && !notifBtn.contains(e.target))
+          closeNotif();
       });
-
-      // Clear notifications (UI only)
       notifClear?.addEventListener("click", () => {
         if (!notifList || !notifBadge) return;
         notifList.innerHTML = "";
-        notifCount = 0;
         notifBadge.style.display = "none";
         notifBadge.textContent = "0";
       });
 
-      // Live feed from socket: add items to dropdown and badge
-      const socketRef = this.socket || window.socket;
-      if (socketRef) {
-        socketRef.on("new-order", async (order) => {
-          if (order?.paymentStatus !== "Completed") return;
-
-          // badge
-          if (notifBadge) {
-            notifCount += 1;
-            notifBadge.style.display = "inline-flex";
-            notifBadge.textContent = String(notifCount);
-          }
-
-          // list item
-          if (notifList) {
-            const li = document.createElement("li");
-            li.className = "notif-item";
-            const when = new Date(
-              order.createdAt || Date.now()
-            ).toLocaleTimeString("sv-SE", {
-              hour: "2-digit",
-              minute: "2-digit",
-            });
-            li.innerHTML = `
-          <div><i class="ri-shopping-bag-2-line"></i></div>
-          <div>
-            <div><strong>New order #${order.orderNumber}</strong></div>
-            <div class="meta">${when}</div>
-            <div class="meta">${order.customer?.name || "Guest"} · ${(
-              Number(order.total) || 0
-            ).toFixed(2)} kr</div>
-          </div>
-        `;
-            li.addEventListener("click", async () => {
-              // jump to Orders and scroll to that order
-              this.targetOrderNumber = order.orderNumber;
-              this.showSection("orders");
-              await this.loadOrders(1, { search: String(order.orderNumber) });
-              closeNotif();
-            });
-            notifList.prepend(li);
-          }
-
-          // optional sound
-          try {
-            document.getElementById("notification-sound")?.play();
-          } catch {}
-        });
-      }
+      // Expose some refs the socket handler will use
+      this._notif = { notifBadge, notifList, closeNotif };
     }
 
     async fetchAndPrintOrder(orderId) {

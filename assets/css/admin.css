@@ -502,6 +502,62 @@ body {
     padding: 6px 8px;
 }
 
+/* Notifications: Clear button */
+#notif-clear {
+    appearance: none;
+    border: 1px solid var(--border-color);
+    background: var(--card-bg);
+    color: var(--text-color);
+    padding: 4px 10px;
+    font-size: 12px;
+    line-height: 1;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, color .15s ease, box-shadow .15s ease, transform .05s ease;
+}
+
+#notif-clear:hover {
+    background: var(--primary-light);
+    border-color: var(--primary-color);
+}
+
+#notif-clear:active {
+    transform: translateY(1px);
+}
+
+#notif-clear:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(67, 97, 238, .35);
+    /* subtle focus ring */
+}
+
+/* Dark mode */
+[data-theme="dark"] #notif-clear {
+    background: var(--card-bg-lighter);
+    border-color: var(--border-color);
+    color: var(--text-light);
+}
+
+[data-theme="dark"] #notif-clear:hover {
+    background: rgba(255, 255, 255, .06);
+    border-color: var(--text-light);
+}
+
+/* Disabled state (if you disable it when list is empty) */
+#notif-clear:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+/* Empty state row */
+.notif-empty {
+    padding: 14px 12px;
+    color: var(--text-light);
+    font-size: 14px;
+    text-align: center;
+    opacity: .8;
+}
+
 .notif-list {
     list-style: none;
     margin: 0;
