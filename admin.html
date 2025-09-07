@@ -63,6 +63,9 @@
 
             <li data-section="customers">
               <a href="#"><i class="ri-user-line"></i> Customers</a>
+              <span class="badge" id="customers-badge" style="display: none"
+                >0</span
+              >
             </li>
 
             <li data-section="analytics">
@@ -324,6 +327,65 @@
           </div>
         </section>
 
+        <!-- Customers Section -->
+        <section id="customers-section" class="content-section">
+          <div class="section-header">
+            <div class="actions">
+              <input
+                id="customers-search"
+                type="search"
+                placeholder="Search name, email, phone..."
+              />
+              <select id="customers-filter">
+                <option value="all">All</option>
+                <option value="yes">With Orders</option>
+                <option value="no">No Orders</option>
+              </select>
+              <select id="customers-sort">
+                <option value="recent">Most Recent</option>
+                <option value="orders">Most Orders</option>
+                <option value="spent">Highest Spent</option>
+                <option value="new">Newest</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="customers-loading" class="loading">Loading customers...</div>
+
+          <div class="card">
+            <table class="table" id="customers-table">
+              <thead id="customers-thead">
+                <tr>
+                  <th>Name</th>
+                  <th>Contact</th>
+                  <th>Total Orders</th>
+                  <th>Total Spent</th>
+                  <th>Last Order</th>
+                </tr>
+              </thead>
+              <tbody id="customers-tbody"></tbody>
+            </table>
+          </div>
+
+          <div class="pagination" id="customers-pagination"></div>
+
+          <!-- Drawer / Modal -->
+          <div id="customer-drawer" class="drawer hidden">
+            <div class="drawer-content">
+              <button
+                class="drawer-close"
+                id="customer-drawer-close"
+                aria-label="Close"
+                title="Close"
+                type="button"
+              >
+                <i class="ri-close-line" aria-hidden="true"></i>
+              </button>
+              <div id="customer-drawer-body"></div>
+            </div>
+          </div>
+        </section>
+
         <!-- Other sections would follow the same pattern -->
       </main>
     </div>
@@ -361,6 +423,7 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+    <script src="./assets/js/admin.customers.js" type="module"></script>
     <script src="./assets/js/admin.js" type="module"></script>
   </body>
 </html>

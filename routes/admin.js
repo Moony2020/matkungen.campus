@@ -7,6 +7,7 @@ const nodemailer = require("nodemailer");
 const Admin = require("../models/Admin");
 const Order = require("../models/Order");
 const User = require("../models/User");
+const adminAuth = require("../middleware/adminAuth");
 
 // Email transporter
 const transporter = nodemailer.createTransport({
@@ -19,23 +20,6 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false, //
   },
 });
-
-// Admin authentication middleware
-
-const adminAuth = (req, res, next) => {
-  const token =
-    req.header("x-auth-token") || req.headers.authorization?.split(" ")[1];
-  if (!token)
-    return res.status(401).json({ error: "No token, authorization denied" });
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.adminId = decoded.id;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: "Token is not valid" });
-  }
-};
 
 // Admin login
 router.post("/login", async (req, res) => {
@@ -75,15 +59,32 @@ router.post("/login", async (req, res) => {
       { expiresIn }
     );
 
-    res.json({
+    // 🔴 Set cookie BEFORE sending JSON
+    res.cookie("admin_token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      // same-origin (localhost:4000 & prod domain)
+      secure: process.env.NODE_ENV === "production", // false on localhost, true on HTTPS prod
+      maxAge: (remember ? 30 : 1) * 24 * 60 * 60 * 1000,
+    });
+    // Set cookie to sameSite: "none" and secure: true: if admin UI runs on a different domain / port than the API
+    //     res.cookie("admin_token", token, {
+    //   httpOnly: true,
+    //   sameSite: "none",
+    //   secure: true,
+    //   maxAge: ...
+    // });
+
+    // ✅ Now send the response (and return)
+    return res.json({
       success: true,
-      token,
       admin: {
         id: admin._id,
         name: admin.name,
         email: admin.email,
         role: admin.role,
       },
+      // optional: you can omit `token` now since cookie is used
     });
   } catch (error) {
     console.error("Admin login error:", error);
@@ -91,6 +92,16 @@ router.post("/login", async (req, res) => {
       error: "Something went wrong. Please try again later.",
     });
   }
+});
+
+// (optional) Admin logout: clear cookie
+router.post("/logout", (req, res) => {
+  res.clearCookie("admin_token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+  res.json({ success: true });
 });
 
 // Forgot password
@@ -144,7 +155,6 @@ router.post("/forgot-password", async (req, res) => {
 });
 
 // Reset password
-
 router.put("/reset-password/:token", async (req, res) => {
   try {
     const { token } = req.params;
@@ -177,16 +187,18 @@ router.put("/reset-password/:token", async (req, res) => {
   }
 });
 
-// ✅ Verify token
+// --------------- PROTECTED routes start here ---------------
+router.use(adminAuth);
 
-router.get("/verify", adminAuth, (req, res) => {
-  res.json({ adminId: req.adminId });
+// ✅ Verify (for frontend to check session)
+router.get("/verify", (req, res) => {
+  // adminAuth put the payload on req.admin
+  return res.json({ success: true, admin: req.admin });
 });
 
 // ✅ Dashboard stats
-router.get("/stats", adminAuth, async (req, res) => {
+router.get("/stats", async (req, res) => {
   try {
-    // Get current date boundaries in server's timezone
     const now = new Date();
     const todayStart = new Date(
       now.getFullYear(),
@@ -196,7 +208,6 @@ router.get("/stats", adminAuth, async (req, res) => {
     const todayEnd = new Date(todayStart);
     todayEnd.setDate(todayEnd.getDate() + 1);
 
-    // Calculate stats - include ALL delivered orders from today regardless of when they were marked delivered
     const stats = {
       todayOrders: await Order.countDocuments({
         createdAt: { $gte: todayStart, $lt: todayEnd },
@@ -206,7 +217,6 @@ router.get("/stats", adminAuth, async (req, res) => {
         status: "Pending",
         paymentStatus: "Completed",
       }),
-      // Revenue only from delivered orders with completed payments
       revenue:
         (
           await Order.aggregate([
@@ -217,35 +227,12 @@ router.get("/stats", adminAuth, async (req, res) => {
                 createdAt: { $gte: todayStart, $lt: todayEnd },
               },
             },
-            {
-              $group: {
-                _id: null,
-                total: { $sum: "$total" },
-              },
-            },
+            { $group: { _id: null, total: { $sum: "$total" } } },
           ])
         )[0]?.total || 0,
-      // NEW: Count unique customers from today's orders (by email)
-      // This includes both registered users and guest customers
-      newCustomers:
-        (
-          await Order.aggregate([
-            {
-              $match: {
-                createdAt: { $gte: todayStart, $lt: todayEnd },
-                paymentStatus: "Completed",
-              },
-            },
-            {
-              $group: {
-                _id: "$customer.email", // Group by customer email to get unique customers
-              },
-            },
-            {
-              $count: "uniqueCustomers", // Count the unique groups
-            },
-          ])
-        )[0]?.uniqueCustomers || 0,
+      newCustomers: await User.countDocuments({
+        createdAt: { $gte: todayStart, $lt: todayEnd },
+      }),
     };
 
     res.json({ success: true, stats });
@@ -260,9 +247,8 @@ router.get("/stats", adminAuth, async (req, res) => {
 });
 
 // Recent orders (for dashboard) - now filtered by today// All today's orders
-router.get("/orders/recent", adminAuth, async (req, res) => {
+router.get("/orders/recent", async (req, res) => {
   try {
-    // Get current date boundaries
     const now = new Date();
     const todayStart = new Date(
       now.getFullYear(),
@@ -291,7 +277,7 @@ router.get("/orders/recent", adminAuth, async (req, res) => {
 });
 
 // ✅ Get order status counts for chart
-router.get("/orders/status-counts", adminAuth, async (req, res) => {
+router.get("/orders/status-counts", async (req, res) => {
   try {
     const { period } = req.query;
     let startDate;
@@ -337,7 +323,7 @@ router.get("/orders/status-counts", adminAuth, async (req, res) => {
 });
 
 // Get revenue data for charts (Revenue Analytics) (week, month, year)
-router.get("/revenue", adminAuth, async (req, res) => {
+router.get("/revenue", async (req, res) => {
   try {
     const { period } = req.query;
     console.log("Revenue request for period:", period);
@@ -416,7 +402,7 @@ router.get("/revenue", adminAuth, async (req, res) => {
 });
 
 // GET single order by ID for Admin
-router.get("/admin/orders/:id", adminAuth, async (req, res) => {
+router.get("/admin/orders/:id", async (req, res) => {
   try {
     const order = await Order.findOne({ orderNumber: req.params.id });
 
@@ -434,7 +420,7 @@ router.get("/admin/orders/:id", adminAuth, async (req, res) => {
 
 // order details route
 
-router.get("/orders/:id", adminAuth, async (req, res) => {
+router.get("/orders/:id", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate(
       "user",
@@ -659,6 +645,222 @@ router.delete("/orders/delete-all", adminAuth, async (req, res) => {
   } catch (error) {
     console.error("Error deleting orders:", error);
     res.status(500).json({ message: "Failed to delete orders." });
+  }
+});
+// ========= CUSTOMERS API =========
+
+// GET /api/admin/customers
+// Query params:
+//  - search: string (name/email/phone)
+//  - filter: 'all' | 'yes' | 'no' (has orders?)
+//  - sort: 'recent' | 'orders' | 'spent' | 'new'
+//  - page: number (1-based)
+//  - limit: number
+router.get("/customers", adminAuth, async (req, res) => {
+  try {
+    const {
+      search = "",
+      filter = "all",
+      sort = "recent",
+      page = 1,
+      limit = 20,
+    } = req.query;
+
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const pageSize = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
+
+    // Build search match
+    const userMatch = {};
+    if (search.trim()) {
+      // use $text when possible, or fallback to regex (both supported by our indexes)
+      userMatch.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { email: { $regex: search, $options: "i" } },
+        { phone: { $regex: search, $options: "i" } },
+      ];
+    }
+
+    // Aggregate from User, lookup Orders, compute stats
+    const pipeline = [
+      { $match: userMatch },
+
+      {
+        $lookup: {
+          from: "orders",
+          let: { uid: "$_id" },
+          pipeline: [
+            {
+              $match: {
+                $expr: { $eq: ["$user", "$$uid"] },
+                paymentStatus: "Completed",
+              },
+            },
+            { $sort: { createdAt: -1 } },
+            {
+              $group: {
+                _id: "$user",
+                totalOrders: { $sum: 1 },
+                totalSpent: { $sum: "$total" },
+                lastOrderAt: { $first: "$createdAt" },
+                lastOrderId: { $first: "$_id" },
+                lastStatus: { $first: "$status" },
+              },
+            },
+          ],
+          as: "stats",
+        },
+      },
+      {
+        $addFields: {
+          totalOrders: {
+            $ifNull: [{ $arrayElemAt: ["$stats.totalOrders", 0] }, 0],
+          },
+          totalSpent: {
+            $ifNull: [{ $arrayElemAt: ["$stats.totalSpent", 0] }, 0],
+          },
+          lastOrderAt: { $arrayElemAt: ["$stats.lastOrderAt", 0] },
+          lastOrderId: { $arrayElemAt: ["$stats.lastOrderId", 0] },
+          lastStatus: { $arrayElemAt: ["$stats.lastStatus", 0] },
+        },
+      },
+    ];
+
+    // Filter yes/no orders
+    if (filter === "yes") {
+      pipeline.push({ $match: { totalOrders: { $gt: 0 } } });
+    } else if (filter === "no") {
+      pipeline.push({ $match: { totalOrders: { $eq: 0 } } });
+    }
+
+    // Sorting
+    const sortStage = (() => {
+      switch (sort) {
+        case "orders":
+          return { totalOrders: -1, createdAt: -1 };
+        case "spent":
+          return { totalSpent: -1, createdAt: -1 };
+        case "new":
+          return { createdAt: -1 };
+        case "recent":
+        default:
+          // recent activity: lastOrderAt first, then createdAt
+          return { lastOrderAt: -1, createdAt: -1 };
+      }
+    })();
+    pipeline.push({ $sort: sortStage });
+
+    // Facet for pagination + total count
+    pipeline.push({
+      $facet: {
+        data: [{ $skip: (pageNum - 1) * pageSize }, { $limit: pageSize }],
+        total: [{ $count: "count" }],
+      },
+    });
+
+    const result = await User.aggregate(pipeline);
+    const rows = result[0]?.data || [];
+    const total = result[0]?.total?.[0]?.count || 0;
+
+    res.json({
+      success: true,
+      data: rows.map((u) => ({
+        _id: u._id,
+        name: u.name,
+        email: u.email,
+        phone: u.phone || "",
+        createdAt: u.createdAt,
+        isGuest: !!u.isGuest,
+        totalOrders: u.totalOrders || 0,
+        totalSpent: Math.round((u.totalSpent || 0) * 100) / 100,
+        lastOrderAt: u.lastOrderAt || null,
+        lastOrderId: u.lastOrderId || null,
+        lastStatus: u.lastStatus || null,
+      })),
+      page: pageNum,
+      limit: pageSize,
+      total,
+      totalPages: Math.max(Math.ceil(total / pageSize), 1),
+    });
+  } catch (error) {
+    console.error("Customers list error:", error);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
+// GET /api/admin/customers/:id
+router.get("/customers/:id", adminAuth, async (req, res) => {
+  try {
+    const id = req.params.id;
+
+    const customer = await User.findById(id).lean();
+    if (!customer) {
+      return res.status(404).json({ success: false, error: "Not found" });
+    }
+
+    const orders = await Order.find({
+      user: customer._id,
+      paymentStatus: "Completed",
+    })
+      .sort({ createdAt: -1 })
+      .limit(25)
+      .lean();
+
+    const totalOrders = await Order.countDocuments({
+      user: customer._id,
+      paymentStatus: "Completed",
+    });
+
+    const totalSpentAgg = await Order.aggregate([
+      {
+        $match: {
+          user: customer._id,
+          paymentStatus: "Completed",
+        },
+      },
+      {
+        $group: {
+          _id: customer._id,
+          total: { $sum: "$total" },
+        },
+      },
+    ]);
+
+    const totalSpent = totalSpentAgg[0]?.total || 0;
+
+    res.json({
+      success: true,
+      customer: {
+        _id: customer._id,
+        name: customer.name,
+        email: customer.email,
+        phone: customer.phone || "",
+        address: customer.address || "",
+        createdAt: customer.createdAt,
+        totalOrders,
+        totalSpent: Math.round(totalSpent * 100) / 100,
+      },
+      orders,
+    });
+  } catch (error) {
+    console.error("Customer detail error:", error);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
+// (Optional) GET /api/admin/customers/stats/today
+router.get("/customers/stats/today", adminAuth, async (req, res) => {
+  try {
+    const now = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+
+    const count = await User.countDocuments({
+      createdAt: { $gte: start, $lt: end },
+    });
+    res.json({ success: true, newCustomers: count });
+  } catch (e) {
+    console.error("Customers today stats error:", e);
+    res.status(500).json({ success: false, error: "Server error" });
   }
 });
 

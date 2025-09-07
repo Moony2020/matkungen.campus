@@ -75,12 +75,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     initSocket() {
+      // Avoid double-initializing
+      if (this.socket) return;
+
       // Use same-origin in prod, localhost in dev
       const SOCKET_URL =
         location.hostname === "localhost" ||
         location.hostname.startsWith("192.168.")
           ? "http://localhost:4000"
-          : location.origin; // e.g. https://matkungen-campus.onrender.com
+          : location.origin;
 
       this.socket = io(SOCKET_URL, {
         transports: ["websocket", "polling"], // try WS first, fall back if needed
@@ -88,112 +91,106 @@ document.addEventListener("DOMContentLoaded", function () {
         auth: { token: localStorage.getItem("adminToken") },
       });
 
-      // 🟢 When any order status is updated (e.g., by driver/admin)
-      this.socket.on("orderUpdate", (order) => {
-        this.updateOrderInUI(order);
-        this.updateOrderInRecent(order); // NEW: Update recent orders section
+      // (optional) expose globally for debugging in console
+      window.socket = this.socket;
 
-        // Add this condition to update revenue
-        // if (order.status === "Delivered") {
-        //   this.updateRevenue(order.total);
-        // }
-        // ❌ Keep notifications only in updateOrderStatus() to avoid double-toasts
-        // this.showNotification(
-        //   `Order #${order.orderNumber} updated to ${order.status}`
-        // );
-      });
-
+      // Connected
       this.socket.on("connect", () => {
         console.log("✅ Socket connected");
-        this.socket.emit("joinAdminRoom"); // Join admin room
-        // Clear polling if still running
+        this.socket.emit("joinAdminRoom"); // join the admin room on server
+
+        // stop polling fallback if it was running
         if (this.pollingInterval) {
           clearInterval(this.pollingInterval);
           this.pollingInterval = null;
         }
       });
 
-      // Add this new event listener for chart updates
-      this.socket.on("chart-update", (data) => {
-        console.log("Chart update received", data);
+      // Any order status updated
+      this.socket.on("orderUpdate", (order) => {
+        this.updateOrderInUI(order);
+        this.updateOrderInRecent(order);
+      });
 
-        // If it's a new order, we need to refresh the entire dashboard
+      // Chart nudges (status changes / new orders)
+      this.socket.on("chart-update", (data = {}) => {
+        console.log("Chart update received", data);
         if (data.isNewOrder) {
-          this.loadDashboard(); // Reload the entire dashboard
+          // full refresh when a brand-new order lands
+          this.loadDashboard();
         } else {
-          // If it's just a status change, update only the chart
+          // just refresh the counts for current period
           this.fetchAndUpdateStatusChart(this.currentChartPeriod);
         }
       });
 
-      // ✅ Real-time broadcast when user creates a new order
+      // New order (paid)
       this.socket.on("new-order", (order) => {
-        // Only process completed payments
         if (order.paymentStatus !== "Completed") return;
 
-        // Play sound
         this.playNotificationSound();
 
-        // Update badge
+        // badge + ping
         const badge = document.querySelector(".notification-badge");
-        const currentCount = parseInt(badge.textContent || "0");
-        badge.textContent = currentCount + 1;
-        badge.style.display = "inline-block";
-
-        // Add animation
+        const currentCount = parseInt(badge?.textContent || "0", 10);
+        if (badge) {
+          badge.textContent = currentCount + 1;
+          badge.style.display = "inline-block";
+        }
         const notificationBtn = document.querySelector(".notification-btn");
-        notificationBtn.classList.add("notification-ping");
+        notificationBtn?.classList.add("notification-ping");
         setTimeout(
-          () => notificationBtn.classList.remove("notification-ping"),
+          () => notificationBtn?.classList.remove("notification-ping"),
           1000
         );
 
-        // Add to recent orders / 🔄 Dynamic injection
+        // UI updates
         this.addOrderToRecent(order);
-
-        // Increment today's orders count / ✅ Real "Today's Orders" only
         this.incrementTodayOrders();
-
-        // Refresh the chart to include the new order / ✅ Real "Today's Orders" in chart
         this.fetchAndUpdateStatusChart(this.currentChartPeriod);
       });
 
-      // ✅ When order is marked as delivered by admin
+      // Marked delivered toast
       this.socket.on("order-delivered", (order) => {
         this.showNotification(
           `Order #${order.orderNumber} marked as Delivered`
         );
-        // this.updateRevenue(order.total); // or this.updateTodayRevenue(order.total)
       });
 
-      // Update Dashboard Stats
+      // 🔴 Live dashboard stats
+      // If server emits full stats, update; if it only emits a ping, re-fetch.
       this.socket.on("stats-update", (stats) => {
-        const safeStats = {
-          revenue: Number(stats.revenue ?? stats.todayRevenue) || 0,
-          todayOrders: Number(stats.todayOrders) || 0,
-          pendingOrders: Number(stats.pendingOrders) || 0,
-          newCustomers: Number(stats.newCustomers) || 0,
-        };
-        // updateOrderInRecent;
-        this.updateDashboardStats(safeStats);
-        this.initCharts(stats); // rebuild charts with fresh weekly data
+        if (stats && typeof stats === "object") {
+          const safeStats = {
+            revenue: Number(stats.revenue ?? stats.todayRevenue) || 0,
+            todayOrders: Number(stats.todayOrders) || 0,
+            pendingOrders: Number(stats.pendingOrders) || 0,
+            newCustomers: Number(stats.newCustomers) || 0,
+          };
+          this.updateDashboardStats(safeStats);
+        } else {
+          // fallback: re-pull dashboard (handles auth headers etc.)
+          if (document.getElementById("dashboard-section")) {
+            this.loadDashboard();
+          }
+        }
+        // keep the doughnut chart aligned
+        this.fetchAndUpdateStatusChart(this.currentChartPeriod);
       });
 
-      // 🚗 Location updates (if using driver tracking)
+      // Driver location (if you use it)
       this.socket.on("driverLocationUpdate", ({ orderId, location }) => {
         this.updateDriverLocation(orderId, location);
       });
 
-      // ❌ On connection failure
+      // Connection hiccups → start polling
       this.socket.on("connect_error", (err) => {
         console.error("Socket connection error:", err);
         this.showNotification("Realtime connection lost - using polling", true);
-        if (!this.pollingInterval) {
-          this.initPolling();
-        }
+        if (!this.pollingInterval) this.initPolling();
       });
 
-      // 🔄 On reconnect
+      // Reconnected → stop polling
       this.socket.on("reconnect", () => {
         this.showNotification("Realtime connection restored");
         if (this.pollingInterval) {
@@ -225,7 +222,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // Add this method to the AdminPanel class
+    // fetch and update the revenue chart
     async fetchAndUpdateRevenueChart(period = "week") {
       try {
         console.log("Fetching revenue data for period:", period);
@@ -286,6 +283,35 @@ document.addEventListener("DOMContentLoaded", function () {
       this.revenueChart.data.labels = labels;
       this.revenueChart.data.datasets[0].data = revenueData;
       this.revenueChart.update();
+    }
+
+    // --- DASHBOARD: load stats once and on socket updates ---
+    async loadStats() {
+      try {
+        const token = localStorage.getItem("adminToken");
+        const res = await fetch("/api/admin/stats", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (!json?.success)
+          throw new Error(json?.error || "Failed to load stats");
+
+        const s = json.stats || {};
+        const el = (id) => document.getElementById(id);
+
+        el("today-orders") &&
+          (el("today-orders").textContent = s.todayOrders ?? 0);
+        el("today-revenue") &&
+          (el("today-revenue").textContent = `${(s.revenue ?? 0).toFixed(
+            2
+          )} kr`);
+        el("new-customers") &&
+          (el("new-customers").textContent = s.newCustomers ?? 0);
+        el("active-drivers") &&
+          (el("active-drivers").textContent = s.activeDrivers ?? 0);
+      } catch (e) {
+        console.error("Stats load error:", e);
+      }
     }
 
     updateOrderInRecent(order) {
@@ -567,7 +593,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const headerRow = document.createElement("div");
       headerRow.className = "order-header-row";
       headerRow.innerHTML = `
-      <div class="order-cell">Order #</div>
+      <div class="order-cell">Order</div>
       <div class="order-cell">Customer</div>
       <div class="order-cell">Items</div>
       <div class="order-cell">Price</div>
@@ -1986,35 +2012,37 @@ document.addEventListener("DOMContentLoaded", function () {
     //   }
     // }
     setupEventListeners() {
-      // Improved Sidebar Toggle and Navigation
+      // --- Sidebar toggle + outside click close ---
       const sidebar = document.querySelector(".sidebar");
       const sidebarToggle = document.getElementById("sidebar-toggle");
 
-      sidebarToggle.addEventListener("click", (e) => {
+      sidebarToggle?.addEventListener("click", (e) => {
         e.stopPropagation();
-        sidebar.classList.toggle("active");
+        sidebar?.classList.toggle("active");
       });
 
       document.addEventListener("click", (e) => {
         const isMobile = window.innerWidth <= 992;
-        const clickedInsideSidebar = sidebar.contains(e.target);
+        const clickedInsideSidebar = sidebar?.contains(e.target);
         const clickedToggleButton =
-          e.target === sidebarToggle || sidebarToggle.contains(e.target);
+          e.target === sidebarToggle || sidebarToggle?.contains(e.target);
         if (isMobile && !clickedInsideSidebar && !clickedToggleButton) {
-          sidebar.classList.remove("active");
+          sidebar?.classList.remove("active");
         }
       });
 
+      // --- Sidebar nav items ---
       document.querySelectorAll(".sidebar li").forEach((item) => {
         item.addEventListener("click", () => {
           const section = item.dataset.section;
           this.showSection(section);
           if (window.innerWidth <= 992) {
-            sidebar.classList.remove("active");
+            sidebar?.classList.remove("active");
           }
         });
       });
 
+      // --- Global click delegation (orders actions) ---
       document.addEventListener("click", (e) => {
         // View order details
         const viewBtn = e.target.closest(".view-order");
@@ -2024,24 +2052,15 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // Print receipt button
+        // Print receipt
         const printReceiptBtn = e.target.closest(".print-receipt");
         if (printReceiptBtn) {
           const orderId = printReceiptBtn.dataset.order;
-          // Find the order in the current view
-          const orderCard = document.querySelector(
-            `.order-card[data-order-id="${orderId}"]`
-          );
-          if (orderCard) {
-            // Get order data from data attributes or fetch it
-            const orderNumber = orderCard.dataset.orderNumber;
-            // For a complete solution, you might need to fetch the full order details
-            // or store them in memory when loading the orders
-            this.fetchAndPrintOrder(orderId);
-          }
+          this.fetchAndPrintOrder(orderId);
           return;
         }
 
+        // Update order status
         const updateStatusBtn = e.target.closest(".update-status");
         if (updateStatusBtn) {
           const orderId = updateStatusBtn.dataset.order;
@@ -2055,6 +2074,7 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
+        // Track order (if used)
         const trackBtn = e.target.closest(".track-order");
         if (trackBtn) {
           const orderId = trackBtn.dataset.order;
@@ -2063,21 +2083,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      document.getElementById("prev-page").addEventListener("click", () => {
+      // --- Pagination ---
+      document.getElementById("prev-page")?.addEventListener("click", () => {
         if (this.currentPage > 1) {
           this.currentPage--;
           this.loadOrders(this.currentPage);
         }
       });
 
-      document.getElementById("next-page").addEventListener("click", () => {
+      document.getElementById("next-page")?.addEventListener("click", () => {
         this.currentPage++;
         this.loadOrders(this.currentPage);
       });
 
+      // --- Orders filter (status) ---
       document
         .getElementById("orders-filter")
-        .addEventListener("change", (e) => {
+        ?.addEventListener("change", (e) => {
           const value = e.target.value;
           const statusMap = {
             pending: "Pending",
@@ -2086,128 +2108,134 @@ document.addEventListener("DOMContentLoaded", function () {
             delivered: "Delivered",
             cancelled: "Cancelled",
           };
-
           const filters = {};
-          if (value !== "all") {
-            filters.status = statusMap[value];
-          }
+          if (value !== "all") filters.status = statusMap[value];
           this.loadOrders(1, filters);
         });
 
+      // --- Orders search (inline box on Orders tab) ---
       document
         .getElementById("orders-search")
-        .addEventListener("input", (e) => {
+        ?.addEventListener("input", (e) => {
           const searchTerm = e.target.value.trim();
           if (searchTerm.length > 2 || searchTerm.length === 0) {
             this.loadOrders(1, { search: searchTerm });
           }
         });
 
+      // --- View all recent (dashboard widget) ---
       document
         .getElementById("view-all-recent")
         ?.addEventListener("click", () => {
           this.loadRecentOrders(!this.showingAllRecent);
         });
 
-      // event listener for status chart filter
+      // --- Status chart filter (only wrap this handler) ---
       const statusChartFilter = document.getElementById("status-chart-filter");
       if (statusChartFilter) {
-        if (statusChartFilter) {
-          statusChartFilter.addEventListener("change", (e) => {
-            const period = e.target.value;
-            this.currentChartPeriod = period; // Store the current period
-            this.fetchAndUpdateStatusChart(period);
-          });
-        }
+        statusChartFilter.addEventListener("change", (e) => {
+          const period = e.target.value;
+          this.currentChartPeriod = period;
+          this.fetchAndUpdateStatusChart(period);
+        });
+      }
 
-        document.getElementById("logout-btn").addEventListener("click", () => {
-          localStorage.removeItem("adminToken");
-          window.location.href = "/admin-login.html";
+      // --- Header search (debounced, works on dashboard + orders) ---
+      if (this.headerSearchInput) {
+        let searchDebounce;
+        this.headerSearchInput.addEventListener("input", (e) => {
+          const searchTerm = e.target.value.trim();
+          clearTimeout(searchDebounce);
+          searchDebounce = setTimeout(() => {
+            if (
+              document
+                .getElementById("orders-section")
+                ?.classList.contains("active")
+            ) {
+              if (this.ordersSearchInput)
+                this.ordersSearchInput.value = searchTerm;
+              this.loadOrders(1, { search: searchTerm });
+            } else if (
+              document
+                .getElementById("dashboard-section")
+                ?.classList.contains("active")
+            ) {
+              this.showSearchResults(searchTerm);
+            }
+          }, 500);
+        });
+      }
+
+      // --- Delete all orders modal ---
+      const deleteAllBtn = document.getElementById("delete-all-orders");
+      const modal = document.getElementById("confirm-modal");
+      const confirmYes = document.getElementById("confirm-yes");
+      const confirmNo = document.getElementById("confirm-no");
+
+      if (deleteAllBtn && modal && confirmYes && confirmNo) {
+        deleteAllBtn.addEventListener("click", () => {
+          modal.style.display = "flex";
         });
 
-        if (this.headerSearchInput) {
-          let searchDebounce;
-          this.headerSearchInput.addEventListener("input", (e) => {
-            const searchTerm = e.target.value.trim();
-            clearTimeout(searchDebounce);
-            searchDebounce = setTimeout(() => {
-              if (
-                document
-                  .getElementById("orders-section")
-                  ?.classList.contains("active")
-              ) {
-                if (this.ordersSearchInput) {
-                  this.ordersSearchInput.value = searchTerm;
-                }
-                this.loadOrders(1, { search: searchTerm });
-              } else if (
-                document
-                  .getElementById("dashboard-section")
-                  ?.classList.contains("active")
-              ) {
-                this.showSearchResults(searchTerm);
-              }
-            }, 500);
-          });
-        }
+        confirmNo.addEventListener("click", () => {
+          modal.style.display = "none";
+        });
 
-        const deleteAllBtn = document.getElementById("delete-all-orders");
-        const modal = document.getElementById("confirm-modal");
-        const confirmYes = document.getElementById("confirm-yes");
-        const confirmNo = document.getElementById("confirm-no");
+        confirmYes.addEventListener("click", async () => {
+          modal.style.display = "none";
+          try {
+            const response = await fetch("/api/admin/orders/delete-all", {
+              method: "DELETE",
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+              },
+            });
+            const result = await response.json();
 
-        if (deleteAllBtn && modal && confirmYes && confirmNo) {
-          deleteAllBtn.addEventListener("click", () => {
-            modal.style.display = "flex";
-          });
-
-          confirmNo.addEventListener("click", () => {
-            modal.style.display = "none";
-          });
-
-          confirmYes.addEventListener("click", async () => {
-            modal.style.display = "none";
-            try {
-              const response = await fetch("/api/admin/orders/delete-all", {
-                method: "DELETE",
-                headers: {
-                  Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-                },
-              });
-
-              const result = await response.json();
-
-              if (response.ok) {
-                this.showNotification("✅ All orders deleted successfully.");
-                document.getElementById("orders-list").innerHTML =
-                  '<div class="empty-state">No orders found.</div>';
-                document.getElementById("recent-orders-table").innerHTML =
-                  '<div class="empty-state">No recent orders.</div>';
-              } else {
-                this.showNotification("❌ Failed to delete orders.");
-              }
-            } catch (error) {
-              console.error("Error:", error);
-              this.showNotification(
-                "❌ An error occurred while deleting orders."
-              );
+            if (response.ok) {
+              this.showNotification("✅ All orders deleted successfully.");
+              document.getElementById("orders-list").innerHTML =
+                '<div class="empty-state">No orders found.</div>';
+              document.getElementById("recent-orders-table").innerHTML =
+                '<div class="empty-state">No recent orders.</div>';
+            } else {
+              this.showNotification("❌ Failed to delete orders.", true);
             }
-          });
-        }
+          } catch (error) {
+            console.error("Error:", error);
+            this.showNotification(
+              "❌ An error occurred while deleting orders.",
+              true
+            );
+          }
+        });
       }
+
+      // --- Logout ---
+      document.getElementById("logout-btn")?.addEventListener("click", () => {
+        localStorage.removeItem("adminToken");
+        window.location.href = "/admin-login.html";
+      });
+
+      // --- Revenue chart filter ---
       const revenueChartFilter = document.getElementById(
         "revenue-chart-filter"
       );
-      console.log("Revenue filter element:", revenueChartFilter);
       if (revenueChartFilter) {
         revenueChartFilter.addEventListener("change", (e) => {
-          console.log("Revenue filter changed to:", e.target.value);
           const period = e.target.value;
           this.fetchAndUpdateRevenueChart(period);
         });
       } else {
         console.error("Revenue chart filter element not found!");
       }
+
+      // --- Notification bell/button → jump to Orders ---
+      document
+        .querySelector(".notification-btn")
+        ?.addEventListener("click", () => {
+          this.showSection("orders"); // jump straight to orders list
+        });
     }
 
     async fetchAndPrintOrder(orderId) {
@@ -2292,40 +2320,90 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     showSection(section) {
-      // Hide all sections
+      const sectionId = `${section}-section`;
 
-      document.querySelectorAll(".content-section").forEach((sec) => {
-        sec.classList.remove("active");
-      });
-
-      // Show selected section
-      document.getElementById(`${section}-section`).classList.add("active");
-
-      // Update page title
-      document.getElementById("page-title").textContent =
-        section.charAt(0).toUpperCase() + section.slice(1);
-
-      // Update active nav item
-      document.querySelectorAll(".sidebar li").forEach((item) => {
-        item.classList.remove("active");
-      });
-
+      // 1) Hide whatever is visible
       document
-        .querySelector(`.sidebar li[data-section="${section}"]`)
-        .classList.add("active");
+        .querySelectorAll(".content-section.active")
+        .forEach((sec) => sec.classList.remove("active"));
 
-      // Load section data if needed
-      if (section === "orders") {
-        this.loadOrders();
+      // 2) Find the target section (don’t crash if missing)
+      const target = document.getElementById(sectionId);
+      if (!target) {
+        console.warn(`Section container not found: #${sectionId}`);
+        // still update nav highlighting (without throwing)
+        document.querySelectorAll(".sidebar li").forEach((item) => {
+          item.classList.toggle(
+            "active",
+            item.matches(`[data-section="${section}"]`)
+          );
+          item.removeAttribute("aria-current");
+        });
+        document
+          .querySelector(`.sidebar li[data-section="${section}"]`)
+          ?.setAttribute("aria-current", "page");
+        return; // stop here; no DOM to show
       }
 
-      // Clear search results when switching away from dashboard
+      // 3) Show the selected section
+      target.classList.add("active");
+
+      // 4) Update page title (prefer a data-title on the section if present)
+      const titleEl = document.getElementById("page-title");
+      const niceTitle =
+        target.getAttribute("data-title") ||
+        section.charAt(0).toUpperCase() + section.slice(1);
+      if (titleEl) titleEl.textContent = niceTitle;
+      // Optional: update document title too
+      document.title = `${niceTitle} · Admin`;
+
+      // 5) Update sidebar active state + accessibility hint
+      document.querySelectorAll(".sidebar li").forEach((item) => {
+        item.classList.toggle(
+          "active",
+          item.matches(`[data-section="${section}"]`)
+        );
+        item.removeAttribute("aria-current");
+      });
+      document
+        .querySelector(`.sidebar li[data-section="${section}"]`)
+        ?.setAttribute("aria-current", "page");
+
+      // 6) (Optional) reflect current section in URL hash (no page reload)
+      if (history.replaceState) {
+        const newHash = `#${section}`;
+        if (location.hash !== newHash) history.replaceState(null, "", newHash);
+      }
+
+      // 7) Load data for that section (only if the handler exists)
+      switch (section) {
+        case "dashboard":
+          this.refreshDashboard?.();
+          break;
+        case "orders":
+          this.loadOrders?.();
+          break;
+        case "customers":
+          this.loadCustomersTable?.(); // add this function in your admin.js
+          break;
+        // add cases for other sections if you have them:
+        // case "products": this.loadProducts?.(); break;
+        default:
+          this.loadSectionData?.(section);
+      }
+
+      // 8) Clear search results when leaving dashboard
       if (section !== "dashboard") {
         const resultsContainer = document.getElementById(
           "search-results-container"
         );
         if (resultsContainer) resultsContainer.innerHTML = "";
       }
+
+      // 9) Ensure the main content scrolls to top of the section
+      document
+        .querySelector(".main-content")
+        ?.scrollTo({ top: 0, behavior: "auto" });
     }
 
     setupDarkMode() {

@@ -18,6 +18,32 @@
     --success-color: #4cc9f0;
     /* Teal */
 
+
+    --gold-crayola: hwb(38 56% 11%);
+    --gold-crayola-pdf: #7f650f;
+    /* or #A67C00 */
+    --gold-crayola-hover: hwb(38 69% 4%);
+    --davys-grey: hsla(30, 3%, 34%, 1);
+    --light-dark: rgba(67, 67, 67, 0.562);
+    --quick-silver: hsla(0, 0%, 65%, 1);
+    --smoky-black-1: hsla(40, 12%, 5%, 1);
+    --smoky-black-2: hsla(30, 8%, 5%, 1);
+    --smoky-black-3: hsla(0, 3%, 7%, 1);
+    --eerie-black-1: hsla(210, 4%, 9%, 1);
+    --eerie-black-2: hsla(210, 4%, 11%, 1);
+    --eerie-black-3: hsla(180, 2%, 8%, 1);
+    --eerie-black-4: rgba(33, 33, 33, 0.507);
+    --white: hsla(0, 0%, 100%, 1);
+    --white-alpha-20: hsla(0, 0%, 100%, 0.2);
+    --white-alpha-10: hsla(0, 0%, 100%, 0.1);
+    --black: hsla(0, 0%, 0%, 1);
+    --black-alpha-80: hsla(0, 0%, 0%, 0.8);
+    --black-alpha-15: hsla(0, 0%, 0%, 0.15);
+    --main-color: #ffd700;
+    --text-color: #ffffff;
+    --light-silver: #f3f4f6;
+
+
     /* Light theme colors */
     --bg-color: #ffffff;
     --card-bg: #ffffff;
@@ -33,12 +59,44 @@
     --white: hsla(0, 0%, 100%, 1);
     --black: hsla(0, 0%, 0%, 1);
 
-
-
-
-
-
+    /* font-size */
+    --fontSize-display-1: calc(1.2rem + 4vw);
+    --fontSize-headline-1: calc(1.1rem + 2.5vw);
+    --fontSize-headline-2: calc(1.3rem + 2.4vw);
+    --fontSize-headline-3: calc(1.8rem + 2vw);
+    --fontSize-title-2: 2.2rem;
+    --fontSize-title-3: 2.1rem;
+    --fontSize-title-4: calc(1.6rem + 1.2vw);
+    --fontSize-body-0: 3rem;
+    --fontSize-body-1: 2.4rem;
+    --fontSize-body-2: 2rem;
+    --fontSize-body-3: 1.8rem;
+    --fontSize-body-4: 1.6rem;
+    --fontSize-body-5: 1.5rem;
+    --fontSize-label-1: 1.4rem;
+    --fontSize-label-2: 1.2rem;
+    --fontSize-label-3: 1rem;
+    /* font-weight */
+    --weight-regular: 400;
+    --weight-500: 500;
+    --weight-600: 600;
+    --weight-bold: 700;
+    /* line-height */
+    --lineHeight-1: 1em;
+    --lineHeight-2: 1.2em;
+    --lineHeight-3: 1.5em;
+    --lineHeight-4: 1.6em;
+    --lineHeight-5: 1.85em;
+    --lineHeight-6: 1.4em;
+    --lineHeight-7: 1.7em;
+    /* letter-spacing */
+    --letterSpacing-1: 0.15em;
+    --letterSpacing-2: 0.4em;
+    --letterSpacing-3: 0.2em;
+    --letterSpacing-4: 0.3em;
+    --letterSpacing-5: 3px;
 }
+
 
 [data-theme="dark"] {
     --bg-color: #121212;
@@ -868,12 +926,12 @@ tr:hover {
 .order-header-row {
     display: grid;
     grid-template-columns: 80px 1fr 50px 70px 90px 60px;
-    gap: 10px;
+    gap: 8px;
     padding: 10px 16px;
-    background-color: #f3f4f6;
+    background-color: var(--light-silver);
     /* Light gray background */
     font-weight: bold;
-    font-size: 14px;
+    font-size: var(--fontSize-label-3);
     border-radius: 8px;
     margin-bottom: 6px;
 }
@@ -900,12 +958,12 @@ tr:hover {
 
 .order-header-row .order-cell:nth-child(2) {
     justify-content: flex-start;
-    padding-left: 20px;
+    padding-left: 18px;
 }
 
 .order-header-row .order-cell:nth-child(3) {
     justify-content: center;
-    padding-left: 10px;
+    padding-left: 3px;
 }
 
 .order-header-row .order-cell:nth-child(4) {
@@ -1398,6 +1456,211 @@ tr:hover {
     }
 }
 
+/* Customers table */
+#customers-table {
+    border-collapse: separate;
+    /* needed so radius works on cells */
+    border-spacing: 0;
+}
+
+#customers-table thead tr {
+    background-color: var(--light-silver);
+    /* << your desired header bg */
+    color: var(--header-fg, #111);
+    /* header text color */
+}
+
+[data-theme="dark"] #customers-table thead tr {
+    background-color: var(--card-bg-lighter);
+    color: var(--text-light);
+    border: 1px solid var(--border-color);
+}
+
+/* Let the row’s background show through (kill per-cell bg) */
+#customers-table thead th {
+    background: transparent !important;
+    /* overrides any global th bg */
+    color: inherit;
+    /* use the row’s color */
+    font-weight: var(--weight-600);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] #customers-table thead th {
+    border-bottom: 1px solid var(--text-lighter);
+}
+
+/* Optional: rounded corners on the whole header “bar” */
+#customers-table thead th:first-child {
+    border-top-left-radius: 12px;
+}
+
+#customers-table thead th:last-child {
+    border-top-right-radius: 12px;
+}
+
+#customers-table tbody tr:hover,
+.drawer-order:hover {
+    background-color: var(--light-blue-hover);
+    border-radius: 8px;
+}
+
+[data-theme="dark"] #customers-table tbody tr:hover,
+[data-theme="dark"] .drawer-order:hover {
+    background-color: var(--card-bg-lighter);
+    border-radius: 8px;
+}
+
+#customers-table .cust-name {
+    font-weight: var(--weight-600);
+}
+
+#customers-table .cust-created {
+    font-size: .85rem;
+    opacity: .7;
+}
+
+/* Drawer */
+.drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 420px;
+    height: 100vh;
+    background: var(--card-bg, #fff);
+    box-shadow: -2px 0 24px rgba(0, 0, 0, .15);
+    transform: translateX(0);
+    transition: transform .25s ease;
+    z-index: 1000;
+}
+
+.drawer.hidden {
+    transform: translateX(110%);
+}
+
+.drawer-content {
+    height: 100%;
+    overflow-y: auto;
+    padding: 1rem 1.25rem 2rem;
+}
+
+/* ───────────────── Base (light) ───────────────── */
+.drawer-close {
+    position: absolute;
+    top: 16px;
+    right: 36px;
+    width: 27px;
+    height: 27px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: var(--bg-color);
+    /* button background only */
+    cursor: pointer;
+    transition:
+        background .15s ease,
+        border-color .15s ease,
+        box-shadow .15s ease,
+        transform .15s ease;
+    box-shadow:
+        0 0 0 0 rgba(0, 0, 0, 0),
+        /* keep first layer for animation */
+        0 0 6px 2px rgba(0, 0, 0, 0.22);
+    /* soft halo */
+}
+
+/* Icon (no background here) */
+.drawer-close i {
+    font-size: var(--fontSize-label-2);
+    line-height: 1;
+    pointer-events: none;
+    display: inline-block;
+    /* needed for rotation */
+    color: var(--eerie-black-2);
+    transition: color .15s ease, transform .2s ease;
+}
+
+.drawer-close:hover i {
+    color: var(--smoky-black-1);
+    transform: rotate(90deg);
+}
+
+.drawer-close:active {
+    box-shadow: 0 0 8px 2px rgba(0, 0, 0, .22);
+}
+
+/* Keyboard accessibility */
+.drawer-close:focus-visible {
+    outline: 2px solid var(--smoky-black-1);
+    outline-offset: 2px;
+}
+
+/* ───────────────── Dark theme ───────────────── */
+/* Button colors and shadow tuned for dark surfaces */
+[data-theme="dark"] .drawer-close {
+    box-shadow:
+        0 0 0 0 rgba(199, 199, 199, 0.137),
+        /* keep first layer for animation */
+        0 0 6px 2px rgba(255, 255, 255, 0.541);
+    /* soft halo */
+}
+
+/* Icon color in dark */
+[data-theme="dark"] .drawer-close i {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .drawer-close:active {
+    box-shadow: 0 0 8px 2px rgba(255, 255, 255, .16);
+}
+
+/* Keyboard accessibility */
+[data-theme="dark"] .drawer-close:focus-visible {
+    outline: 2px solid var(--text-light);
+    outline-offset: 2px;
+}
+
+.drawer-block {
+    display: grid;
+    gap: .35rem;
+    margin: .75rem 0 1rem;
+}
+
+.drawer-orders {
+    display: grid;
+}
+
+.drawer-order {
+    display: grid;
+    grid-template-columns: 1fr auto auto auto;
+    gap: .6rem;
+    align-items: center;
+    padding: .6rem;
+    border-bottom: 1px dashed rgba(0, 0, 0, .08);
+}
+
+.tag {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+    margin-left: 6px
+}
+
+.tag-guest {
+    background: #fff2cc;
+    color: #6b5300;
+    border: 1px solid #f0d36b
+}
+
+.tag-registered {
+    background: #e8fff2;
+    color: #0a6b3a;
+    border: 1px solid #8be0b5
+}
 
 /*admin login*/
 .admin-login-container,

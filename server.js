@@ -9,6 +9,7 @@ const http = require("http");
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const paypal = require("@paypal/checkout-server-sdk");
 const bcrypt = require("bcrypt");
+const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
@@ -21,17 +22,20 @@ const Order = require("./models/Order");
 const authRoutes = require("./routes/auth");
 const orderRoutes = require("./routes/orders");
 const adminRoutes = require("./routes/admin");
+const adminAuth = require("./middleware/adminAuth");
 
 // Utility functions for PDF and email
 const createReceiptPdf = require("./utils/createPdf");
 const { sendOrderEmail } = require("./utils/sendEmail"); // uses its own transporter or you can wire to the above
+
+const cookieParser = require("cookie-parser");
 
 // ---------- Opening Hours ----------
 const OPENING_HOURS = {
   0: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
   1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
   2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
-  3: [{ start: 10 * 60, end: 22 * 60 }], // Wed 11:00–03:00 (Thu)
+  3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
   4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
   5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
   6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
@@ -94,10 +98,13 @@ const allowedOrigins = [
 
 // ---------- App / Middleware ----------
 const app = express();
+
+app.use(cookieParser()); // ✅ correct place (after app = express)
+
 app.use(
   cors({
-    origin: allowedOrigins,
-    credentials: true,
+    origin: allowedOrigins, // ✅ array is fine
+    credentials: true, // ✅ needed for cookies
   })
 );
 
@@ -113,7 +120,7 @@ app.use(
     index: "index.html", // default file
   })
 );
-// Trust proxy (needed behind Render/other proxies for correct headers)
+// Trust proxy (needed behind Render/other proxies for correct headers) (before creating the http server)
 app.set("trust proxy", 1);
 
 // ---------- HTTP + Socket.IO ----------
@@ -134,17 +141,25 @@ app.set("io", io);
 module.exports = { io, app };
 
 // ---------- Socket Handlers ----------
+
+// ⬇️ io.use with cookie-based auth
 io.use((socket, next) => {
-  const token = socket.handshake.auth?.token;
-  if (token) {
-    try {
-      const decoded = verifyToken(token);
-      socket.adminId = decoded.id;
-    } catch (err) {
-      return next(new Error("Invalid token"));
+  try {
+    // read cookies from WS handshake
+    const cookies = cookie.parse(socket.handshake.headers.cookie || "");
+    const token = cookies.admin_token; // our HttpOnly cookie name
+
+    if (token) {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      socket.adminId = decoded.id; // optional: keep for admin-only rooms
     }
+
+    // IMPORTANT: do NOT throw if no token — allow non-admin sockets too
+    return next();
+  } catch (e) {
+    // also do not kill the connection; just continue unauthenticated
+    return next();
   }
-  next();
 });
 
 io.on("connection", (socket) => {
@@ -536,29 +551,6 @@ app.post("/api/orders/confirm-payment", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// ---------- Admin auth middleware ----------
-const adminAuth = (req, res, next) => {
-  const token =
-    req.header("x-auth-token") || req.headers.authorization?.split(" ")[1];
-  if (!token)
-    return res
-      .status(401)
-      .json({ success: false, error: "No token, authorization denied" });
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded.role || !["admin", "superadmin"].includes(decoded.role)) {
-      return res
-        .status(403)
-        .json({ success: false, error: "Admin privileges required" });
-    }
-    req.admin = decoded;
-    next();
-  } catch {
-    res.status(401).json({ success: false, error: "Token is not valid" });
-  }
-};
 
 // ---------- Admin APIs ----------
 app.get("/api/admin/orders/:id", adminAuth, async (req, res) => {

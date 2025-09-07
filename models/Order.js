@@ -13,6 +13,7 @@ const orderSchema = new mongoose.Schema(
   {
     user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     orderNumber: { type: String, required: true, unique: true },
+    customerId: { type: mongoose.Schema.Types.ObjectId, ref: "Customer" },
     items: [orderItemSchema],
     customer: {
       name: { type: String, required: true },
@@ -77,6 +78,10 @@ const orderSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+// Speed up customer aggregations
+orderSchema.index({ user: 1, createdAt: -1 });
+orderSchema.index({ paymentStatus: 1 });
+
 // Remove the pre-save hook causing duplicate orders
 // DELETE THIS WHOLE SECTION:
 // Add payment verification middleware

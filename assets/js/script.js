@@ -1544,27 +1544,6 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     }
   }
 
-  // Replace all payment success handlers with this:
-  async function handlePaymentSuccess(paymentMethod) {
-    try {
-      const response = await fetch("/api/orders/confirm-payment", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ orderId, paymentMethod }),
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        localStorage.setItem("currentOrder", JSON.stringify(data.order));
-        localStorage.removeItem("cart");
-        window.location.href = "confirmation.html";
-      }
-    } catch (error) {
-      console.error("Payment completion error:", error);
-    }
-  }
   // ==================== RENDER ORDER SUMMARY (Payment Page) ====================
   function renderPaymentOrderSummary(orderData) {
     const orderItemsContainer = document.querySelector(
