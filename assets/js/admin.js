@@ -2274,12 +2274,13 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Revenue chart filter element not found!");
       }
 
-      // ---------- Notifications dropdown (UI only here) ----------
+      // ---------- Notifications dropdown ----------
       const notifBtn = document.querySelector(".notification-btn");
       const notifBadge = document.querySelector(".notification-badge");
       const notifPanel = document.getElementById("notification-panel");
       const notifList = document.getElementById("notif-list");
       const notifClear = document.getElementById("notif-clear");
+      let notifCount = 0;
 
       const openNotif = () => {
         if (notifPanel) notifPanel.hidden = false;
@@ -2291,6 +2292,35 @@ document.addEventListener("DOMContentLoaded", function () {
         if (notifPanel) notifPanel.hidden ? openNotif() : closeNotif();
       };
 
+      // Empty-state + hide/show Clear
+      const renderEmptyState = () => {
+        if (!notifList) return;
+        const hasRealItems = Array.from(notifList.children).some(
+          (el) => !el.classList.contains("notif-empty")
+        );
+        if (notifClear)
+          notifClear.style.display = hasRealItems ? "inline-block" : "none";
+
+        if (!hasRealItems) {
+          notifList.innerHTML =
+            '<li class="notif-empty">No notifications yet</li>';
+          if (notifBadge) {
+            notifBadge.style.display = "none";
+            notifBadge.textContent = "0";
+          }
+          notifCount = 0;
+        } else {
+          notifList.querySelector(".notif-empty")?.remove();
+        }
+      };
+
+      function addNotifListItem(li) {
+        notifList.querySelector(".notif-empty")?.remove();
+        notifList.prepend(li);
+        renderEmptyState();
+      }
+
+      // open/close
       notifBtn?.addEventListener("click", (e) => {
         e.stopPropagation();
         toggleNotif();
@@ -2300,15 +2330,68 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!notifPanel.contains(e.target) && !notifBtn.contains(e.target))
           closeNotif();
       });
+
+      // clear
       notifClear?.addEventListener("click", () => {
         if (!notifList || !notifBadge) return;
         notifList.innerHTML = "";
         notifBadge.style.display = "none";
         notifBadge.textContent = "0";
+        notifCount = 0;
+        renderEmptyState();
       });
 
-      // Expose some refs the socket handler will use
-      this._notif = { notifBadge, notifList, closeNotif };
+      // initial empty state
+      renderEmptyState();
+
+      // Helper the socket code can call
+      this.pushNotification = async (order) => {
+        if (!order || order.paymentStatus !== "Completed") return;
+
+        // bump badge
+        if (notifBadge) {
+          notifCount += 1;
+          notifBadge.style.display = "inline-flex";
+          notifBadge.textContent = String(notifCount);
+        }
+
+        // build list item
+        const li = document.createElement("li");
+        li.className = "notif-item";
+        const when = new Date(order.createdAt || Date.now()).toLocaleTimeString(
+          "sv-SE",
+          {
+            hour: "2-digit",
+            minute: "2-digit",
+          }
+        );
+        li.innerHTML = `
+      <div><i class="ri-shopping-bag-2-line"></i></div>
+      <div>
+        <div><strong>New order #${order.orderNumber}</strong></div>
+        <div class="meta">${when}</div>
+        <div class="meta">${order.customer?.name || "Guest"} · ${(
+          Number(order.total) || 0
+        ).toFixed(2)} kr</div>
+      </div>
+    `;
+        li.addEventListener("click", async () => {
+          this.targetOrderNumber = order.orderNumber;
+          this.showSection("orders");
+          await this.loadOrders(1, { search: String(order.orderNumber) });
+          closeNotif();
+        });
+
+        addNotifListItem(li);
+
+        // optional sound
+        try {
+          document.getElementById("notification-sound")?.play();
+        } catch {}
+      };
+
+      // keep a tiny reference set if you need it elsewhere
+      this._notif = { notifBadge, notifList, closeNotif, renderEmptyState };
     }
 
     async fetchAndPrintOrder(orderId) {
