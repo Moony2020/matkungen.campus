@@ -12,7 +12,6 @@ const bcrypt = require("bcrypt");
 const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const nodemailer = require("nodemailer");
 
 const connectDB = require("./config/db");
 const { verifyToken } = require("./config/jwt");
@@ -28,6 +27,13 @@ const adminAuth = require("./middleware/adminAuth");
 const createReceiptPdf = require("./utils/createPdf");
 const { sendOrderEmail } = require("./utils/sendEmail"); // uses its own transporter or you can wire to the above
 
+// ---------- FRONTEND base URL (single source of truth) ----------
+const FRONTEND =
+  process.env.APP_URL ||
+  process.env.SERVER_URL ||
+  (process.env.NODE_ENV === "production"
+    ? "https://matkungen-campus.onrender.com"
+    : `http://localhost:${process.env.PORT || 4000}`);
 const cookieParser = require("cookie-parser");
 
 // ---------- Opening Hours ----------
@@ -113,6 +119,34 @@ app.use(express.json());
 // app.use(express.static(path.join(__dirname, "public")));
 // 📂  assets all (images, JS, CSS …)
 app.use("/assets", express.static(path.join(__dirname, "assets")));
+// ---------- TEMP DEBUG ROUTES ----------
+app.get("/api/debug-email", async (req, res) => {
+  try {
+    const info = await sendOrderEmail({
+      to: process.env.EMAIL_USER,
+      subject: "Matkungen debug email",
+      html: "<p>If you can read this, SMTP works in production.</p>",
+    });
+    console.log(
+      "✅ /api/debug-email sent →",
+      process.env.EMAIL_USER,
+      info.messageId
+    );
+    res.json({ ok: true, id: info.messageId, to: process.env.EMAIL_USER });
+  } catch (e) {
+    console.error("❌ /api/debug-email:", e?.message || e);
+    res.status(500).json({ ok: false, error: String(e?.message || e) });
+  }
+});
+
+app.get("/api/health", (req, res) => {
+  res.json({
+    ok: true,
+    env: process.env.NODE_ENV,
+    appUrl: process.env.APP_URL,
+    emailFrom: process.env.EMAIL_FROM,
+  });
+});
 
 app.use(
   express.static(__dirname, {
@@ -203,20 +237,6 @@ io.on("connection", (socket) => {
   });
 });
 
-// ---------- Mailer (centralized) ----------
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }, // app password
-  tls: {
-    rejectUnauthorized: false, // ⚠️ DEV ONLY
-  },
-});
-
-transporter
-  .verify()
-  .then(() => console.log("✉️  Mailer ready:", process.env.EMAIL_USER))
-  .catch((err) => console.error("❌ Mailer verify failed:", err));
-
 // Central app-level listeners that actually send the emails
 app.on("order:created", async (order) => {
   try {
@@ -302,11 +322,6 @@ function buildOrderEmailHtml(order) {
         ).toFixed(2)} kr</li>`
     )
     .join("");
-
-  const FRONTEND =
-    process.env.NODE_ENV === "production"
-      ? "https://matkungen-campus.onrender.com"
-      : "http://localhost:4000";
 
   return `
   <div style="max-width:600px;margin:auto;font-family:'Segoe UI',sans-serif;color:#333;background:#fff;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;">

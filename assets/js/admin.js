@@ -27,6 +27,66 @@ document.addEventListener("DOMContentLoaded", function () {
       this.init();
     }
 
+    // ---- Notifications UI (inside AdminPanel) ----
+    notif = {
+      btn: document.querySelector(".notification-btn"),
+      badge: document.querySelector(".notification-badge"),
+      panel: document.getElementById("notification-panel"),
+      list: document.getElementById("notif-list"),
+      clear: document.getElementById("notif-clear"),
+      count: 0,
+    };
+
+    openNotif = () => {
+      this.notif.panel && (this.notif.panel.hidden = false);
+    };
+    closeNotif = () => {
+      this.notif.panel && (this.notif.panel.hidden = true);
+    };
+    toggleNotif = () => {
+      if (!this.notif.panel) return;
+      this.notif.panel.hidden ? this.openNotif() : this.closeNotif();
+    };
+
+    // Push one notification item into the list
+    pushNotification = (order) => {
+      const { badge, list } = this.notif;
+      if (!badge || !list) return;
+
+      // bump badge
+      this.notif.count += 1;
+      badge.style.display = "inline-flex";
+      badge.textContent = String(this.notif.count);
+
+      // build list item
+      const li = document.createElement("li");
+      li.className = "notif-item";
+      const when = new Date(order.createdAt || Date.now()).toLocaleTimeString(
+        "sv-SE",
+        { hour: "2-digit", minute: "2-digit" }
+      );
+      li.innerHTML = `
+    <div><i class="ri-shopping-bag-2-line"></i></div>
+    <div>
+      <div><strong>New order #${order.orderNumber}</strong></div>
+      <div class="meta">${when}</div>
+      <div class="meta">${order.customer?.name || "Guest"} · ${(
+        Number(order.total) || 0
+      ).toFixed(2)} kr</div>
+    </div>
+  `;
+
+      // clicking an item -> go to Orders and scroll to the order
+      li.addEventListener("click", async () => {
+        this.targetOrderNumber = order.orderNumber; // used by scrollToOrder()
+        this.showSection("orders");
+        await this.loadOrders(1, { search: String(order.orderNumber) });
+        this.closeNotif();
+      });
+
+      list.prepend(li);
+    };
+
     async init() {
       try {
         await this.checkAuth();
@@ -148,6 +208,8 @@ document.addEventListener("DOMContentLoaded", function () {
         this.addOrderToRecent(order);
         this.incrementTodayOrders();
         this.fetchAndUpdateStatusChart(this.currentChartPeriod);
+        // NEW: add to dropdown panel
+        this.pushNotification(order);
       });
 
       // Marked delivered toast
@@ -2012,39 +2074,37 @@ document.addEventListener("DOMContentLoaded", function () {
     //   }
     // }
     setupEventListeners() {
-      // --- Sidebar toggle + outside click close ---
+      // ---------- Sidebar toggle & outside-click close ----------
       const sidebar = document.querySelector(".sidebar");
       const sidebarToggle = document.getElementById("sidebar-toggle");
 
-      sidebarToggle?.addEventListener("click", (e) => {
+      sidebarToggle.addEventListener("click", (e) => {
         e.stopPropagation();
-        sidebar?.classList.toggle("active");
+        sidebar.classList.toggle("active");
       });
 
       document.addEventListener("click", (e) => {
         const isMobile = window.innerWidth <= 992;
-        const clickedInsideSidebar = sidebar?.contains(e.target);
+        const clickedInsideSidebar = sidebar.contains(e.target);
         const clickedToggleButton =
-          e.target === sidebarToggle || sidebarToggle?.contains(e.target);
+          e.target === sidebarToggle || sidebarToggle.contains(e.target);
         if (isMobile && !clickedInsideSidebar && !clickedToggleButton) {
-          sidebar?.classList.remove("active");
+          sidebar.classList.remove("active");
         }
       });
 
-      // --- Sidebar nav items ---
+      // ---------- Sidebar nav switching ----------
       document.querySelectorAll(".sidebar li").forEach((item) => {
         item.addEventListener("click", () => {
           const section = item.dataset.section;
           this.showSection(section);
-          if (window.innerWidth <= 992) {
-            sidebar?.classList.remove("active");
-          }
+          if (window.innerWidth <= 992) sidebar.classList.remove("active");
         });
       });
 
-      // --- Global click delegation (orders actions) ---
+      // ---------- Global delegated clicks (orders UI) ----------
       document.addEventListener("click", (e) => {
-        // View order details
+        // View order
         const viewBtn = e.target.closest(".view-order");
         if (viewBtn) {
           const orderId = viewBtn.dataset.order;
@@ -2060,7 +2120,7 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // Update order status
+        // Update status
         const updateStatusBtn = e.target.closest(".update-status");
         if (updateStatusBtn) {
           const orderId = updateStatusBtn.dataset.order;
@@ -2074,7 +2134,7 @@ document.addEventListener("DOMContentLoaded", function () {
           return;
         }
 
-        // Track order (if used)
+        // Track order (if implemented)
         const trackBtn = e.target.closest(".track-order");
         if (trackBtn) {
           const orderId = trackBtn.dataset.order;
@@ -2083,23 +2143,23 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       });
 
-      // --- Pagination ---
-      document.getElementById("prev-page")?.addEventListener("click", () => {
+      // ---------- Pagination ----------
+      document.getElementById("prev-page").addEventListener("click", () => {
         if (this.currentPage > 1) {
           this.currentPage--;
           this.loadOrders(this.currentPage);
         }
       });
 
-      document.getElementById("next-page")?.addEventListener("click", () => {
+      document.getElementById("next-page").addEventListener("click", () => {
         this.currentPage++;
         this.loadOrders(this.currentPage);
       });
 
-      // --- Orders filter (status) ---
+      // ---------- Orders filter + search ----------
       document
         .getElementById("orders-filter")
-        ?.addEventListener("change", (e) => {
+        .addEventListener("change", (e) => {
           const value = e.target.value;
           const statusMap = {
             pending: "Pending",
@@ -2113,24 +2173,23 @@ document.addEventListener("DOMContentLoaded", function () {
           this.loadOrders(1, filters);
         });
 
-      // --- Orders search (inline box on Orders tab) ---
       document
         .getElementById("orders-search")
-        ?.addEventListener("input", (e) => {
+        .addEventListener("input", (e) => {
           const searchTerm = e.target.value.trim();
           if (searchTerm.length > 2 || searchTerm.length === 0) {
             this.loadOrders(1, { search: searchTerm });
           }
         });
 
-      // --- View all recent (dashboard widget) ---
+      // ---------- Recent orders: view all / show less ----------
       document
         .getElementById("view-all-recent")
         ?.addEventListener("click", () => {
           this.loadRecentOrders(!this.showingAllRecent);
         });
 
-      // --- Status chart filter (only wrap this handler) ---
+      // ---------- Status chart period ----------
       const statusChartFilter = document.getElementById("status-chart-filter");
       if (statusChartFilter) {
         statusChartFilter.addEventListener("change", (e) => {
@@ -2140,7 +2199,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-      // --- Header search (debounced, works on dashboard + orders) ---
+      // ---------- Header search (debounced) ----------
       if (this.headerSearchInput) {
         let searchDebounce;
         this.headerSearchInput.addEventListener("input", (e) => {
@@ -2166,21 +2225,21 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-      // --- Delete all orders modal ---
+      // ---------- Danger zone: delete all orders (confirm modal) ----------
       const deleteAllBtn = document.getElementById("delete-all-orders");
       const modal = document.getElementById("confirm-modal");
       const confirmYes = document.getElementById("confirm-yes");
       const confirmNo = document.getElementById("confirm-no");
 
       if (deleteAllBtn && modal && confirmYes && confirmNo) {
-        deleteAllBtn.addEventListener("click", () => {
-          modal.style.display = "flex";
-        });
-
-        confirmNo.addEventListener("click", () => {
-          modal.style.display = "none";
-        });
-
+        deleteAllBtn.addEventListener(
+          "click",
+          () => (modal.style.display = "flex")
+        );
+        confirmNo.addEventListener(
+          "click",
+          () => (modal.style.display = "none")
+        );
         confirmYes.addEventListener("click", async () => {
           modal.style.display = "none";
           try {
@@ -2191,7 +2250,6 @@ document.addEventListener("DOMContentLoaded", function () {
               },
             });
             const result = await response.json();
-
             if (response.ok) {
               this.showNotification("✅ All orders deleted successfully.");
               document.getElementById("orders-list").innerHTML =
@@ -2199,10 +2257,13 @@ document.addEventListener("DOMContentLoaded", function () {
               document.getElementById("recent-orders-table").innerHTML =
                 '<div class="empty-state">No recent orders.</div>';
             } else {
-              this.showNotification("❌ Failed to delete orders.", true);
+              this.showNotification(
+                result?.error || "❌ Failed to delete orders.",
+                true
+              );
             }
-          } catch (error) {
-            console.error("Error:", error);
+          } catch (err) {
+            console.error("Error:", err);
             this.showNotification(
               "❌ An error occurred while deleting orders.",
               true
@@ -2211,13 +2272,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-      // --- Logout ---
-      document.getElementById("logout-btn")?.addEventListener("click", () => {
+      // ---------- Logout ----------
+      document.getElementById("logout-btn").addEventListener("click", () => {
         localStorage.removeItem("adminToken");
         window.location.href = "/admin-login.html";
       });
 
-      // --- Revenue chart filter ---
+      // ---------- Revenue chart period ----------
       const revenueChartFilter = document.getElementById(
         "revenue-chart-filter"
       );
@@ -2230,12 +2291,96 @@ document.addEventListener("DOMContentLoaded", function () {
         console.error("Revenue chart filter element not found!");
       }
 
-      // --- Notification bell/button → jump to Orders ---
-      document
-        .querySelector(".notification-btn")
-        ?.addEventListener("click", () => {
-          this.showSection("orders"); // jump straight to orders list
+      // ========== Notifications dropdown + bell behavior ==========
+      const notifBtn = document.querySelector(".notification-btn");
+      const notifBadge = document.querySelector(".notification-badge");
+      const notifPanel = document.getElementById("notification-panel");
+      const notifList = document.getElementById("notif-list");
+      const notifClear = document.getElementById("notif-clear");
+      let notifCount = 0;
+
+      const openNotif = () => {
+        if (notifPanel) notifPanel.hidden = false;
+      };
+      const closeNotif = () => {
+        if (notifPanel) notifPanel.hidden = true;
+      };
+      const toggleNotif = () => {
+        if (notifPanel) notifPanel.hidden ? openNotif() : closeNotif();
+      };
+
+      // Bell: open/close dropdown (no navigation)
+      notifBtn?.addEventListener("click", (e) => {
+        e.stopPropagation();
+        toggleNotif();
+      });
+
+      // Close when clicking outside
+      document.addEventListener("click", (e) => {
+        if (!notifPanel || !notifBtn) return;
+        const insidePanel = notifPanel.contains(e.target);
+        const onBell = notifBtn.contains(e.target);
+        if (!insidePanel && !onBell) closeNotif();
+      });
+
+      // Clear notifications (UI only)
+      notifClear?.addEventListener("click", () => {
+        if (!notifList || !notifBadge) return;
+        notifList.innerHTML = "";
+        notifCount = 0;
+        notifBadge.style.display = "none";
+        notifBadge.textContent = "0";
+      });
+
+      // Live feed from socket: add items to dropdown and badge
+      const socketRef = this.socket || window.socket;
+      if (socketRef) {
+        socketRef.on("new-order", async (order) => {
+          if (order?.paymentStatus !== "Completed") return;
+
+          // badge
+          if (notifBadge) {
+            notifCount += 1;
+            notifBadge.style.display = "inline-flex";
+            notifBadge.textContent = String(notifCount);
+          }
+
+          // list item
+          if (notifList) {
+            const li = document.createElement("li");
+            li.className = "notif-item";
+            const when = new Date(
+              order.createdAt || Date.now()
+            ).toLocaleTimeString("sv-SE", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            li.innerHTML = `
+          <div><i class="ri-shopping-bag-2-line"></i></div>
+          <div>
+            <div><strong>New order #${order.orderNumber}</strong></div>
+            <div class="meta">${when}</div>
+            <div class="meta">${order.customer?.name || "Guest"} · ${(
+              Number(order.total) || 0
+            ).toFixed(2)} kr</div>
+          </div>
+        `;
+            li.addEventListener("click", async () => {
+              // jump to Orders and scroll to that order
+              this.targetOrderNumber = order.orderNumber;
+              this.showSection("orders");
+              await this.loadOrders(1, { search: String(order.orderNumber) });
+              closeNotif();
+            });
+            notifList.prepend(li);
+          }
+
+          // optional sound
+          try {
+            document.getElementById("notification-sound")?.play();
+          } catch {}
         });
+      }
     }
 
     async fetchAndPrintOrder(orderId) {

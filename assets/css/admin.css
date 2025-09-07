@@ -419,6 +419,7 @@ body {
 }
 
 .admin-actions {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 15px;
@@ -477,6 +478,55 @@ body {
 
 .notification-ping {
     animation: ping 0.5s ease;
+}
+
+.notif-panel {
+    position: absolute;
+    right: 0;
+    top: 36px;
+    width: 320px;
+    max-height: 60vh;
+    overflow: auto;
+    background: var(--card-bg, #fff);
+    border: 1px solid rgba(0, 0, 0, .08);
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, .15);
+    padding: 8px;
+    z-index: 1000;
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 8px;
+}
+
+.notif-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.notif-item {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+.notif-item:hover {
+    background: rgba(0, 0, 0, .04)
+}
+
+.notif-item .meta {
+    font-size: 12px;
+    color: #888
+}
+
+.notification-btn .notification-badge {
+    display: inline-flex
 }
 
 /* Dark Mode Toggle */

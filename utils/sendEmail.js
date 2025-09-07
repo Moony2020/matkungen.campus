@@ -1,48 +1,77 @@
 // utils/sendEmail.js
 const nodemailer = require("nodemailer");
 
-function makeTransport({ insecure = false, port = 465 }) {
-  // port 465 = SMTPS (TLS on connect)
-  // port 587 = STARTTLS (upgrade)
-  const using465 = port === 465;
+const {
+  NODE_ENV,
+  EMAIL_USER,
+  EMAIL_PASS,
+  EMAIL_FROM, // e.g. "Matkungen <mymoon676@gmail.com>"
+  SMTP_HOST, // optional fallback host
+  SMTP_PORT, // optional fallback port (e.g. 587)
+  SMTP_SECURE, // "true" or "false"
+  ALLOW_INSECURE_TLS, // "true" to skip TLS verify (last resort)
+} = process.env;
 
+// Boot-time sanity checks
+if (!EMAIL_USER || !EMAIL_PASS) {
+  console.error(
+    "❌ EMAIL_USER/EMAIL_PASS missing. Set them in env (use a Gmail App Password)."
+  );
+}
+if (!EMAIL_FROM) {
+  console.warn(
+    '⚠️ EMAIL_FROM missing. Defaulting to EMAIL_USER as "from". Set EMAIL_FROM="Matkungen <you@gmail.com>".'
+  );
+}
+
+function bool(v, def = false) {
+  if (typeof v === "string")
+    return ["1", "true", "yes", "on"].includes(v.toLowerCase());
+  if (typeof v === "boolean") return v;
+  return def;
+}
+
+// Primary: Gmail (465 SSL)
+function gmailTransport() {
   return nodemailer.createTransport({
     host: "smtp.gmail.com",
-    port,
-    secure: using465, // true for 465, false for 587
-    requireTLS: !using465, // require STARTTLS on 587
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS, // Gmail App Password
-    },
-    tls: insecure ? { rejectUnauthorized: false } : undefined,
+    port: 465,
+    secure: true,
+    auth: { user: EMAIL_USER, pass: EMAIL_PASS },
+    tls: { rejectUnauthorized: !bool(ALLOW_INSECURE_TLS, true) },
   });
 }
 
-/**
- * Send an order email (no extra wrapper; use your own HTML).
- * Params:
- *  - to: string
- *  - subject: string
- *  - html: string (already built in server.js -> buildOrderEmailHtml)
- *  - pdfBuffer?: Buffer
- */
+// Fallback: generic SMTP (587 STARTTLS or configured host)
+function fallbackTransport() {
+  const port = Number(SMTP_PORT || 587);
+  const secure = bool(SMTP_SECURE, false);
+  const host = SMTP_HOST || "smtp.gmail.com"; // can be your ESP, e.g. SendGrid/Mailgun SMTP
+  return {
+    transport: nodemailer.createTransport({
+      host,
+      port,
+      secure,
+      auth: { user: EMAIL_USER, pass: EMAIL_PASS },
+      tls: { rejectUnauthorized: !bool(ALLOW_INSECURE_TLS, true) },
+    }),
+    meta: { host, port, secure },
+  };
+}
+
 async function sendOrderEmail({ to, subject, html, pdfBuffer }) {
-  const allowInsecure =
-    String(process.env.ALLOW_INSECURE_TLS || "").toLowerCase() === "true";
+  const from = EMAIL_FROM || EMAIL_USER;
 
-  // Primary attempt: 465 (implicit TLS)
-  let transporter = makeTransport({ insecure: allowInsecure, port: 465 });
-  let lastErr;
-
+  // Try Gmail first
   try {
-    // Optional verify for clearer logs
-    await transporter.verify().catch(() => {});
-    await transporter.sendMail({
-      from: `"Matkungen" <${process.env.EMAIL_USER}>`,
+    const t = gmailTransport();
+    console.log("✉️ Trying Gmail SMTP (465/SSL)...");
+    await t.verify();
+    const info = await t.sendMail({
+      from,
       to,
       subject,
-      html, // your HTML already contains header/logo, we don’t wrap
+      html,
       attachments: pdfBuffer
         ? [
             {
@@ -53,53 +82,56 @@ async function sendOrderEmail({ to, subject, html, pdfBuffer }) {
           ]
         : [],
     });
-    console.log("✅ Email sent to:", to, "(SMTP 465)");
-    return;
-  } catch (e) {
-    lastErr = e;
-    const msg = String(e && (e.message || e));
-    const selfSigned =
-      e?.code === "ESOCKET" || /self[-\s]?signed certificate/i.test(msg);
-
-    console.warn("⚠️ SMTP 465 failed:", msg);
-
-    // If TLS chain is intercepted (common on Windows dev), retry with 587 STARTTLS.
-    // Also retry with insecure if not already allowed.
-    const retryInsecure = allowInsecure ? false : selfSigned;
-
-    transporter = makeTransport({
-      insecure: allowInsecure || retryInsecure,
-      port: 587,
+    console.log("✅ Email sent via Gmail:", {
+      to,
+      subject,
+      id: info.messageId,
+      response: info.response,
     });
+    return info;
+  } catch (e1) {
+    console.error("❌ Gmail SMTP failed:", e1?.message || e1);
+  }
 
-    try {
-      await transporter.verify().catch(() => {});
-      await transporter.sendMail({
-        from: `"Matkungen" <${process.env.EMAIL_USER}>`,
-        to,
-        subject,
-        html,
-        attachments: pdfBuffer
-          ? [
-              {
-                filename: "receipt.pdf",
-                content: pdfBuffer,
-                contentType: "application/pdf",
-              },
-            ]
-          : [],
-      });
-      console.log(
-        "✅ Email sent to:",
-        to,
-        `(SMTP 587${allowInsecure || retryInsecure ? " insecure" : ""})`
-      );
-      return;
-    } catch (e2) {
-      console.error("❌ SMTP 587 retry failed:", e2?.message || e2);
-      throw e2 || lastErr;
-    }
+  // Fallback to STARTTLS 587 (or custom host)
+  const fb = fallbackTransport();
+  try {
+    console.log(
+      `✉️ Trying fallback SMTP (${fb.meta.host}:${fb.meta.port}${
+        fb.meta.secure ? "/SSL" : "/STARTTLS"
+      })...`
+    );
+    await fb.transport.verify();
+    const info = await fb.transport.sendMail({
+      from,
+      to,
+      subject,
+      html,
+      attachments: pdfBuffer
+        ? [
+            {
+              filename: "receipt.pdf",
+              content: pdfBuffer,
+              contentType: "application/pdf",
+            },
+          ]
+        : [],
+    });
+    console.log("✅ Email sent via fallback SMTP:", {
+      to,
+      subject,
+      id: info.messageId,
+      response: info.response,
+    });
+    return info;
+  } catch (e2) {
+    console.error("❌ Fallback SMTP failed:", e2?.message || e2);
+    throw e2;
   }
 }
 
 module.exports = { sendOrderEmail };
+
+// Usage:
+// const { sendOrderEmail } = require("./sendEmail");
+// await sendOrderEmail({ to, subject, html, pdfBuffer });

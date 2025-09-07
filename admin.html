@@ -1,429 +1,405 @@
 <!DOCTYPE html>
 
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Matkungen - Admin Dashboard</title>
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="./assets/images/logo.png" type="image" />
-    <!-- Fonts & Icons -->
-    <link
-      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css"
-      rel="stylesheet"
-    />
-    <link
-      href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
-      rel="stylesheet"
-    />
-    <!-- Mapbox GL -->
-    <link
-      href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css"
-      rel="stylesheet"
-    />
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="./assets/css/admin.css" />
-  </head>
 
-  <body>
-    <div class="admin-container">
-      <!-- Sidebar Navigation -->
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Matkungen - Admin Dashboard</title>
+  <!-- Favicon -->
+  <link rel="shortcut icon" href="./assets/images/logo.png" type="image" />
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;700&family=Forum&display=swap"
+    rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet" />
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+  <!-- Mapbox GL -->
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet" />
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./assets/css/admin.css" />
+</head>
 
-      <aside class="sidebar">
-        <div class="logo">
-          <img src="./assets/images/logo.png" alt="Matkungen" />
+<body>
+  <div class="admin-container">
+    <!-- Sidebar Navigation -->
 
-          <h2>Admin Dashboard</h2>
+    <aside class="sidebar">
+      <div class="logo">
+        <img src="./assets/images/logo.png" alt="Matkungen" />
+
+        <h2>Admin Dashboard</h2>
+      </div>
+
+      <nav>
+        <ul>
+          <li class="active" data-section="dashboard">
+            <a href="#"><i class="ri-dashboard-line"></i> Dashboard</a>
+          </li>
+
+          <li data-section="orders">
+            <a href="#"><i class="ri-shopping-bag-line"></i> Orders</a>
+
+            <span class="badge" id="pending-orders-badge">0</span>
+          </li>
+
+          <li data-section="menu">
+            <a href="#"><i class="ri-restaurant-line"></i> Menu</a>
+          </li>
+
+          <li data-section="drivers">
+            <a href="#"><i class="ri-roadster-line"></i> Drivers</a>
+          </li>
+
+          <li data-section="customers">
+            <a href="#"><i class="ri-user-line"></i> Customers</a>
+            <span class="badge" id="customers-badge" style="display: none">0</span>
+          </li>
+
+          <li data-section="analytics">
+            <a href="#"><i class="ri-bar-chart-line"></i> Analytics</a>
+          </li>
+
+          <li data-section="settings">
+            <a href="#"><i class="ri-settings-line"></i> Settings</a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="admin-profile">
+          <img src="./assets/images/admin-avatar.jpg" alt="Admin" />
+
+          <div>
+            <h4>Admin User</h4>
+
+            <p>Super Admin</p>
+          </div>
         </div>
 
-        <nav>
-          <ul>
-            <li class="active" data-section="dashboard">
-              <a href="#"><i class="ri-dashboard-line"></i> Dashboard</a>
-            </li>
+        <button id="logout-btn"><i class="ri-logout-box-r-line"></i></button>
+      </div>
+    </aside>
 
-            <li data-section="orders">
-              <a href="#"><i class="ri-shopping-bag-line"></i> Orders</a>
+    <!-- Main Content Area -->
 
-              <span class="badge" id="pending-orders-badge">0</span>
-            </li>
+    <main class="main-content">
+      <header class="admin-header">
+        <div class="header-left">
+          <button id="sidebar-toggle"><i class="ri-menu-line"></i></button>
 
-            <li data-section="menu">
-              <a href="#"><i class="ri-restaurant-line"></i> Menu</a>
-            </li>
+          <h1 id="page-title">Dashboard</h1>
+        </div>
 
-            <li data-section="drivers">
-              <a href="#"><i class="ri-roadster-line"></i> Drivers</a>
-            </li>
+        <div class="header-right">
+          <div class="search-bar">
+            <i class="ri-search-line"></i>
+            <input type="text" placeholder="Search orders, customers..." class="global-search-input" />
+          </div>
 
-            <li data-section="customers">
-              <a href="#"><i class="ri-user-line"></i> Customers</a>
-              <span class="badge" id="customers-badge" style="display: none"
-                >0</span
-              >
-            </li>
+          <div class="admin-actions">
+            <button class="notification-btn">
+              <i class="ri-notification-3-line"></i>
+              <span class="notification-badge" style="display: none">0</span>
+              <!-- Changed to dynamic -->
+            </button>
+            <!-- Notification Panel -->
+            <div id="notification-panel" class="notif-panel" hidden>
+              <div class="notif-header">
+                <strong>Notifications</strong>
+                <button id="notif-clear" type="button">Clear</button>
+              </div>
+              <ul id="notif-list" class="notif-list"></ul>
+            </div>
 
-            <li data-section="analytics">
-              <a href="#"><i class="ri-bar-chart-line"></i> Analytics</a>
-            </li>
+            <button class="dark-mode-toggle" aria-label="Toggle dark mode">
+              <i class="ri-moon-line"></i>
 
-            <li data-section="settings">
-              <a href="#"><i class="ri-settings-line"></i> Settings</a>
-            </li>
-          </ul>
-        </nav>
+              <!-- Default icon -->
+            </button>
+          </div>
+        </div>
+      </header>
 
-        <div class="sidebar-footer">
-          <div class="admin-profile">
-            <img src="./assets/images/admin-avatar.jpg" alt="Admin" />
+      <!-- Dashboard Section -->
+      <section id="dashboard-section" class="content-section active">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="ri-shopping-bag-line"></i>
+            </div>
 
             <div>
-              <h4>Admin User</h4>
+              <h3>Today's Orders</h3>
 
-              <p>Super Admin</p>
+              <p class="stat-value" id="today-orders">0</p>
+
+              <div class="stat-trend up">+0%</div>
             </div>
           </div>
 
-          <button id="logout-btn"><i class="ri-logout-box-r-line"></i></button>
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="ri-currency-line"></i>
+            </div>
+
+            <div>
+              <h3>Today's Revenue</h3>
+
+              <p class="stat-value" id="today-revenue">0 kr</p>
+
+              <div class="stat-trend up">+0%</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="ri-user-line"></i>
+            </div>
+
+            <div>
+              <h3>New Customers</h3>
+
+              <p class="stat-value" id="new-customers">0</p>
+
+              <div class="stat-trend up">+0%</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">
+              <i class="ri-roadster-line"></i>
+            </div>
+
+            <div>
+              <h3>Active Drivers</h3>
+
+              <p class="stat-value" id="active-drivers">0</p>
+
+              <div class="stat-trend down">-0%</div>
+            </div>
+          </div>
         </div>
-      </aside>
 
-      <!-- Main Content Area -->
-
-      <main class="main-content">
-        <header class="admin-header">
-          <div class="header-left">
-            <button id="sidebar-toggle"><i class="ri-menu-line"></i></button>
-
-            <h1 id="page-title">Dashboard</h1>
-          </div>
-
-          <div class="header-right">
-            <div class="search-bar">
-              <i class="ri-search-line"></i>
-              <input
-                type="text"
-                placeholder="Search orders, customers..."
-                class="global-search-input"
-              />
+        <div class="dashboard-row">
+          <div class="recent-orders card">
+            <div class="card-header recent-orders-header">
+              <h3>Recent Orders</h3>
+              <button id="view-all-recent" class="view-all-btn"></button>
             </div>
+            <div class="orders-table" id="recent-orders-table">
+              <!-- Dynamic content will be loaded here -->
+              <div class="loading-spinner">
+                <div class="spinner"></div>
 
-            <div class="admin-actions">
-              <button class="notification-btn">
-                <i class="ri-notification-3-line"></i>
-                <span class="notification-badge" style="display: none">0</span>
-                <!-- Changed to dynamic -->
-              </button>
-              <button class="dark-mode-toggle" aria-label="Toggle dark mode">
-                <i class="ri-moon-line"></i>
-
-                <!-- Default icon -->
-              </button>
-            </div>
-          </div>
-        </header>
-
-        <!-- Dashboard Section -->
-        <section id="dashboard-section" class="content-section active">
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="ri-shopping-bag-line"></i>
-              </div>
-
-              <div>
-                <h3>Today's Orders</h3>
-
-                <p class="stat-value" id="today-orders">0</p>
-
-                <div class="stat-trend up">+0%</div>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="ri-currency-line"></i>
-              </div>
-
-              <div>
-                <h3>Today's Revenue</h3>
-
-                <p class="stat-value" id="today-revenue">0 kr</p>
-
-                <div class="stat-trend up">+0%</div>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="ri-user-line"></i>
-              </div>
-
-              <div>
-                <h3>New Customers</h3>
-
-                <p class="stat-value" id="new-customers">0</p>
-
-                <div class="stat-trend up">+0%</div>
-              </div>
-            </div>
-
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="ri-roadster-line"></i>
-              </div>
-
-              <div>
-                <h3>Active Drivers</h3>
-
-                <p class="stat-value" id="active-drivers">0</p>
-
-                <div class="stat-trend down">-0%</div>
+                <p>Loading orders...</p>
               </div>
             </div>
           </div>
 
-          <div class="dashboard-row">
-            <div class="recent-orders card">
-              <div class="card-header recent-orders-header">
-                <h3>Recent Orders</h3>
-                <button id="view-all-recent" class="view-all-btn"></button>
-              </div>
-              <div class="orders-table" id="recent-orders-table">
-                <!-- Dynamic content will be loaded here -->
-                <div class="loading-spinner">
-                  <div class="spinner"></div>
+          <div class="order-status-chart card">
+            <div class="card-header">
+              <h3>Order Status</h3>
 
-                  <p>Loading orders...</p>
-                </div>
-              </div>
-            </div>
+              <div class="time-filter">
+                <select id="status-chart-filter">
+                  <option value="today">Today</option>
 
-            <div class="order-status-chart card">
-              <div class="card-header">
-                <h3>Order Status</h3>
+                  <option value="week">This Week</option>
 
-                <div class="time-filter">
-                  <select id="status-chart-filter">
-                    <option value="today">Today</option>
-
-                    <option value="week">This Week</option>
-
-                    <option value="month">This Month</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="chart-container">
-                <canvas id="order-status-chart"></canvas>
-              </div>
-            </div>
-          </div>
-
-          <div class="dashboard-row">
-            <div class="revenue-chart card">
-              <div class="card-header">
-                <h3>Revenue Analytics</h3>
-
-                <div class="time-filter">
-                  <select id="revenue-chart-filter">
-                    <option value="week">Last 7 Days</option>
-
-                    <option value="month">Last 30 Days</option>
-
-                    <option value="year">Last 12 Months</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="chart-container">
-                <canvas id="revenue-analytics-chart"></canvas>
-              </div>
-            </div>
-
-            <div class="top-items card">
-              <div class="card-header">
-                <h3>Top Menu Items</h3>
-
-                <div class="time-filter">
-                  <select id="top-items-filter">
-                    <option value="week">This Week</option>
-
-                    <option value="month">This Month</option>
-                  </select>
-                </div>
-              </div>
-
-              <div class="top-items-list" id="top-items-list">
-                <!-- Dynamic content will be loaded here -->
-              </div>
-            </div>
-          </div>
-          <div class="dashboard-section card search-section">
-            <h3>Search Results</h3>
-            <div id="search-results-container"></div>
-          </div>
-        </section>
-
-        <!-- Orders Management Section -->
-        <section id="orders-section" class="content-section">
-          <div class="orders-header">
-            <h2>Order Management</h2>
-
-            <div class="orders-actions">
-              <div class="search-filter">
-                <div class="search-bar">
-                  <i class="ri-search-line"></i>
-
-                  <input
-                    type="text"
-                    placeholder="Search orders..."
-                    id="orders-search"
-                  />
-                </div>
-
-                <select id="orders-filter">
-                  <option value="all">All Orders</option>
-                  <option value="pending">Pending</option>
-                  <option value="confirmed">Confirmed</option>
-                  <option value="on-the-way">On the Way</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="cancelled">Cancelled</option>
+                  <option value="month">This Month</option>
                 </select>
               </div>
-
-              <button class="btn btn-primary" id="export-orders">
-                <i class="ri-download-line"></i> Export
-              </button>
-              <button class="btn btn-danger" id="delete-all-orders">
-                <i class="ri-delete-bin-line"></i> Delete All Orders
-              </button>
-            </div>
-          </div>
-
-          <div class="orders-list" id="orders-list">
-            <!-- Orders will be loaded dynamically -->
-          </div>
-
-          <div class="pagination-controls">
-            <button class="btn btn-outline" id="prev-page" disabled>
-              <i class="ri-arrow-left-line"></i> Previous
-            </button>
-
-            <div class="page-info">
-              Page <span id="current-page">1</span> of
-
-              <span id="total-pages">1</span>
             </div>
 
-            <button class="btn btn-outline" id="next-page" disabled>
-              Next <i class="ri-arrow-right-line"></i>
-            </button>
-          </div>
-        </section>
-
-        <!-- Customers Section -->
-        <section id="customers-section" class="content-section">
-          <div class="section-header">
-            <div class="actions">
-              <input
-                id="customers-search"
-                type="search"
-                placeholder="Search name, email, phone..."
-              />
-              <select id="customers-filter">
-                <option value="all">All</option>
-                <option value="yes">With Orders</option>
-                <option value="no">No Orders</option>
-              </select>
-              <select id="customers-sort">
-                <option value="recent">Most Recent</option>
-                <option value="orders">Most Orders</option>
-                <option value="spent">Highest Spent</option>
-                <option value="new">Newest</option>
-              </select>
+            <div class="chart-container">
+              <canvas id="order-status-chart"></canvas>
             </div>
           </div>
-
-          <div id="customers-loading" class="loading">Loading customers...</div>
-
-          <div class="card">
-            <table class="table" id="customers-table">
-              <thead id="customers-thead">
-                <tr>
-                  <th>Name</th>
-                  <th>Contact</th>
-                  <th>Total Orders</th>
-                  <th>Total Spent</th>
-                  <th>Last Order</th>
-                </tr>
-              </thead>
-              <tbody id="customers-tbody"></tbody>
-            </table>
-          </div>
-
-          <div class="pagination" id="customers-pagination"></div>
-
-          <!-- Drawer / Modal -->
-          <div id="customer-drawer" class="drawer hidden">
-            <div class="drawer-content">
-              <button
-                class="drawer-close"
-                id="customer-drawer-close"
-                aria-label="Close"
-                title="Close"
-                type="button"
-              >
-                <i class="ri-close-line" aria-hidden="true"></i>
-              </button>
-              <div id="customer-drawer-body"></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Other sections would follow the same pattern -->
-      </main>
-    </div>
-    <!-- Delete orders Modal/message -->
-    <div id="confirm-modal" class="custom-modal" style="display: none">
-      <div class="custom-modal-content">
-        <p>
-          Are you sure you want to delete ALL orders? This cannot be undone.
-        </p>
-        <div class="custom-modal-actions">
-          <button id="confirm-yes" class="btn btn-danger">Yes</button>
-          <button id="confirm-no" class="btn btn-secondary">No</button>
         </div>
+
+        <div class="dashboard-row">
+          <div class="revenue-chart card">
+            <div class="card-header">
+              <h3>Revenue Analytics</h3>
+
+              <div class="time-filter">
+                <select id="revenue-chart-filter">
+                  <option value="week">Last 7 Days</option>
+
+                  <option value="month">Last 30 Days</option>
+
+                  <option value="year">Last 12 Months</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="chart-container">
+              <canvas id="revenue-analytics-chart"></canvas>
+            </div>
+          </div>
+
+          <div class="top-items card">
+            <div class="card-header">
+              <h3>Top Menu Items</h3>
+
+              <div class="time-filter">
+                <select id="top-items-filter">
+                  <option value="week">This Week</option>
+
+                  <option value="month">This Month</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="top-items-list" id="top-items-list">
+              <!-- Dynamic content will be loaded here -->
+            </div>
+          </div>
+        </div>
+        <div class="dashboard-section card search-section">
+          <h3>Search Results</h3>
+          <div id="search-results-container"></div>
+        </div>
+      </section>
+
+      <!-- Orders Management Section -->
+      <section id="orders-section" class="content-section">
+        <div class="orders-header">
+          <h2>Order Management</h2>
+
+          <div class="orders-actions">
+            <div class="search-filter">
+              <div class="search-bar">
+                <i class="ri-search-line"></i>
+
+                <input type="text" placeholder="Search orders..." id="orders-search" />
+              </div>
+
+              <select id="orders-filter">
+                <option value="all">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="on-the-way">On the Way</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+
+            <button class="btn btn-primary" id="export-orders">
+              <i class="ri-download-line"></i> Export
+            </button>
+            <button class="btn btn-danger" id="delete-all-orders">
+              <i class="ri-delete-bin-line"></i> Delete All Orders
+            </button>
+          </div>
+        </div>
+
+        <div class="orders-list" id="orders-list">
+          <!-- Orders will be loaded dynamically -->
+        </div>
+
+        <div class="pagination-controls">
+          <button class="btn btn-outline" id="prev-page" disabled>
+            <i class="ri-arrow-left-line"></i> Previous
+          </button>
+
+          <div class="page-info">
+            Page <span id="current-page">1</span> of
+
+            <span id="total-pages">1</span>
+          </div>
+
+          <button class="btn btn-outline" id="next-page" disabled>
+            Next <i class="ri-arrow-right-line"></i>
+          </button>
+        </div>
+      </section>
+
+      <!-- Customers Section -->
+      <section id="customers-section" class="content-section">
+        <div class="section-header">
+          <div class="actions">
+            <input id="customers-search" type="search" placeholder="Search name, email, phone..." />
+            <select id="customers-filter">
+              <option value="all">All</option>
+              <option value="yes">With Orders</option>
+              <option value="no">No Orders</option>
+            </select>
+            <select id="customers-sort">
+              <option value="recent">Most Recent</option>
+              <option value="orders">Most Orders</option>
+              <option value="spent">Highest Spent</option>
+              <option value="new">Newest</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="customers-loading" class="loading">Loading customers...</div>
+
+        <div class="card">
+          <table class="table" id="customers-table">
+            <thead id="customers-thead">
+              <tr>
+                <th>Name</th>
+                <th>Contact</th>
+                <th>Total Orders</th>
+                <th>Total Spent</th>
+                <th>Last Order</th>
+              </tr>
+            </thead>
+            <tbody id="customers-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="pagination" id="customers-pagination"></div>
+
+        <!-- Drawer / Modal -->
+        <div id="customer-drawer" class="drawer hidden">
+          <div class="drawer-content">
+            <button class="drawer-close" id="customer-drawer-close" aria-label="Close" title="Close" type="button">
+              <i class="ri-close-line" aria-hidden="true"></i>
+            </button>
+            <div id="customer-drawer-body"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Other sections would follow the same pattern -->
+    </main>
+  </div>
+  <!-- Delete orders Modal/message -->
+  <div id="confirm-modal" class="custom-modal" style="display: none">
+    <div class="custom-modal-content">
+      <p>
+        Are you sure you want to delete ALL orders? This cannot be undone.
+      </p>
+      <div class="custom-modal-actions">
+        <button id="confirm-yes" class="btn btn-danger">Yes</button>
+        <button id="confirm-no" class="btn btn-secondary">No</button>
       </div>
     </div>
+  </div>
 
-    <!-- Order Details Modal (hidden by default) -->
-    <div class="modal-overlay" id="order-modal-overlay"></div>
-    <div class="order-modal" id="order-modal">
-      <!-- Modal content will be loaded dynamically -->
-    </div>
+  <!-- Order Details Modal (hidden by default) -->
+  <div class="modal-overlay" id="order-modal-overlay"></div>
+  <div class="order-modal" id="order-modal">
+    <!-- Modal content will be loaded dynamically -->
+  </div>
 
-    <!-- Notification Toast -->
-    <div class="notification-toast" id="notification-toast"></div>
+  <!-- Notification Toast -->
+  <div class="notification-toast" id="notification-toast"></div>
 
-    <!-- 🔔 Notification Sound Element -->
-    <!-- Fix the sound path -->
-    <audio
-      id="notification-sound"
-      src="/assets/sounds/notification.mp3"
-      preload="auto"
-    ></audio>
+  <!-- 🔔 Notification Sound Element -->
+  <!-- Fix the sound path -->
+  <audio id="notification-sound" src="/assets/sounds/notification.mp3" preload="auto"></audio>
 
-    <!-- Scripts -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
-    <script src="./assets/js/admin.customers.js" type="module"></script>
-    <script src="./assets/js/admin.js" type="module"></script>
-  </body>
+  <!-- Scripts -->
+  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
+  <script src="./assets/js/admin.customers.js" type="module"></script>
+  <script src="./assets/js/admin.js" type="module"></script>
+</body>
+
 </html>
