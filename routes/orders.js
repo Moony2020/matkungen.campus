@@ -171,65 +171,81 @@ router.post("/:id/complete-payment", async (req, res) => {
 
 // Create a new order
 router.post("/", optionalAuth, async (req, res) => {
-  const { items, customer, paymentMethod, subtotal, deliveryFee, total } =
-    req.body;
-
-  // Ensure we always have a User for this order (guest or logged-in)
-  const name = customer?.name?.trim() || "Guest";
-  const email = customer?.email?.trim()?.toLowerCase();
-  const phone = customer?.phone?.trim() || "";
-  const address = customer?.address || "";
-
-  // Require email for guest checkout (logged-in users can skip this)
-  if (!req.user && !email) {
-    return res.status(400).json({
-      success: false,
-      error: "Email is required to place an order.",
-    });
-  }
-
-  let userId;
-
-  // If the request is authenticated, use that user id
-  if (req.user) {
-    userId = req.user;
-  } else {
-    // Guest flow: find-or-create a lightweight user by email
-    let user = await User.findOne({ email });
-    if (!user) {
-      const randomPassword = crypto.randomBytes(16).toString("hex");
-      user = await User.create({
-        name,
-        email,
-        phone,
-        address,
-        isGuest: true,
-        password: randomPassword, // will be hashed by pre-save hook
-      });
-    } else if (user.isGuest) {
-      // Optional: enrich guest profile if missing info
-      const updates = {};
-      if (!user.name && name) updates.name = name;
-      if (!user.phone && phone) updates.phone = phone;
-      if (Object.keys(updates).length) {
-        await User.updateOne({ _id: user._id }, { $set: updates });
-      }
-    }
-    userId = user._id;
-  }
-
   try {
+    const { items, customer, paymentMethod, subtotal, deliveryFee, total } =
+      req.body;
+
+    // Normalize customer fields from any shape the client might send
+    const rawCustomer = customer || {};
+    let normalizedEmail = String(
+      (req.user && req.user.email) || // will be falsy because req.user is an id (fine)
+        req.body.email ||
+        rawCustomer.email ||
+        req.body.contactEmail ||
+        req.body.billingEmail ||
+        ""
+    )
+      .trim()
+      .toLowerCase();
+
+    console.log("orders POST → normalizedEmail:", normalizedEmail);
+    const name = (rawCustomer.name || req.body.name || "Guest").trim();
+    const phone = (rawCustomer.phone || req.body.phone || "").trim();
+    const address = rawCustomer.address || req.body.address || "";
+
+    // Require email for guest checkout (logged-in users can skip this)
+    if (!req.user && !normalizedEmail) {
+      return res.status(400).json({
+        success: false,
+        error: "Email is required to place an order.",
+      });
+    }
+
+    // Ensure we always have a User (guest or logged-in)
+    let userId;
+    if (req.user) {
+      userId = req.user;
+    } else {
+      // Guest: find-or-create lightweight user by email
+      let user = await User.findOne({ email: normalizedEmail });
+      if (!user) {
+        const randomPassword = crypto.randomBytes(16).toString("hex");
+        user = await User.create({
+          name,
+          email: normalizedEmail, // <-- IMPORTANT
+          phone,
+          address,
+          isGuest: true,
+          password: randomPassword, // hashed by your pre-save hook
+        });
+      } else if (user.isGuest) {
+        // Optionally enrich guest profile
+        const updates = {};
+        if (!user.name && name) updates.name = name;
+        if (!user.phone && phone) updates.phone = phone;
+        if (Object.keys(updates).length) {
+          await User.updateOne({ _id: user._id }, { $set: updates });
+        }
+      }
+      userId = user._id;
+    }
+
     const orderNumber = await generateUniqueOrderNumber();
     const paymentStatus =
       paymentMethod === "Cash on Delivery" ? "Pending" : "Completed";
     const status = "Confirmed";
 
     const order = new Order({
-      user: userId, // [CHANGE] link to real/guest user
+      user: userId,
       orderNumber,
       items,
-      // keep embedded customer too (good for receipts/emails)
-      customer: { name, email, phone, address },
+      // keep embedded customer too (used by your email sender)
+      customer: {
+        name,
+        email: normalizedEmail, // <-- IMPORTANT
+        phone,
+        address,
+      },
       subtotal,
       deliveryFee,
       total,
@@ -246,12 +262,15 @@ router.post("/", optionalAuth, async (req, res) => {
     });
 
     const savedOrder = await order.save();
-
+    console.log(
+      "orders POST → savedOrder.customer.email:",
+      savedOrder?.customer?.email
+    );
     // sockets
     const io = req.app.get("io");
     io.emit("new-order", savedOrder);
 
-    // let server.js handle emailing
+    // centralized email (server.js listeners)
     req.app.emit("order:created", savedOrder);
 
     res.status(201).json({ success: true, order: savedOrder });
