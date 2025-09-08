@@ -3689,7 +3689,7 @@ body.nav-active {
 }
 
 .confirmation-card {
-    max-width: 850px;
+    max-width: 900px;
     margin: 0 auto;
     background: var(--eerie-black-2);
     padding: 24px;
@@ -3746,7 +3746,7 @@ body.nav-active {
 .confirmation-page .confirmation-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 32px;
+    gap: 30px;
     align-items: start;
 }
 
@@ -6975,7 +6975,8 @@ body.modal-open {
     }
 
     .confirmation-content {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+        gap: 16px;
     }
 
     .header.active {
