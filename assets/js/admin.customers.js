@@ -212,52 +212,86 @@ const Customers = (() => {
     });
   }
 
+  // === 2A: open drawer ===
   async function openDrawer(id) {
     try {
+      const token = getAdminToken();
+      if (!token) {
+        // no token -> bounce to login
+        console.warn("No admin token found, redirecting to login");
+        window.location.href = "/admin-login.html";
+        return;
+      }
+
       const res = await fetch(`/api/admin/customers/${id}`, {
-        credentials: "include",
+        credentials: "include", // keep if you also use cookies
+        headers: {
+          Accept: "application/json",
+          ...authHeaders(), // <-- adds Authorization: Bearer <token>
+        },
       });
+
+      if (res.status === 401 || res.status === 403) {
+        // token expired or invalid
+        localStorage.removeItem("adminToken");
+        alert("Session expired. Please log in again.");
+        window.location.href = "/admin-login.html";
+        return;
+      }
+
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        throw new Error(j?.error || `Failed to load customer (${res.status})`);
+      }
+
       const json = await res.json();
       if (!json?.success) throw new Error(json?.error || "Failed");
+
       const { customer, orders } = json;
       if (!els.drawerBody || !els.drawer) return;
 
       els.drawerBody.innerHTML = `
-        <h3>${customer.name}</h3>
-        <div class="drawer-block">
-          <div><strong>Email:</strong> ${customer.email || "—"}</div>
-          <div><strong>Phone:</strong> ${customer.phone || "—"}</div>
-          <div><strong>Address:</strong> ${customer.address || "—"}</div>
-          <div><strong>Joined:</strong> ${new Date(
-            customer.createdAt
-          ).toLocaleString()}</div>
-          <div><strong>Total Orders:</strong> ${customer.totalOrders}</div>
-          <div><strong>Total Spent:</strong> ${fmtMoney(
-            customer.totalSpent
-          )}</div>
-        </div>
-        <h4>Recent Orders</h4>
-        <div class="drawer-orders">
-          ${
-            orders.length
-              ? orders
-                  .map(
-                    (o) => `
-              <div class="drawer-order">
-                <div>#${o.orderNumber}</div>
-                <div>${fmtMoney(o.total)}</div>
-                <div>${o.status}</div>
-                <div>${new Date(o.createdAt).toLocaleString()}</div>
-              </div>`
-                  )
-                  .join("")
-              : "<div>No orders yet.</div>"
-          }
-        </div>
-      `;
+      <h3>${customer.name}</h3>
+      <div class="drawer-block">
+        <div><strong>Email:</strong> ${customer.email || "—"}</div>
+        <div><strong>Phone:</strong> ${customer.phone || "—"}</div>
+        <div><strong>Address:</strong> ${customer.address || "—"}</div>
+        <div><strong>Joined:</strong> ${new Date(
+          customer.createdAt
+        ).toLocaleString()}</div>
+        <div><strong>Total Orders:</strong> ${customer.totalOrders}</div>
+        <div><strong>Total Spent:</strong> ${fmtMoney(
+          customer.totalSpent
+        )}</div>
+      </div>
+      <h4>Recent Orders</h4>
+      <div class="drawer-orders">
+        ${
+          orders && orders.length
+            ? orders
+                .map(
+                  (o) => `
+                <div class="drawer-order">
+                  <div>#${o.orderNumber}</div>
+                  <div>${fmtMoney(o.total)}</div>
+                  <div>${o.status}</div>
+                  <div>${new Date(o.createdAt).toLocaleString()}</div>
+                </div>
+              `
+                )
+                .join("")
+            : "<div>No orders yet.</div>"
+        }
+      </div>
+    `;
+
       els.drawer.classList.remove("hidden");
     } catch (e) {
       console.error("Open drawer error:", e);
+      // Optional: surface a toast if you have one
+      try {
+        window.app?.showNotification?.(String(e.message || e), true);
+      } catch {}
     }
   }
 
