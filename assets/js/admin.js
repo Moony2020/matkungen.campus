@@ -2368,7 +2368,7 @@ document.addEventListener("DOMContentLoaded", function () {
         li.innerHTML = `
       <div><i class="ri-shopping-bag-2-line"></i></div>
       <div>
-        <div><strong>New order #${order.orderNumber}</strong></div>
+        <div><strong>Order #${order.orderNumber}</strong></div>
         <div class="meta">${when}</div>
         <div class="meta">${order.customer?.name || "Guest"} · ${(
           Number(order.total) || 0
