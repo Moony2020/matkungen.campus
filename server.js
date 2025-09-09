@@ -27,13 +27,15 @@ const adminAuth = require("./middleware/adminAuth");
 const createReceiptPdf = require("./utils/createPdf");
 const { sendOrderEmail } = require("./utils/sendEmail"); // uses its own transporter or you can wire to the above
 
-// ---------- FRONTEND base URL (single source of truth) ----------
-const FRONTEND =
+// ---------- APP_URL base URL (single source of truth) ----------
+const APP_URL = (
   process.env.APP_URL ||
   process.env.SERVER_URL ||
   (process.env.NODE_ENV === "production"
     ? "https://matkungen-campus.onrender.com"
-    : `http://localhost:${process.env.PORT || 4000}`);
+    : `http://localhost:${process.env.PORT || 4000}`)
+).replace(/\/+$/, ""); // strip any trailing slash
+
 const cookieParser = require("cookie-parser");
 
 // ---------- Opening Hours ----------
@@ -97,10 +99,7 @@ function blockWhenClosed(req, res, next) {
 connectDB();
 
 // CORS for REST routes
-const allowedOrigins = [
-  "http://localhost:4000",
-  "https://matkungen-campus.onrender.com",
-];
+const allowedOrigins = ["http://localhost:4000", APP_URL];
 
 // ---------- App / Middleware ----------
 const app = express();
@@ -386,7 +385,9 @@ function buildOrderEmailHtml(order) {
     </div>`
         : `
     <div style="text-align:center;padding:20px;">
-      <a href="${FRONTEND}/track-order.html?order=${order.orderNumber}" target="_blank"
+      <a href="${APP_URL}/track-order.html?order=${encodeURIComponent(
+            order.orderNumber
+          )}"  target="_blank"
          style="display:inline-block;padding:12px 24px;background:#FFD700;color:#000;font-weight:bold;text-decoration:none;border-radius:6px;">
         Spåra din leverans
       </a>
@@ -723,7 +724,7 @@ app.post("/api/forgot-password", async (req, res) => {
     const resetToken = user.getResetPasswordToken();
     await user.save();
 
-    const resetUrl = `${FRONTEND}/reset-password/${resetToken}`;
+    const resetUrl = `${APP_URL}/reset-password/${resetToken}`;
     const message = `
       <h2>Password Reset Request</h2>
       <p>You requested a password reset for your <strong>Matkungen</strong> account.</p>
