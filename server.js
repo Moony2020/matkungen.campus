@@ -30,7 +30,6 @@ const { sendOrderEmail } = require("./utils/sendEmail"); // uses its own transpo
 // ---------- APP_URL base URL (single source of truth) ----------
 const APP_URL = (
   process.env.APP_URL ||
-  process.env.SERVER_URL ||
   (process.env.NODE_ENV === "production"
     ? "https://matkungen-campus.onrender.com"
     : `http://localhost:${process.env.PORT || 4000}`)
