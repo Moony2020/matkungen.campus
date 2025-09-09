@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const socket = io(SOCKET_URL, {
     transports: ["websocket", "polling"], // try WS first, fall back if needed
     withCredentials: true,
-    auth: { token: localStorage.getItem("token") },
+    auth: { token: localStorage.getItem("authToken") },
   });
 
   // Store socket globally if needed

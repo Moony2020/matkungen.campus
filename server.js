@@ -27,13 +27,15 @@ const adminAuth = require("./middleware/adminAuth");
 const createReceiptPdf = require("./utils/createPdf");
 const { sendOrderEmail } = require("./utils/sendEmail"); // uses its own transporter or you can wire to the above
 
-// ---------- FRONTEND base URL (single source of truth) ----------
-const FRONTEND =
+// ---------- App base URL (single source of truth) ----------
+const APP_URL = (
   process.env.APP_URL ||
-  process.env.SERVER_URL ||
+  process.env.SERVER_URL || // optional fallback if you already have it set somewhere
   (process.env.NODE_ENV === "production"
     ? "https://matkungen-campus.onrender.com"
-    : `http://localhost:${process.env.PORT || 4000}`);
+    : `http://localhost:${process.env.PORT || 4000}`)
+).replace(/\/+$/, ""); // strip trailing slash
+
 const cookieParser = require("cookie-parser");
 
 // ---------- Opening Hours ----------
@@ -99,7 +101,7 @@ connectDB();
 // CORS for REST routes
 const allowedOrigins = [
   "http://localhost:4000",
-  "https://matkungen-campus.onrender.com",
+  APP_URL, // e.g. https://matkungen-campus.onrender.com
 ];
 
 // ---------- App / Middleware ----------
@@ -143,7 +145,7 @@ app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
     env: process.env.NODE_ENV,
-    appUrl: process.env.APP_URL,
+    appUrl: APP_URL,
     emailFrom: process.env.EMAIL_FROM,
   });
 });
@@ -240,8 +242,11 @@ io.on("connection", (socket) => {
 // Central app-level listeners that actually send the emails
 app.on("order:created", async (order) => {
   try {
-    const to = order?.customer?.email?.trim();
-    if (!to) return;
+    const to =
+      order?.customer?.email?.trim() ||
+      order?.email?.trim() || // fallback if ever stored flat
+      "";
+    if (!to) return; // keep the guard
 
     const pdfBuffer = await createReceiptPdf(order); // styled PDF
     await sendOrderEmail({
@@ -258,8 +263,11 @@ app.on("order:created", async (order) => {
 
 app.on("order:paid", async (order) => {
   try {
-    const to = order?.customer?.email?.trim();
-    if (!to) return;
+    const to =
+      order?.customer?.email?.trim() ||
+      order?.email?.trim() || // fallback if ever stored flat
+      "";
+    if (!to) return; // keep the guard
 
     const pdfBuffer = await createReceiptPdf(order); // styled PDF
     await sendOrderEmail({
@@ -326,7 +334,7 @@ function buildOrderEmailHtml(order) {
   return `
   <div style="max-width:600px;margin:auto;font-family:'Segoe UI',sans-serif;color:#333;background:#fff;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;">
     <div style="background:#000;padding:20px;text-align:center;">
-      <img src="https://matkungen-campus.onrender.com/assets/images/logo.png" alt="Matkungen" style="height:60px;" onerror="this.style.display='none';" />
+      <img src="${APP_URL}/assets/images/logo.png" alt="Matkungen" style="height:60px;" onerror="this.style.display='none';" />
       <h2 style="margin:10px 0 0;color:#FFD700;">Matkungen</h2>
     </div>
 
@@ -380,7 +388,9 @@ function buildOrderEmailHtml(order) {
     </div>`
         : `
     <div style="text-align:center;padding:20px;">
-      <a href="${FRONTEND}/track-order.html?order=${order.orderNumber}" target="_blank"
+      <a href="${APP_URL}/track-order.html?order=${encodeURIComponent(
+            order.orderNumber
+          )}" target="_blank"
          style="display:inline-block;padding:12px 24px;background:#FFD700;color:#000;font-weight:bold;text-decoration:none;border-radius:6px;">
         Spåra din leverans
       </a>
@@ -717,9 +727,7 @@ app.post("/api/forgot-password", async (req, res) => {
     const resetToken = user.getResetPasswordToken();
     await user.save();
 
-    const resetUrl = `${req.protocol}://${req.get(
-      "host"
-    )}/reset-password/${resetToken}`;
+    const resetUrl = `${APP_URL}/reset-password/${resetToken}`;
     const message = `
       <h2>Password Reset Request</h2>
       <p>You requested a password reset for your <strong>Matkungen</strong> account.</p>
@@ -731,12 +739,18 @@ app.post("/api/forgot-password", async (req, res) => {
       <p>This link will expire in 10 minutes.</p>
     `;
 
-    await transporter.sendMail({
-      from: `"Matkungen" <${process.env.EMAIL_USER}>`,
+    await sendOrderEmail({
       to: user.email,
       subject: "Password Reset Request",
       html: message,
     });
+
+    // await transporter.sendMail({
+    //   from: `"Matkungen" <${process.env.EMAIL_USER}>`,
+    //   to: user.email,
+    //   subject: "Password Reset Request",
+    //   html: message,
+    // });
 
     res.json({ success: true, message: "Password reset email sent" });
   } catch (error) {
