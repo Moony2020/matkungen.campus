@@ -390,7 +390,9 @@ body {
 /* search bar dark mode */
 [data-theme="dark"] .search-bar input {
     color: var(--text-light) !important;
-    background-color: var(--card-bg) !important;
+    background: var(--card-bg-light);
+    border: 1px solid var(--davys-grey);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.479);
 }
 
 [data-theme="dark"] .search-bar input::placeholder {
@@ -1254,6 +1256,10 @@ tr:hover {
     margin-top: 10px;
 }
 
+#orders-section h2 {
+    margin-bottom: 9px;
+}
+
 #orders-section .select-field {
     position: relative;
     display: inline-flex;
@@ -1745,13 +1751,6 @@ tr:hover {
     color: var(--black);
     pointer-events: none;
     /* clicks go to the select */
-}
-
-#customers-section .section-header .actions input[type="search"]:focus,
-#customers-section .section-header .actions .select-field select:focus,
-#orders-section .select-field select:focus {
-    border-color: var(--secondary-blue-light);
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--secondary-blue-light) 25%, transparent);
 }
 
 /* Disabled */
