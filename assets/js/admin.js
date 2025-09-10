@@ -1020,28 +1020,33 @@ document.addEventListener("DOMContentLoaded", function () {
       <button class="btn btn-outline print-receipt" data-order="${order._id}">
         Print Receipt
       </button>
-      <div class="status-actions">
-        <select class="status-select" data-order="${order._id}">
-          <option value="Pending" ${
-            order.status === "Pending" ? "selected" : ""
-          }>Pending</option>
-          <option value="Confirmed" ${
-            order.status === "Confirmed" ? "selected" : ""
-          }>Confirmed</option>
-          <option value="On the Way" ${
-            order.status === "On the Way" ? "selected" : ""
-          }>On the Way</option>
-          <option value="Delivered" ${
-            order.status === "Delivered" ? "selected" : ""
-          }>Delivered</option>
-          <option value="Cancelled" ${
-            order.status === "Cancelled" ? "selected" : ""
-          }>Cancelled</option>
-        </select>
-        <button class="btn btn-primary update-status" data-order="${
-          order._id
-        }">Update</button>
-      </div>
+   <div class="status-actions">
+  <div class="select-field">
+    <select class="status-select" data-order="${order._id}">
+      <option value="Pending"   ${
+        order.status === "Pending" ? "selected" : ""
+      }>Pending</option>
+      <option value="Confirmed" ${
+        order.status === "Confirmed" ? "selected" : ""
+      }>Confirmed</option>
+      <option value="On the Way" ${
+        order.status === "On the Way" ? "selected" : ""
+      }>On the Way</option>
+      <option value="Delivered" ${
+        order.status === "Delivered" ? "selected" : ""
+      }>Delivered</option>
+      <option value="Cancelled" ${
+        order.status === "Cancelled" ? "selected" : ""
+      }>Cancelled</option>
+    </select>
+    <i class="ri-arrow-down-s-fill chevron" aria-hidden="true"></i>
+  </div>
+
+  <button class="btn btn-primary update-status" data-order="${
+    order._id
+  }">Update</button>
+</div>
+
     </div>
   `;
       return card;
@@ -2109,13 +2114,23 @@ document.addEventListener("DOMContentLoaded", function () {
         const updateStatusBtn = e.target.closest(".update-status");
         if (updateStatusBtn) {
           const orderId = updateStatusBtn.dataset.order;
-          const statusSelect = document.querySelector(
+
+          // find the select next to the button (in the same card)
+          const card = updateStatusBtn.closest(".order-card");
+          const statusSelect = card?.querySelector(".status-select");
+
+          // hard fallback: still try dataset selector if needed
+          const fallback = document.querySelector(
             `.status-select[data-order="${orderId}"]`
           );
-          if (statusSelect) {
-            const newStatus = statusSelect.value;
-            this.updateOrderStatus(orderId, newStatus);
-          }
+
+          const selectEl = statusSelect || fallback;
+          if (!selectEl) return;
+
+          // always read the live selected option from this element
+          const newStatus = selectEl.options[selectEl.selectedIndex].value;
+
+          this.updateOrderStatus(orderId, newStatus);
           return;
         }
 
@@ -2368,7 +2383,7 @@ document.addEventListener("DOMContentLoaded", function () {
         li.innerHTML = `
       <div><i class="ri-shopping-bag-2-line"></i></div>
       <div>
-        <div><strong>Order #${order.orderNumber}</strong></div>
+        <div><strong>rder #${order.orderNumber}</strong></div>
         <div class="meta">${when}</div>
         <div class="meta">${order.customer?.name || "Guest"} · ${(
           Number(order.total) || 0

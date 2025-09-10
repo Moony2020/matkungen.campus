@@ -187,11 +187,11 @@ const Customers = (() => {
     const { page, totalPages } = state;
     let html = `<button class="btn btn-outline" data-page="${page - 1}" ${
       page <= 1 ? "disabled" : ""
-    }><i class="ri-arrow-left-line"></i>Previous</button>`;
+    }><i class="ri-arrow-left-line"></i> Previous </button>`;
     html += `<span class="page-info">Page ${page} of ${totalPages}</span>`;
     html += `<button class="btn btn-outline" data-page="${page + 1}" ${
       page >= totalPages ? "disabled" : ""
-    }>Next<i class="ri-arrow-right-line"></i></button>`;
+    }> Next <i class="ri-arrow-right-line"></i></button>`;
     els.pagination.innerHTML = html;
     els.pagination.querySelectorAll("button[data-page]").forEach((btn) => {
       btn.addEventListener("click", (e) => {

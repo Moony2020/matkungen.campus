@@ -5,6 +5,7 @@
     --primary-dark: #3a56d4;
     --primary-light: #e6e9fa;
     --secondary-color: #4cc9f0;
+    --secondary-blue-light: #7a91f7;
     --hover-color: #c4ddff;
     /* Light blue */
     --accent-color: #f72585;
@@ -24,6 +25,7 @@
     /* or #A67C00 */
     --gold-crayola-hover: hwb(38 69% 4%);
     --davys-grey: hsla(30, 3%, 34%, 1);
+    --dark-grey: rgba(62, 62, 61, 0.318);
     --light-dark: rgba(67, 67, 67, 0.562);
     --quick-silver: hsla(0, 0%, 65%, 1);
     --smoky-black-1: hsla(40, 12%, 5%, 1);
@@ -54,7 +56,7 @@
     --text-lighter: #adb5bd;
     --border-color: #e9ecef;
     --light-blue-hover: #f5faff;
-    --card-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+    --card-shadow: 0 2px 15px rgba(0, 0, 0, 0.075);
     --transition: all 0.25s cubic-bezier(0.645, 0.045, 0.355, 1);
     --white: hsla(0, 0%, 100%, 1);
     --black: hsla(0, 0%, 0%, 1);
@@ -117,27 +119,6 @@
 [data-theme="dark"] .admin-header {
     color: var(--gold-crayola) !important;
     background-color: var(--dashboard-bg) !important;
-}
-
-/* Add this to your dark mode styles */
-[data-theme="dark"] .search-bar input {
-    color: var(--text-light) !important;
-    background-color: var(--card-bg) !important;
-}
-
-[data-theme="dark"] .search-bar input::placeholder {
-    color: var(--text-lighter) !important;
-}
-
-/* Add this for both modes */
-.search-bar input {
-    background: var(--card-bg);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-}
-
-.search-bar input::placeholder {
-    color: var(--text-lighter);
 }
 
 /* Base Styles */
@@ -389,8 +370,9 @@ body {
 .search-bar input {
     width: 100%;
     padding: 10px 15px 10px 40px;
-    border: 1px solid var(--border-color);
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.175);
     border-radius: 8px;
+    border: 1px solid var(--border-color) !important;
     font-size: 14px;
     background: var(--light-color);
     color: var(--text-color);
@@ -403,6 +385,16 @@ body {
     top: 50%;
     transform: translateY(-50%);
     color: var(--text-light);
+}
+
+/* search bar dark mode */
+[data-theme="dark"] .search-bar input {
+    color: var(--text-light) !important;
+    background-color: var(--card-bg) !important;
+}
+
+[data-theme="dark"] .search-bar input::placeholder {
+    color: var(--text-lighter) !important;
 }
 
 .recent-order {
@@ -1262,6 +1254,27 @@ tr:hover {
     margin-top: 10px;
 }
 
+#orders-section .select-field {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    margin: 9px 0 9px 0;
+}
+
+/* Hide native arrow, leave room for icon */
+#orders-section .select-field select {
+    appearance: none;
+    -webkit-appearance: none;
+    /* Safari/iOS */
+    -moz-appearance: none;
+    /* Firefox */
+    background-image: none !important;
+    /* Edge/Windows fallbacks */
+    padding-right: 40px;
+    /* space so text doesn't hit the icon */
+}
+
 #orders-filter {
     padding: 10px 12px;
     margin: .5rem 0 .5rem 0;
@@ -1269,9 +1282,32 @@ tr:hover {
     border-radius: 8px;
     font-size: 14px;
     background: var(--card-bg);
-    color: var(--text-color);
+    color: var(--black);
     transition: var(--transition);
     width: 130px;
+}
+
+[data-theme="dark"] #orders-section #orders-filter {
+    background: var(--card-bg-light);
+    color: var(--white);
+    border: 1px solid var(--davys-grey);
+}
+
+[data-theme="dark"] #orders-section #orders-filter:hover {
+    border-color: var(--secondary-blue-light);
+}
+
+
+#orders-section .select-field .chevron {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    /* bold/modern */
+    color: var(--black);
+    pointer-events: none;
+    /* do not block clicks */
 }
 
 #export-orders {
@@ -1284,7 +1320,8 @@ tr:hover {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-weight: 500;
+    margin-bottom: 9px;
+    font-weight: var(--weight-500);
     transition: var(--transition);
 }
 
@@ -1625,6 +1662,176 @@ tr:hover {
 #customers-table .cust-created {
     font-size: .85rem;
     opacity: .7;
+}
+
+/* ───────── Customers toolbar ───────── */
+#customers-section .section-header .actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 11px;
+}
+
+/* Search input (unchanged, for completeness) */
+#customers-section .section-header .actions input[type="search"] {
+    height: 38px;
+    min-width: 280px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--field-border, #e5e7eb);
+    background: var(--field-bg, #ffffff);
+    color: var(--field-text, #111827);
+    font-size: 14px;
+    line-height: 1;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, background-color .2s, color .2s;
+}
+
+#customers-section .section-header .actions input[type="search"]::placeholder {
+    color: var(--field-muted, #6b7280);
+}
+
+/* Wrapper to position the icon */
+#customers-section .section-header .actions .select-field {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+}
+
+/* Select: hide native arrow + leave space for icon */
+#customers-section .section-header .actions .select-field select {
+    position: relative;
+    z-index: 1;
+    /* below the icon */
+    height: 38px;
+    padding: 8px 40px 8px 12px;
+    /* right padding for icon */
+    border-radius: 10px;
+    border: 1px solid var(--field-border, #e5e7eb);
+    background: var(--field-bg, #ffffff);
+    color: var(--field-text, #111827);
+    font-size: 14px;
+    line-height: 1.1;
+    outline: none;
+    transition: border-color .2s, box-shadow .2s, background-color .2s, color .2s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none !important;
+    /* remove native arrow */
+}
+
+/* Old IE/Edge arrow */
+#customers-section .section-header .actions .select-field select::-ms-expand {
+    display: none;
+}
+
+/* The icon itself (Remix or Boxicons) */
+#customers-section .section-header .actions .select-field .chevron {
+    position: absolute;
+    z-index: 2;
+    /* above the select */
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-block;
+    width: 1rem;
+    text-align: center;
+    font-size: 18px;
+    /* bold/modern */
+    line-height: 1;
+    color: var(--black);
+    pointer-events: none;
+    /* clicks go to the select */
+}
+
+#customers-section .section-header .actions input[type="search"]:focus,
+#customers-section .section-header .actions .select-field select:focus,
+#orders-section .select-field select:focus {
+    border-color: var(--secondary-blue-light);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--secondary-blue-light) 25%, transparent);
+}
+
+/* Disabled */
+#customers-section .section-header .actions .select-field select:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+
+#customers-section #customers-search::placeholder {
+    color: var(--text-lighter);
+}
+
+[data-theme="dark"] #customers-section #customers-search::placeholder {
+    color: var(--quick-silver);
+}
+
+/* Selects styled like compact chips */
+#customers-section #customers-filter,
+#customers-section #customers-sort {
+    appearance: none;
+    height: 38px;
+    padding: 8px 34px 8px 12px;
+    /* space for arrow */
+    border: 1px solid var(--border-color, #e6e7ee);
+    border-radius: 10px;
+    background: var(--card-bg, #fff);
+    color: var(--text-color, #111);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition: box-shadow .2s, border-color .2s, background .2s;
+    /* custom arrow */
+    background-image:
+        linear-gradient(45deg, transparent 50%, var(--text-light, #8a8fa3) 50%),
+        linear-gradient(135deg, var(--text-light, #8a8fa3) 50%, transparent 50%);
+    background-position:
+        calc(100% - 20px) 50%,
+        calc(100% - 14px) 50%;
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+
+/* Dark mode — inputs and selects in Customers controls */
+[data-theme="dark"] #customers-section .section-header .actions input[type="search"] {
+    background: var(--card-bg-light);
+    border-color: var(--light-dark);
+    color: var(--white);
+}
+
+/* Dark mode — customers filter and sort */
+[data-theme="dark"] #customers-section #customers-filter,
+[data-theme="dark"] #customers-section #customers-sort {
+    background: var(--card-bg-light);
+}
+
+/* Chevron icon color on dark */
+[data-theme="dark"] #customers-section .section-header .actions .select-field .chevron,
+[data-theme="dark"] #orders-section .select-field .chevron {
+    color: var(--white);
+}
+
+/* Hover: light blue border (header, Orders, Customers) */
+.search-bar input:hover,
+#orders-section #orders-search:hover,
+#orders-section .select-field select:hover,
+#customers-section #customers-search:hover,
+#customers-section .select-field select:hover {
+    border-color: var(--secondary-blue-light) !important;
+}
+
+/* Focus: subtle blue halo everywhere (you already had this—kept consistent) */
+.search-bar input:focus,
+#orders-section #orders-search:focus,
+#orders-section .select-field select:focus,
+#customers-section #customers-search:focus,
+#customers-section .select-field select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, .15);
+    border-color: var(--secondary-blue-light) !important;
 }
 
 /* Drawer */
