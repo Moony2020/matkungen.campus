@@ -389,14 +389,14 @@ body {
 
 /* search bar dark mode */
 [data-theme="dark"] .search-bar input {
-    color: var(--text-light) !important;
+    color: var(--quick-silver);
     background: var(--card-bg-light);
     border: 1px solid var(--davys-grey);
     box-shadow: 0 0 5px rgba(255, 255, 255, 0.479);
 }
 
 [data-theme="dark"] .search-bar input::placeholder {
-    color: var(--text-lighter) !important;
+    color: var(--quick-silver) !important;
 }
 
 .recent-order {
@@ -1695,7 +1695,7 @@ tr:hover {
 }
 
 #customers-section .section-header .actions input[type="search"]::placeholder {
-    color: var(--field-muted, #6b7280);
+    color: var(--quick-silver);
 }
 
 /* Wrapper to position the icon */
