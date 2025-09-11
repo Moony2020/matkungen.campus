@@ -1277,7 +1277,7 @@ tr:hover {
     /* Firefox */
     background-image: none !important;
     /* Edge/Windows fallbacks */
-    padding-right: 40px;
+    padding-right: 25px;
     /* space so text doesn't hit the icon */
 }
 
