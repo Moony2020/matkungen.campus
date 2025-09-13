@@ -9,8 +9,11 @@
     "cors": "^2.8.5",
     "crypto": "^1.0.1",
     "dotenv": "^16.5.0",
-    "express": "^5.1.0",
+    "express": "^4.19.2",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.1.0",
     "get-stream": "^9.0.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
     "mapbox-gl": "^3.12.0",
     "mongodb": "^6.16.0",
@@ -21,7 +24,8 @@
     "puppeteer": "^24.16.0",
     "puppeteer-core": "^24.16.2",
     "socket.io": "^4.8.1",
-    "stripe": "^18.1.0"
+    "stripe": "^18.1.0",
+    "xss-clean": "^0.1.4"
   },
   "name": "matkungen",
   "version": "1.0.0",

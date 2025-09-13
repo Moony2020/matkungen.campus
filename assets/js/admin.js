@@ -140,12 +140,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Use same-origin in prod, localhost in dev
       const SOCKET_URL =
-        location.hostname === "localhost" ||
-        location.hostname.startsWith("192.168.")
-          ? "http://localhost:4000"
+        location.hostname === "localhost" || location.hostname === "127.0.0.1"
+          ? "https://localhost:4000"
           : location.origin;
 
       this.socket = io(SOCKET_URL, {
+        path: "/socket.io",
         transports: ["websocket", "polling"],
         withCredentials: true,
         auth: { token: localStorage.getItem("adminToken") },
@@ -200,7 +200,7 @@ document.addEventListener("DOMContentLoaded", function () {
         this.socket.off?.("new-order");
 
         this.socket.on("new-order", (order) => {
-          // if you only want fully paid orders, keep this guard:
+          // if you only want fully paid orders, keep this guard, but if I want any new order, even if it's pending, I can remove it
           if (order?.paymentStatus !== "Completed") return;
 
           // sound + ping on bell
@@ -388,11 +388,21 @@ document.addEventListener("DOMContentLoaded", function () {
       const table = document.getElementById("recent-orders-table");
       if (!table) return;
 
-      // Ensure header exists before adding order
+      // 1) If an "empty state" (No recent orders) or a loader exists, remove them
+      table.querySelector(".empty-state")?.remove();
+      table.querySelector(".loading-spinner")?.remove();
+
+      // 2)  Ensure header exists before adding order
       this.ensureRecentOrdersHeader();
 
+      // 3) Create the order row and insert it right after the header
       const row = this.createOrderRow(order);
-      table.insertBefore(row, table.children[1]); // Insert below header
+      const header = table.querySelector(".order-header-row");
+      if (header) {
+        table.insertBefore(row, header.nextSibling); // insert after header
+      } else {
+        table.prepend(row);
+      }
     }
 
     incrementTodayOrders() {
@@ -2389,7 +2399,7 @@ document.addEventListener("DOMContentLoaded", function () {
           Number(order.total) || 0
         ).toFixed(2)} kr</div>
       </div>
-    `;
+     `;
         li.addEventListener("click", async () => {
           this.targetOrderNumber = order.orderNumber;
           this.showSection("orders");

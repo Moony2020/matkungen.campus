@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const SOCKET_URL =
     location.hostname === "localhost" ||
     location.hostname.startsWith("192.168.")
-      ? "http://localhost:4000"
+      ? "https://localhost:4000"
       : location.origin; // e.g. https://matkungen-campus.onrender.com
 
   const socket = io(SOCKET_URL, {

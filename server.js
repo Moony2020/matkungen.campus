@@ -1,17 +1,28 @@
 // server.js
 require("dotenv").config();
+
+// ======Basic imports ======
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
-const { Server } = require("socket.io");
 const fs = require("fs");
 const http = require("http");
-const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
-const paypal = require("@paypal/checkout-server-sdk");
+const https = require("https");
+const { Server } = require("socket.io");
+
+const helmet = require("helmet");
+const rateLimit = require("express-rate-limit");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
+const cookieParser = require("cookie-parser");
+
+// ====== project imports ======
 const bcrypt = require("bcrypt");
 const cookie = require("cookie");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const paypal = require("@paypal/checkout-server-sdk");
 
 const connectDB = require("./config/db");
 const { verifyToken } = require("./config/jwt");
@@ -32,10 +43,8 @@ const APP_URL = (
   process.env.APP_URL ||
   (process.env.NODE_ENV === "production"
     ? "https://matkungen-campus.onrender.com"
-    : `http://localhost:${process.env.PORT || 4000}`)
+    : `https://localhost:${process.env.PORT || 4000}`)
 ).replace(/\/+$/, ""); // strip any trailing slash
-
-const cookieParser = require("cookie-parser");
 
 // ---------- Opening Hours ----------
 const OPENING_HOURS = {
@@ -97,18 +106,55 @@ function blockWhenClosed(req, res, next) {
 // ---------- DB ----------
 connectDB();
 
-// CORS for REST routes
-const allowedOrigins = ["http://localhost:4000", APP_URL];
+const stripSlash = (u) => (u ? u.replace(/\/+$/, "") : u);
+const allowedOrigins = [
+  process.env.APP_URL && stripSlash(process.env.APP_URL), // e.g. https://matkungen-campus.onrender.com
+  "https://localhost:4000", // mkcert local HTTPS
+  "https://127.0.0.1:4000", // optional local
+].filter(Boolean); // remove empty strings
 
 // ---------- App / Middleware ----------
 const app = express();
 
+// (optional) Disable 'X-Powered-By' header (security best practice)
+app.disable("x-powered-by");
+if (process.env.NODE_ENV === "production") app.set("trust proxy", 1);
+
 app.use(cookieParser()); // ✅ correct place (after app = express)
 
+// helper: check allowed
+function isAllowedOrigin(origin) {
+  // Allow requests with no Origin (same-origin, curl, Postman)
+  if (!origin) return true;
+  return allowedOrigins.includes(stripSlash(origin));
+}
+
+// ====== Apply CORS to REST ======
 app.use(
   cors({
-    origin: allowedOrigins, // ✅ array is fine
-    credentials: true, // ✅ needed for cookies
+    origin(origin, cb) {
+      // allow same-origin / curl / mobile webview (no Origin header)
+      return isAllowedOrigin(origin)
+        ? cb(null, true)
+        : cb(new Error("Not allowed by CORS: " + origin));
+    },
+    credentials: true, // allow session cookie from browser to pass through
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    optionsSuccessStatus: 204,
+  })
+);
+
+// (optional) Good to have: explicit preflight handler
+app.options(
+  "*",
+  cors({
+    origin(origin, cb) {
+      return isAllowedOrigin(origin)
+        ? cb(null, true)
+        : cb(new Error("Not allowed by CORS (preflight): " + origin));
+    },
+    credentials: true,
   })
 );
 
@@ -137,11 +183,12 @@ app.get("/api/debug-email", async (req, res) => {
   }
 });
 
+// ====== health/debug  ======
 app.get("/api/health", (req, res) => {
   res.json({
     ok: true,
     env: process.env.NODE_ENV,
-    appUrl: process.env.APP_URL,
+    appUrl: APP_URL,
     emailFrom: process.env.EMAIL_FROM,
   });
 });
@@ -152,24 +199,92 @@ app.use(
     index: "index.html", // default file
   })
 );
-// Trust proxy (needed behind Render/other proxies for correct headers) (before creating the http server)
-app.set("trust proxy", 1);
 
-// ---------- HTTP + Socket.IO ----------
-const server = http.createServer(app);
+// Helmet for security headers (keep CSP disabled if you use inline scripts/styles in your frontend HTML)
+app.use(
+  helmet({
+    contentSecurityPolicy: false, // Disable CSP for inline <script> / <style> would otherwise be blocked.When i remove inline scripts/styles from html, enable/switch back CSP
+    crossOriginEmbedderPolicy: false, // Disable COEP  because it breaks third-party embeds unless everything is CORS/COEP compatible.
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" }, // Allow popups (e.g., PayPal) while keeping same-origin isolation for most cases.
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // Permit loading images/fonts/media from other origins (CDNs, etc.).
+  })
+);
+
+// HSTS only in production and only when behind HTTPS
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    helmet.hsts({
+      maxAge: 15552000, // 180 days (in seconds)
+      includeSubDomains: true, // also enforce on subdomains
+      preload: false, // set to true only after submitting to hstspreload.org
+    })
+  );
+}
+
+// ====== Force HTTPS in production  (optional but good) behind proxy ======
+if (process.env.NODE_ENV === "production") {
+  app.use((req, res, next) => {
+    if (req.headers["x-forwarded-proto"] === "http") {
+      return res.redirect(301, "https://" + req.headers.host + req.originalUrl);
+    }
+    next();
+  });
+}
+
+// ====== Rate limiting (optional but good) ======
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 500, // 500 requests per order IP
+    standardHeaders: true,
+    legacyHeaders: false,
+  })
+);
+
+// Data sanitization against NoSQL injection and XSS attacks
+app.use(mongoSanitize());
+app.use(xss());
+
+// use HTTPS in local dev with mkcert? (also set APP_URL to https://localhost:4000 in .env)
+const isDev = process.env.NODE_ENV !== "production";
+let server;
+
+if (isDev) {
+  const keyPath = path.join(__dirname, "certs", "localhost-key.pem");
+  const certPath = path.join(__dirname, "certs", "localhost-cert.pem");
+
+  if (fs.existsSync(keyPath) && fs.existsSync(certPath)) {
+    server = https.createServer(
+      { key: fs.readFileSync(keyPath), cert: fs.readFileSync(certPath) },
+      app
+    );
+    console.log("🔐 Using local HTTPS (mkcert).");
+  } else {
+    server = http.createServer(app);
+    console.log("ℹ️ Certs not found → local HTTP fallback.");
+  }
+} else {
+  // على Render أو أي استضافة تدير HTTPS خارجياً: ابقِ السيرفر داخلياً HTTP
+  server = http.createServer(app);
+}
 
 // CORS for Socket.IO
 const io = new Server(server, {
-  path: "/socket.io",
+  path: "/socket.io", // keep default or customize if proxy needs
   cors: {
-    origin: allowedOrigins,
-    methods: ["GET", "POST"],
+    origin(origin, cb) {
+      return isAllowedOrigin(origin)
+        ? cb(null, true)
+        : cb(new Error("Not allowed by CORS (socket): " + origin));
+    },
     credentials: true,
+    methods: ["GET", "POST"],
   },
 });
 
 // Make io/app accessible from routes/others
 app.set("io", io);
+
 module.exports = { io, app };
 
 // ---------- Socket Handlers ----------
@@ -600,15 +715,31 @@ app.get("/api/admin/orders", adminAuth, async (req, res) => {
     }
 
     const options = {
-      page: parseInt(page, 10),
-      limit: parseInt(limit, 10),
+      page: Number(page) || 1,
+      limit: Number(limit) || 30,
       sort: { createdAt: -1 },
     };
 
-    // If you use mongoose-paginate-v2 on Order:
-    const orders = (await Order.paginate)
-      ? Order.paginate(query, options)
-      : Order.find(query).sort(options.sort).limit(options.limit);
+    // using mongoose-paginate-v2 in Order model
+    let orders;
+    if (typeof Order.paginate === "function") {
+      orders = await Order.paginate(query, options);
+    } else {
+      const docs = await Order.find(query)
+        .sort(options.sort)
+        .limit(options.limit)
+        .skip((options.page - 1) * options.limit);
+
+      const total = await Order.countDocuments(query);
+      orders = {
+        docs,
+        page: options.page,
+        totalPages: Math.ceil(total / options.limit),
+        hasPrevPage: options.page > 1,
+        hasNextPage: options.page < Math.ceil(total / options.limit),
+      };
+    }
+
     res.json({ success: true, orders });
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -785,5 +916,5 @@ app.get("/admin-reset-password/:token", (req, res) => {
 // ---------- Start ----------
 const PORT = process.env.PORT || 4000;
 server.listen(PORT, () => {
-  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`✅ Server running on https://localhost:${PORT}`);
 });

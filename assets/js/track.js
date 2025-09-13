@@ -4,7 +4,7 @@ let orderNumber = null;
 // ✅ Dynamic socket URL: localhost in dev, live URL in prod
 const SOCKET_URL =
   location.hostname === "localhost" || location.hostname.startsWith("192.168.")
-    ? "http://localhost:4000"
+    ? "https://localhost:4000"
     : location.origin;
 
 const socket = io(SOCKET_URL, { transports: ["websocket", "polling"] });

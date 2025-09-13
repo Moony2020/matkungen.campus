@@ -2,7 +2,6 @@
 const nodemailer = require("nodemailer");
 
 const {
-  NODE_ENV,
   EMAIL_USER,
   EMAIL_PASS,
   EMAIL_FROM, // e.g. "Matkungen <mymoon676@gmail.com>"
