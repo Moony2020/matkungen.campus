@@ -673,7 +673,7 @@ Sun:           12:00–22:00
         const product = {
           name: productName,
           price: selectedSize ? selectedSize.price : menuItemData.price,
-          img: menuItemData.image || "./assets/images/default-food.jpg",
+          img: menuItemData.image || "/assets/images/default-food.jpg",
         };
 
         // Button Animation
@@ -711,7 +711,7 @@ Sun:           12:00–22:00
       const price = selectedSize
         ? selectedSize.price
         : parseFloat(btn.dataset.price) || 0;
-      const productImg = btn.dataset.img || "./assets/images/default-food.jpg";
+      const productImg = btn.dataset.img || "/assets/images/default-food.jpg";
 
       const product = { name: productName, price, img: productImg };
 
@@ -1846,7 +1846,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       <head>
         <title>Order Receipt - ${currentOrder.orderNumber || ""}</title>
         <base href="${location.origin}/">
-        <link rel="stylesheet" href="assets/css/style.css">
+        <link rel="stylesheet" href="/assets/css/style.css">
       </head>
 
       <body class="print-view">
@@ -2597,7 +2597,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
             <div class="cart-item">
               <div class="cart-item-image">
                 <img src="${
-                  item.img || "./assets/images/default-food.jpg"
+                  item.img || "/assets/images/default-food.jpg"
                 }" alt="${item.name}">
               </div>
               <div class="cart-item-details">
@@ -2754,7 +2754,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
                     (item) => `
                   <div class="order-item-detail">
                     <img src="${
-                      item.img || "./assets/images/default-food.jpg"
+                      item.img || "/assets/images/default-food.jpg"
                     }" width="50" height="50" alt="${item.name}">
                     <div class="item-info">
                       <span class="item-name">${item.name}</span>
@@ -3124,7 +3124,7 @@ let menuItems = [];
 
 async function loadMenuItems() {
   try {
-    const response = await fetch("./assets/data/menuItems.json");
+    const response = await fetch("/assets/data/menuItems.json");
     if (!response.ok) throw new Error("Could not load menu data");
     menuItems = await response.json();
     initGlobalSearch(); // Run your search setup AFTER loading data!
@@ -3303,7 +3303,7 @@ function addItemWithModifiers() {
   const cartItem = {
     name: fullProductName,
     price: parseFloat(document.querySelector(".total-price").textContent),
-    img: modifierState.currentItem.image || "./assets/images/default-food.jpg",
+    img: modifierState.currentItem.image || "/assets/images/default-food.jpg",
   };
 
   // Add to cart

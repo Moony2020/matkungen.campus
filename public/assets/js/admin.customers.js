@@ -1,4 +1,4 @@
-// assets/js/admin.customers.js
+// public/assets/js/admin.customers.js
 // Lightweight Customers UI controller. Works alongside your main admin.js.
 
 const $ = (sel, parent = document) => parent.querySelector(sel);

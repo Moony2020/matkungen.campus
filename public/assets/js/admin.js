@@ -1378,7 +1378,7 @@ document.addEventListener("DOMContentLoaded", function () {
     <html>
     <head>
       <title>Order Receipt - ${order.orderNumber || ""}</title>
-      <link rel="stylesheet" href="./assets/css/style.css">
+      <link rel="stylesheet" href="/assets/css/style.css">
     </head>
     <body class="print-view">
       <div class="confirmation-card">
@@ -2393,7 +2393,7 @@ document.addEventListener("DOMContentLoaded", function () {
         li.innerHTML = `
       <div><i class="ri-shopping-bag-2-line"></i></div>
       <div>
-        <div><strong>rder #${order.orderNumber}</strong></div>
+        <div><strong>Order #${order.orderNumber}</strong></div>
         <div class="meta">${when}</div>
         <div class="meta">${order.customer?.name || "Guest"} · ${(
           Number(order.total) || 0

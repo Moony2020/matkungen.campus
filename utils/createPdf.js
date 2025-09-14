@@ -185,10 +185,27 @@ async function createReceiptPdf(order) {
     // 1) HTML
     await page.setContent(receiptHtml(order), { waitUntil: "networkidle0" });
 
-    // 2) Your site CSS (so variables like --gold-crayola exist)
-    const cssPath = path.join(__dirname, "..", "assets", "css", "style.css");
-    const css = fs.readFileSync(cssPath, "utf8");
-    await page.addStyleTag({ content: css });
+    // 2) Load your site CSS from the new public/ path
+    const cssCandidates = [
+      path.join(__dirname, "..", "public", "assets", "css", "style.css"),
+      path.join(__dirname, "..", "assets", "css", "style.css"), // fallback if someone still has old layout
+    ];
+
+    let css = "";
+    for (const p of cssCandidates) {
+      if (fs.existsSync(p)) {
+        css = fs.readFileSync(p, "utf8");
+        break;
+      }
+    }
+
+    if (css) {
+      await page.addStyleTag({ content: css });
+    } else {
+      console.warn(
+        "⚠️ PDF: style.css not found (continuing without site CSS)."
+      );
+    }
 
     // 3) PDF-only overrides: inline rows, darker gold labels, centered header, topline on Betalningsmetod
     await page.addStyleTag({
@@ -258,6 +275,7 @@ async function createReceiptPdf(order) {
       printBackground: true,
       margin: { top: "12mm", right: "12mm", bottom: "12mm", left: "12mm" },
     });
+    console.log("✅ PDF created successfully");
     return pdfBuffer;
   } finally {
     await browser.close();

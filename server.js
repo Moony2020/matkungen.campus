@@ -159,10 +159,16 @@ app.options(
 );
 
 app.use(express.json());
-// 📂  static files if im going to move all html and assets to public file an remove the below assets and html
-// app.use(express.static(path.join(__dirname, "public")));
-// 📂  assets all (images, JS, CSS …)
-app.use("/assets", express.static(path.join(__dirname, "assets")));
+// 📂
+// Serve only the public folder "assets all (images, JS, CSS and html files…)"
+app.use(
+  "/assets",
+  express.static(path.join(__dirname, "public", "assets"), {
+    maxAge: "7d", // light caching for static files
+    etag: true,
+  })
+);
+
 // ---------- TEMP DEBUG ROUTES ----------
 app.get("/api/debug-email", async (req, res) => {
   try {
@@ -194,8 +200,8 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use(
-  express.static(__dirname, {
-    extensions: ["html"], //   /checkout instead of checkout.html
+  express.static(path.join(__dirname, "public"), {
+    extensions: ["html"], // serve index.html for /checkout etc.
     index: "index.html", // default file
   })
 );
@@ -445,7 +451,7 @@ function buildOrderEmailHtml(order) {
   return `
   <div style="max-width:600px;margin:auto;font-family:'Segoe UI',sans-serif;color:#333;background:#fff;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;">
     <div style="background:#000;padding:20px;text-align:center;">
-      <img src="https://matkungen-campus.onrender.com/assets/images/logo.png" alt="Matkungen" style="height:60px;" onerror="this.style.display='none';" />
+      <img src="${APP_URL}/assets/images/logo.png" alt="Matkungen" style="height:60px;" onerror="this.style.display='none';" />
       <h2 style="margin:10px 0 0;color:#FFD700;">Matkungen</h2>
     </div>
 
@@ -521,13 +527,17 @@ app.use("/api/orders", orderRoutes); // mount ONCE
 app.use("/api/admin", adminRoutes);
 
 // Public pages
-app.get("/", (_, res) => res.sendFile(path.join(__dirname, "index.html")));
-app.get("/admin", (_, res) => res.sendFile(path.join(__dirname, "admin.html")));
+app.get("/", (_, res) =>
+  res.sendFile(path.join(__dirname, "public", "index.html"))
+);
+app.get("/admin", (_, res) =>
+  res.sendFile(path.join(__dirname, "public", "admin.html"))
+);
 app.get("/payment", (_, res) =>
-  res.sendFile(path.join(__dirname, "payment.html"))
+  res.sendFile(path.join(__dirname, "public", "payment.html"))
 );
 app.get("/reset-password/:token", (req, res) => {
-  res.sendFile(path.join(__dirname, "reset-password.html"));
+  res.sendFile(path.join(__dirname, "public", "reset-password.html"));
 });
 
 // ---------- Config endpoint ----------
@@ -910,7 +920,7 @@ app.put("/api/reset-password/:token", async (req, res) => {
 
 // Admin reset password page
 app.get("/admin-reset-password/:token", (req, res) => {
-  res.sendFile(path.join(__dirname, "admin-reset-password.html"));
+  res.sendFile(path.join(__dirname, "public", "admin-reset-password.html"));
 });
 
 // ---------- Start ----------
