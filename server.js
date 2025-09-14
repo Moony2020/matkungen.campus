@@ -124,20 +124,25 @@ app.use(cookieParser()); // ✅ correct place (after app = express)
 
 // helper: check allowed
 function isAllowedOrigin(origin) {
-  // Allow requests with no Origin (same-origin, curl, Postman)
-  if (!origin) return true;
-  return allowedOrigins.includes(stripSlash(origin));
+  if (!origin) return true; // same-origin/curl/Postman
+  const clean = stripSlash(origin);
+  // optionally allow *.onrender.com subdomains:
+  try {
+    const { hostname } = new URL(clean);
+    if (hostname.endsWith(".onrender.com")) return true; // optional
+  } catch {
+    /* ignore */
+  }
+  return allowedOrigins.includes(clean);
 }
 
 // ====== Apply CORS to REST ======
 app.use(
   cors({
     origin(origin, cb) {
-      // allow same-origin / curl / mobile webview (no Origin header)
-      return isAllowedOrigin(origin)
-        ? cb(null, true)
-        : cb(new Error("Not allowed by CORS: " + origin));
-    },
+      if (!origin) return cb(null, true);
+      cb(null, isAllowedOrigin(origin));
+    }, // allow requests from allowed origins
     credentials: true, // allow session cookie from browser to pass through
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
@@ -279,9 +284,8 @@ const io = new Server(server, {
   path: "/socket.io", // keep default or customize if proxy needs
   cors: {
     origin(origin, cb) {
-      return isAllowedOrigin(origin)
-        ? cb(null, true)
-        : cb(new Error("Not allowed by CORS (socket): " + origin));
+      if (!origin) return cb(null, true);
+      cb(null, isAllowedOrigin(origin));
     },
     credentials: true,
     methods: ["GET", "POST"],
