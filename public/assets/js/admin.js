@@ -1732,6 +1732,364 @@ document.addEventListener("DOMContentLoaded", function () {
    `;
       return modal;
     }
+    // ===== MENU =====
+    menuState = { items: [], editing: null };
+
+    async loadMenu() {
+      try {
+        const params = new URLSearchParams();
+        const cat = document.getElementById("menu-filter-category")?.value;
+        const q = document.getElementById("menu-search")?.value?.trim();
+        if (cat) params.set("category", cat);
+        if (q) params.set("q", q);
+
+        const res = await fetch(`/api/admin/menu?${params.toString()}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || "Failed");
+
+        this.menuState.items = data.items || [];
+        this.renderMenuList();
+      } catch (e) {
+        console.error(e);
+        const list = document.getElementById("menu-list");
+        if (list)
+          list.innerHTML =
+            '<div class="empty-state">Failed to load menu.</div>';
+      }
+    }
+    renderMenuList() {
+      const list = document.getElementById("menu-list");
+      if (!list) return;
+
+      if (!this.menuState.items.length) {
+        list.innerHTML = '<div class="empty-state">No items found.</div>';
+        return;
+      }
+
+      list.innerHTML = this.menuState.items
+        .map((it) => {
+          const sizesStr =
+            it.sizes && it.sizes.length
+              ? `<div class="muted">Sizes: ${it.sizes
+                  .map((s) => `${s.name} (${Number(s.price).toFixed(2)} kr)`)
+                  .join(", ")}</div>`
+              : "";
+          const groupsStr =
+            it.modifiers && it.modifiers.length
+              ? `<div class="muted">Groups: ${it.modifiers
+                  .map((g) => g.name)
+                  .join(", ")}</div>`
+              : "";
+
+          return `
+        <div class="order-card">
+          <div class="order-header">
+            <span class="order-number">${it.name}</span>
+            <span class="order-date">${Number(it.price ?? 0).toFixed(
+              2
+            )} kr</span>
+          </div>
+
+          <div class="cart-item">
+            <div class="cart-item-image">
+              <img src="${
+                it.imageUrl || "/assets/images/default-food.jpg"
+              }" alt="${it.name}">
+            </div>
+            <div class="cart-item-details">
+              <h4>${it.name}</h4>
+              <div class="muted">${it.category || ""}</div>
+              <p>${it.description || ""}</p>
+              ${sizesStr}
+              ${groupsStr}
+            </div>
+          </div>
+
+          <div class="card-actions">
+            <button class="btn" data-edit="${it._id}">Edit</button>
+            <button class="btn btn-danger" data-del="${it._id}">Delete</button>
+          </div>
+        </div>
+      `;
+        })
+        .join("");
+
+      // wire buttons
+      list.querySelectorAll("[data-edit]").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          this.openMenuModal(btn.dataset.edit)
+        );
+      });
+      list.querySelectorAll("[data-del]").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          this.deleteMenuItem(btn.dataset.del)
+        );
+      });
+    }
+
+    async openMenuModal(id = null) {
+      const modal = document.getElementById("menu-modal");
+      const form = document.getElementById("menu-form");
+      form.reset();
+      form._id.value = id || "";
+
+      document.getElementById("sizes-container").innerHTML = "";
+      document.getElementById("modifiers-container").innerHTML = "";
+
+      document.getElementById("menu-modal-title").textContent = id
+        ? "Edit Item"
+        : "New Menu Item";
+
+      let existing = null;
+      if (id) {
+        const res = await fetch(`/api/admin/menu/${id}`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+        });
+        const data = await res.json();
+        if (data.success) existing = data.item;
+      }
+
+      if (existing) {
+        form.name.value = existing.name || "";
+        form.category.value = existing.category || "pizza";
+        form.price.value = existing.price ?? 0;
+        form.description.value = existing.description || "";
+        (existing.sizes || []).forEach((s) => this.addSizeRow(s.name, s.price));
+        (existing.modifiers || []).forEach((g) => this.addModifierGroup(g));
+      }
+
+      document.getElementById("add-size").onclick = () => this.addSizeRow();
+      document.getElementById("add-mod-group").onclick = () =>
+        this.addModifierGroup();
+      document.getElementById("menu-cancel").onclick = () =>
+        (modal.style.display = "none");
+      form.onsubmit = (e) => this.submitMenuForm(e);
+
+      modal.style.display = "flex";
+    }
+
+    addSizeRow(name = "", price = 0) {
+      const wrap = document.createElement("div");
+      wrap.className = "row-inline";
+      wrap.innerHTML = `
+    <input class="size-name" placeholder="Size name" value="${name}">
+    <input class="size-price" type="number" step="0.01" placeholder="Price" value="${price}">
+    <button type="button" class="btn btn-danger btn-sm">&times;</button>
+  `;
+      wrap.querySelector("button").onclick = () => wrap.remove();
+      document.getElementById("sizes-container").appendChild(wrap);
+    }
+
+    addModifierGroup(group = null) {
+      const wrap = document.createElement("div");
+      wrap.className = "subcard";
+      wrap.innerHTML = `
+    <div class="subcard-header">
+      <input class="mod-name" placeholder="Group name" value="${
+        group?.name || ""
+      }" />
+      <label class="muted">required <input class="mod-required" type="checkbox" ${
+        group?.required ? "checked" : ""
+      }></label>
+      <input class="mod-min" type="number" min="0" placeholder="min" value="${
+        group?.min ?? 0
+      }">
+      <input class="mod-max" type="number" min="0" placeholder="max (0 = no limit)" value="${
+        group?.max ?? 0
+      }">
+      <button type="button" class="btn btn-outline btn-sm add-option">+ Option</button>
+      <button type="button" class="btn btn-danger btn-sm remove-group">Remove Group</button>
+    </div>
+    <div class="options"></div>
+  `;
+      const options = wrap.querySelector(".options");
+      wrap.querySelector(".add-option").onclick = () => {
+        const row = document.createElement("div");
+        row.className = "row-inline";
+        row.innerHTML = `
+      <input class="opt-name" placeholder="Option name">
+      <input class="opt-price" type="number" step="0.01" placeholder="Price" value="0">
+      <button type="button" class="btn btn-danger btn-sm">&times;</button>
+    `;
+        row.querySelector("button").onclick = () => row.remove();
+        options.appendChild(row);
+      };
+      wrap.querySelector(".remove-group").onclick = () => wrap.remove();
+
+      (group?.options || []).forEach((o) => {
+        const row = document.createElement("div");
+        row.className = "row-inline";
+        row.innerHTML = `
+      <input class="opt-name" placeholder="Option name" value="${o.name}">
+      <input class="opt-price" type="number" step="0.01" placeholder="Price" value="${o.price}">
+      <button type="button" class="btn btn-danger btn-sm">&times;</button>
+    `;
+        row.querySelector("button").onclick = () => row.remove();
+        options.appendChild(row);
+      });
+
+      document.getElementById("modifiers-container").appendChild(wrap);
+    }
+
+    async submitMenuForm(e) {
+      e.preventDefault();
+      const form = e.target;
+
+      const sizes = [
+        ...document.querySelectorAll("#sizes-container .row-inline"),
+      ]
+        .map((row) => ({
+          name: row.querySelector(".size-name").value.trim(),
+          price: Number(row.querySelector(".size-price").value || 0),
+        }))
+        .filter((s) => s.name);
+
+      const modifiers = [
+        ...document.querySelectorAll("#modifiers-container .subcard"),
+      ]
+        .map((sc) => {
+          const options = [...sc.querySelectorAll(".options .row-inline")]
+            .map((r) => ({
+              name: r.querySelector(".opt-name").value.trim(),
+              price: Number(r.querySelector(".opt-price").value || 0),
+            }))
+            .filter((o) => o.name);
+          return {
+            name: sc.querySelector(".mod-name").value.trim(),
+            required: sc.querySelector(".mod-required").checked,
+            min: Number(sc.querySelector(".mod-min").value || 0),
+            max: Number(sc.querySelector(".mod-max").value || 0),
+            options,
+          };
+        })
+        .filter((g) => g.name);
+
+      const payload = {
+        name: form.name.value.trim(),
+        category: form.category.value,
+        description: form.description.value.trim(),
+        price: Number(form.price.value || 0),
+        sizes,
+        modifiers,
+        isActive: true,
+      };
+
+      const fd = new FormData();
+      fd.append("data", JSON.stringify(payload));
+      if (form.image.files[0]) fd.append("image", form.image.files[0]);
+
+      const isEdit = !!form._id.value;
+      const url = isEdit
+        ? `/api/admin/menu/${form._id.value}`
+        : "/api/admin/menu";
+      const method = isEdit ? "PUT" : "POST";
+
+      try {
+        const res = await fetch(url, {
+          method,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+          body: fd,
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || "Save failed");
+        this.showNotification("✅ Saved");
+        document.getElementById("menu-modal").style.display = "none";
+        this.loadMenu();
+      } catch (err) {
+        console.error(err);
+        this.showNotification("❌ Failed to save item", true);
+      }
+    }
+
+    async deleteMenuItem(id) {
+      if (!confirm("Delete this item?")) return;
+      try {
+        const res = await fetch(`/api/admin/menu/${id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || "Delete failed");
+        this.showNotification("✅ Deleted");
+        this.loadMenu();
+      } catch (e) {
+        this.showNotification("❌ Failed to delete", true);
+      }
+    }
+    // ===== SETTINGS =====
+    async loadSettings() {
+      const token = localStorage.getItem("adminToken");
+      const fetchKey = async (key) => {
+        const r = await fetch(`/api/admin/settings/${key}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const j = await r.json();
+        return j.value || {};
+      };
+
+      try {
+        const store = await fetchKey("store");
+        const biz = await fetchKey("business");
+        const ui = await fetchKey("ui");
+
+        const el = (id) => document.getElementById(id);
+        el("setting-store-mode").value = store.mode || "auto";
+        el("setting-tax").value = biz.taxRate ?? 0;
+        el("setting-delivery-fee").value = biz.deliveryFee ?? 0;
+        el("setting-sound").value =
+          ui.sound || localStorage.getItem("sound") || "on";
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async saveSettings() {
+      const token = localStorage.getItem("adminToken");
+      const postKey = (key, value) =>
+        fetch(`/api/admin/settings/${key}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ value }),
+        });
+
+      const storeMode = document.getElementById("setting-store-mode").value;
+      const taxRate = Number(document.getElementById("setting-tax").value || 0);
+      const deliveryFee = Number(
+        document.getElementById("setting-delivery-fee").value || 0
+      );
+      const sound = document.getElementById("setting-sound").value;
+
+      try {
+        await Promise.all([
+          postKey("store", { mode: storeMode }),
+          postKey("business", { taxRate, deliveryFee }),
+          postKey("ui", { sound }),
+        ]);
+        localStorage.setItem("sound", sound);
+        const s = document.getElementById("settings-status");
+        if (s) {
+          s.textContent = "Saved ✓";
+          setTimeout(() => (s.textContent = ""), 1500);
+        }
+        this.showNotification("✅ Settings saved");
+      } catch (e) {
+        console.error(e);
+        this.showNotification("❌ Failed to save settings", true);
+      }
+    }
 
     showAssignDriverModal(orderId) {
       const modal = document.createElement("div");
@@ -2280,6 +2638,23 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
+      // ===== MENU (D.1) wire filter/search/new =====
+      document
+        .getElementById("menu-new")
+        ?.addEventListener("click", () => this.openMenuModal());
+      document
+        .getElementById("menu-filter-category")
+        ?.addEventListener("change", () => this.loadMenu());
+      document.getElementById("menu-search")?.addEventListener("input", () => {
+        clearTimeout(this._menuDebounce);
+        this._menuDebounce = setTimeout(() => this.loadMenu(), 300);
+      });
+
+      // ===== SETTINGS (E.1) wire save button =====
+      document
+        .getElementById("settings-save")
+        ?.addEventListener("click", () => this.saveSettings());
+
       // ---------- Logout ----------
       document.getElementById("logout-btn").addEventListener("click", () => {
         localStorage.removeItem("adminToken");
@@ -2564,9 +2939,16 @@ document.addEventListener("DOMContentLoaded", function () {
         case "orders":
           this.loadOrders?.();
           break;
-        case "customers":
-          this.loadCustomersTable?.(); // add this function in your admin.js
+        case "menu":
+          this.loadMenu?.();
           break;
+        case "customers":
+          this.loadCustomersTable?.();
+          break;
+        case "settings":
+          this.loadSettings?.();
+          break;
+
         // add cases for other sections if you have them:
         // case "products": this.loadProducts?.(); break;
         default:

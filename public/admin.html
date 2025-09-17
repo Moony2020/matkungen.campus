@@ -27,7 +27,7 @@
       rel="stylesheet"
     />
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/assets/css/admin.css" />
+    <link rel="stylesheet" href="/assets/css/admin.css?v=dev-1699999999" />
   </head>
 
   <body>
@@ -67,11 +67,6 @@
                 >0</span
               >
             </li>
-
-            <li data-section="analytics">
-              <a href="#"><i class="ri-bar-chart-line"></i> Analytics</a>
-            </li>
-
             <li data-section="settings">
               <a href="#"><i class="ri-settings-line"></i> Settings</a>
             </li>
@@ -93,7 +88,7 @@
         </div>
       </aside>
 
-      <!-- Main Content Area -->
+      <!-- ============ MAIN CONTENT ============ -->
 
       <main class="main-content">
         <header class="admin-header">
@@ -137,8 +132,12 @@
           </div>
         </header>
 
-        <!-- Dashboard Section -->
-        <section id="dashboard-section" class="content-section active">
+        <!-- ===== DASHBOARD ===== -->
+        <section
+          id="dashboard-section"
+          class="content-section active"
+          data-title="Dashboard"
+        >
           <div class="stats-grid">
             <div class="stat-card">
               <div class="stat-icon">
@@ -279,16 +278,17 @@
           </div>
         </section>
 
-        <!-- Orders Management Section -->
-        <section id="orders-section" class="content-section">
+        <!-- ===== ORDERS ===== -->
+        <section
+          id="orders-section"
+          class="content-section"
+          data-title="Order Management"
+        >
           <div class="orders-header">
-            <h2>Order Management</h2>
-
             <div class="orders-actions">
               <div class="search-filter">
                 <div class="search-bar">
                   <i class="ri-search-line"></i>
-
                   <input
                     type="text"
                     placeholder="Search orders..."
@@ -342,8 +342,124 @@
           </div>
         </section>
 
-        <!-- Customers Section -->
-        <section id="customers-section" class="content-section">
+        <!-- ================== MENU SECTION ================== -->
+        <section
+          id="menu-section"
+          class="content-section"
+          data-title="Menu Manager"
+        >
+          <div class="card">
+            <div class="card-header">
+              <div class="actions">
+                <input
+                  id="menu-search"
+                  type="search"
+                  placeholder="Search items..."
+                />
+                <div class="select-field">
+                  <select id="menu-filter-category">
+                    <option value="">All Categories</option>
+                    <option value="pizza">Pizzor</option>
+                    <option value="burgers">Burger</option>
+                    <option value="salads">Sallader</option>
+                    <option value="rolls">Rullar</option>
+                    <option value="dishes">Tallrikar</option>
+                    <option value="box">Box</option>
+                    <option value="pita-bread">Pitabröd</option>
+                    <option value="addition-menu">Tillbehör</option>
+                    <option value="drinks">Drycker</option>
+                  </select>
+                  <i
+                    class="ri-arrow-down-s-fill chevron"
+                    aria-hidden="true"
+                  ></i>
+                </div>
+                <button id="menu-new" class="btn btn-primary">
+                  + New Item
+                </button>
+              </div>
+            </div>
+            <div id="menu-list" class="menu-list"></div>
+          </div>
+
+          <!-- Create/Edit modal -->
+          <div id="menu-modal" class="modal" style="display: none">
+            <div class="modal-content">
+              <h3 id="menu-modal-title">New Menu Item</h3>
+              <form id="menu-form">
+                <div class="form-grid">
+                  <label>Name <input name="name" required /></label>
+                  <label
+                    >Category
+                    <select name="category" required>
+                      <option value="pizza">Pizzor</option>
+                      <option value="burgers">Burger</option>
+                      <option value="salads">Sallader</option>
+                      <option value="rolls">Rullar</option>
+                      <option value="dishes">Tallrikar</option>
+                      <option value="box">Box</option>
+                      <option value="pita-bread">Pitabröd</option>
+                      <option value="addition-menu">Tillbehör</option>
+                      <option value="drinks">Drycker</option>
+                    </select>
+                  </label>
+                  <label
+                    >Base Price
+                    <input name="price" type="number" step="0.01" value="0"
+                  /></label>
+                  <label
+                    >Image <input name="image" type="file" accept="image/*"
+                  /></label>
+                  <label
+                    >Description
+                    <textarea name="description" rows="3"></textarea>
+                  </label>
+                </div>
+
+                <div class="subcard">
+                  <div class="subcard-header">
+                    <h4>Sizes (optional)</h4>
+                    <button type="button" id="add-size" class="btn btn-outline">
+                      + Add size
+                    </button>
+                  </div>
+                  <div id="sizes-container"></div>
+                </div>
+
+                <div class="subcard">
+                  <div class="subcard-header">
+                    <h4>Modifier Groups</h4>
+                    <button
+                      type="button"
+                      id="add-mod-group"
+                      class="btn btn-outline"
+                    >
+                      + Add group
+                    </button>
+                  </div>
+                  <div id="modifiers-container"></div>
+                </div>
+
+                <div class="modal-actions">
+                  <button type="button" id="menu-cancel" class="btn">
+                    Cancel
+                  </button>
+                  <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+                <input type="hidden" name="_id" />
+              </form>
+            </div>
+          </div>
+        </section>
+
+        <!-- Drivers Section later -->
+
+        <!-- ===== CUSTOMERS ===== -->
+        <section
+          id="customers-section"
+          class="content-section"
+          data-title="Customers"
+        >
           <div class="section-header">
             <div class="actions">
               <input
@@ -407,8 +523,73 @@
             </div>
           </div>
         </section>
+        <!-- ===== SETTINGS ===== -->
+        <section
+          id="settings-section"
+          class="content-section"
+          data-title="Settings"
+        >
+          <div class="card">
+            <div class="settings-grid">
+              <div class="setting-item">
+                <label>Store Mode</label>
+                <div class="select-field">
+                  <select id="setting-store-mode" name="storeMode">
+                    <option value="open">Open</option>
+                    <option value="closed">Closed</option>
+                    <option value="busy">Busy</option>
+                  </select>
+                  <i
+                    class="ri-arrow-down-s-fill chevron"
+                    aria-hidden="true"
+                  ></i>
+                </div>
+                <small>Temporarily override opening hours.</small>
+              </div>
 
-        <!-- Other sections would follow the same pattern -->
+              <div class="setting-item">
+                <label>Tax Rate (%)</label>
+                <input id="setting-tax" type="number" min="0" step="0.1" />
+                <small>Used for reporting/receipts.</small>
+              </div>
+
+              <div class="setting-item">
+                <label>Delivery Fee (kr)</label>
+                <input
+                  id="setting-delivery-fee"
+                  type="number"
+                  min="0"
+                  step="1"
+                />
+                <small>Default delivery fee for new orders.</small>
+              </div>
+
+              <div class="setting-item">
+                <label>Sound</label>
+                <div class="select-field">
+                  <select id="setting-sound">
+                    <option value="on">On</option>
+                    <option value="off">Off</option>
+                  </select>
+                  <i
+                    class="ri-arrow-down-s-fill chevron"
+                    aria-hidden="true"
+                  ></i>
+                </div>
+                <small>Admin notification sound toggle.</small>
+              </div>
+            </div>
+
+            <div style="margin-top: 16px">
+              <button id="settings-save" class="btn btn-primary">
+                Save Settings
+              </button>
+              <span id="settings-status" class="muted"></span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Other sections would follow the same pattern if needed -->
       </main>
     </div>
     <!-- Delete orders Modal/message -->

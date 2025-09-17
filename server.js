@@ -37,6 +37,8 @@ const adminAuth = require("./middleware/adminAuth");
 // Utility functions for PDF and email
 const createReceiptPdf = require("./utils/createPdf");
 const { sendOrderEmail } = require("./utils/sendEmail"); // uses its own transporter or you can wire to the above
+const menuRoutes = require("./routes/menu");
+const settingsRoutes = require("./routes/settings");
 
 // ---------- APP_URL base URL (single source of truth) ----------
 const APP_URL = (
@@ -136,6 +138,20 @@ function isAllowedOrigin(origin) {
   return allowedOrigins.includes(clean);
 }
 
+app.use(express.json());
+// serve uploads statically
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "public", "uploads"), {
+    maxAge: "30d",
+    etag: true,
+  })
+);
+
+// mount admin APIs
+app.use("/api/admin/menu", menuRoutes);
+app.use("/api/admin/settings", settingsRoutes);
+
 // ====== Apply CORS to REST ======
 app.use(
   cors({
@@ -163,15 +179,27 @@ app.options(
   })
 );
 
-app.use(express.json());
 // 📂
 // Serve only the public folder "assets all (images, JS, CSS and html files…)"
+const dev = process.env.NODE_ENV !== "production";
+
 app.use(
   "/assets",
-  express.static(path.join(__dirname, "public", "assets"), {
-    maxAge: "7d", // light caching for static files
-    etag: true,
-  })
+  express.static(
+    path.join(__dirname, "public", "assets"),
+    dev
+      ? {
+          etag: false,
+          lastModified: false,
+          maxAge: 0,
+          setHeaders: (res) => res.set("Cache-Control", "no-store"),
+        }
+      : {
+          etag: true,
+          lastModified: true,
+          maxAge: "7d",
+        }
+  )
 );
 
 // ---------- TEMP DEBUG ROUTES ----------
@@ -275,7 +303,7 @@ if (isDev) {
     console.log("ℹ️ Certs not found → local HTTP fallback.");
   }
 } else {
-  // على Render أو أي استضافة تدير HTTPS خارجياً: ابقِ السيرفر داخلياً HTTP
+  // production: plain HTTP (behind proxy that does HTTPS)
   server = http.createServer(app);
 }
 
