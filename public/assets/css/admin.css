@@ -78,6 +78,7 @@
     --fontSize-label-1: 1.4rem;
     --fontSize-label-2: 1.2rem;
     --fontSize-label-3: 1rem;
+    --fontSize-label-4: .8rem;
     /* font-weight */
     --weight-regular: 400;
     --weight-500: 500;
@@ -1266,12 +1267,15 @@ tr:hover {
     margin-top: 10px;
 }
 
+#settings-section .select-field,
+#menu-section .select-field,
 #orders-section .select-field {
     position: relative;
-    display: inline-flex;
-    align-items: center;
-    height: 38px;
-    margin: 9px 0 9px 0;
+    /* the anchor for absolute chevron */
+    display: inline-block;
+    /* avoid strange line-wrap behaviors */
+    width: auto;
+    /* we'll override per-case , fix the chevron inside the select */
 }
 
 #menu-section .card .card-header {
@@ -1287,8 +1291,19 @@ tr:hover {
     flex-wrap: wrap;
 }
 
+#menu-section #menu-search {
+    height: 38px;
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--card-bg);
+    color: var(--text-color);
+    width: clamp(220px, 32vw, 360px);
+}
+
 #menu-section .card .card-header .actions .select-field {
-    position: relative;
+    /* category */
+    flex: 0 0 160px;
 }
 
 #menu-section .card .card-header .actions input[type="search"] {
@@ -1301,11 +1316,491 @@ tr:hover {
     color: var(--text-color);
 }
 
+/* ---------- MENU: item grid (3 per row, responsive) ---------- */
+#menu-section .menu-list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    align-items: stretch;
+    justify-items: stretch;
+    justify-content: start;
+}
+
+/* 2 cols tablet, 1 col mobile */
+@media (max-width:1100px) {
+    #menu-section .menu-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width:640px) {
+    #menu-section .menu-list {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Cards stay tidy & equal looking */
+#menu-section .order-card {
+    background: var(-);
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    min-height: 520px;
+    /* keep similar visual height */
+    transition: transform .2s, box-shadow .2s;
+}
+
+#menu-section .order-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+#menu-section .order-card .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#menu-section .order-card .order-number {
+    font-weight: var(--weight-600);
+    font-size: var(--fontSize-3);
+}
+
+#menu-section .order-card .order-date {
+    font-weight: var(--weight-bold);
+    color: var(--secondary-blue-light);
+    font-size: var(--fontSize-label-4);
+}
+
+#menu-section .order-card .cart-item {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    flex: 1 1 auto;
+}
+
+#menu-section .order-card .cart-item-image {
+    width: 100%;
+    aspect-ratio: 4/3;
+    overflow: hidden;
+    border-radius: 10px;
+    background: var(--card-bg);
+}
+
+#menu-section .order-card .cart-item-image img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    transition: transform .25s;
+}
+
+#menu-section .order-card:hover .cart-item-image img {
+    transform: scale(1.02);
+}
+
+#menu-section .order-card .cart-item-details h4 {
+    margin: 0 0 6px;
+    font-size: 1.05rem;
+}
+
+#menu-section .order-card .cart-item-details .muted {
+    font-size: .86rem;
+    opacity: .75;
+}
+
+#menu-section .order-card .cart-item-details p {
+    margin: 8px 0 0;
+    font-size: .95rem;
+    line-height: 1.5;
+}
+
+#menu-section .order-card .card-actions {
+    margin-top: auto;
+    padding: 12px 16px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--border-color);
+}
+
+#menu-section .order-card .card-actions .btn {
+    flex: 0 0 auto;
+    min-width: 92px;
+}
+
+#menu-section .empty-state {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 24px;
+    opacity: .7;
+}
+
+/* ===================== MODAL ===================== */
+#menu-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, .45);
+    z-index: 9999;
+    padding: 20px;
+}
+
+#menu-modal.show {
+    display: flex !important;
+}
+
+#menu-modal .modal-content {
+    background: var(--card-bg);
+    color: var(--text-color);
+    width: min(880px, 96vw);
+    max-height: 90vh;
+    overflow: auto;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    padding: 24px;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, .20);
+}
+
+/* Close (X) — keep it small at all sizes */
+#menu-modal .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    flex: 0 0 36px;
+    border: none;
+    border-radius: 50%;
+    line-height: 1;
+    padding: 0;
+    background: rgba(127, 127, 127, .12);
+    color: var(--text-color);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#menu-modal .modal-close:hover {
+    background: rgba(127, 127, 127, .2);
+}
+
+/* ===== Form grid (no overflow between 720–844px) ===== */
+#menu-modal .form-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 20px;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+    /* desktop: Name wide, Cat + Price narrow */
+}
+
+#menu-modal .form-grid>label {
+    min-width: 0;
+    /* CRITICAL: allows inputs like (Name, Category, Base Price, Image ,Description)to shrink in grid */
+}
+
+/* Modifier group header: make the Group name field flexible and shrinkable */
+#menu-modal .subcard-header>* {
+    min-width: 0;
+    /* allow all header items to shrink */
+}
+
+#menu-modal .row-inline>* {
+    min-width: 0;
+    /* critical for grid children, removes horizontal overflow like in the optional size field ,eg size name and value/price*/
+}
+
+/* Make all fields fill their grid cell and never overflow */
+#menu-modal .form-grid input,
+#menu-modal .form-grid select,
+#menu-modal .form-grid textarea {
+    width: 100%;
+    max-width: 100%;
+}
+
+/* placement for desktop */
+#menu-modal .form-grid>label:nth-child(1) {
+    grid-column: 1/2;
+}
+
+/* Name */
+#menu-modal .form-grid>label:nth-child(4) {
+    grid-column: 1/2;
+}
+
+/* Image under Name */
+#menu-modal .form-grid>label:nth-child(5) {
+    grid-column: 2/4;
+}
+
+@media (max-width: 900px) {
+    #menu-modal .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    #menu-modal .form-grid>label {
+        grid-column: 1 / -1 !important;
+    }
+}
+
+/* Base field look */
+#menu-modal label {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    font-weight: 500;
+}
+
+/* keep required text inline with its checkbox, never stacked */
+#menu-modal label.muted {
+    display: inline-flex !important;
+    /* override the global label flex-column */
+    flex-direction: row !important;
+    align-items: center !important;
+    /* vertical centering */
+    gap: 8px;
+    margin: 0;
+    line-height: 1.1;
+    white-space: nowrap;
+    /* keep word + checkbox together */
+}
+
+/* checkbox size + alignment */
+#menu-modal label.muted .mod-required,
+#menu-modal .mod-required {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    vertical-align: middle;
+}
+
+/* — High-specificity blanket so even dynamic inputs (size/group) match — */
+#menu-modal .modal-content input,
+#menu-modal .modal-content select,
+#menu-modal .modal-content textarea {
+    box-sizing: border-box;
+    height: 42px !important;
+    padding: 10px 14px !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: 10px !important;
+    background: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    font: inherit !important;
+    line-height: 1.2;
+    transition: border-color .2s, box-shadow .2s;
+}
+
+#menu-modal .modal-content textarea {
+    height: auto !important;
+    min-height: 100px !important;
+    resize: vertical;
+}
+
+#menu-modal .row-inline input,
+#menu-modal .row-inline select {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+#menu-modal .modal-content input:focus,
+#menu-modal .modal-content select:focus,
+#menu-modal .modal-content textarea:focus {
+    outline: none;
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, .15);
+}
+
+/* Subcards */
+#menu-modal .subcard {
+    margin-top: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, .02);
+}
+
+#menu-modal .subcard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(0, 0, 0, .03);
+    flex-wrap: wrap;
+}
+
+#menu-modal .subcard-header h4 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+
+#menu-modal .row-inline {
+    display: grid;
+    /* name | price | remove [keeps one line between 721–844px] */
+    grid-template-columns: minmax(0, 1fr) minmax(88px, 140px) 42px;
+    gap: 10px;
+    padding: 12px 16px;
+    align-items: center;
+    /* center everything vertically */
+    overflow: visible;
+    /* avoid clipping the red × */
+}
+
+#menu-modal .row-inline>* {
+    align-self: center;
+}
+
+/* Keep the red × aligned (no vertical nudge) */
+#menu-modal .row-inline>.btn-danger,
+#menu-modal .row-inline>button.btn-danger {
+    /* shorthand for align-self + justify-self */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    width: 42px;
+    line-height: 42px;
+    /* cross-browser centering for the glyph */
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    /* border won't change the size */
+}
+
+/* Ensure number inputs match the field height */
+#menu-modal .row-inline input[type="number"] {
+    height: 42px !important;
+}
+
+#menu-modal .row-inline .btn-danger {
+    z-index: 1;
+}
+
+/* ---------- FIX: “required” checkbox alignment ---------- */
+#menu-modal .subcard-header label.muted {
+    display: inline-flex;
+    /* puts text + checkbox on one line */
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    line-height: 1;
+    /* prevents the checkbox from dropping */
+}
+
+#menu-modal .subcard-header .mod-required {
+    width: 18px;
+    height: 18px;
+    /* crisp size */
+    margin: 0;
+}
+
+#menu-modal .subcard-header .mod-min,
+#menu-modal .subcard-header .mod-max {
+    min-width: 88px;
+}
+
+/* Modal actions — compact buttons; wrap if needed */
+#menu-modal .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+    flex-wrap: wrap;
+}
+
+#menu-modal .modal-actions .btn {
+    flex: 0 0 auto;
+    min-width: 110px;
+}
+
+@media (max-width:720px) {
+    #menu-modal .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #menu-modal .form-grid>label {
+        grid-column: 1 / -1 !important;
+    }
+
+    #menu-modal .row-inline {
+        grid-template-columns: 1fr;
+    }
+
+    #menu-modal .row-inline .btn {
+        width: 100%;
+        /* full width when stacked */
+    }
+
+    #menu-modal .modal-close {
+        width: 32px;
+        height: 32px;
+        font-size: 18px;
+    }
+
+    #menu-modal .modal-actions {
+        flex-direction: row;
+        /* keep them side-by-side */
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+
+    #menu-modal .modal-actions .btn {
+        width: auto;
+        /* stop stretching full width */
+        min-width: 96px;
+        padding-inline: 16px;
+    }
+
+}
+
+/* ——— Smaller close button on tiny screens ——— */
+@media (max-width: 420px) {
+    #menu-modal .modal-close {
+        top: 8px;
+        right: 8px;
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+    }
+}
+
 /* Settings grid & inputs */
 #settings-section .settings-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 18px;
+    align-items: start;
+    /* keep all cards top-aligned */
+}
+
+/* Each setting item stacks vertically and cannot wrap inline */
+#settings-section .setting-item {
+    display: flex;
+    flex-direction: column;
+    /* force vertical stack */
+    align-items: stretch;
+    gap: 6px;
+    min-height: 110px;
+    /* keeps helper lines aligned in a row */
+    min-width: 0;
+    /* prevent overflow pushing things around */
 }
 
 #settings-section .setting-item input[type="number"] {
@@ -1348,9 +1843,12 @@ tr:hover {
     background-image: none !important;
     /* override gradient arrows from elsewhere */
     background-repeat: no-repeat;
-    height: 38px;
     padding: 8px 40px 8px 12px;
-    /* space on right for chevron */
+    height: 38px;
+    /* consistent hit target */
+    display: block;
+    width: 100%;
+    /* fill the grid column option (select wrapper) put the chevron inside the select */
     border-radius: 10px;
     border: 1px solid var(--border-color);
     background: var(--card-bg);
@@ -1365,6 +1863,20 @@ tr:hover {
 #menu-section .select-field select::-ms-expand,
 #settings-section .select-field select::-ms-expand {
     display: none;
+}
+
+/* Settings: size the wrapper, not the <select> */
+#settings-section .setting-item .select-field,
+#settings-section .setting-item input[type="number"] {
+    width: 100%;
+    /* fill the grid column */
+    max-width: 160px;
+    /* limit width of input and select */
+}
+
+/* store mode width */
+#settings-section .select-field.is-compact {
+    max-width: 190px;
 }
 
 #orders-filter {
@@ -1390,28 +1902,21 @@ tr:hover {
 }
 
 /* Chevron icon styling for all sections */
+#settings-section .select-field .chevron,
+#menu-section .select-field .chevron,
 #orders-section .select-field .chevron {
     position: absolute;
     right: 10px;
+    /* sits over the select’s right padding */
     top: 50%;
     transform: translateY(-50%);
+    /* vertical centering */
     font-size: 18px;
-    /* bold/modern */
-    color: var(--black);
+    line-height: 1;
+    /* prevents vertical drift */
     pointer-events: none;
-    /* do not block clicks */
-}
-
-#menu-section .select-field .chevron,
-#settings-section .select-field .chevron {
-    position: relative;
-    right: 30px;
+    /* don’t block clicks */
     z-index: 2;
-    font-size: 18px;
-    /* bold/modern */
-    color: var(--black);
-    pointer-events: none;
-    /* do not block clicks */
 }
 
 #menu-section .btn-primary {
@@ -1446,8 +1951,9 @@ tr:hover {
     background: var(--card-bg);
 }
 
+/* Status select Confirmed, On the way, Delivered, Cancelled */
 .status-actions .status-select {
-    padding: 10px 12px;
+    padding: 10px 14px;
     margin: .5rem 0 .5rem 0;
     border: 1px solid var(--text-lighter);
     border-radius: 6px;
@@ -1455,14 +1961,14 @@ tr:hover {
     background: var(--card-bg);
     color: var(--text-color);
     transition: var(--transition);
-    width: 120px;
+    width: 100px;
 }
 
 /* Buttons */
 .btn {
-    padding: 8px 16px;
+    padding: 6px 12px;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: var(--fontSize-label-4);
     cursor: pointer;
     border: none;
     transition: var(--transition);
@@ -1470,10 +1976,15 @@ tr:hover {
     align-items: center;
     justify-content: center;
     gap: 6px;
+    /* ensure consistent sizing */
+    height: 36px;
+    /* fixed height */
+    line-height: 1;
+    /* avoid extra vertical growth */
 }
 
 .btn i {
-    font-size: 16px;
+    font-size: var(--fontSize-label-3);
 }
 
 .btn-primary {
@@ -1495,6 +2006,8 @@ tr:hover {
 .btn-outline:hover {
     background: var(--primary-light);
 }
+
+
 
 .btn-secondary {
     background: var(--text-lighter);
@@ -1896,6 +2409,11 @@ tr:hover {
     background-repeat: no-repeat;
 }
 
+/* dark mode for menu section card*/
+[data-theme="dark"] #menu-section .card {
+    background-color: var(--black-alpha-10);
+}
+
 /* Dark mode — inputs and selects in Customers controls */
 [data-theme="dark"] #customers-section .section-header .actions input[type="search"],
 [data-theme="dark"] #menu-section .card-header .actions input[type="search"] {
@@ -2095,30 +2613,6 @@ tr:hover {
     color: #0a6b3a;
     border: 1px solid #8be0b5
 }
-
-
-/* Make sure overlay-chevron pattern wins */
-/* #menu-section .select-field select,
-#settings-section .select-field select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: none !important;
-    /* kill gradient arrows *
-    padding-right: 40px;
-    /* room for chevron icon *
-    height: 38px;
-    border-radius: 10px;
-    border: 1px solid var(--border-color);
-    background: var(--card-bg);
-    color: var(--text-color);
-} */
-
-/* Old IE/Edge arrow */
-/* #menu-section .select-field select::-ms-expand,
-#settings-section .select-field select::-ms-expand {
-    display: none;
-} */
 
 /*admin login*/
 .admin-login-container,

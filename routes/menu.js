@@ -23,6 +23,7 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}-${base}${ext}`);
   },
 });
+
 const upload = multer({
   storage,
   fileFilter: (_, file, cb) => {
@@ -81,6 +82,10 @@ router.post("/", adminAuth, upload.single("image"), async (req, res) => {
     }
 
     const item = await MenuItem.create({ ...body, imageUrl });
+
+    // 🔔 notify all clients (home page, etc.)
+    const io = req.app.get("io");
+    io?.emit("menu:new", item.toObject());
     res.status(201).json({ success: true, item });
   } catch (e) {
     console.error(e);
@@ -100,6 +105,8 @@ router.put("/:id", adminAuth, upload.single("image"), async (req, res) => {
     });
     if (!item)
       return res.status(404).json({ success: false, error: "Not found" });
+    // 🔔 notify all clients (home page, etc.)
+    req.app.get("io")?.emit("menu:update", item.toObject());
     res.json({ success: true, item });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });
@@ -112,6 +119,10 @@ router.delete("/:id", adminAuth, async (req, res) => {
     const item = await MenuItem.findByIdAndDelete(req.params.id);
     if (!item)
       return res.status(404).json({ success: false, error: "Not found" });
+    // 🔔 notify all clients (home page, etc.)
+    req.app
+      .get("io")
+      ?.emit("menu:delete", { _id: String(item._id), category: item.category });
     res.json({ success: true });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });

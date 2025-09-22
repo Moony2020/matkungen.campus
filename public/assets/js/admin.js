@@ -580,6 +580,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // }
 
     // And ensure updateDashboardStats is properly updating the UI
+
     updateDashboardStats(stats) {
       // ✅ Safely update today's orders (fallback to 0 if missing/invalid)
       document.getElementById("today-orders").textContent =
@@ -1834,44 +1835,94 @@ document.addEventListener("DOMContentLoaded", function () {
     async openMenuModal(id = null) {
       const modal = document.getElementById("menu-modal");
       const form = document.getElementById("menu-form");
+
+      // — helpers —
+      const open = () => {
+        modal.classList.add("show");
+        modal.style.display = "flex";
+        document.body.style.overflow = "hidden";
+      };
+      const close = () => {
+        modal.classList.remove("show");
+        modal.style.display = "none";
+        document.body.style.overflow = "";
+      };
+
+      // add X button once
+      if (!modal.querySelector(".modal-close")) {
+        const x = document.createElement("button");
+        x.type = "button";
+        x.className = "modal-close";
+        x.setAttribute("aria-label", "Close");
+        x.textContent = "×";
+        x.addEventListener("click", close);
+        modal.querySelector(".modal-content").appendChild(x);
+      }
+
+      // reset form & UI
       form.reset();
       form._id.value = id || "";
-
       document.getElementById("sizes-container").innerHTML = "";
       document.getElementById("modifiers-container").innerHTML = "";
-
       document.getElementById("menu-modal-title").textContent = id
-        ? "Edit Item"
+        ? "Edit Menu Item"
         : "New Menu Item";
 
-      let existing = null;
-      if (id) {
-        const res = await fetch(`/api/admin/menu/${id}`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          },
-        });
-        const data = await res.json();
-        if (data.success) existing = data.item;
-      }
-
-      if (existing) {
-        form.name.value = existing.name || "";
-        form.category.value = existing.category || "pizza";
-        form.price.value = existing.price ?? 0;
-        form.description.value = existing.description || "";
-        (existing.sizes || []).forEach((s) => this.addSizeRow(s.name, s.price));
-        (existing.modifiers || []).forEach((g) => this.addModifierGroup(g));
-      }
-
+      // wire buttons every time (overwrites previous)
       document.getElementById("add-size").onclick = () => this.addSizeRow();
       document.getElementById("add-mod-group").onclick = () =>
         this.addModifierGroup();
-      document.getElementById("menu-cancel").onclick = () =>
-        (modal.style.display = "none");
+      document.getElementById("menu-cancel").onclick = close;
       form.onsubmit = (e) => this.submitMenuForm(e);
 
-      modal.style.display = "flex";
+      // open immediately so the modal shows even if fetch fails
+      open();
+
+      // click outside to close (one-shot)
+      modal.addEventListener(
+        "click",
+        (e) => {
+          if (e.target === modal) close();
+        },
+        { once: true }
+      );
+
+      // Esc to close (one-shot)
+      const esc = (e) => {
+        if (e.key === "Escape") {
+          close();
+          window.removeEventListener("keydown", esc);
+        }
+      };
+      window.addEventListener("keydown", esc);
+
+      // then load data for Edit (non-blocking for open)
+      if (id) {
+        try {
+          const res = await fetch(`/api/admin/menu/${id}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            },
+          });
+          const data = await res.json();
+          if (data.success && data.item) {
+            const existing = data.item;
+            form.name.value = existing.name || "";
+            form.category.value = existing.category || "pizza";
+            form.price.value = existing.price ?? 0;
+            form.description.value = existing.description || "";
+            (existing.sizes || []).forEach((s) =>
+              this.addSizeRow(s.name, s.price)
+            );
+            (existing.modifiers || []).forEach((g) => this.addModifierGroup(g));
+          } else {
+            this.showNotification("Could not load item details", true);
+          }
+        } catch (err) {
+          console.error(err);
+          this.showNotification("Could not load item details", true);
+        }
+      }
     }
 
     addSizeRow(name = "", price = 0) {
@@ -1894,15 +1945,6 @@ document.addEventListener("DOMContentLoaded", function () {
       <input class="mod-name" placeholder="Group name" value="${
         group?.name || ""
       }" />
-      <label class="muted">required <input class="mod-required" type="checkbox" ${
-        group?.required ? "checked" : ""
-      }></label>
-      <input class="mod-min" type="number" min="0" placeholder="min" value="${
-        group?.min ?? 0
-      }">
-      <input class="mod-max" type="number" min="0" placeholder="max (0 = no limit)" value="${
-        group?.max ?? 0
-      }">
       <button type="button" class="btn btn-outline btn-sm add-option">+ Option</button>
       <button type="button" class="btn btn-danger btn-sm remove-group">Remove Group</button>
     </div>
@@ -1962,9 +2004,6 @@ document.addEventListener("DOMContentLoaded", function () {
             .filter((o) => o.name);
           return {
             name: sc.querySelector(".mod-name").value.trim(),
-            required: sc.querySelector(".mod-required").checked,
-            min: Number(sc.querySelector(".mod-min").value || 0),
-            max: Number(sc.querySelector(".mod-max").value || 0),
             options,
           };
         })
@@ -2001,7 +2040,9 @@ document.addEventListener("DOMContentLoaded", function () {
         const data = await res.json();
         if (!data.success) throw new Error(data.error || "Save failed");
         this.showNotification("✅ Saved");
+        document.getElementById("menu-modal").classList.remove("show");
         document.getElementById("menu-modal").style.display = "none";
+        document.body.style.overflow = "";
         this.loadMenu();
       } catch (err) {
         console.error(err);
@@ -2010,7 +2051,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async deleteMenuItem(id) {
-      if (!confirm("Delete this item?")) return;
+      if (!(await confirmDialog("Delete this item?"))) return;
       try {
         const res = await fetch(`/api/admin/menu/${id}`, {
           method: "DELETE",
@@ -2026,6 +2067,7 @@ document.addEventListener("DOMContentLoaded", function () {
         this.showNotification("❌ Failed to delete", true);
       }
     }
+
     // ===== SETTINGS =====
     async loadSettings() {
       const token = localStorage.getItem("adminToken");
@@ -3021,7 +3063,35 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Initialize the admin panel
+  // Generic async confirm using #confirm-modal
+  function confirmDialog(message = "Are you sure?") {
+    const modal = document.getElementById("confirm-modal");
+    const msgEl = modal.querySelector(".custom-modal-content p");
+    const yes = modal.querySelector("#confirm-yes");
+    const no = modal.querySelector("#confirm-no");
 
+    msgEl.textContent = message;
+    modal.style.display = "flex";
+
+    return new Promise((resolve) => {
+      const cleanup = () => {
+        modal.style.display = "none";
+        yes.removeEventListener("click", onYes);
+        no.removeEventListener("click", onNo);
+      };
+      const onYes = () => {
+        cleanup();
+        resolve(true);
+      };
+      const onNo = () => {
+        cleanup();
+        resolve(false);
+      };
+
+      yes.addEventListener("click", onYes, { once: true });
+      no.addEventListener("click", onNo, { once: true });
+    });
+  }
+  // Initialize the admin panel
   new AdminPanel();
 });

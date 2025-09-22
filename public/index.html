@@ -505,13 +505,12 @@
 
           <div class="hours" id="store-hours" hidden>
             <!-- address shows ONLY when expanded -->
-           <p class="address-line">
-  <a class="address-link" href="#" target="_blank" rel="noopener noreferrer">
-    <i class="ri-map-pin-2-line" aria-hidden="true"></i>
-    <span class="address-short"></span>
-  </a>
-</p>
-
+            <p class="address-line">
+              <a class="address-link" href="#" target="_blank" rel="noopener noreferrer">
+                <i class="ri-map-pin-2-line" aria-hidden="true"></i>
+                <span class="address-short"></span>
+              </a>
+            </p>
 
             <!-- grouped opening hours will be rendered here -->
             <ul class="hours-rows"></ul>
@@ -1513,6 +1512,8 @@
                 </div>
               </li>
             </ul>
+            <!-- dynamic items from DB go here -->
+            <div class="menu-grid js-dynamic" data-cat="salads"></div>
           </div>
 
           <!-- rollers menu section ends -->
@@ -2671,8 +2672,8 @@
   <!-- 
     - custom js link
   -->
-  <!-- <script src="/socket.io/socket.io.js"></script> -->
-  <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <!-- <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script> -->
   <script src="/assets/js/script.js "></script>
   <!-- <script src="./assets/js/reset-password.js"></script> -->
 

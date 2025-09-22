@@ -383,7 +383,7 @@
           </div>
 
           <!-- Create/Edit modal -->
-          <div id="menu-modal" class="modal" style="display: none">
+          <div id="menu-modal" class="modal">
             <div class="modal-content">
               <h3 id="menu-modal-title">New Menu Item</h3>
               <form id="menu-form">
@@ -533,11 +533,12 @@
             <div class="settings-grid">
               <div class="setting-item">
                 <label>Store Mode</label>
-                <div class="select-field">
+                <div class="select-field is-compact">
                   <select id="setting-store-mode" name="storeMode">
-                    <option value="open">Open</option>
-                    <option value="closed">Closed</option>
-                    <option value="busy">Busy</option>
+                    <option value="auto" selected>Auto — follow hours</option>
+                    <option value="open">Force Open</option>
+                    <option value="busy">Busy (show warning)</option>
+                    <option value="closed">Force Closed</option>
                   </select>
                   <i
                     class="ri-arrow-down-s-fill chevron"
@@ -623,7 +624,8 @@
     ></audio>
 
     <!-- Scripts -->
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <!-- <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script> -->
+    <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
     <script src="./assets/js/admin.customers.js" type="module"></script>

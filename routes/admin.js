@@ -13,13 +13,8 @@ const adminAuth = require("../middleware/adminAuth");
 // Email transporter
 const transporter = nodemailer.createTransport({
   service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false, //
-  },
+  auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+  tls: { rejectUnauthorized: false },
 });
 
 // Admin login
@@ -109,82 +104,78 @@ router.post("/logout", (req, res) => {
 router.post("/forgot-password", async (req, res) => {
   try {
     const { email } = req.body;
+    if (!email) return res.status(400).json({ error: "Email is required" });
 
-    const admin = await Admin.findOne({ email });
+    const admin = await Admin.findOne({ email: email.trim().toLowerCase() });
+    // 200 on unknown email to avoid enumeration (or keep 404 if you prefer)
+    if (!admin)
+      return res.json({
+        success: true,
+        message: "If the email exists, a link was sent.",
+      });
 
-    if (!admin) return res.status(404).json({ error: "Admin not found" });
-
-    const resetToken = crypto.randomBytes(20).toString("hex");
-
-    admin.resetPasswordToken = crypto
-      .createHash("sha256")
-      .update(resetToken)
-      .digest("hex");
-
-    admin.resetPasswordExpire = Date.now() + 10 * 60 * 1000;
-
-    await admin.save();
+    const resetToken = admin.getResetPasswordToken();
+    await admin.save({ validateBeforeSave: false });
 
     const resetUrl = `${req.protocol}://${req.get(
       "host"
     )}/admin-reset-password/${resetToken}`;
-
-    const message = `
-
-      <h2>Password Reset Request</h2>
-
-      <p>You requested a password reset for your Matkungen admin account.</p>
-
-      <p><a href="${resetUrl}">Reset Password</a></p>
-
-      <p>This link will expire in 10 minutes.</p>
-
+    const html = `
+      <h2>Admin Password Reset</h2>
+      <p>Click the link below to reset your password:</p>
+      <p><a href="${resetUrl}">Reset Admin Password</a></p>
+      <p>This link expires in 10 minutes.</p>
     `;
 
     await transporter.sendMail({
+      from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
       to: admin.email,
-
-      subject: "Admin Password Reset Request",
-
-      html: message,
+      subject: "Admin Password Reset",
+      html,
     });
 
-    res.json({ success: true, message: "Password reset email sent" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.json({
+      success: true,
+      message: "Reset link sent if the email exists.",
+    });
+  } catch (err) {
+    console.error("Admin forgot password error:", err);
+    return res.status(500).json({ error: "Email sending failed" });
   }
 });
 
-// Reset password
+// --- RESET PASSWORD (ADMIN) ---
 router.put("/reset-password/:token", async (req, res) => {
   try {
     const { token } = req.params;
     const { password } = req.body;
-    const resetPasswordToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
 
+    if (!password || password.length < 6)
+      return res
+        .status(400)
+        .json({ error: "Password must be at least 6 characters" });
+
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
     const admin = await Admin.findOne({
-      resetPasswordToken,
-
+      resetPasswordToken: hashedToken,
       resetPasswordExpire: { $gt: Date.now() },
     });
 
     if (!admin)
       return res.status(400).json({ error: "Invalid or expired token" });
 
-    admin.password = password;
-
+    admin.password = password; // ✅ hook will hash
     admin.resetPasswordToken = undefined;
-
     admin.resetPasswordExpire = undefined;
-
     await admin.save();
 
-    res.json({ success: true, message: "Password updated successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.json({
+      success: true,
+      message: "Password updated successfully",
+    });
+  } catch (err) {
+    console.error("Admin reset password error:", err);
+    return res.status(500).json({ error: "Could not reset password" });
   }
 });
 

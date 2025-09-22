@@ -536,7 +536,7 @@ Sat:           12:00–03:00 (overnight)
 Sun:           12:00–22:00
 */
   const OPENING_HOURS = {
-    0: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
+    0: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
     1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
     2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
     3: [{ start: 10 * 60, end: 22 * 60 }], // Wed 11:00–03:00 (Thu)
@@ -611,40 +611,37 @@ Sun:           12:00–22:00
     }, 60_000);
   });
 
-  // ==================== ADD TO CART FUNCTIONALITY ====================
-  document.addEventListener("click", function (e) {
+  // ==================== ADD TO CART FUNCTIONALITY (no 404 version) ====================
+  document.addEventListener("click", async function (e) {
     const btn = e.target.closest(".add-to-cart-btn");
     if (!btn) return;
 
-    // 🔒 HARD GUARD: block adding when closed
+    // 🔒 Block adding when closed
     if (!isOpenNow()) {
       e.preventDefault();
-      e.stopPropagation();
-      if (typeof e.stopImmediatePropagation === "function") {
-        e.stopImmediatePropagation();
-      }
-
-      if (typeof cart?.showNotification === "function") {
-        cart.showNotification(
-          "Vi är stängda just nu. Välkommen åter under öppettiderna."
-        );
-      } else {
-        alert("Vi är stängda just nu. Välkommen åter under öppettiderna.");
-      }
+      e.stopPropagation?.();
+      cart?.showNotification?.(
+        "Vi är stängda just nu. Välkommen åter under öppettiderna."
+      );
       return;
     }
 
-    const menuItem = btn.closest(".menu-item, .menu-card1");
+    e.preventDefault(); // safe to await without accidental nav
 
-    // Get selected size if exists
+    const menuItemEl = btn.closest(".menu-item, .menu-card1");
+    const menuItemId =
+      menuItemEl?.id || btn.dataset.id || menuItemEl?.dataset.id || "";
+
+    // Selected size (if any)
     let selectedSize = null;
-    const sizeSelector = menuItem.querySelector(".size-selector");
+    const sizeSelector = menuItemEl?.querySelector(".size-selector");
     if (sizeSelector) {
       const selectedRadio = sizeSelector.querySelector(
         'input[type="radio"]:checked'
       );
       if (selectedRadio) {
-        const sizeLabel = selectedRadio.nextElementSibling.textContent.trim();
+        const sizeLabel =
+          selectedRadio.nextElementSibling?.textContent?.trim() || "";
         const sizeMatch = sizeLabel.match(/(Small|Medium|Large)/);
         selectedSize = {
           name: sizeMatch ? sizeMatch[0] : sizeLabel.split(" ")[0],
@@ -653,88 +650,185 @@ Sun:           12:00–22:00
       }
     }
 
-    const menuItemId = menuItem.id;
-    const menuItemData = menuItems.find((item) => item.id === menuItemId);
+    // Try cache first
+    let menuItemData = (window.menuItems || []).find(
+      (x) => String(x.id) === String(menuItemId)
+    );
+
+    // Infer a category from cache or from the section id (e.g. #drinks-menu)
+    const sectionId = menuItemEl?.closest("[id$='-menu']")?.id || ""; // e.g. "drinks-menu"
+    const inferredCategory =
+      menuItemData?.category || sectionId.replace("-menu", "");
+    const NEVER_HAS_MODS = new Set(["drinks", "drycker"]); // extend if you like
+
+    // If we don't know modifiers yet AND it isn't a category that never has mods → hydrate from list
+    if (
+      (!menuItemData || typeof menuItemData.modifiers === "undefined") &&
+      !NEVER_HAS_MODS.has(String(inferredCategory).toLowerCase())
+    ) {
+      try {
+        // 1) Try the public list
+        const r = await fetch("/api/menu", { cache: "no-store" });
+        if (r.ok) {
+          const payload = await r.json();
+          const items = Array.isArray(payload?.items)
+            ? payload.items
+            : Array.isArray(payload)
+            ? payload
+            : [];
+          const baseName =
+            menuItemEl?.querySelector(".menu-item-title, .menu-title1")
+              ?.textContent ||
+            btn.dataset.name ||
+            "";
+
+          // find by id OR by case-insensitive name
+          const found = items.find(
+            (d) =>
+              String(d._id || d.id) === String(menuItemId) ||
+              String(d.name || "").toLowerCase() ===
+                String(baseName).toLowerCase()
+          );
+
+          if (found) {
+            // Map to your frontend shape (note: modifiers field exists in the model)
+            // (models/MenuItem has `modifiers: [ModifierGroup]`) :contentReference[oaicite:1]{index=1}
+            menuItemData = {
+              id: String(found._id || found.id),
+              name: found.name,
+              desc: found.description || found.desc || "",
+              price:
+                typeof found.price === "number"
+                  ? found.price
+                  : Array.isArray(found.sizes) && found.sizes[0]
+                  ? found.sizes[0].price
+                  : 0,
+              image:
+                found.imageUrl ||
+                found.image ||
+                "/assets/images/default-food.jpg",
+              sizes: Array.isArray(found.sizes) ? found.sizes : [],
+              modifiers: Array.isArray(found.modifiers) ? found.modifiers : [],
+              category: found.category,
+              page: "index.html",
+            };
+
+            // merge into cache
+            window.menuItems = (window.menuItems || [])
+              .filter((x) => String(x.id) !== String(menuItemData.id))
+              .concat(menuItemData);
+          }
+        }
+
+        // 2) Fallback to static JSON if nothing found
+        if (!menuItemData) {
+          const r2 = await fetch("/assets/data/menuItems.json", {
+            cache: "no-store",
+          });
+          if (r2.ok) {
+            const list = await r2.json();
+            const baseName =
+              menuItemEl?.querySelector(".menu-item-title, .menu-title1")
+                ?.textContent ||
+              btn.dataset.name ||
+              "";
+
+            const hit = list.find(
+              (d) =>
+                String(d._id || d.id) === String(menuItemId) ||
+                String(d.name || "").toLowerCase() ===
+                  String(baseName).toLowerCase()
+            );
+            if (hit) {
+              menuItemData = {
+                id: String(hit._id || hit.id),
+                name: hit.name,
+                desc: hit.description || hit.desc || "",
+                price:
+                  typeof hit.price === "number"
+                    ? hit.price
+                    : Array.isArray(hit.sizes) && hit.sizes[0]
+                    ? hit.sizes[0].price
+                    : 0,
+                image:
+                  hit.imageUrl ||
+                  hit.image ||
+                  "/assets/images/default-food.jpg",
+                sizes: Array.isArray(hit.sizes) ? hit.sizes : [],
+                modifiers: Array.isArray(hit.modifiers) ? hit.modifiers : [],
+                category: hit.category,
+                page: "index.html",
+              };
+              window.menuItems = (window.menuItems || [])
+                .filter((x) => String(x.id) !== String(menuItemData.id))
+                .concat(menuItemData);
+            }
+          }
+        }
+      } catch {
+        // ignore; we’ll fall back to data-* below
+      }
+    }
+
+    // Build display name
     const baseName =
-      menuItem?.querySelector(".menu-item-title, .menu-title1")?.textContent ||
+      menuItemEl?.querySelector(".menu-item-title, .menu-title1")
+        ?.textContent ||
+      menuItemData?.name ||
+      btn.dataset.name ||
       "Unknown Item";
+
     const productName = selectedSize
       ? `${baseName} (${selectedSize.name})`
       : baseName;
 
-    if (menuItemData) {
-      e.preventDefault();
+    // Decide by modifiers
+    const hasModifiers =
+      Array.isArray(menuItemData?.modifiers) &&
+      menuItemData.modifiers.length > 0;
 
-      const hasModifiers =
-        Array.isArray(menuItemData.modifiers) &&
-        menuItemData.modifiers.length > 0;
-
-      if (!hasModifiers) {
-        const product = {
-          name: productName,
-          price: selectedSize ? selectedSize.price : menuItemData.price,
-          img: menuItemData.image || "/assets/images/default-food.jpg",
-        };
-
-        // Button Animation
-        const isIconOnly = btn.classList.contains("icon-only");
-        const originalContent = btn.innerHTML;
-        if (isIconOnly) {
-          btn.innerHTML = '<i class="ri-check-line"></i>';
-        } else {
-          btn.innerHTML = '<i class="ri-check-line"></i> Added';
-        }
-        btn.style.backgroundColor = "#4CAF50";
-        setTimeout(() => {
-          btn.innerHTML = originalContent;
-          btn.style.backgroundColor = "var(--gold-crayola)";
-        }, 1000);
-
-        cart.addItem(product);
-
-        // ✅ SHOW A VISIBLE MESSAGE (toast)
-        cart.showNotification(`${productName} added to cart`);
-        return;
-      }
-
-      // Item has modifiers → open popup
-      openModifierPopup(menuItemData, productName, selectedSize);
-    } else {
-      // Not in menuItems fallback
-      e.preventDefault(); // (safe if button is an <a>)
-      const productName =
-        btn.dataset.name ||
-        menuItem?.querySelector(".menu-item-title, .menu-title1")
-          ?.textContent ||
-        "Unknown Item";
-
-      const price = selectedSize
-        ? selectedSize.price
-        : parseFloat(btn.dataset.price) || 0;
-      const productImg = btn.dataset.img || "/assets/images/default-food.jpg";
-
-      const product = { name: productName, price, img: productImg };
-
-      // same animation
-      const isIconOnly = btn.classList.contains("icon-only");
-      const originalContent = btn.innerHTML;
-      if (isIconOnly) {
-        btn.innerHTML = '<i class="ri-check-line"></i>';
-      } else {
-        btn.innerHTML = '<i class="ri-check-line"></i> Added';
-      }
-      btn.style.backgroundColor = "#4CAF50";
-      setTimeout(() => {
-        btn.innerHTML = originalContent;
-        btn.style.backgroundColor = "var(--gold-crayola)";
-      }, 1000);
-
-      cart.addItem(product);
-
-      // ✅ toast here too
-      cart.showNotification(`${productName} added to cart`);
+    if (hasModifiers) {
+      openModifierPopup(
+        menuItemData,
+        productName,
+        selectedSize && { name: selectedSize.name, price: selectedSize.price }
+      );
+      return;
     }
+
+    // Add directly (use selectedSize -> hydrated price -> data-* fallback)
+    const price =
+      (selectedSize && selectedSize.price) ??
+      (typeof menuItemData?.price === "number"
+        ? menuItemData.price
+        : undefined) ??
+      (parseFloat(btn.dataset.price) || 0);
+
+    const product = {
+      name: productName,
+      price,
+      img:
+        menuItemData?.image ||
+        btn.dataset.img ||
+        "/assets/images/default-food.jpg",
+    };
+
+    // Button animation (unchanged)
+    const isIconOnly = btn.classList.contains("icon-only");
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = isIconOnly
+      ? '<i class="ri-check-line"></i>'
+      : '<i class="ri-check-line"></i> Added';
+    btn.style.backgroundColor = "#4CAF50";
+    setTimeout(() => {
+      btn.innerHTML = originalContent;
+      btn.style.backgroundColor = "var(--gold-crayola)";
+    }, 1000);
+
+    cart.addItem(product);
+    cart.showNotification(`${productName} added to cart`);
   });
+
   /* ===================== CHECKOUT GUARD =====================
 
 Prevents proceeding to payment when closed.
@@ -2243,7 +2337,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       }
 
       try {
-        const response = await fetch("/api/register", {
+        const response = await fetch("/api/auth/register", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ name, email, password }),
@@ -2260,6 +2354,11 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
         // Clear form
         document.getElementById("register-form").reset();
+        // Close sidebar after successful registration
+        setTimeout(() => {
+          document.querySelector(".user-sidebar")?.classList.remove("open");
+          document.querySelector(".user-overlay")?.classList.remove("open");
+        }, 800);
       } catch (error) {
         this.showNotification(error.message, true);
       }
@@ -2275,7 +2374,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       }
 
       try {
-        const response = await fetch("/api/forgot-password", {
+        const response = await fetch("/api/auth/forgot-password", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email }),
@@ -2332,7 +2431,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       }
 
       try {
-        const response = await fetch("/api/update-profile", {
+        const response = await fetch("/api/auth/update-profile", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -2394,7 +2493,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       }
 
       try {
-        const response = await fetch("/api/change-password", {
+        const response = await fetch("/api/auth/change-password", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -3122,17 +3221,77 @@ window.addEventListener("orientationchange", positionStoreStatus);
 
 let menuItems = [];
 
-async function loadMenuItems() {
-  try {
-    const response = await fetch("/assets/data/menuItems.json");
-    if (!response.ok) throw new Error("Could not load menu data");
-    menuItems = await response.json();
-    initGlobalSearch(); // Run your search setup AFTER loading data!
-  } catch (err) {
-    console.error(err);
-    // Optionally show error to user
-  }
+// Map DB item -> the shape our front-end expects
+const PAGE_BY_CATEGORY = {
+  pizza: "index.html",
+  burgers: "index.html",
+  salads: "index.html",
+  rollers: "index.html", // legacy JSON uses "rollers"
+  rolls: "index.html", // admin UI sometimes uses "rolls"
+  dishes: "index.html",
+  boxes: "index.html",
+  pitabrod: "index.html", // “pita bread”
+  addition: "index.html",
+  drinks: "drycker.html",
+  lunch: "lunch.html",
+  vegetarian: "vegetarisk.html",
+};
+
+function dbToClient(doc) {
+  return {
+    id: String(doc._id || doc.id),
+    name: doc.name,
+    price: doc.price,
+    image: doc.imageUrl || doc.image, // supports both DB and JSON
+    category: doc.category,
+    page: PAGE_BY_CATEGORY[doc.category] || "index.html",
+    desc: doc.description || doc.desc,
+    sizes: doc.sizes || [],
+    modifiers: doc.modifiers || [],
+  };
 }
+
+async function loadMenuItems() {
+  const page = window.location.pathname.split("/").pop() || "index.html";
+  let data = null;
+
+  // 1) Try the live API first
+  try {
+    const res = await fetch("/api/menu");
+    if (!res.ok) throw 0;
+    const json = await res.json();
+    data = json.items || [];
+  } catch (_) {}
+
+  // 2) Fallback to /assets/data/menuItems.json
+  if (!data || data.length === 0) {
+    try {
+      const res = await fetch("/assets/data/menuItems.json", {
+        cache: "no-store",
+      });
+      if (!res.ok) throw 0;
+      data = await res.json();
+    } catch (_) {}
+  }
+
+  // 3) Fallback to /menuItems.json (root)
+  if (!data || data.length === 0) {
+    try {
+      const res = await fetch("/menuItems.json", { cache: "no-store" });
+      if (!res.ok) throw 0;
+      data = await res.json();
+    } catch (_) {
+      data = [];
+    }
+  }
+
+  const mapped = data.map(dbToClient);
+  // uses this able to find modifiers
+  window.menuItems = mapped;
+  menuItems = mapped;
+  renderMenu(mapped, page);
+}
+
 // ==================== MODIFIER POPUP STATE ====================
 let modifierState = {
   currentItem: null,
@@ -3515,5 +3674,278 @@ function initGlobalSearch() {
   }
 }
 
+// ---------- CATEGORY SECTION SELECTORS (match index.html) ----------
+const SECTION_QUERY = {
+  pizza: "#pizza-menu .menu-grid",
+  burgers: "#burgers-menu .menu-grid",
+  salads: "#salads-menu .menu-grid",
+  rollers: "#rollers-menu .menu-grid",
+  rolls: "#rollers-menu .menu-grid", // alias → rollers
+  // Extra categories you mentioned:
+  dishes: "#dishes-menu .menu-grid",
+  boxes: "#boxes-menu .menu-grid",
+  pitabrod: "#pitabrod-menu .menu-grid", // pita-bread / pitabröd
+  addition: "#addition-menu .menu-grid", // tillbehör
+  drinks: "#drinks-menu .menu-grid", // if you have a drinks section on this page
+  vegetarisk: "#vegetarisk-menu .menu-grid", // if present on this page
+  lunch: "#lunch-menu .menu-grid", // if present on this page
+};
+
+// ---------- BUILD ONE CARD THAT MATCHES MY EXISTING HTML ----------
+function createMenuCard(item) {
+  const card = document.createElement("div");
+  card.className = "menu-item";
+  card.id = item.id;
+
+  const img = document.createElement("img");
+  img.className = "menu-item-img";
+  img.src = item.image || "/assets/images/default-food.jpg";
+  img.alt = item.name;
+
+  const content = document.createElement("div");
+  content.className = "menu-item-content";
+
+  if (Array.isArray(item.sizes) && item.sizes.length) {
+    const title = document.createElement("h3");
+    title.className = "menu-item-title";
+    title.textContent = item.name;
+
+    const sizeWrap = document.createElement("div");
+    sizeWrap.className = "size-selector";
+
+    item.sizes.forEach((s, i) => {
+      const label = document.createElement("label");
+      label.className = "size-option";
+
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = `size-${item.id}`;
+      radio.value = s.price; // ← price in value (global handler expects this)
+      radio.dataset.price = s.price; // (kept, harmless)
+      if (i === 0) radio.checked = true;
+
+      const span = document.createElement("span"); // ← so nextElementSibling exists
+      span.textContent = ` ${s.name} (${s.price} kr)`;
+
+      label.appendChild(radio);
+      label.appendChild(span);
+      sizeWrap.appendChild(label);
+    });
+
+    content.appendChild(title);
+    content.appendChild(sizeWrap);
+  } else {
+    const titleRow = document.createElement("div");
+    titleRow.className = "title-wrapper";
+
+    const title = document.createElement("h3");
+    title.className = "menu-item-title";
+    title.textContent = item.name;
+
+    const price = document.createElement("span");
+    price.className = "menu-item-price";
+    price.textContent = `${Number(item.price ?? 0)} kr`;
+
+    titleRow.appendChild(title);
+    titleRow.appendChild(price);
+    content.appendChild(titleRow);
+  }
+
+  if (item.desc) {
+    const p = document.createElement("p");
+    p.className = "menu-item-desc";
+    p.textContent = item.desc;
+    content.appendChild(p);
+  }
+
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "add-to-cart-btn";
+  btn.dataset.name = item.name;
+  btn.dataset.price = String(item.price ?? item.sizes?.[0]?.price ?? 0);
+  btn.dataset.img = img.src;
+  btn.textContent = "Lägg till";
+
+  content.appendChild(btn);
+  card.appendChild(img);
+  card.appendChild(content);
+  return card;
+}
+
+// ---------- FETCH DB ITEMS AND APPEND INTO THE RIGHT GRIDS ----------
+async function appendDbItemsToHome() {
+  // Only run on the home page whether it's "/" or "/index.html"
+  const isHome = /\/($|index\.html$)/.test(window.location.pathname);
+  if (!isHome) return;
+
+  try {
+    const res = await fetch("/api/menu");
+    const data = await res.json();
+    if (!data.success) return;
+
+    const items = data.items;
+
+    // Also add DB items to the global search dataset
+    if (Array.isArray(window.menuItems)) {
+      const mapped = items.map((doc) => ({
+        id: String(doc._id || doc.id),
+        name: doc.name,
+        price:
+          doc.price ??
+          (Array.isArray(doc.sizes) && doc.sizes[0] ? doc.sizes[0].price : 0),
+        image: doc.imageUrl || doc.image,
+        category: doc.category,
+        page: "index.html",
+        desc: doc.description || doc.desc,
+        sizes: Array.isArray(doc.sizes) ? doc.sizes : [],
+        modifiers: Array.isArray(doc.modifiers) ? doc.modifiers : [], // ← keep modifiers!
+      }));
+
+      // Merge into cache by id
+      mapped.forEach((it) => {
+        const i = window.menuItems.findIndex(
+          (x) => String(x.id) === String(it.id)
+        );
+        if (i > -1) window.menuItems[i] = it;
+        else window.menuItems.push(it);
+      });
+    }
+
+    items.forEach((item) => {
+      // pick section selector by normalized category (aliases covered server-side and here)
+      const sel =
+        SECTION_QUERY[item.category] ||
+        SECTION_QUERY[item.category?.toLowerCase()];
+      if (!sel) return; // category not shown on this page → skip
+
+      const grid = document.querySelector(sel);
+      if (!grid) return;
+
+      // Avoid duplicates if you ever re-run
+      if (document.getElementById(item.id)) return;
+
+      const card = createMenuCard(item);
+
+      // Some sections use <ul class="menu-grid">, others <div class="menu-grid">
+      if (grid.tagName === "UL") {
+        const li = document.createElement("li");
+        li.appendChild(card);
+        grid.appendChild(li);
+      } else {
+        grid.appendChild(card);
+      }
+    });
+  } catch (e) {
+    console.error("Failed to load DB menu", e);
+  }
+}
+if (typeof window.renderMenu !== "function") {
+  window.renderMenu = function (items, page) {
+    // keep global dataset for search
+    window.menuItems = items || [];
+    // on home, append cards into the right sections
+    appendDbItemsToHome();
+  };
+}
+
+/* ===================== LIVE MENU (no refresh) ===================== */
+(function initLiveMenuUpdates() {
+  // Only run if Socket.IO client is available on the page
+  if (!window.io) return;
+
+  // Same-origin socket (server uses path "/socket.io")
+  const socket = io({ path: "/socket.io", withCredentials: true });
+
+  // Keep category names consistent with your server normalize
+  function normalizeCategory(raw = "") {
+    const c = String(raw).trim().toLowerCase();
+    if (["roller", "roll", "rolls", "rullar", "rollers"].includes(c))
+      return "rollers";
+    if (["dishes", "tallrik", "tallrikar"].includes(c)) return "dishes";
+    if (["box", "boxes"].includes(c)) return "boxes";
+    if (["pita-bread", "pitabrod", "pitabröd", "pita"].includes(c))
+      return "pitabrod";
+    if (
+      [
+        "addition",
+        "additions",
+        "addition-menu",
+        "tillbehör",
+        "tillbehor",
+      ].includes(c)
+    )
+      return "addition";
+    if (["veg", "vegetarian", "vegetarisk"].includes(c)) return "vegetarisk";
+    if (["drinks", "drink", "drinker", "drycker"].includes(c)) return "drinks";
+    return c; // pizza, burgers, salads, lunch, etc.
+  }
+
+  // DB → client item shape (matches what /api/menu returns)
+  function dbToClient(doc = {}) {
+    return {
+      id: String(doc._id || doc.id || ""),
+      name: doc.name || "",
+      desc: doc.description || doc.desc || "",
+      price:
+        doc.price ??
+        (Array.isArray(doc.sizes) && doc.sizes[0] ? doc.sizes[0].price : 0),
+      image: doc.imageUrl || doc.image || "/assets/images/default-food.jpg",
+      sizes: Array.isArray(doc.sizes) ? doc.sizes : [],
+      modifiers: Array.isArray(doc.modifiers) ? doc.modifiers : [], // ← add this
+      category: normalizeCategory(doc.category || ""),
+    };
+  }
+
+  // Find the right grid on the current page
+  function gridForCategory(cat) {
+    // You already use these selectors in your script
+    // (#pizza-menu .menu-grid, [data-category="pizza"] .menu-grid, etc.)
+    // Try SECTION_QUERY first, then a generic fallback:
+    const sel =
+      (window.SECTION_QUERY && window.SECTION_QUERY[cat]) ||
+      `[data-category="${cat}"] .menu-grid, #${cat}-menu .menu-grid`;
+    return document.querySelector(sel);
+  }
+
+  function upsertCardFromDoc(doc) {
+    const item = dbToClient(doc);
+    const grid = gridForCategory(item.category);
+    if (!grid) return; // this page doesn't show that category
+
+    const fresh = createMenuCard(item); // uses your existing card builder
+    const existing = document.getElementById(item.id);
+    if (existing) {
+      existing.replaceWith(fresh);
+    } else {
+      grid.appendChild(fresh);
+    }
+
+    // keep your in-memory list used by search/filters in sync
+    if (Array.isArray(window.menuItems)) {
+      const i = window.menuItems.findIndex(
+        (x) => String(x.id) === String(item.id)
+      );
+      if (i > -1) window.menuItems.splice(i, 1, item);
+      else window.menuItems.push(item);
+    }
+  }
+
+  function removeCardById(id) {
+    document.getElementById(String(id))?.remove();
+    if (Array.isArray(window.menuItems)) {
+      window.menuItems = window.menuItems.filter(
+        (x) => String(x.id) !== String(id)
+      );
+    }
+  }
+  //   socket.on("menu:all", (docs) => docs.forEach(upsertCardFromDoc));
+  socket.on("menu:new", (doc) => upsertCardFromDoc(doc));
+  socket.on("menu:update", (doc) => upsertCardFromDoc(doc));
+  socket.on("menu:delete", (doc) => removeCardById(doc._id || doc.id));
+})();
+
 // ==================== INIT ON PAGE LOAD ====================
-document.addEventListener("DOMContentLoaded", loadMenuItems);
+document.addEventListener("DOMContentLoaded", () => {
+  loadMenuItems(); // keeps your search working (JSON) :contentReference[oaicite:6]{index=6}
+  appendDbItemsToHome(); // appends admin DB items into the grids on home
+});

@@ -38,6 +38,8 @@ const adminAuth = require("./middleware/adminAuth");
 const createReceiptPdf = require("./utils/createPdf");
 const { sendOrderEmail } = require("./utils/sendEmail"); // uses its own transporter or you can wire to the above
 const menuRoutes = require("./routes/menu");
+const MenuItem = require("./models/MenuItem"); // adjust path to MenuItem model
+const router = express.Router();
 const settingsRoutes = require("./routes/settings");
 
 // ---------- APP_URL base URL (single source of truth) ----------
@@ -50,7 +52,7 @@ const APP_URL = (
 
 // ---------- Opening Hours ----------
 const OPENING_HOURS = {
-  0: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
+  0: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
   1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
   2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
   3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
@@ -105,6 +107,42 @@ function blockWhenClosed(req, res, next) {
   });
 }
 
+function slugify(s = "") {
+  return String(s)
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function mapModifiers(dbGroups) {
+  const arr = Array.isArray(dbGroups) ? dbGroups : [];
+  const mapped = arr.map((g) => {
+    const isRadio = !!g.required && (g.max === 1 || g.min === 1);
+    return {
+      title: g.name, // ← frontend expects 'title'
+      type: isRadio ? "radio" : "checkbox",
+      required: !!g.required,
+      min: Number(g.min) || 0,
+      max: Number(g.max) || 0,
+      options: (Array.isArray(g.options) ? g.options : []).map((o) => ({
+        label: o.name, // ← frontend expects 'label'
+        value: slugify(o.name),
+        price: Number(o.price) || 0,
+      })),
+    };
+  });
+  //  add special instructions note at the end of the modifiers model
+  mapped.push({
+    title: "Speciella instruktioner",
+    type: "textarea",
+    placeholder: "T.ex. ingen lök, extra sås …",
+  });
+
+  return mapped;
+}
 // ---------- DB ----------
 connectDB();
 
@@ -230,6 +268,58 @@ app.get("/api/health", (req, res) => {
     appUrl: APP_URL,
     emailFrom: process.env.EMAIL_FROM,
   });
+});
+
+app.get("/api/menu", async (req, res) => {
+  try {
+    const docs = await MenuItem.find({ isActive: true })
+      .lean()
+      .sort({ sort: 1, createdAt: 1 });
+
+    const normalizeCategory = (raw = "") => {
+      const c = String(raw || "")
+        .trim()
+        .toLowerCase();
+      if (["roller", "rollers", "rolls"].includes(c)) return "rollers";
+      if (["pita-bread", "pitabrod", "pitabröd", "pita"].includes(c))
+        return "pitabrod";
+      if (
+        [
+          "addition",
+          "additions",
+          "addition-menu",
+          "tillbehör",
+          "tillbehor",
+        ].includes(c)
+      )
+        return "addition";
+      if (["veg", "vegetarian", "vegetarisk"].includes(c)) return "vegetarisk";
+      if (["drinks", "drink", "drinker", "drycker"].includes(c))
+        return "drinks";
+      return c; // pizza, burgers, salads, dishes, boxes, lunch, etc.
+    };
+
+    // convert to array of items for frontend model/modifiers
+    const items = docs.map((d) => ({
+      id: d._id.toString(),
+      name: d.name,
+      desc: d.description || "",
+      price:
+        d.price ??
+        (Array.isArray(d.sizes) && d.sizes[0] ? d.sizes[0].price : 0),
+      image: d.imageUrl || "/assets/images/default-food.jpg",
+      category: normalizeCategory(d.category),
+      // ✅ Important: always return Array, not null
+      sizes: Array.isArray(d.sizes) ? d.sizes : [],
+      // ✅ Most important thing: converted the modifiers to the interface form
+      modifiers: mapModifiers(d.modifiers),
+    }));
+
+    res.json({ success: true, items });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: "Failed to load menu" });
+  }
 });
 
 app.use(
@@ -838,117 +928,117 @@ app.get("/api/admin/stats", adminAuth, async (req, res) => {
 });
 
 // ----------  auth (if you still want these here) ----------
-app.post("/api/register", async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    const existingUser = await User.findOne({ email });
-    if (existingUser)
-      return res.status(400).json({ error: "Email already registered" });
+// app.post("/api/register", async (req, res) => {
+//   try {
+//     const { name, email, password } = req.body;
+//     const existingUser = await User.findOne({ email });
+//     if (existingUser)
+//       return res.status(400).json({ error: "Email already registered" });
 
-    const user = await User.create({ name, email, password });
-    const token = user.generateAuthToken();
+//     const user = await User.create({ name, email, password });
+//     const token = user.generateAuthToken();
 
-    res.status(201).json({
-      success: true,
-      token,
-      user: { id: user._id, name: user.name, email: user.email },
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+//     res.status(201).json({
+//       success: true,
+//       token,
+//       user: { id: user._id, name: user.name, email: user.email },
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
-app.post("/api/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({ email });
-    if (!user)
-      return res.status(401).json({ error: "Incorrect email or password." });
+// app.post("/api/login", async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+//     const user = await User.findOne({ email });
+//     if (!user)
+//       return res.status(401).json({ error: "Incorrect email or password." });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch)
-      return res.status(401).json({ error: "Incorrect email or password." });
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch)
+//       return res.status(401).json({ error: "Incorrect email or password." });
 
-    const token = user.generateAuthToken();
-    res.json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        address: user.address,
-      },
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+//     const token = user.generateAuthToken();
+//     res.json({
+//       success: true,
+//       token,
+//       user: {
+//         id: user._id,
+//         name: user.name,
+//         email: user.email,
+//         phone: user.phone,
+//         address: user.address,
+//       },
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
 // ---------- Password reset using centralized transporter ----------
-app.post("/api/forgot-password", async (req, res) => {
-  try {
-    const { email } = req.body;
-    const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ error: "User not found" });
+// app.post("/api/forgot-password", async (req, res) => {
+//   try {
+//     const { email } = req.body;
+//     const user = await User.findOne({ email });
+//     if (!user) return res.status(404).json({ error: "User not found" });
 
-    const resetToken = user.getResetPasswordToken();
-    await user.save();
+//     const resetToken = user.getResetPasswordToken();
+//     await user.save();
 
-    const resetUrl = `${APP_URL}/reset-password/${resetToken}`;
-    const message = `
-      <h2>Password Reset Request</h2>
-      <p>You requested a password reset for your <strong>Matkungen</strong> account.</p>
-      <p>
-        <a href="${resetUrl}" style="display:inline-block; padding:10px 20px; background-color:#4CAF50; color:#ffffff; text-decoration:none; border-radius:5px;">
-          Click here to reset your password
-        </a>
-      </p>
-      <p>This link will expire in 10 minutes.</p>
-    `;
+//     const resetUrl = `${APP_URL}/reset-password/${resetToken}`;
+//     const message = `
+//       <h2>Password Reset Request</h2>
+//       <p>You requested a password reset for your <strong>Matkungen</strong> account.</p>
+//       <p>
+//         <a href="${resetUrl}" style="display:inline-block; padding:10px 20px; background-color:#4CAF50; color:#ffffff; text-decoration:none; border-radius:5px;">
+//           Click here to reset your password
+//         </a>
+//       </p>
+//       <p>This link will expire in 10 minutes.</p>
+//     `;
 
-    await transporter.sendMail({
-      from: `"Matkungen" <${process.env.EMAIL_USER}>`,
-      to: user.email,
-      subject: "Password Reset Request",
-      html: message,
-    });
+//     await transporter.sendMail({
+//       from: `"Matkungen" <${process.env.EMAIL_USER}>`,
+//       to: user.email,
+//       subject: "Password Reset Request",
+//       html: message,
+//     });
 
-    res.json({ success: true, message: "Password reset email sent" });
-  } catch (error) {
-    console.error("Forgot password error:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
+//     res.json({ success: true, message: "Password reset email sent" });
+//   } catch (error) {
+//     console.error("Forgot password error:", error);
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
-app.put("/api/reset-password/:token", async (req, res) => {
-  try {
-    const { token } = req.params;
-    const { password } = req.body;
+// app.put("/api/reset-password/:token", async (req, res) => {
+//   try {
+//     const { token } = req.params;
+//     const { password } = req.body;
 
-    const resetPasswordToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .toString("hex");
-    const user = await User.findOne({
-      resetPasswordToken,
-      resetPasswordExpire: { $gt: Date.now() },
-    });
+//     const resetPasswordToken = crypto
+//       .createHash("sha256")
+//       .update(token)
+//       .toString("hex");
+//     const user = await User.findOne({
+//       resetPasswordToken,
+//       resetPasswordExpire: { $gt: Date.now() },
+//     });
 
-    if (!user)
-      return res.status(400).json({ error: "Invalid or expired token" });
+//     if (!user)
+//       return res.status(400).json({ error: "Invalid or expired token" });
 
-    user.password = password;
-    user.resetPasswordToken = undefined;
-    user.resetPasswordExpire = undefined;
-    await user.save();
+//     user.password = password;
+//     user.resetPasswordToken = undefined;
+//     user.resetPasswordExpire = undefined;
+//     await user.save();
 
-    res.json({ success: true, message: "Password updated successfully" });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
+//     res.json({ success: true, message: "Password updated successfully" });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 
 // Admin reset password page
 app.get("/admin-reset-password/:token", (req, res) => {

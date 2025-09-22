@@ -8,9 +8,6 @@ const ModifierOptionSchema = new mongoose.Schema({
 
 const ModifierGroupSchema = new mongoose.Schema({
   name: { type: String, required: true }, // e.g. "Toppings"
-  required: { type: Boolean, default: false }, // must pick at least one?
-  min: { type: Number, default: 0 },
-  max: { type: Number, default: 0 }, // 0 = no limit
   options: { type: [ModifierOptionSchema], default: [] },
 });
 

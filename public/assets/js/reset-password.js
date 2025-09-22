@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const rememberCheckbox = document.getElementById("remember-reset");
 
   // Initialize "remember me" state
-  if (localStorage.getItem("rememberUser") === "true") {
+  if (rememberCheckbox && localStorage.getItem("rememberUser") === "true") {
     rememberCheckbox.checked = true;
   }
 
@@ -14,9 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const password = document.getElementById("new-password").value;
       const confirmPassword = document.getElementById("confirm-password").value;
-      const remember = rememberCheckbox.checked;
+      const remember = !!(rememberCheckbox && rememberCheckbox.checked);
       const messageDiv = document.getElementById("message");
-      messageDiv.innerHTML = ""; // clear previous messages
+
+      // Clear previous messages
+      messageDiv.innerHTML = "";
 
       if (password !== confirmPassword) {
         showMessage("Passwords do not match", true);
@@ -29,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       try {
-        const response = await fetch(`/api/reset-password/${token}`, {
+        const response = await fetch(`/api/auth/reset-password/${token}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ password, remember }),
@@ -41,22 +43,15 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error(data.error || "Password reset failed");
         }
 
-        showMessage(
-          `Password updated successfully! <a href="/" id="go-login">Back to login</a>`,
-          false
-        );
+        // Show success message that will auto-disappear
+        showMessage("Password updated successfully!", false);
+
+        // Then show the "Back to login" link separately after a delay
+        setTimeout(() => {
+          showLoginLink();
+        }, 2000);
 
         document.getElementById("reset-form").reset();
-
-        // Wait until the message renders and then attach event listener
-        setTimeout(() => {
-          document
-            .getElementById("go-login")
-            ?.addEventListener("click", function (e) {
-              e.preventDefault();
-              window.location.href = "/?showLogin=true";
-            });
-        }, 100);
 
         // Store remember preference
         localStorage.setItem("rememberUser", remember.toString());
@@ -67,12 +62,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function showMessage(message, isError) {
     const messageDiv = document.getElementById("message");
-    messageDiv.innerHTML = ""; // clear previous messages
-    messageDiv.style.display = "block";
 
-    const notification = document.createElement("div");
-    notification.className = `notification ${isError ? "error" : "success"}`;
-    notification.innerHTML = message;
-    messageDiv.appendChild(notification);
+    // Clear any existing messages except the login link
+    const existingMessage = messageDiv.querySelector(
+      ".success-message, .error-message"
+    );
+    if (existingMessage) {
+      messageDiv.removeChild(existingMessage);
+    }
+
+    const messageEl = document.createElement("div");
+    messageEl.className = isError ? "error-message" : "success-message";
+    messageEl.textContent = message;
+    messageDiv.appendChild(messageEl);
+
+    // Auto-hide after 2 seconds for success messages
+    if (!isError) {
+      setTimeout(() => {
+        if (messageEl.parentElement === messageDiv) {
+          messageEl.style.animation = "fadeOut 0.5s ease forwards";
+          setTimeout(() => {
+            if (messageEl.parentElement === messageDiv) {
+              messageDiv.removeChild(messageEl);
+            }
+          }, 500);
+        }
+      }, 2000);
+    }
+  }
+
+  function showLoginLink() {
+    const messageDiv = document.getElementById("message");
+
+    // Clear any existing login link
+    const existingLink = messageDiv.querySelector(".back-to-login");
+    if (existingLink) {
+      messageDiv.removeChild(existingLink);
+    }
+
+    const loginLink = document.createElement("a");
+    loginLink.href = "/";
+    loginLink.className = "back-to-login";
+    loginLink.textContent = "Back to login";
+    loginLink.id = "go-login";
+
+    loginLink.addEventListener("click", function (e) {
+      e.preventDefault();
+      window.location.href = "/?showLogin=true";
+    });
+
+    messageDiv.appendChild(loginLink);
   }
 });
