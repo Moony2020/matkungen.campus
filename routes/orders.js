@@ -229,6 +229,26 @@ router.post("/", optionalAuth, async (req, res) => {
       }
       userId = user._id;
     }
+    // Persist latest contact info on the user so Customers page shows it / registered users-customers
+    if (userId) {
+      // decide if the current order is pickup
+      const isPickup =
+        /pickup/i.test(String(req.body.fulfillmentMethod || "")) ||
+        /avh[aä]mtning/i.test(String(address || ""));
+
+      const set = {};
+      if (name) set.name = name; // optional, keep name in sync
+      if (phone) set.phone = phone; // always update latest phone
+
+      // Only save address when it's a real delivery address
+      if (!isPickup && address && !/avh[aä]mtning/i.test(address)) {
+        set.address = address;
+      }
+
+      if (Object.keys(set).length) {
+        await User.updateOne({ _id: userId }, { $set: set });
+      }
+    }
 
     const orderNumber = await generateUniqueOrderNumber();
     const paymentStatus =

@@ -1,5 +1,4 @@
 // public/assets/js/admin.customers.js
-// Lightweight Customers UI controller. Works alongside your main admin.js.
 
 const $ = (sel, parent = document) => parent.querySelector(sel);
 const $$ = (sel, parent = document) => Array.from(parent.querySelectorAll(sel));
@@ -164,7 +163,7 @@ const Customers = (() => {
         const badgeCount = json.data.filter((c) => c.totalOrders === 0).length;
         if (badgeCount > 0) {
           els.badge.textContent = String(badgeCount);
-          els.badge.style.display = "inline-block";
+          els.badge.style.display = "flex";
         } else {
           els.badge.style.display = "none";
         }
@@ -250,12 +249,21 @@ const Customers = (() => {
       const { customer, orders } = json;
       if (!els.drawerBody || !els.drawer) return;
 
+      // 👇 NEW: fall back to the most recent order's phone/address if user document is empty
+      const lastOrder =
+        Array.isArray(orders) && orders.length
+          ? orders[0] // assuming API returns newest first
+          : null;
+
+      const phoneInOrder = lastOrder?.customer?.phone || "—";
+      const addrInOrder = lastOrder?.customer?.address || "—";
+
       els.drawerBody.innerHTML = `
       <h3>${customer.name}</h3>
       <div class="drawer-block">
         <div><strong>Email:</strong> ${customer.email || "—"}</div>
-        <div><strong>Phone:</strong> ${customer.phone || "—"}</div>
-        <div><strong>Address:</strong> ${customer.address || "—"}</div>
+        <div><strong>Phone:</strong> ${customer.phone || phoneInOrder}</div>
+        <div><strong>Address:</strong> ${customer.address || addrInOrder}</div>
         <div><strong>Joined:</strong> ${new Date(
           customer.createdAt
         ).toLocaleString()}</div>
@@ -271,20 +279,19 @@ const Customers = (() => {
             ? orders
                 .map(
                   (o) => `
-                <div class="drawer-order">
-                  <div>#${o.orderNumber}</div>
-                  <div>${fmtMoney(o.total)}</div>
-                  <div>${o.status}</div>
-                  <div>${new Date(o.createdAt).toLocaleString()}</div>
-                </div>
-              `
+        <div class="drawer-order">
+          <div>#${o.orderNumber}</div>
+          <div>${fmtMoney(o.total)}</div>
+          <div>${o.status}</div>
+          <div>${new Date(o.createdAt).toLocaleString()}</div>
+        </div>
+        `
                 )
                 .join("")
             : "<div>No orders yet.</div>"
         }
       </div>
-    `;
-
+      `;
       els.drawer.classList.remove("hidden");
     } catch (e) {
       console.error("Open drawer error:", e);

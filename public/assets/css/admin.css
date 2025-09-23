@@ -265,15 +265,21 @@ body {
 
 .sidebar .badge {
     position: absolute;
-    right: 20px;
+    right: 26px;
     top: 50%;
     transform: translateY(-50%);
     background: var(--danger-color);
     color: white;
-    border-radius: 20px;
-    padding: 2px 8px;
-    font-size: 12px;
-    font-weight: bold;
+    min-width: 24px;
+    height: 24px;
+    font-size: var(--fontSize-label-4);
+    padding: 0 6px;
+    /* small horizontal padding */
+    border-radius: 50%;
+    /* pill */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .sidebar-footer {
