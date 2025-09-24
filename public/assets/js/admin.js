@@ -494,6 +494,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Load recent orders
         await this.loadRecentOrders();
         this.updateViewAllButton();
+        // Fetch top items for dashboard
+        await this.fetchTopItems("week");
       } catch (error) {
         console.error("Dashboard load error:", error);
         this.showNotification("Failed to load dashboard data", true);
@@ -508,79 +510,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    // async showTodaysOrdersModal() {
-    //   try {
-    //     const token = localStorage.getItem("adminToken");
-    //     const response = await fetch("/api/admin/orders/today", {
-    //       headers: { Authorization: `Bearer ${token}` },
-    //     });
-
-    //     const { orders } = await response.json();
-    //     if (!response.ok) throw new Error("Failed to fetch today's orders");
-
-    //     this.createTodaysOrdersModal(orders);
-    //   } catch (error) {
-    //     this.showNotification(error.message, true);
-    //   }
-    // }
-
-    // createTodaysOrdersModal(orders) {
-    //   const modal = document.createElement("div");
-    //   modal.className = "todays-orders-modal";
-
-    //   modal.innerHTML = `
-    //   <div class="modal-overlay"></div>
-    //   <div class="modal-container">
-    //     <div class="modal-header">
-    //       <h3>Today's Orders (${orders.length})</h3>
-    //       <button class="close-modal">&times;</button>
-    //     </div>
-    //     <div class="modal-body">
-    //       <div class="orders-table-header">
-    //         <div>Order #</div>
-    //         <div>Customer</div>
-    //         <div>Items</div>
-    //         <div>Total</div>
-    //         <div>Status</div>
-    //       </div>
-    //       <div class="orders-table-body" id="todays-orders-list">
-    //         ${
-    //           orders.length > 0
-    //             ? orders.map((order) => this.createOrderRow(order)).join("")
-    //             : `<div class="empty-state">No orders today</div>`
-    //         }
-    //       </div>
-    //     </div>
-    //     <div class="modal-footer">
-    //       <button class="btn btn-secondary close-modal">Close</button>
-    //     </div>
-    //   </div>
-    // `;
-
-    //   document.body.appendChild(modal);
-    //   document.body.classList.add("modal-open");
-
-    //   // Add close functionality
-    //   modal.querySelectorAll(".close-modal").forEach((btn) => {
-    //     btn.addEventListener("click", () => {
-    //       modal.remove();
-    //       document.body.classList.remove("modal-open");
-    //     });
-    //   });
-
-    //   // Add click handler to view order details
-    //   modal.querySelectorAll(".view-order").forEach((btn) => {
-    //     btn.addEventListener("click", (e) => {
-    //       const orderId = e.target.closest("button").dataset.order;
-    //       this.showOrderDetails(orderId);
-    //       modal.remove();
-    //       document.body.classList.remove("modal-open");
-    //     });
-    //   });
-    // }
-
-    // And ensure updateDashboardStats is properly updating the UI
-
+    //  ensure updateDashboardStats is properly updating the UI
     updateDashboardStats(stats) {
       // ✅ Safely update today's orders (fallback to 0 if missing/invalid)
       document.getElementById("today-orders").textContent =
@@ -751,6 +681,57 @@ document.addEventListener("DOMContentLoaded", function () {
         viewAllBtn.textContent = "View All";
         viewAllBtn.classList.remove("showing-all");
       }
+    }
+
+    // --- Top Items ---
+    async fetchTopItems(period = "week") {
+      try {
+        const token = localStorage.getItem("adminToken");
+        if (!token) return;
+
+        const res = await fetch(
+          `/api/admin/top-items?period=${encodeURIComponent(period)}&limit=5`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+
+        const data = await res.json();
+        if (!res.ok || !data.success)
+          throw new Error(data.error || "Failed to load top items");
+
+        this.renderTopItems(data.items || []);
+      } catch (err) {
+        console.error("Top items:", err);
+        this.renderTopItems([], /*error*/ true);
+      }
+    }
+
+    renderTopItems(items, error = false) {
+      const list = document.getElementById("top-items-list");
+      if (!list) return;
+
+      if (error) {
+        list.innerHTML = `<li class="empty-state">Failed to load top items</li>`;
+        return;
+      }
+      if (!items.length) {
+        list.innerHTML = `<li class="empty-state">No data for this period</li>`;
+        return;
+      }
+
+      list.innerHTML = items
+        .map(
+          (it, idx) => `
+      <li class="top-item">
+        <span class="rank">#${idx + 1}</span>
+        <span class="name">${it.name}</span>
+        <span class="qty">${it.qty} sold</span>
+        <span class="money">${Number(it.revenue || 0).toFixed(2)} kr</span>
+      </li>
+    `
+        )
+        .join("");
     }
 
     async loadOrders(page = 1, filters = {}) {
@@ -2476,6 +2457,7 @@ document.addEventListener("DOMContentLoaded", function () {
     //     this.showNotification("Failed to print receipt", true);
     //   }
     // }
+
     setupEventListeners() {
       // ---------- Sidebar toggle & outside-click close ----------
       const sidebar = document.querySelector(".sidebar");
@@ -2631,6 +2613,15 @@ document.addEventListener("DOMContentLoaded", function () {
               this.showSearchResults(searchTerm);
             }
           }, 500);
+        });
+      }
+
+      // ---------- Top items filter change ----------
+      const topItemsFilter = document.getElementById("top-items-filter");
+      if (topItemsFilter) {
+        topItemsFilter.addEventListener("change", (e) => {
+          const period = e.target.value; // "week" | "month"
+          this.fetchTopItems(period);
         });
       }
 

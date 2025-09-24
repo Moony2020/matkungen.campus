@@ -182,6 +182,68 @@ router.put("/reset-password/:token", async (req, res) => {
 // --------------- PROTECTED routes start here ---------------
 router.use(adminAuth);
 
+// ✅ Top menu items (best sellers) for week/month
+router.get("/top-items", async (req, res) => {
+  try {
+    const period = (req.query.period || "week").toLowerCase(); // "week" | "month"
+    const limit = Math.min(parseInt(req.query.limit || "5", 10), 20);
+
+    const now = new Date();
+    let startDate;
+
+    if (period === "month") {
+      // last 30 days
+      startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 30);
+    } else {
+      // default: last 7 days
+      startDate = new Date(now);
+      startDate.setDate(startDate.getDate() - 7);
+    }
+
+    // Count only completed/paid orders; include Delivered first if you prefer:
+    // match: { status: "Delivered", paymentStatus: "Completed", createdAt: { $gte: startDate } }
+    const top = await Order.aggregate([
+      {
+        $match: {
+          paymentStatus: "Completed",
+          createdAt: { $gte: startDate },
+        },
+      },
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.name",
+          qty: { $sum: { $toInt: "$items.quantity" } },
+          revenue: {
+            $sum: {
+              $multiply: [
+                { $toDouble: { $ifNull: ["$items.price", 0] } },
+                { $toInt: { $ifNull: ["$items.quantity", 0] } },
+              ],
+            },
+          },
+        },
+      },
+      { $sort: { qty: -1, revenue: -1 } },
+      { $limit: limit },
+      {
+        $project: {
+          name: "$_id",
+          qty: 1,
+          revenue: { $round: ["$revenue", 2] },
+          _id: 0,
+        },
+      },
+    ]);
+
+    res.json({ success: true, period, items: top });
+  } catch (err) {
+    console.error("Top items error:", err);
+    res.status(500).json({ success: false, error: "Failed to load top items" });
+  }
+});
+
 // ✅ Verify (for frontend to check session)
 router.get("/verify", (req, res) => {
   // adminAuth put the payload on req.admin

@@ -165,7 +165,7 @@ body {
 
 /* Sidebar Styles */
 .sidebar {
-    width: 280px;
+    width: 270px;
     background: var(--sidebar-bg);
     color: white;
     padding: 20px 0;
@@ -181,6 +181,48 @@ body {
     box-shadow: 2px 0 15px rgba(0, 0, 0, 0.1);
     overflow-y: auto;
     /* Allows scrolling if content exceeds height */
+}
+
+/* Make wrapped search behave like the old inputs (Menu + Customers) */
+#menu-section .card .card-header .actions .search-bar,
+#customers-section .section-header .actions .search-bar {
+    position: relative;
+    /* anchor the icon */
+    display: flex;
+    /* keeps all categories in menu section aligned vertically having a space from search bar */
+}
+
+/* Ensure input height + left padding for the icon */
+#menu-section .card .card-header .actions .search-bar input,
+#customers-section .section-header .actions .search-bar input {
+    padding-left: 46px !important;
+    /* was 40px; bump a bit more */
+    box-sizing: border-box;
+    height: 38px;
+    line-height: 38px;
+}
+
+/* Center the icon perfectly */
+#menu-section .card .card-header .actions .search-bar i,
+#customers-section .section-header .actions .search-bar i {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    line-height: 1;
+    pointer-events: none;
+}
+
+/* Optional: small gap after the search field */
+#menu-section .card .card-header .actions .search-bar,
+#customers-section .section-header .actions .search-bar {
+    margin-right: 12px;
+}
+
+
+/* Dark mode: give the sidebar a thin light shadow separator */
+[data-theme="dark"] .sidebar {
+    box-shadow: 2px 0 4px rgba(74, 74, 74, 0.199);
 }
 
 .sidebar .logo {
@@ -356,6 +398,16 @@ body {
 .header-left {
     display: flex;
     align-items: center;
+}
+
+/* Hide admin hearder search bar by default like (Orders,Menu, Customers)*/
+.admin-header .search-bar {
+    display: none;
+}
+
+/* Show admin hearder search bar only when Dashboard is active */
+:root:has(#dashboard-section.content-section.active) .admin-header .search-bar {
+    display: block;
 }
 
 #sidebar-toggle {
@@ -1275,7 +1327,10 @@ tr:hover {
 
 #settings-section .select-field,
 #menu-section .select-field,
-#orders-section .select-field {
+#orders-section .select-field,
+.order-status-chart .select-field,
+.revenue-chart .select-field,
+.top-items .select-field {
     position: relative;
     /* the anchor for absolute chevron */
     display: inline-block;
@@ -1372,6 +1427,10 @@ tr:hover {
     border-bottom: 1px solid var(--border-color);
 }
 
+[data-theme="dark"] #menu-section .order-card .order-header {
+    border-bottom: 1px solid var(--davys-grey);
+}
+
 #menu-section .order-card .order-number {
     font-weight: var(--weight-600);
     font-size: var(--fontSize-3);
@@ -1434,6 +1493,10 @@ tr:hover {
     gap: 10px;
     flex-wrap: wrap;
     border-top: 1px solid var(--border-color);
+}
+
+[data-theme="dark"] #menu-section .order-card .card-actions {
+    border-top: 1px solid var(--davys-grey);
 }
 
 #menu-section .order-card .card-actions .btn {
@@ -1773,7 +1836,6 @@ tr:hover {
         min-width: 96px;
         padding-inline: 16px;
     }
-
 }
 
 /* ——— Smaller close button on tiny screens ——— */
@@ -1840,7 +1902,10 @@ tr:hover {
 /* Hide native arrow, leave room for icon */
 #orders-section .select-field select,
 #menu-section .select-field select,
-#settings-section .select-field select {
+#settings-section .select-field select,
+.order-status-chart .select-field select,
+.revenue-chart .select-field select,
+.top-items .select-field select {
     appearance: none;
     -webkit-appearance: none;
     /* Safari/iOS */
@@ -1867,7 +1932,10 @@ tr:hover {
 /* Old IE/Edge */
 #orders-section .select-field select::-ms-expand,
 #menu-section .select-field select::-ms-expand,
-#settings-section .select-field select::-ms-expand {
+#settings-section .select-field select::-ms-expand,
+.order-status-chart .select-field select::-ms-expand,
+.revenue-chart .select-field select::-ms-expand,
+.top-items .select-field select::-ms-expand {
     display: none;
 }
 
@@ -1910,7 +1978,10 @@ tr:hover {
 /* Chevron icon styling for all sections */
 #settings-section .select-field .chevron,
 #menu-section .select-field .chevron,
-#orders-section .select-field .chevron {
+#orders-section .select-field .chevron,
+.order-status-chart .select-field .chevron,
+.revenue-chart .select-field .chevron,
+.top-items .select-field .chevron {
     position: absolute;
     right: 10px;
     /* sits over the select’s right padding */
@@ -2285,7 +2356,7 @@ tr:hover {
 }
 
 #customers-table .cust-created {
-    font-size: .85rem;
+    font-size: var(--fontSize-label-4);
     opacity: .7;
 }
 
@@ -2380,7 +2451,6 @@ tr:hover {
     cursor: not-allowed;
 }
 
-
 #customers-section #customers-search::placeholder {
     color: var(--text-lighter);
 }
@@ -2435,12 +2505,7 @@ tr:hover {
 }
 
 /* Dark mode chevron color */
-[data-theme="dark"] #orders-section .select-field .chevron,
-[data-theme="dark"] #menu-section .select-field .chevron,
-[data-theme="dark"] #settings-section .select-field .chevron,
-[data-theme="dark"] #customers-section .section-header .actions .select-field .chevron {
-    color: var(--white);
-}
+
 
 /* Hover for all selects: light blue border (header, Orders, Customers) */
 .search-bar input:hover,
@@ -2450,7 +2515,11 @@ tr:hover {
 #menu-section #menu-search:hover,
 #customers-section #customers-search:hover,
 #customers-section .select-field select:hover,
-#settings-section .select-field select:hover {
+#settings-section .select-field select:hover,
+.order-status-chart .select-field select:hover,
+.revenue-chart .select-field select:hover,
+.top-items .select-field select:hover {
+    box-shadow: 0 0 0 3px rgba(67, 97, 238, .15);
     border-color: var(--secondary-blue-light) !important;
 }
 
@@ -2462,10 +2531,20 @@ tr:hover {
 #menu-section #menu-search:focus,
 #customers-section #customers-search:focus,
 #customers-section .select-field select:focus,
-#settings-section .select-field select:focus {
+#settings-section .select-field select:focus,
+.order-status-chart .select-field select:focus,
+.revenue-chart .select-field select:focus,
+.top-items .select-field select:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(67, 97, 238, .15);
     border-color: var(--secondary-blue-light) !important;
+}
+
+[data-theme="dark"] #orders-section .select-field .chevron,
+[data-theme="dark"] #menu-section .select-field .chevron,
+[data-theme="dark"] #settings-section .select-field .chevron,
+[data-theme="dark"] #customers-section .section-header .actions .select-field .chevron {
+    color: var(--white);
 }
 
 /* Dark mode */
@@ -2473,7 +2552,16 @@ tr:hover {
 [data-theme="dark"] #orders-section .select-field select,
 [data-theme="dark"] #menu-section .select-field select,
 [data-theme="dark"] #settings-section .select-field select,
-[data-theme="dark"] #customers-section .select-field select {
+[data-theme="dark"] #customers-section .select-field select,
+[data-theme="dark"] #settings-section .select-field select,
+
+
+/* Dashboard: Order Status filter */
+[data-theme="dark"] #status-chart-filter,
+/* Dashboard: Revenue filter */
+[data-theme="dark"] #revenue-chart-filter,
+/* Dashboard: Top Items filter */
+[data-theme="dark"] #top-items-filter {
     background: var(--card-bg-light);
     color: var(--white);
     border: 1px solid var(--davys-grey);
@@ -2587,8 +2675,11 @@ tr:hover {
     margin: .75rem 0 1rem;
 }
 
+/* orders size in drawer in Customers section */
 .drawer-orders {
     display: grid;
+    gap: .3rem;
+    font-size: .9rem;
 }
 
 .drawer-order {
@@ -2596,8 +2687,13 @@ tr:hover {
     grid-template-columns: 1fr auto auto auto;
     gap: .6rem;
     align-items: center;
-    padding: .6rem;
-    border-bottom: 1px dashed rgba(0, 0, 0, .08);
+    padding: .5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, .08);
+}
+
+[data-theme="dark"] .drawer-order {
+    border: 1px solid var(--card-bg-lighter);
 }
 
 .tag {

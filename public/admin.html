@@ -215,15 +215,18 @@
             <div class="order-status-chart card">
               <div class="card-header">
                 <h3>Order Status</h3>
-
-                <div class="time-filter">
-                  <select id="status-chart-filter">
-                    <option value="today">Today</option>
-
-                    <option value="week">This Week</option>
-
-                    <option value="month">This Month</option>
-                  </select>
+                <div class="select-field">
+                  <div class="time-filter">
+                    <select id="status-chart-filter">
+                      <option value="today">Today</option>
+                      <option value="week">This Week</option>
+                      <option value="month">This Month</option>
+                    </select>
+                    <i
+                      class="ri-arrow-down-s-fill chevron"
+                      aria-hidden="true"
+                    ></i>
+                  </div>
                 </div>
               </div>
 
@@ -237,15 +240,18 @@
             <div class="revenue-chart card">
               <div class="card-header">
                 <h3>Revenue Analytics</h3>
-
-                <div class="time-filter">
-                  <select id="revenue-chart-filter">
-                    <option value="week">Last 7 Days</option>
-
-                    <option value="month">Last 30 Days</option>
-
-                    <option value="year">Last 12 Months</option>
-                  </select>
+                <div class="select-field">
+                  <div class="time-filter">
+                    <select id="revenue-chart-filter">
+                      <option value="week">Last 7 Days</option>
+                      <option value="month">Last 30 Days</option>
+                      <option value="year">Last 12 Months</option>
+                    </select>
+                    <i
+                      class="ri-arrow-down-s-fill chevron"
+                      aria-hidden="true"
+                    ></i>
+                  </div>
                 </div>
               </div>
 
@@ -257,13 +263,15 @@
             <div class="top-items card">
               <div class="card-header">
                 <h3>Top Menu Items</h3>
-
-                <div class="time-filter">
+                <div class="select-field">
                   <select id="top-items-filter">
-                    <option value="week">This Week</option>
-
+                    <option value="week" selected>This Week</option>
                     <option value="month">This Month</option>
                   </select>
+                  <i
+                    class="ri-arrow-down-s-fill chevron"
+                    aria-hidden="true"
+                  ></i>
                 </div>
               </div>
 
@@ -351,11 +359,14 @@
           <div class="card">
             <div class="card-header">
               <div class="actions">
-                <input
-                  id="menu-search"
-                  type="search"
-                  placeholder="Search items..."
-                />
+                <div class="search-bar">
+                  <i class="ri-search-line"></i>
+                  <input
+                    id="menu-search"
+                    type="search"
+                    placeholder="Search items..."
+                  />
+                </div>
                 <div class="select-field">
                   <select id="menu-filter-category">
                     <option value="">All Categories</option>
@@ -462,11 +473,14 @@
         >
           <div class="section-header">
             <div class="actions">
-              <input
-                id="customers-search"
-                type="search"
-                placeholder="Search name, email, phone..."
-              />
+              <div class="search-bar">
+                <i class="ri-search-line"></i>
+                <input
+                  id="customers-search"
+                  type="search"
+                  placeholder="Search name, email, phone..."
+                />
+              </div>
               <div class="select-field">
                 <select id="customers-filter">
                   <option value="all">All</option>
