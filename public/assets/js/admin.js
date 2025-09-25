@@ -411,7 +411,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const count = Number(todayOrders.textContent || "0") + 1;
       todayOrders.textContent = count;
       badge.textContent = count;
-      badge.style.display = "inline-block";
+      badge.style.display = "flex";
     }
 
     // play Notification Sound
@@ -707,7 +707,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
-    renderTopItems(items, error = false) {
+    renderTopItems(items = [], error = false) {
       const list = document.getElementById("top-items-list");
       if (!list) return;
 
@@ -720,18 +720,20 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      list.innerHTML = items
+      const top5 = items.slice(0, 5);
+      list.innerHTML = `
+    <ol>
+      ${top5
         .map(
-          (it, idx) => `
-      <li class="top-item">
-        <span class="rank">#${idx + 1}</span>
-        <span class="name">${it.name}</span>
-        <span class="qty">${it.qty} sold</span>
-        <span class="money">${Number(it.revenue || 0).toFixed(2)} kr</span>
-      </li>
-    `
+          (it, i) => `
+            <li class="top-item">
+              <span class="name">#${i + 1} ${it.name}</span>
+              <span class="stat">${it.qty ?? it.count ?? 0} sold</span>
+            </li>`
         )
-        .join("");
+        .join("")}
+    </ol>
+  `;
     }
 
     async loadOrders(page = 1, filters = {}) {
@@ -2625,51 +2627,150 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       }
 
-      // ---------- Delete all (confirm) ----------
-      const deleteAllBtn = document.getElementById("delete-all-orders");
-      const modal = document.getElementById("confirm-modal");
-      const confirmYes = document.getElementById("confirm-yes");
-      const confirmNo = document.getElementById("confirm-no");
-      if (deleteAllBtn && modal && confirmYes && confirmNo) {
-        deleteAllBtn.addEventListener(
-          "click",
-          () => (modal.style.display = "flex")
-        );
-        confirmNo.addEventListener(
-          "click",
-          () => (modal.style.display = "none")
-        );
-        confirmYes.addEventListener("click", async () => {
-          modal.style.display = "none";
-          try {
-            const response = await fetch("/api/admin/orders/delete-all", {
-              method: "DELETE",
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-              },
-            });
-            const result = await response.json();
-            if (response.ok) {
-              this.showNotification("✅ All orders deleted successfully.");
-              document.getElementById("orders-list").innerHTML =
-                '<div class="empty-state">No orders found.</div>';
-              document.getElementById("recent-orders-table").innerHTML =
-                '<div class="empty-state">No recent orders.</div>';
-            } else {
-              this.showNotification(
-                result?.error || "❌ Failed to delete orders.",
-                true
-              );
-            }
-          } catch (err) {
-            console.error("Error:", err);
-            this.showNotification(
-              "❌ An error occurred while deleting orders.",
+      // ----- Danger Zone: Delete ALL orders (type-to-confirm) -----
+      (function wireDangerDeleteAll() {
+        const form = document.getElementById("danger-delete-all-form");
+        const input = document.getElementById("danger-phrase");
+        const btn = document.getElementById("danger-delete-all");
+        const toggle = document.getElementById("danger-toggle-visibility");
+        if (!form || !input || !btn) return;
+
+        // show/hide password
+        toggle?.addEventListener("click", () => {
+          const isPw = input.type === "password";
+          input.type = isPw ? "text" : "password";
+          toggle.innerHTML = isPw
+            ? '<i class="ri-eye-line"></i>'
+            : '<i class="ri-eye-off-line"></i>';
+        });
+
+        // Enable delete button when field is non-empty (server verifies real phrase)
+        input.addEventListener("input", () => {
+          btn.disabled = input.value.trim().length === 0;
+        });
+
+        form.addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const phrase = input.value.trim();
+
+          // If empty: short error + highlight
+          if (!phrase) {
+            input.classList.add("input-error"); // needs the CSS below
+            (window.showNotification || console.warn)(
+              "Please enter the security phrase.",
               true
             );
+            setTimeout(() => input.classList.remove("input-error"), 2000);
+            return;
+          }
+
+          // Confirm dialog (with danger)
+          const ok = await confirmDialog(
+            "This will permanently delete ALL orders.\nThis cannot be undone. Proceed?",
+            { danger: true }
+          );
+          if (!ok) return;
+
+          btn.disabled = true;
+          btn.textContent = "Deleting…";
+
+          try {
+            const res = await fetch("/api/admin/orders/delete-all", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${
+                  localStorage.getItem("adminToken") || ""
+                }`,
+              },
+              body: JSON.stringify({ phrase }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              // Mismatch: short message, highlight, then stop
+              if (
+                String(data?.error || "")
+                  .toLowerCase()
+                  .includes("mismatch")
+              ) {
+                input.classList.add("input-error");
+                (window.showNotification || console.warn)(
+                  "Security phrase mismatch.",
+                  true
+                );
+                setTimeout(() => input.classList.remove("input-error"), 2000);
+                return;
+              }
+              throw new Error(data?.error || "Delete failed");
+            }
+
+            // Success
+            input.value = "";
+            (window.showNotification || console.log)(
+              `Deleted ${data.deleted || 0} orders`
+            );
+            window.loadOrders?.(1);
+            window.loadRecentOrders?.();
+          } catch (err) {
+            console.error(err);
+            (window.showNotification || console.error)(
+              String(err.message || err),
+              true
+            );
+          } finally {
+            btn.textContent = "Delete all orders";
+            btn.disabled = true; // require fresh phrase
           }
         });
-      }
+      })();
+
+      // ---------- Delete all (confirm) ----------
+      // const deleteAllBtn = document.getElementById("delete-all-orders");
+      // const modal = document.getElementById("confirm-modal");
+      // const confirmYes = document.getElementById("confirm-yes");
+      // const confirmNo = document.getElementById("confirm-no");
+      // if (deleteAllBtn && modal && confirmYes && confirmNo) {
+      //   deleteAllBtn.addEventListener(
+      //     "click",
+      //     () => (modal.style.display = "flex")
+      //   );
+      //   confirmNo.addEventListener(
+      //     "click",
+      //     () => (modal.style.display = "none")
+      //   );
+      //   confirmYes.addEventListener("click", async () => {
+      //     modal.style.display = "none";
+      //     try {
+      //       const response = await fetch("/api/admin/orders/delete-all", {
+      //         method: "DELETE",
+      //         headers: {
+      //           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+      //         },
+      //       });
+      //       const result = await response.json();
+      //       if (response.ok) {
+      //         this.showNotification("✅ All orders deleted successfully.");
+      //         document.getElementById("orders-list").innerHTML =
+      //           '<div class="empty-state">No orders found.</div>';
+      //         document.getElementById("recent-orders-table").innerHTML =
+      //           '<div class="empty-state">No recent orders.</div>';
+      //       } else {
+      //         this.showNotification(
+      //           result?.error || "❌ Failed to delete orders.",
+      //           true
+      //         );
+      //       }
+      //     } catch (err) {
+      //       console.error("Error:", err);
+      //       this.showNotification(
+      //         "❌ An error occurred while deleting orders.",
+      //         true
+      //       );
+      //     }
+      //   });
+      // }
 
       // ===== MENU (D.1) wire filter/search/new =====
       document
@@ -3055,20 +3156,25 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Generic async confirm using #confirm-modal
-  function confirmDialog(message = "Are you sure?") {
+  function confirmDialog(message = "Are you sure?", { danger = false } = {}) {
     const modal = document.getElementById("confirm-modal");
-    const msgEl = modal.querySelector(".custom-modal-content p");
+    const text = modal.querySelector("#confirm-text");
     const yes = modal.querySelector("#confirm-yes");
     const no = modal.querySelector("#confirm-no");
+    const backdrop = modal.querySelector(".custom-modal-backdrop");
 
-    msgEl.textContent = message;
+    text.textContent = message;
+    modal.classList.toggle("danger", !!danger);
     modal.style.display = "flex";
 
     return new Promise((resolve) => {
       const cleanup = () => {
         modal.style.display = "none";
+        modal.classList.remove("danger");
         yes.removeEventListener("click", onYes);
         no.removeEventListener("click", onNo);
+        backdrop?.removeEventListener("click", onNo);
+        document.removeEventListener("keydown", onEsc);
       };
       const onYes = () => {
         cleanup();
@@ -3078,11 +3184,17 @@ document.addEventListener("DOMContentLoaded", function () {
         cleanup();
         resolve(false);
       };
+      const onEsc = (e) => {
+        if (e.key === "Escape") onNo();
+      };
 
       yes.addEventListener("click", onYes, { once: true });
       no.addEventListener("click", onNo, { once: true });
+      backdrop?.addEventListener("click", onNo, { once: true });
+      document.addEventListener("keydown", onEsc);
     });
   }
+
   // Initialize the admin panel
   new AdminPanel();
 });

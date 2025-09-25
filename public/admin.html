@@ -14,8 +14,8 @@
       rel="stylesheet"
     />
     <link
-      href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css"
       rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css"
     />
     <link
       href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
@@ -50,7 +50,7 @@
             <li data-section="orders">
               <a href="#"><i class="ri-shopping-bag-line"></i> Orders</a>
 
-              <span class="badge" id="pending-orders-badge">0</span>
+              <span class="badge" id="pending-orders-badge">0 </span>
             </li>
 
             <li data-section="menu">
@@ -322,9 +322,6 @@
 
               <button class="btn btn-primary" id="export-orders">
                 <i class="ri-download-line"></i> Export
-              </button>
-              <button class="btn btn-danger" id="delete-all-orders">
-                <i class="ri-delete-bin-line"></i> Delete All Orders
               </button>
             </div>
           </div>
@@ -602,20 +599,98 @@
               <span id="settings-status" class="muted"></span>
             </div>
           </div>
+
+          <!-- Danger Zone -->
+          <div class="card danger-card" id="danger-orders-card">
+            <h3>
+              <i class="ri-alert-fill" style="color: #ff4d4f"></i>
+              Danger Zone
+            </h3>
+
+            <div class="modal-icon danger-icon" aria-hidden="true">
+              <i class="ri-alert-triangle-fill"></i>
+            </div>
+
+            <p class="muted">
+              ⚠️ This action will permanently delete ALL orders from the
+              database. This operation cannot be undone.
+            </p>
+
+            <form
+              id="danger-delete-all-form"
+              class="danger-form"
+              autocomplete="off"
+            >
+              <label class="muted">Security Phrase Required</label>
+
+              <div class="danger-row">
+                <div class="danger-input-wrap">
+                  <input
+                    id="danger-phrase"
+                    type="password"
+                    inputmode="text"
+                    placeholder="Enter security phrase to confirm"
+                    aria-label="Security phrase confirmation"
+                    autocomplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    class="danger-toggle"
+                    id="danger-toggle-visibility"
+                    aria-label="Show/Hide security phrase"
+                    title="Toggle visibility"
+                  >
+                    <i class="ri-eye-off-line" aria-hidden="true"></i>
+                  </button>
+                </div>
+
+                <button
+                  id="danger-delete-all"
+                  type="submit"
+                  class="btn btn-danger"
+                  disabled
+                >
+                  <i class="ri-delete-bin-fill"></i>
+                  Delete All Orders
+                </button>
+              </div>
+
+              <small class="muted">
+                🔒 Only super-admins should know the security phrase. Make sure
+                you have proper backups.
+              </small>
+            </form>
+          </div>
         </section>
 
         <!-- Other sections would follow the same pattern if needed -->
       </main>
     </div>
     <!-- Delete orders Modal/message -->
+    <!-- Confirm Modal -->
+
     <div id="confirm-modal" class="custom-modal" style="display: none">
+      <div class="custom-modal-backdrop"></div>
       <div class="custom-modal-content">
-        <p>
-          Are you sure you want to delete ALL orders? This cannot be undone.
-        </p>
+        <!-- Enhanced danger icon -->
+        <div class="modal-icon danger-icon" aria-hidden="true">
+          <i class="ri-alert-triangle-fill"></i>
+        </div>
+
+        <h4 style="color: #ff4d4f; text-align: center; margin-bottom: 15px">
+          Confirm Dangerous Action
+        </h4>
+        <p id="confirm-text" style="text-align: center; line-height: 1.5"></p>
+
         <div class="custom-modal-actions">
-          <button id="confirm-yes" class="btn btn-danger">Yes</button>
-          <button id="confirm-no" class="btn btn-secondary">No</button>
+          <button id="confirm-no" class="btn btn-secondary">
+            <i class="ri-close-line"></i>
+            Cancel
+          </button>
+          <button id="confirm-yes" class="btn btn-danger">
+            <i class="ri-check-line"></i>
+            Confirm Delete
+          </button>
         </div>
       </div>
     </div>

@@ -692,15 +692,39 @@ router.put("/orders/:id/status", adminAuth, async (req, res) => {
 });
 
 // DELETE /api/admin/orders/delete-all
-router.delete("/orders/delete-all", adminAuth, async (req, res) => {
+// Only super admins should be able to do this (optional but recommended)
+const requireSuper = async (req, res, next) => {
   try {
-    await Order.deleteMany({});
-    res.status(200).json({ message: "All orders deleted successfully." });
-  } catch (error) {
-    console.error("Error deleting orders:", error);
-    res.status(500).json({ message: "Failed to delete orders." });
+    // assuming adminAuth put adminId on req; adapt if your token stores role directly
+    const admin = await Admin.findById(req.adminId).lean();
+    if (!admin || (admin.role && admin.role.toLowerCase() !== "super")) {
+      return res.status(403).json({ error: "Super admin only" });
+    }
+    next();
+  } catch (e) {
+    return res.status(500).json({ error: "Auth check failed" });
+  }
+};
+
+// routes/admin.js (or wherever your admin routes live)
+router.post("/orders/delete-all", adminAuth, async (req, res) => {
+  try {
+    const REQUIRED = process.env.DELETE_ALL_PHRASE || "DELETE ALL ORDERS"; // set a secret in env
+    const { phrase } = req.body || {};
+
+    // compare case-sensitive after trimming (change toUpperCase if you prefer case-insensitive)
+    if ((phrase || "").trim() !== REQUIRED.trim()) {
+      return res.status(400).json({ error: "Confirmation phrase mismatch" });
+    }
+
+    const result = await Order.deleteMany({});
+    res.json({ ok: true, deleted: result.deletedCount || 0 });
+  } catch (e) {
+    console.error("Delete-all error:", e);
+    res.status(500).json({ error: "Failed to delete orders" });
   }
 });
+
 // ========= CUSTOMERS API =========
 
 // GET /api/admin/customers

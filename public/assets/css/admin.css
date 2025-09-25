@@ -312,14 +312,14 @@ body {
     transform: translateY(-50%);
     background: var(--danger-color);
     color: white;
-    min-width: 24px;
-    height: 24px;
-    font-size: var(--fontSize-label-4);
-    padding: 0 6px;
-    /* small horizontal padding */
     border-radius: 50%;
+    padding: 2px 8px;
+    font-size: 12px;
+    width: 24px;
+    height: 24px;
+    font-weight: var(--weight-600);
     /* pill */
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
 }
@@ -1325,6 +1325,36 @@ tr:hover {
     margin-top: 10px;
 }
 
+/* Top Items list styling */
+.top-items-list {
+    margin: 8px 0 4px;
+}
+
+.top-items-list ol {
+    margin: 0;
+    padding-left: 1.25rem;
+    /* indent for numbers */
+}
+
+.top-item {
+    display: flex;
+    gap: 8px;
+    align-items: baseline;
+    padding: 4px 0;
+}
+
+.top-item .name {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.top-item .stat {
+    font-weight: 600;
+    opacity: .9;
+}
+
 #settings-section .select-field,
 #menu-section .select-field,
 #orders-section .select-field,
@@ -1759,7 +1789,7 @@ tr:hover {
     z-index: 1;
 }
 
-/* ---------- FIX: “required” checkbox alignment ---------- */
+/* ----------  “required” checkbox alignment ---------- */
 #menu-modal .subcard-header label.muted {
     display: inline-flex;
     /* puts text + checkbox on one line */
@@ -2159,7 +2189,8 @@ tr:hover {
 }
 
 /* Pagination */
-.pagination-controls {
+.pagination-controls,
+#customers-section #customers-pagination {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -2167,9 +2198,22 @@ tr:hover {
     margin-top: 20px;
 }
 
-.page-info {
+.page-info,
+#customers-section #customers-pagination .page-info {
     font-size: 14px;
     color: var(--text-light);
+}
+
+#customers-section #customers-pagination .btn {
+    display: inline-flex;
+    /* keep icon + text on one line */
+    align-items: center;
+    /* vertically center icon with text */
+    gap: 8px;
+    height: 36px;
+    line-height: 1;
+    /* prevents “floating” look */
+    padding: 8px 12px;
 }
 
 #menu-section #menu-search {
@@ -2516,6 +2560,7 @@ tr:hover {
 #customers-section #customers-search:hover,
 #customers-section .select-field select:hover,
 #settings-section .select-field select:hover,
+#settings-section .setting-item input[type="number"]:hover,
 .order-status-chart .select-field select:hover,
 .revenue-chart .select-field select:hover,
 .top-items .select-field select:hover {
@@ -2532,6 +2577,7 @@ tr:hover {
 #customers-section #customers-search:focus,
 #customers-section .select-field select:focus,
 #settings-section .select-field select:focus,
+#settings-section .setting-item input[type="number"]:focus,
 .order-status-chart .select-field select:focus,
 .revenue-chart .select-field select:focus,
 .top-items .select-field select:focus {
@@ -2565,6 +2611,270 @@ tr:hover {
     background: var(--card-bg-light);
     color: var(--white);
     border: 1px solid var(--davys-grey);
+}
+
+/* Danger Zone card */
+.danger-card {
+    margin-top: 4px;
+    padding: 20px;
+    border: 2px solid rgba(220, 38, 38, 0.3);
+    border-radius: 12px;
+    background: rgba(220, 38, 38, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.danger-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #ff4d4f, #d63031, #ff4d4f);
+    background-size: 200% 100%;
+    animation: danger-glow 3s ease-in-out infinite;
+}
+
+@keyframes danger-glow {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+[data-theme="dark"] .danger-card {
+    background: rgba(220, 38, 38, 0.12);
+    border-color: rgba(220, 38, 38, 0.5);
+}
+
+.card.danger-card h3 {
+    color: #ff4d4f;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+}
+
+/* Danger Icon Styling - Improved visibility */
+.modal-icon.danger-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(220, 38, 38, 0.15);
+    margin-bottom: 15px;
+    animation: pulse-danger 2s ease-in-out infinite;
+}
+
+.modal-icon.danger-icon i {
+    font-size: 28px;
+    color: #ff4d4f;
+    filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.3));
+}
+
+@keyframes pulse-danger {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Danger card specific icon */
+.danger-card .modal-icon.danger-icon {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    margin-bottom: 0;
+    width: 40px;
+    height: 40px;
+}
+
+.danger-card .modal-icon.danger-icon i {
+    font-size: 24px;
+}
+
+.danger-form {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.danger-form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #d63031;
+}
+
+.danger-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: start;
+    width: 100%;
+}
+
+.danger-row .btn {
+    margin-top: 5px;
+    width: 100%;
+    font-weight: 600;
+    padding: 12px;
+}
+
+/* Input + toggle - Improved styling */
+.danger-input-wrap {
+    position: relative;
+    width: 100%;
+}
+
+.danger-input-wrap input {
+    height: 46px;
+    width: 100%;
+    border-radius: 10px;
+    padding: 0 50px 0 15px;
+    border: 2px solid rgba(220, 38, 38, 0.3);
+    background: var(--card-bg);
+    color: var(--text-color);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.danger-input-wrap input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.danger-toggle {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 32px;
+    width: 32px;
+    border-radius: 8px;
+    border: 0;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    color: #666;
+}
+
+.danger-toggle:hover {
+    background: rgba(220, 38, 38, 0.1);
+    color: #ff4d4f;
+}
+
+[data-theme="dark"] .danger-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.danger-toggle i {
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+/* Placeholder colors */
+.danger-input-wrap input::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+    font-weight: 400;
+}
+
+[data-theme="dark"] .danger-input-wrap input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Focus and hover states */
+.danger-input-wrap input:hover {
+    border-color: rgba(220, 38, 38, 0.5);
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.danger-input-wrap input:focus {
+    outline: none;
+    border-color: #ff4d4f;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+
+/* Confirm Modal Danger Icon */
+#confirm-modal.danger .modal-icon.danger-icon {
+    margin: 0 auto 20px auto;
+    width: 60px;
+    height: 60px;
+    background: rgba(220, 38, 38, 0.2);
+}
+
+#confirm-modal.danger .modal-icon.danger-icon i {
+    font-size: 32px;
+    color: #ff4d4f;
+}
+
+#confirm-modal.danger .custom-modal-content {
+    border-top: 4px solid #ff4d4f;
+}
+
+/* Danger button enhancements */
+.btn-danger {
+    background: linear-gradient(135deg, #ff4d4f, #d63031);
+    border: none;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-danger:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ff6b6b, #e55039);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+}
+
+.btn-danger:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Warning text */
+.danger-card .muted {
+    color: #d63031 !important;
+    font-weight: 500;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.danger-card small.muted {
+    color: #666 !important;
+    font-size: 12px;
+    margin-top: 8px;
+    display: block;
+}
+
+[data-theme="dark"] .danger-card .muted {
+    color: #ff6b6b !important;
+}
+
+[data-theme="dark"] .danger-card small.muted {
+    color: #aaa !important;
 }
 
 /* Drawer */
@@ -3219,14 +3529,12 @@ tr:hover {
     }
 
     #search-results-container>div {
-
         /* Horizontal scroll inside the card */
         white-space: nowrap;
         /* Keep content in one line */
         padding: 12px;
         border: 1px solid var(--border-color);
         border-radius: 8px;
-
     }
 
     #search-results-container>div>* {

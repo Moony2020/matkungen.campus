@@ -4252,6 +4252,90 @@ body.nav-active {
     transition: background-color 0.3s ease;
 }
 
+/* ==== Payment overlay ==== */
+.payment-overlay[hidden] {
+    display: none !important;
+}
+
+.payment-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(10, 10, 10, 0.55);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.payment-overlay-card {
+    background: var(--smoky-black, #111);
+    color: var(--white, #fff);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 22px 26px;
+    min-width: 240px;
+    text-align: center;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, .45);
+}
+
+.payment-overlay-text {
+    margin-top: 10px;
+    font-weight: 600;
+    letter-spacing: .2px;
+}
+
+/* Spinner */
+.payment-spinner {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, .18);
+    border-top-color: var(--gold, #f5c15c);
+    animation: pay-spin 0.9s linear infinite;
+}
+
+@keyframes pay-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Light mode fallback */
+:root:not([data-theme="dark"]) .payment-overlay-card {
+    background: #fff;
+    color: #111;
+    border-color: rgba(0, 0, 0, .06);
+}
+
+/* shows next to PayPal buttons while we capture + create order */
+.paypal-inline-status {
+    display: none;
+    margin-top: 8px;
+    font-size: 14px;
+    opacity: .9;
+}
+
+/* simple spinner dot */
+.paypal-inline-status::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    animation: spin .8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 /* ==================== PRINT STYLES ==================== */
 @media print {
 
@@ -5018,7 +5102,8 @@ body.nav-active {
 #message {
     margin-top: 20px;
     text-align: center;
-    min-height: 60px; /* Reserve space for message */
+    min-height: 60px;
+    /* Reserve space for message */
 }
 
 /* Success message styling - appears below the form */
@@ -5053,6 +5138,7 @@ body.nav-active {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -5065,6 +5151,7 @@ body.nav-active {
         opacity: 1;
         transform: translateY(0);
     }
+
     to {
         opacity: 0;
         transform: translateY(-10px);

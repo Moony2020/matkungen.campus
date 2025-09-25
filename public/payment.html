@@ -221,7 +221,9 @@
 
               <!-- PayPal Button Container -->
               <div id="paypal-button-container" class="hidden"></div>
-
+              <div id="paypal-status" class="paypal-inline-status">
+                Processing…
+              </div>
               <!-- Swish Payment -->
               <div id="swish-form" class="hidden">
                 <p>
@@ -286,6 +288,14 @@
         </div>
       </section>
     </main>
+
+    <!-- Payment processing overlay -->
+    <div id="payment-overlay" class="payment-overlay" hidden>
+      <div class="payment-overlay-card">
+        <div class="payment-spinner" aria-hidden="true"></div>
+        <p class="payment-overlay-text">Processing payment…</p>
+      </div>
+    </div>
 
     <!-- 
     - #FOOTER

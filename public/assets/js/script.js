@@ -539,7 +539,7 @@ Sun:           12:00–22:00
     0: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
     1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
     2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
-    3: [{ start: 10 * 60, end: 22 * 60 }], // Wed 11:00–03:00 (Thu)
+    3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
     4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
     5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
     6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
@@ -1451,6 +1451,8 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
             return;
           }
 
+          const overlayStarted = Date.now();
+          showPaymentOverlay("Processing card payment…");
           try {
             // Ask your server to create a PaymentIntent and enforce name presence there too
             const res = await fetch("/create-payment-intent", {
@@ -1476,12 +1478,17 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
             if (confirmError) throw confirmError;
 
             if (paymentIntent?.status === "succeeded") {
+              // keep overlay up while we create the order
+              showPaymentOverlay("Finalizing your order…");
               await handlePaymentSuccess("Credit Card");
             }
           } catch (err) {
-            errEl.textContent =
+            document.getElementById("card-errors").textContent =
               err.message ||
               "Something went wrong while processing the payment.";
+          } finally {
+            // Keep overlay at least 600ms to avoid flicker if super fast
+            hidePaymentOverlay(600, overlayStarted);
           }
         });
 
@@ -1489,34 +1496,82 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       paypalSDK.onload = () => {
         if (!document.getElementById("paypal-button-container")) return;
 
+        // simple helpers for the inline status
+        const statusEl = document.getElementById("paypal-status");
+        const showPPStatus = (msg = "Processing…") => {
+          if (statusEl) {
+            statusEl.textContent = msg;
+            statusEl.style.display = "inline-flex";
+          }
+        };
+        const hidePPStatus = () => {
+          if (statusEl) statusEl.style.display = "none";
+        };
+
+        let ppActionsRef = null;
+
         paypal
           .Buttons({
+            // capture actions so we can disable/re-enable the button
+            onInit: (data, actions) => {
+              ppActionsRef = actions;
+            },
+
             createOrder: (data, actions) => {
               return fetch("/create-paypal-order", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount: (total / 100).toFixed(2) }),
+                body: JSON.stringify({ amount: (total / 100).toFixed(2) }), // SEK
               })
                 .then((res) => res.json())
                 .then((data) => data.orderID);
             },
+
             onApprove: async (data, actions) => {
               try {
+                // tiny inline feedback while we capture + create order
+                showPPStatus("Finalizing payment…");
+                ppActionsRef?.disable();
+
                 const response = await fetch("/capture-paypal-order", {
                   method: "POST",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({ orderID: data.orderID }),
                 });
-                const details = await response.json();
-                await handlePaymentSuccess("PayPal");
+
+                if (!response.ok) {
+                  const errData = await response.json().catch(() => ({}));
+                  throw new Error(
+                    errData.error || `Capture failed (${response.status})`
+                  );
+                }
+
+                // optional: check status if your server returns it
+                // const capture = await response.json();
+                // if (capture?.status && capture.status !== "COMPLETED") {
+                //   throw new Error("Payment not completed.");
+                // }
+
+                showPPStatus("Placing your order…");
+                await handlePaymentSuccess("PayPal"); // sound/toast happens here, after capture
               } catch (err) {
                 console.error("PayPal error:", err);
-                alert(`Payment failed: ${err.message}`);
+                alert(err?.message || "PayPal payment failed.");
+              } finally {
+                hidePPStatus();
+                ppActionsRef?.enable();
               }
             },
+
+            onCancel: () => {
+              hidePPStatus();
+              // nothing else; no full overlay for PayPal
+            },
+
             onError: (err) => {
               console.error("PayPal error:", err);
-              alert(`Payment failed: ${err.message}`);
+              hidePPStatus();
+              alert(err?.message || "PayPal error. Please try again.");
             },
           })
           .render("#paypal-button-container");
@@ -3943,6 +3998,22 @@ if (typeof window.renderMenu !== "function") {
   socket.on("menu:update", (doc) => upsertCardFromDoc(doc));
   socket.on("menu:delete", (doc) => removeCardById(doc._id || doc.id));
 })();
+
+function showPaymentOverlay(msg = "Processing payment…") {
+  const o = document.getElementById("payment-overlay");
+  if (!o) return;
+  const label = o.querySelector(".payment-overlay-text");
+  if (label) label.textContent = msg;
+  o.hidden = false;
+}
+
+function hidePaymentOverlay(minVisibleMs = 0, startedAt = Date.now()) {
+  const o = document.getElementById("payment-overlay");
+  if (!o) return;
+  const elapsed = Date.now() - startedAt;
+  const wait = Math.max(0, minVisibleMs - elapsed);
+  setTimeout(() => (o.hidden = true), wait);
+}
 
 // ==================== INIT ON PAGE LOAD ====================
 document.addEventListener("DOMContentLoaded", () => {
