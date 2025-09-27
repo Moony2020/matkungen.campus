@@ -1476,8 +1476,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     createEditModal(order) {
       const modal = document.createElement("div");
-      modal.className = "edit-modal";
-      modal.innerHTML = `
+   modal.className = "edit-modal";
+   modal.innerHTML = `
    <div class="modal-overlay"></div>
    <div class="modal-container">
      <div class="modal-header">
@@ -1489,54 +1489,32 @@ document.addEventListener("DOMContentLoaded", function () {
          <div class="form-group">
            <label>Status</label>
            <select name="status" class="form-control">
-             <option value="Pending" ${
-               order.status === "Pending" ? "selected" : ""
-             }>Pending</option>
-             <option value="Confirmed" ${
-               order.status === "Confirmed" ? "selected" : ""
-             }>Confirmed</option>
-             <option value="On the Way" ${
-               order.status === "On the Way" ? "selected" : ""
-             }>On the Way</option>
-             <option value="Delivered" ${
-               order.status === "Delivered" ? "selected" : ""
-             }>Delivered</option>
-             <option value="Cancelled" ${
-               order.status === "Cancelled" ? "selected" : ""
-             }>Cancelled</option>
+             <option value="Pending" ${ order.status==="Pending" ? "selected" : "" }>Pending</option>
+             <option value="Confirmed" ${ order.status==="Confirmed" ? "selected" : "" }>Confirmed</option>
+             <option value="On the Way" ${ order.status==="On the Way" ? "selected" : "" }>On the Way</option>
+             <option value="Delivered" ${ order.status==="Delivered" ? "selected" : "" }>Delivered</option>
+             <option value="Cancelled" ${ order.status==="Cancelled" ? "selected" : "" }>Cancelled</option>
            </select>
          </div>
          <div class="form-group">
            <label>Payment Status</label>
            <select name="paymentStatus" class="form-control">
-             <option value="Pending" ${
-               order.paymentStatus === "Pending" ? "selected" : ""
-             }>Pending</option>
-             <option value="Paid" ${
-               order.paymentStatus === "Paid" ? "selected" : ""
-             }>Paid</option>
-             <option value="Completed" ${
-               order.paymentStatus === "Completed" ? "selected" : ""
-             }>Completed</option>
-             <option value="Failed" ${
-               order.paymentStatus === "Failed" ? "selected" : ""
-             }>Failed</option>
-             <option value="Refunded" ${
-               order.paymentStatus === "Refunded" ? "selected" : ""
-             }>Refunded</option>
-             </select>
-             </div>
-             <div class="form-actions">
-               <button type="submit" class="btn btn-primary">Save Changes</button>
-               <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
-             </div>
-             </form>
-             </div>
-             </div>
-             `;
-
+             <option value="Pending" ${ order.paymentStatus==="Pending" ? "selected" : "" }>Pending</option>
+             <option value="Paid" ${ order.paymentStatus==="Paid" ? "selected" : "" }>Paid</option>
+             <option value="Completed" ${ order.paymentStatus==="Completed" ? "selected" : "" }>Completed</option>
+             <option value="Failed" ${ order.paymentStatus==="Failed" ? "selected" : "" }>Failed</option>
+             <option value="Refunded" ${ order.paymentStatus==="Refunded" ? "selected" : "" }>Refunded</option>
+           </select>
+         </div>
+         <div class="form-actions">
+           <button type="submit" class="btn btn-primary">Save Changes</button>
+           <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+         </div>
+       </form>
+     </div>
+   </div>
+   `;
       // Add event listeners
-
       modal.querySelector(".close-modal").addEventListener("click", () => {
         modal.remove();
         document.body.classList.remove("modal-open");
@@ -2628,12 +2606,26 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // ----- Danger Zone: Delete ALL orders (type-to-confirm) -----
-      (function wireDangerDeleteAll() {
+      // ----- Danger Zone: Delete ALL orders (type-to-confirm) -----
+      (() => {
+        const self = this;
         const form = document.getElementById("danger-delete-all-form");
         const input = document.getElementById("danger-phrase");
         const btn = document.getElementById("danger-delete-all");
         const toggle = document.getElementById("danger-toggle-visibility");
+        const msgBox = document.getElementById("danger-message");
         if (!form || !input || !btn) return;
+
+        // quick inline message (1.8s)
+        const flash = (text, ms = 1800) => {
+          if (!msgBox) return self.showNotification(text, true);
+          msgBox.textContent = text;
+          msgBox.classList.add("show");
+          setTimeout(() => {
+            msgBox.classList.remove("show");
+            msgBox.textContent = "";
+          }, ms);
+        };
 
         // show/hide password
         toggle?.addEventListener("click", () => {
@@ -2644,29 +2636,29 @@ document.addEventListener("DOMContentLoaded", function () {
             : '<i class="ri-eye-off-line"></i>';
         });
 
-        // Enable delete button when field is non-empty (server verifies real phrase)
+        // enable button only when not empty; clear error state as user types
         input.addEventListener("input", () => {
           btn.disabled = input.value.trim().length === 0;
+          input.classList.remove("input-error");
+          if (msgBox) {
+            msgBox.classList.remove("show");
+            msgBox.textContent = "";
+          }
         });
 
         form.addEventListener("submit", async (e) => {
           e.preventDefault();
           const phrase = input.value.trim();
 
-          // If empty: short error + highlight
+          // empty -> brief hint + red border
           if (!phrase) {
-            input.classList.add("input-error"); // needs the CSS below
-            (window.showNotification || console.warn)(
-              "Please enter the security phrase.",
-              true
-            );
-            setTimeout(() => input.classList.remove("input-error"), 2000);
+            input.classList.add("input-error");
+            flash("Security phrase required");
             return;
           }
 
-          // Confirm dialog (with danger)
           const ok = await confirmDialog(
-            "This will permanently delete ALL orders.\nThis cannot be undone. Proceed?",
+            "This will permanently delete ALL orders.\n\nThis cannot be undone. Proceed?",
             { danger: true }
           );
           if (!ok) return;
@@ -2685,43 +2677,35 @@ document.addEventListener("DOMContentLoaded", function () {
               },
               body: JSON.stringify({ phrase }),
             });
-
             const data = await res.json();
 
             if (!res.ok) {
-              // Mismatch: short message, highlight, then stop
-              if (
-                String(data?.error || "")
-                  .toLowerCase()
-                  .includes("mismatch")
-              ) {
-                input.classList.add("input-error");
-                (window.showNotification || console.warn)(
-                  "Security phrase mismatch.",
-                  true
-                );
-                setTimeout(() => input.classList.remove("input-error"), 2000);
-                return;
-              }
-              throw new Error(data?.error || "Delete failed");
+              const isMismatch = String(data?.error || "")
+                .toLowerCase()
+                .includes("mismatch");
+              input.classList.add("input-error");
+              flash(
+                isMismatch
+                  ? "Security phrase mismatch"
+                  : data?.error || "Delete failed"
+              );
+              return;
             }
 
-            // Success
+            // success
             input.value = "";
-            (window.showNotification || console.log)(
-              `Deleted ${data.deleted || 0} orders`
-            );
-            window.loadOrders?.(1);
-            window.loadRecentOrders?.();
+            self.showNotification(`Deleted ${data.deleted || 0} orders`);
+            // refresh Lists (if those sections exist)
+            if (document.getElementById("orders-section"))
+              await self.loadOrders(1);
+            if (document.getElementById("recent-orders-table"))
+              await self.loadRecentOrders(false);
           } catch (err) {
-            console.error(err);
-            (window.showNotification || console.error)(
-              String(err.message || err),
-              true
-            );
+            self.showNotification(err.message || "Delete failed", true);
           } finally {
-            btn.textContent = "Delete all orders";
-            btn.disabled = true; // require fresh phrase
+            btn.textContent = "Delete All Orders";
+            // re-enable if there’s still text (so admin can retry after mismatch)
+            btn.disabled = !input.value.trim();
           }
         });
       })();

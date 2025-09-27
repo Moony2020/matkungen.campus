@@ -50,6 +50,11 @@ const APP_URL = (
     : `https://localhost:${process.env.PORT || 4000}`)
 ).replace(/\/+$/, ""); // strip any trailing slash
 
+// additional use a public URL for email (logo) assets/links (fallback to prod if APP_URL is local)
+const EMAIL_BASE_URL = (
+  process.env.PROD_APP_URL || "https://matkungen-campus.onrender.com"
+).replace(/\/+$/, "");
+
 // ---------- Opening Hours ----------
 const OPENING_HOURS = {
   0: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
@@ -573,7 +578,7 @@ function buildOrderEmailHtml(order) {
   return `
   <div style="max-width:600px;margin:auto;font-family:'Segoe UI',sans-serif;color:#333;background:#fff;border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;">
     <div style="background:#000;padding:20px;text-align:center;">
-      <img src="${APP_URL}/assets/images/logo.png" alt="Matkungen" style="height:60px;" onerror="this.style.display='none';" />
+      <img src="${EMAIL_BASE_URL}/assets/images/logo.png" alt="Matkungen" style="height:60px;" onerror="this.style.display='none';" />
       <h2 style="margin:10px 0 0;color:#FFD700;">Matkungen</h2>
     </div>
 
@@ -627,7 +632,7 @@ function buildOrderEmailHtml(order) {
     </div>`
         : `
     <div style="text-align:center;padding:20px;">
-      <a href="${APP_URL}/track-order.html?order=${encodeURIComponent(
+      <a href="${EMAIL_BASE_URL}/track-order.html?order=${encodeURIComponent(
             order.orderNumber
           )}"  target="_blank"
          style="display:inline-block;padding:12px 24px;background:#FFD700;color:#000;font-weight:bold;text-decoration:none;border-radius:6px;">

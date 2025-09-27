@@ -602,14 +602,7 @@
 
           <!-- Danger Zone -->
           <div class="card danger-card" id="danger-orders-card">
-            <h3>
-              <i class="ri-alert-fill" style="color: #ff4d4f"></i>
-              Danger Zone
-            </h3>
-
-            <div class="modal-icon danger-icon" aria-hidden="true">
-              <i class="ri-alert-triangle-fill"></i>
-            </div>
+            <h3><i class="ri-error-warning-line"></i> Danger Zone</h3>
 
             <p class="muted">
               ⚠️ This action will permanently delete ALL orders from the
@@ -621,7 +614,7 @@
               class="danger-form"
               autocomplete="off"
             >
-              <label class="muted">Security Phrase Required</label>
+              <label class="danger-label">Security Phrase Required</label>
 
               <div class="danger-row">
                 <div class="danger-input-wrap">
@@ -629,7 +622,7 @@
                     id="danger-phrase"
                     type="password"
                     inputmode="text"
-                    placeholder="Enter security phrase to confirm"
+                    placeholder="Enter security phrase"
                     aria-label="Security phrase confirmation"
                     autocomplete="new-password"
                   />
@@ -647,13 +640,23 @@
                 <button
                   id="danger-delete-all"
                   type="submit"
-                  class="btn btn-danger"
+                  class="btn btn-danger-zone btn-with-icon"
                   disabled
                 >
-                  <i class="ri-delete-bin-fill"></i>
-                  Delete All Orders
+                  <i
+                    class="ri-delete-bin-6-line btn-icon"
+                    aria-hidden="true"
+                  ></i>
+                  <span>Delete All Orders</span>
                 </button>
               </div>
+
+              <div
+                id="danger-message"
+                class="danger-error"
+                role="alert"
+                aria-live="polite"
+              ></div>
 
               <small class="muted">
                 🔒 Only super-admins should know the security phrase. Make sure
@@ -661,38 +664,39 @@
               </small>
             </form>
           </div>
+
+          <!-- Confirm Modal -->
+          <div id="confirm-modal" class="custom-modal" style="display: none">
+            <div class="custom-modal-backdrop"></div>
+            <div class="custom-modal-content">
+              <!-- Sharp danger icon (no circle) -->
+              <div
+                class="modal-icon danger-icon danger-triangle"
+                aria-hidden="true"
+              >
+                <i class="ri-error-warning-line"></i>
+              </div>
+
+              <h4 class="confirm-title">Confirm Dangerous Action</h4>
+              <p id="confirm-text"></p>
+
+              <div class="custom-modal-actions">
+                <button id="confirm-no" class="btn btn-secondary">
+                  Cancel
+                </button>
+                <button
+                  id="confirm-yes"
+                  class="btn btn-danger-zone btn-with-icon"
+                >
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </section>
 
         <!-- Other sections would follow the same pattern if needed -->
       </main>
-    </div>
-    <!-- Delete orders Modal/message -->
-    <!-- Confirm Modal -->
-
-    <div id="confirm-modal" class="custom-modal" style="display: none">
-      <div class="custom-modal-backdrop"></div>
-      <div class="custom-modal-content">
-        <!-- Enhanced danger icon -->
-        <div class="modal-icon danger-icon" aria-hidden="true">
-          <i class="ri-alert-triangle-fill"></i>
-        </div>
-
-        <h4 style="color: #ff4d4f; text-align: center; margin-bottom: 15px">
-          Confirm Dangerous Action
-        </h4>
-        <p id="confirm-text" style="text-align: center; line-height: 1.5"></p>
-
-        <div class="custom-modal-actions">
-          <button id="confirm-no" class="btn btn-secondary">
-            <i class="ri-close-line"></i>
-            Cancel
-          </button>
-          <button id="confirm-yes" class="btn btn-danger">
-            <i class="ri-check-line"></i>
-            Confirm Delete
-          </button>
-        </div>
-      </div>
     </div>
 
     <!-- Order Details Modal (hidden by default) -->
