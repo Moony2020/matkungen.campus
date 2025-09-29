@@ -49,6 +49,10 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log("New order received:", order);
     showNewOrderToast(order);
   });
+  // store settings updated event
+  socket.on("store-settings-updated", () => {
+    initStoreStatus();
+  });
 
   socket.on("disconnect", () => {
     console.log("❌ Disconnected from server");
@@ -536,11 +540,11 @@ Sat:           12:00–03:00 (overnight)
 Sun:           12:00–22:00
 */
   const OPENING_HOURS = {
-    0: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
+    0: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
     1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
-    2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
+    2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
     3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-    4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
+    4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
     5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
     6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
   };
@@ -598,19 +602,337 @@ Sun:           12:00–22:00
     if (badge) badge.textContent = open ? "Öppet nu" : "Stängt";
   }
 
-  // Run once + every minute
-  document.addEventListener("DOMContentLoaded", () => {
-    updateOpenStateUI();
-    initStoreStatus(); // <-- add
-    updateStoreStatus(); // <-- add (first render)
+  // --- Store status helpers (auto/open/busy/closed) ---
+  function isWithinHours(hours, now = new Date()) {
+    if (!hours) return false;
 
-    // refresh both once per minute
-    setInterval(() => {
-      updateOpenStateUI();
-      updateStoreStatus();
-    }, 60_000);
-  });
+    const dayIdx = now.getDay(); // 0..6 (Sun..Sat)
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    const curHM = `${hh}:${mm}`;
+    const curMin = now.getHours() * 60 + now.getMinutes();
 
+    // A) string-slots format: { mon:[{open:"HH:MM", close:"HH:MM"}], ... }
+    const dayMap = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+    const slotsStr = hours?.[dayMap[dayIdx]];
+    if (Array.isArray(slotsStr)) {
+      for (const s of slotsStr) {
+        const o = s.open,
+          c = s.close;
+        if (!o || !c) continue;
+        if (o <= c) {
+          // same day
+          if (o <= curHM && curHM < c) return true;
+        } else {
+          // overnight e.g. 20:00–03:00
+          if (curHM >= o || curHM < c) return true;
+        }
+      }
+    }
+
+    // B) minute-ranges format: { 0:[{start,end,overnight}], ... }
+    const slotsMinToday = hours?.[dayIdx];
+    if (Array.isArray(slotsMinToday)) {
+      for (const itv of slotsMinToday) {
+        if (itv.overnight) {
+          if (curMin >= itv.start) return true; // same-day part to midnight
+        } else {
+          if (curMin >= itv.start && curMin < itv.end) return true;
+        }
+      }
+    }
+    const prev = (d) => (d + 6) % 7;
+    const slotsMinPrev = hours?.[prev(dayIdx)];
+    if (Array.isArray(slotsMinPrev)) {
+      for (const itv of slotsMinPrev) {
+        if (itv.overnight && curMin < itv.end) return true; // spillover after midnight
+      }
+    }
+
+    return false;
+  }
+
+  function computeStoreStatus(storeSettings) {
+    const {
+      mode = "auto",
+      hours,
+      channels = { pickup: true, delivery: true },
+      busyMessage,
+    } = storeSettings || {};
+
+    // map "open" to "auto"
+    const effectiveMode = mode === "open" ? "auto" : mode;
+
+    if (effectiveMode === "closed") {
+      return {
+        open: false,
+        busy: false,
+        channels: { pickup: false, delivery: false },
+        reason: "forced-closed",
+      };
+    }
+
+    if (effectiveMode === "busy") {
+      // Busy = open but delivery OFF, pickup allowed
+      return {
+        open: true,
+        busy: true,
+        channels: { ...channels, delivery: false, pickup: true },
+        reason: "busy",
+        busyMessage: busyMessage || "Endast avhämtning just nu.",
+      };
+    }
+
+    // auto (follow hours)
+    const open = isWithinHours(hours);
+    return {
+      open,
+      busy: false,
+      channels: open ? channels : { pickup: false, delivery: false },
+      reason: "auto-hours",
+    };
+  }
+
+  function applyStoreStatusToUI({ open, busy, channels, busyMessage }) {
+    const panel = document.getElementById("store-status");
+    const textEl = panel?.querySelector(".status-text");
+
+    // reset CSS flags
+    panel?.classList.remove("open", "busy", "closed");
+
+    // ---- Build nicer summary text (“Öppet – stänger … / Stängt – öppnar …”) ----
+    // Try to use server-synced hours if available; fallback to OPENING_HOURS
+    const HOURS =
+      (window.__storeSettings__ && window.__storeSettings__.hours) ||
+      OPENING_HOURS;
+
+    // Helpers for minutes and formats (works with your minute-based OPENING_HOURS)
+    const pad = (n) => String(n).padStart(2, "0");
+    const hhmm = (m) => `${pad(Math.floor(m / 60))}:${pad(m % 60)}`;
+
+    // supports only the minute ranges format you use on the client (0..6, {start,end,overnight})
+    function isOpenAt(hours, dIdx, curMin) {
+      const today = hours?.[dIdx] || [];
+      for (const itv of today) {
+        if (!itv.overnight) {
+          if (curMin >= itv.start && curMin < itv.end) {
+            return { open: true, closesAt: itv.end, closesOffset: 0 };
+          }
+        } else {
+          if (curMin >= itv.start) {
+            // goes past midnight
+            return { open: true, closesAt: itv.end, closesOffset: 1 };
+          }
+        }
+      }
+      // spillover from yesterday
+      const prev = (dIdx + 6) % 7;
+      for (const itv of hours?.[prev] || []) {
+        if (itv.overnight && curMin < itv.end) {
+          return { open: true, closesAt: itv.end, closesOffset: 0 };
+        }
+      }
+      return { open: false };
+    }
+
+    function nextChange(hours) {
+      const now = new Date();
+      const dIdx = now.getDay(); // 0..6 Sun..Sat
+      const curMin = now.getHours() * 60 + now.getMinutes();
+      const state = isOpenAt(hours, dIdx, curMin);
+      if (state.open) {
+        return {
+          type: "close",
+          at: state.closesAt,
+          dayOffset: state.closesOffset,
+        };
+      }
+      // find next open
+      let probe = new Date(now);
+      for (let add = 0; add < 8; add++) {
+        const idx = (dIdx + add) % 7;
+        const slots = hours?.[idx] || [];
+        for (const itv of slots) {
+          const start = itv.start;
+          if (add > 0 || curMin < start) {
+            return { type: "open", at: start, dayOffset: add };
+          }
+        }
+        probe.setDate(probe.getDate() + 1);
+        probe.setHours(0, 0, 0, 0);
+      }
+      return null;
+    }
+
+    const change = nextChange(HOURS);
+    const svDay = (i) => ["Sön", "Mån", "Tis", "Ons", "Tors", "Fre", "Lör"][i];
+
+    // ---- Apply UI for open / busy / closed with better text ----
+    if (!open) {
+      panel?.classList.add("closed");
+      if (textEl) {
+        if (change?.type === "open") {
+          const targetIdx = (new Date().getDay() + change.dayOffset) % 7;
+          textEl.textContent = `Stängt – öppnar ${svDay(targetIdx)} ${hhmm(
+            change.at
+          )}`;
+        } else {
+          textEl.textContent = "Stängt";
+        }
+      }
+    } else if (busy) {
+      panel?.classList.add("busy");
+      if (textEl) {
+        if (change?.type === "close") {
+          textEl.textContent = "Endast avhämtning";
+        } else {
+          textEl.textContent = busyMessage || "Endast avhämtning just nu.";
+        }
+      }
+    } else {
+      panel?.classList.add("open");
+      if (textEl) {
+        if (change?.type === "close") {
+          textEl.textContent = `Öppet – stänger ${hhmm(change.at)}`;
+        } else {
+          textEl.textContent = "Öppet";
+        }
+      }
+    }
+
+    // Disable/enable main action buttons when closed
+    document
+      .querySelectorAll(".add-to-cart-btn, .checkout-btn, #pay-now-btn")
+      .forEach((btn) => {
+        if (!btn) return;
+        if (!open) {
+          btn.setAttribute("disabled", "disabled");
+          btn.classList.add("is-disabled");
+        } else {
+          btn.removeAttribute("disabled");
+          btn.classList.remove("is-disabled");
+        }
+      });
+
+    // ====== BUSY = pickup only (delivery off) ======
+    const deliveryOption = document.querySelector('[data-method="delivery"]');
+    const pickupOption = document.querySelector('[data-method="pickup"]');
+
+    // 1) Toggle delivery channel on the home page option chips
+    if (deliveryOption) {
+      deliveryOption.classList.toggle("disabled", busy);
+      const input = deliveryOption.querySelector(
+        "input[type=radio],input[type=checkbox]"
+      );
+      if (input) input.disabled = !!busy;
+    }
+    if (pickupOption) {
+      pickupOption.classList.toggle("disabled", !open);
+      const input = pickupOption.querySelector(
+        "input[type=radio],input[type=checkbox]"
+      );
+      if (input) input.disabled = !open;
+    }
+
+    // 2) Checkout custom dropdown (if present on this page)
+    const nativeSelect = document.getElementById("order-type"); // e.g. <select>
+    const dropdownWrap = document.getElementById("order-type-dropdown"); // custom UI
+    const deliveryLi = dropdownWrap?.querySelector(
+      '.option[data-value="delivery"]'
+    );
+
+    // Disable the delivery option in checkout when busy
+    if (deliveryLi) deliveryLi.classList.toggle("disabled", !!busy);
+    if (nativeSelect) {
+      const optDelivery = nativeSelect.querySelector(
+        'option[value="delivery"]'
+      );
+      if (optDelivery) optDelivery.disabled = !!busy;
+    }
+
+    // If user currently had "delivery" selected while busy → switch to pickup
+    if (busy && nativeSelect && nativeSelect.value === "delivery") {
+      nativeSelect.value = "pickup";
+      nativeSelect.dispatchEvent(new Event("change"));
+      try {
+        window.cart?.showNotification?.("Endast avhämtning just nu.", false);
+      } catch {}
+    }
+
+    // 3) If we are on checkout page, (re)draw the pickup-only banner
+    if (window.location.pathname.includes("checkout.html")) {
+      try {
+        syncCheckoutBusyBanner();
+      } catch {}
+    }
+  }
+
+  // ---------- Store status (init + refresh with hours fallback) ----------
+  async function initStoreStatus() {
+    try {
+      const json = await fetch("/api/store", { cache: "no-store" }).then((r) =>
+        r.json()
+      );
+      const store = json?.value || {};
+
+      // Fallback to your local OPENING_HOURS if nothing saved in DB
+      const hours =
+        store?.hours &&
+        ((Array.isArray(store.hours) && store.hours.length) ||
+          (typeof store.hours === "object" && Object.keys(store.hours).length))
+          ? store.hours
+          : OPENING_HOURS;
+
+      const status = computeStoreStatus({ ...store, hours });
+      applyStoreStatusToUI(status);
+
+      // ✅ make status available globally (busy = pickup-only)
+      window.__storeStatus__ = status;
+      localStorage.setItem("busyPickupOnly", status.busy ? "1" : "0");
+
+      // optional cache of full settings
+      window.__storeSettings__ = { ...store, hours };
+    } catch (e) {
+      console.warn("Store status fetch failed:", e);
+    }
+  }
+
+  async function updateStoreStatus() {
+    try {
+      const json = await fetch("/api/store", { cache: "no-store" }).then((r) =>
+        r.json()
+      );
+      const store = json?.value || {};
+
+      const hours =
+        store?.hours &&
+        ((Array.isArray(store.hours) && store.hours.length) ||
+          (typeof store.hours === "object" && Object.keys(store.hours).length))
+          ? store.hours
+          : OPENING_HOURS;
+
+      const status = computeStoreStatus({ ...store, hours });
+      applyStoreStatusToUI(status);
+
+      // ✅ keep global + localStorage in sync for other pages (e.g., checkout)
+      window.__storeStatus__ = status;
+      localStorage.setItem("busyPickupOnly", status.busy ? "1" : "0");
+    } catch {}
+  }
+
+  // expose so the socket handler can call them
+  window.initStoreStatus = initStoreStatus;
+  window.updateStoreStatus = updateStoreStatus;
+
+  // ---------- first run + timer ----------
+  updateOpenStateUI();
+  initStoreStatus(); // initial read from API
+  updateStoreStatus(); // immediate refresh
+
+  setInterval(() => {
+    updateOpenStateUI(); // your local hours badge
+    updateStoreStatus(); // re-fetch /api/store every minute
+  }, 60_000);
   // ==================== ADD TO CART FUNCTIONALITY (no 404 version) ====================
   document.addEventListener("click", async function (e) {
     const btn = e.target.closest(".add-to-cart-btn");
@@ -1004,6 +1326,28 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     const pickupInfo = document.getElementById("pickup-info");
     const deliveryFeeElement = document.querySelector(".delivery-fee");
 
+    // ---------- CHECKOUT PICKUP-ONLY BANNER ----------
+
+    // --- Fixed checkout banner: show when store is busy (pickup-only) ---
+    function syncCheckoutBusyBanner() {
+      const banner = document.getElementById("checkout-busy-banner");
+      if (!banner) return;
+
+      const busyPickupOnly =
+        (window.__storeStatus__ && window.__storeStatus__.busy) ||
+        localStorage.getItem("busyPickupOnly") === "1";
+
+      if (busyPickupOnly) {
+        banner.textContent = "Endast avhämtning just nu.";
+        banner.hidden = false; // show persistently
+      } else {
+        banner.hidden = true; // hide when not busy
+      }
+    }
+
+    // run once on load (checkout only)
+    syncCheckoutBusyBanner();
+
     // ---------- SAFE CART GETTER (no side effects) ----------
     function getCartItems() {
       if (window.cart && Array.isArray(cart.cart)) return cart.cart;
@@ -1210,6 +1554,25 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       checkoutForm.addEventListener("submit", async function (e) {
         e.preventDefault();
 
+        // 🔒 Busy mode = pickup only (no delivery)
+        const busyPickupOnly =
+          (window.__storeStatus__ && window.__storeStatus__.busy) ||
+          localStorage.getItem("busyPickupOnly") === "1";
+
+        let selectedOrderType = orderTypeSelect
+          ? orderTypeSelect.value
+          : "delivery";
+
+        if (busyPickupOnly && selectedOrderType === "delivery") {
+          // stop submit, force pickup, update UI, and inform user
+          if (orderTypeSelect) {
+            orderTypeSelect.value = "pickup";
+            orderTypeSelect.dispatchEvent(new Event("change"));
+          }
+          cart?.showNotification?.("Endast avhämtning just nu.", false);
+          return;
+        }
+
         const items = getCartItems();
         if (!items || items.length === 0) {
           if (window.cart && typeof cart.showNotification === "function") {
@@ -1220,7 +1583,8 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
           return;
         }
 
-        const selectedOrderType = orderTypeSelect
+        // read the (possibly changed) value again
+        selectedOrderType = orderTypeSelect
           ? orderTypeSelect.value
           : "delivery";
 

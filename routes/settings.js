@@ -9,12 +9,17 @@ const router = express.Router();
 router.post("/:key", adminAuth, async (req, res) => {
   try {
     const { key } = req.params;
-    const { value } = req.body; // any JSON object
+    const { value } = req.body;
     const doc = await Setting.findOneAndUpdate(
       { key },
       { value },
       { new: true, upsert: true }
     );
+
+    // notify clients
+    const io = req.app.get("io");
+    if (io) io.emit("store-settings-updated", { key });
+
     res.json({ success: true, doc });
   } catch (e) {
     res.status(400).json({ success: false, error: e.message });

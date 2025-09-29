@@ -1984,6 +1984,17 @@ tr:hover {
     max-width: 190px;
 }
 
+.store-banner {
+    padding: 10px;
+    text-align: center;
+    background: #ffe9e9;
+    color: #b00020;
+}
+
+.store-banner.hidden {
+    display: none;
+}
+
 #orders-filter {
     padding: 10px 12px;
     margin: .5rem 0 .5rem 0;
@@ -2547,9 +2558,6 @@ tr:hover {
     background: var(--card-bg-light);
 }
 
-/* Dark mode chevron color */
-
-
 /* Hover for all selects: light blue border (header, Orders, Customers) */
 .search-bar input:hover,
 #orders-section #orders-search:hover,
@@ -2592,8 +2600,7 @@ tr:hover {
     color: var(--white);
 }
 
-/* Dark mode */
-/* Dark mode styling for all selects */
+/* Dark mode for all selects */
 [data-theme="dark"] #orders-section .select-field select,
 [data-theme="dark"] #menu-section .select-field select,
 [data-theme="dark"] #settings-section .select-field select,

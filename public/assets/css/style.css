@@ -1091,6 +1091,16 @@ body.nav-active {
     background: #22c55e;
 }
 
+/* Busy (amber) */
+.store-status.busy .dot {
+    background: #f59e0b;
+}
+
+/* amber */
+.store-status.busy .status-text {
+    color: #f59e0b;
+}
+
 .store-status .status-text {
     font-weight: var(--weight-bold);
 }
@@ -1099,6 +1109,38 @@ body.nav-active {
     color: #22c55e;
     font-size: var(--fontSize-label-1);
 }
+
+/* Checkout busy banner – fixed at the top */
+.checkout-page .busy-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    padding: 6px 12px;
+    margin: 0;
+    /* no margin when fixed */
+    border-radius: 0;
+    /* full-width bar look */
+    background: #fff3cd;
+    /* soft warning */
+    color: #664d03;
+    border: 1px solid #ffecb5;
+    font-weight: var(--weight-600);
+    text-align: center;
+}
+
+/* Push the page content down only when the banner is visible */
+.checkout-page:has(#checkout-busy-banner:not([hidden])) {
+    padding-top: 64px;
+    /* adjust if your banner is taller/shorter */
+}
+
+/* Keep it hidden when not busy */
+.checkout-page .busy-banner[hidden] {
+    display: none !important;
+}
+
 
 .store-status.closed .status-text {
     color: var(--gold-crayola);

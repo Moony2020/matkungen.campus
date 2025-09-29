@@ -1476,8 +1476,8 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     createEditModal(order) {
       const modal = document.createElement("div");
-   modal.className = "edit-modal";
-   modal.innerHTML = `
+      modal.className = "edit-modal";
+      modal.innerHTML = `
    <div class="modal-overlay"></div>
    <div class="modal-container">
      <div class="modal-header">
@@ -1489,21 +1489,41 @@ document.addEventListener("DOMContentLoaded", function () {
          <div class="form-group">
            <label>Status</label>
            <select name="status" class="form-control">
-             <option value="Pending" ${ order.status==="Pending" ? "selected" : "" }>Pending</option>
-             <option value="Confirmed" ${ order.status==="Confirmed" ? "selected" : "" }>Confirmed</option>
-             <option value="On the Way" ${ order.status==="On the Way" ? "selected" : "" }>On the Way</option>
-             <option value="Delivered" ${ order.status==="Delivered" ? "selected" : "" }>Delivered</option>
-             <option value="Cancelled" ${ order.status==="Cancelled" ? "selected" : "" }>Cancelled</option>
+             <option value="Pending" ${
+               order.status === "Pending" ? "selected" : ""
+             }>Pending</option>
+             <option value="Confirmed" ${
+               order.status === "Confirmed" ? "selected" : ""
+             }>Confirmed</option>
+             <option value="On the Way" ${
+               order.status === "On the Way" ? "selected" : ""
+             }>On the Way</option>
+             <option value="Delivered" ${
+               order.status === "Delivered" ? "selected" : ""
+             }>Delivered</option>
+             <option value="Cancelled" ${
+               order.status === "Cancelled" ? "selected" : ""
+             }>Cancelled</option>
            </select>
          </div>
          <div class="form-group">
            <label>Payment Status</label>
            <select name="paymentStatus" class="form-control">
-             <option value="Pending" ${ order.paymentStatus==="Pending" ? "selected" : "" }>Pending</option>
-             <option value="Paid" ${ order.paymentStatus==="Paid" ? "selected" : "" }>Paid</option>
-             <option value="Completed" ${ order.paymentStatus==="Completed" ? "selected" : "" }>Completed</option>
-             <option value="Failed" ${ order.paymentStatus==="Failed" ? "selected" : "" }>Failed</option>
-             <option value="Refunded" ${ order.paymentStatus==="Refunded" ? "selected" : "" }>Refunded</option>
+             <option value="Pending" ${
+               order.paymentStatus === "Pending" ? "selected" : ""
+             }>Pending</option>
+             <option value="Paid" ${
+               order.paymentStatus === "Paid" ? "selected" : ""
+             }>Paid</option>
+             <option value="Completed" ${
+               order.paymentStatus === "Completed" ? "selected" : ""
+             }>Completed</option>
+             <option value="Failed" ${
+               order.paymentStatus === "Failed" ? "selected" : ""
+             }>Failed</option>
+             <option value="Refunded" ${
+               order.paymentStatus === "Refunded" ? "selected" : ""
+             }>Refunded</option>
            </select>
          </div>
          <div class="form-actions">
@@ -2058,6 +2078,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async saveSettings() {
       const token = localStorage.getItem("adminToken");
+      const saveBtn = document.getElementById("settings-save");
+      const statusEl = document.getElementById("settings-status");
+
+      // tiny helper
       const postKey = (key, value) =>
         fetch(`/api/admin/settings/${key}`, {
           method: "POST",
@@ -2068,29 +2092,68 @@ document.addEventListener("DOMContentLoaded", function () {
           body: JSON.stringify({ value }),
         });
 
-      const storeMode = document.getElementById("setting-store-mode").value;
-      const taxRate = Number(document.getElementById("setting-tax").value || 0);
-      const deliveryFee = Number(
-        document.getElementById("setting-delivery-fee").value || 0
+      // gather + sanitize
+      const storeMode = String(
+        document.getElementById("setting-store-mode")?.value || "auto"
       );
-      const sound = document.getElementById("setting-sound").value;
+
+      const taxRateRaw = document.getElementById("setting-tax")?.value;
+      const deliveryFeeRaw = document.getElementById(
+        "setting-delivery-fee"
+      )?.value;
+      const sound = String(
+        document.getElementById("setting-sound")?.value || "on"
+      );
+
+      const taxRate = Math.max(0, Number(taxRateRaw || 0));
+      const deliveryFee = Math.max(0, Number(deliveryFeeRaw || 0));
+
+      // optimistic UI
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.dataset._prevText = saveBtn.textContent;
+        saveBtn.textContent = "Saving…";
+      }
+      if (statusEl) {
+        statusEl.textContent = "";
+      }
 
       try {
-        await Promise.all([
+        const responses = await Promise.all([
           postKey("store", { mode: storeMode }),
           postKey("business", { taxRate, deliveryFee }),
           postKey("ui", { sound }),
         ]);
+
+        // check HTTP ok
+        for (const r of responses) {
+          if (!r.ok) {
+            const j = await r.json().catch(() => ({}));
+            throw new Error(j.error || `Save failed (${r.status})`);
+          }
+        }
+
+        // persist quick UI pref locally
         localStorage.setItem("sound", sound);
-        const s = document.getElementById("settings-status");
-        if (s) {
-          s.textContent = "Saved ✓";
-          setTimeout(() => (s.textContent = ""), 1500);
+
+        if (statusEl) {
+          statusEl.textContent = "Saved ✓";
+          setTimeout(() => (statusEl.textContent = ""), 1500);
         }
         this.showNotification("✅ Settings saved");
       } catch (e) {
         console.error(e);
-        this.showNotification("❌ Failed to save settings", true);
+        if (statusEl) statusEl.textContent = "Save failed";
+        this.showNotification(
+          `❌ Failed to save settings: ${e.message || e}`,
+          true
+        );
+      } finally {
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.textContent = saveBtn.dataset._prevText || "Save";
+          delete saveBtn.dataset._prevText;
+        }
       }
     }
 

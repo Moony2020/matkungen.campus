@@ -41,6 +41,7 @@ const menuRoutes = require("./routes/menu");
 const MenuItem = require("./models/MenuItem"); // adjust path to MenuItem model
 const router = express.Router();
 const settingsRoutes = require("./routes/settings");
+const Setting = require("./models/Setting");
 
 // ---------- APP_URL base URL (single source of truth) ----------
 const APP_URL = (
@@ -57,11 +58,11 @@ const EMAIL_BASE_URL = (
 
 // ---------- Opening Hours ----------
 const OPENING_HOURS = {
-  0: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
+  0: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
   1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
-  2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
+  2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
   3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-  4: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
+  4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
   5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
   6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
 };
@@ -275,6 +276,30 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+// Public store status payload for the customer site
+app.get("/api/store", async (req, res) => {
+  try {
+    const storeDoc = await Setting.findOne({ key: "store" }); // { mode, channels, busyMessage }
+    const hoursDoc = await Setting.findOne({ key: "hours" }); // { mon:[{open:"11:00",close:"22:00"}], ... }
+    const channelsDoc = await Setting.findOne({ key: "channels" }); // optional per-channel flags
+
+    const store = storeDoc?.value || {};
+    const hours = hoursDoc?.value || {};
+    const channels = channelsDoc?.value ||
+      store.channels || { pickup: true, delivery: true };
+
+    res.json({
+      value: {
+        ...store, // mode, busyMessage, etc.
+        hours,
+        channels,
+      },
+    });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get("/api/menu", async (req, res) => {
   try {
     const docs = await MenuItem.find({ isActive: true })
@@ -417,8 +442,6 @@ const io = new Server(server, {
 
 // Make io/app accessible from routes/others
 app.set("io", io);
-
-module.exports = { io, app };
 
 // ---------- Socket Handlers ----------
 
