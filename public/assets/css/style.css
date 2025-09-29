@@ -1230,6 +1230,11 @@ body.nav-active {
     align-items: center;
 }
 
+.header .logo-container .logo img {
+    height: 100px !important;
+    width: auto !important;
+}
+
 .mobile-logo {
     margin-top: -10px;
 }
@@ -2072,38 +2077,6 @@ body.nav-active {
 .service .grid-list li:nth-child(3) .service-card {
     animation-delay: 0.6s;
 }
-
-/* Responsive design */
-/* @media (max-width: 768px) {
-    .service .section-title {
-        font-size: 2.2rem;
-    }
-
-    .service .grid-list {
-        grid-template-columns: 1fr;
-        max-width: 500px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    .service .highlight-box {
-        padding: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .service .section {
-        padding: 60px 15px;
-    }
-
-    .service .section-title {
-        font-size: 1.9rem;
-    }
-
-    .service .section-subtitle {
-        font-size: 1rem;
-    }
-} */
 
 /* Animation for cards */
 @keyframes fadeInUp {
@@ -6608,18 +6581,55 @@ body.modal-open {
 }
 
 
+/* Mobile tweaks (≤575px) */
 @media (max-width: 575px) {
 
-    /* .header.active {
-        padding-top: 1rem;
+    /* Force the logo image smaller even if HTML sets width/height */
+    .header .logo-container {
+        margin-left: -20px !important;
     }
 
-    .header .container {
-        max-width: unset;
-        margin-top: 0;
-    } */
-    .header .logo-container {
-        margin-left: -10px !important;
+    .header .logo-container .logo img {
+        height: 80px !important;
+        width: auto !important;
+    }
+
+
+    /* Make login/cart icons smaller */
+    .header-actions .cart-btn,
+    .header-actions .user-btn {
+        font-size: 2.3rem;
+        /* if they are icon fonts */
+    }
+
+    .header-actions .cart-btn svg,
+    .header-actions .user-btn svg,
+    .header-actions .cart-btn i,
+    .header-actions .user-btn i {
+        width: 20px;
+        height: 20px;
+        line-height: 1;
+    }
+
+    /* Smaller cart badge */
+    .cart-count {
+        width: 16px;
+        height: 16px;
+        font-size: 10px;
+        top: -6px;
+        right: -6px;
+    }
+
+    /* Smaller burger/toggle */
+    .nav-open-btn {
+        padding: 6px;
+        transform: scale(0.9);
+    }
+
+    .nav-open-btn .line {
+        width: 22px;
+        height: 2px;
+        margin: 3px 0;
     }
 
     /* .search-container {
