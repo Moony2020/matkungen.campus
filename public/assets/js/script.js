@@ -660,7 +660,7 @@ Sun:           12:00–22:00
       busyMessage,
     } = storeSettings || {};
 
-    // map "open" to "auto"
+    //  treat it as "auto" if "open"
     const effectiveMode = mode === "open" ? "auto" : mode;
 
     if (effectiveMode === "closed") {
@@ -671,24 +671,34 @@ Sun:           12:00–22:00
         reason: "forced-closed",
       };
     }
-
+    // Follow hours
+    const openByHours = isWithinHours(hours);
     if (effectiveMode === "busy") {
-      // Busy = open but delivery OFF, pickup allowed
+      // Busy = pickup-only **only when open by hours**
+      if (openByHours) {
+        return {
+          open: true,
+          busy: true,
+          channels: { ...channels, delivery: false, pickup: true },
+          reason: "busy",
+          busyMessage: busyMessage || "Endast avhämtning just nu.",
+        };
+      }
+
+      // Closed by hours wins over busy
       return {
-        open: true,
-        busy: true,
-        channels: { ...channels, delivery: false, pickup: true },
-        reason: "busy",
-        busyMessage: busyMessage || "Endast avhämtning just nu.",
+        open: false,
+        busy: false,
+        channels: { pickup: false, delivery: false },
+        reason: "closed-by-hours-while-busy",
       };
     }
 
     // auto (follow hours)
-    const open = isWithinHours(hours);
     return {
-      open,
+      open: openByHours,
       busy: false,
-      channels: open ? channels : { pickup: false, delivery: false },
+      channels: openByHours ? channels : { pickup: false, delivery: false },
       reason: "auto-hours",
     };
   }
@@ -767,7 +777,7 @@ Sun:           12:00–22:00
     const change = nextChange(HOURS);
     const svDay = (i) => ["Sön", "Mån", "Tis", "Ons", "Tors", "Fre", "Lör"][i];
 
-    // ---- Apply UI for open / busy / closed with better text ----
+    // ---- Apply UI for open / busy / closed with the requested texts ----
     if (!open) {
       panel?.classList.add("closed");
       if (textEl) {
@@ -780,14 +790,11 @@ Sun:           12:00–22:00
           textEl.textContent = "Stängt";
         }
       }
-    } else if (busy) {
+    } else if (busy && open) {
+      // Busy only when actually open; short text only
       panel?.classList.add("busy");
       if (textEl) {
-        if (change?.type === "close") {
-          textEl.textContent = "Endast avhämtning";
-        } else {
-          textEl.textContent = busyMessage || "Endast avhämtning just nu.";
-        }
+        textEl.textContent = "Endast avhämtning"; // no closing time appended
       }
     } else {
       panel?.classList.add("open");
