@@ -1231,8 +1231,8 @@ body.nav-active {
 }
 
 .header .logo-container .logo img {
-    height: 100px !important;
-    width: auto !important;
+    height: 90px !important;
+    max-height: 90px !important;
 }
 
 .mobile-logo {
@@ -6586,14 +6586,13 @@ body.modal-open {
 
     /* Force the logo image smaller even if HTML sets width/height */
     .header .logo-container {
-        margin-left: -20px !important;
+        margin-left: -16px !important;
     }
 
     .header .logo-container .logo img {
-        height: 80px !important;
-        width: auto !important;
+        height: 70px !important;
+        max-height: 70px !important;
     }
-
 
     /* Make login/cart icons smaller */
     .header-actions .cart-btn,
