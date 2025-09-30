@@ -1,4 +1,45 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // ---- helpers available to the whole file ----
+  const isHoursOpenNow = (hours, now = new Date()) => {
+    if (!hours) return false;
+    const dayIdx = now.getDay();
+    const hh = String(now.getHours()).padStart(2, "0");
+    const mm = String(now.getMinutes()).padStart(2, "0");
+    const curHM = `${hh}:${mm}`;
+    const curMin = now.getHours() * 60 + now.getMinutes();
+
+    const dayMap = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+    const slotsStr = hours?.[dayMap[dayIdx]];
+    if (Array.isArray(slotsStr)) {
+      for (const s of slotsStr) {
+        const o = s.open,
+          c = s.close;
+        if (!o || !c) continue;
+        if (o <= c) {
+          if (o <= curHM && curHM < c) return true;
+        } else {
+          if (curHM >= o || curHM < c) return true;
+        }
+      }
+    }
+
+    const today = hours?.[dayIdx];
+    if (Array.isArray(today)) {
+      for (const itv of today) {
+        if (itv.overnight) {
+          if (curMin >= itv.start) return true;
+        } else if (curMin >= itv.start && curMin < itv.end) return true;
+      }
+    }
+    const prev = (d) => (d + 6) % 7;
+    const yesterday = hours?.[prev(dayIdx)];
+    if (Array.isArray(yesterday)) {
+      for (const itv of yesterday) {
+        if (itv.overnight && curMin < itv.end) return true;
+      }
+    }
+    return false;
+  };
   class AdminPanel {
     constructor() {
       // Force light mode on initial load
@@ -2059,7 +2100,6 @@ document.addEventListener("DOMContentLoaded", function () {
         const j = await r.json();
         return j.value || {};
       };
-
       try {
         const store = await fetchKey("store");
         const biz = await fetchKey("business");
@@ -2071,6 +2111,26 @@ document.addEventListener("DOMContentLoaded", function () {
         el("setting-delivery-fee").value = biz.deliveryFee ?? 0;
         el("setting-sound").value =
           ui.sound || localStorage.getItem("sound") || "on";
+
+        // 🔧 NEW: read full store (with hours) so we can check current open/closed
+        // If your /api/admin/settings/store does not include hours, fetch /api/store.
+        let hours = store.hours;
+        if (
+          !hours ||
+          (Array.isArray(hours) && !hours.length) ||
+          (typeof hours === "object" && !Object.keys(hours).length)
+        ) {
+          try {
+            const r = await fetch("/api/store", { cache: "no-store" });
+            const j = await r.json();
+            hours = j?.value?.hours;
+          } catch {}
+        }
+
+        // If admin set BUSY but hours say CLOSED now → show Auto in the select
+        if (store.mode === "busy" && !isHoursOpenNow(hours)) {
+          el("setting-store-mode").value = "auto";
+        }
       } catch (e) {
         console.error(e);
       }
@@ -2161,31 +2221,31 @@ document.addEventListener("DOMContentLoaded", function () {
       const modal = document.createElement("div");
       modal.className = "driver-modal";
       modal.innerHTML = `
-<div class="modal-overlay"></div>
-<div class="modal-container">
-  <div class="modal-header">
-    <h3>Assign Driver</h3>
-    <button class="close-modal">&times;</button>
-  </div>
-  <div class="modal-body">
-    <form id="assign-driver-form">
-      <div class="form-group">
-        <label for="driver-name">Driver Name</label>
-        <input type="text" id="driver-name" required>
-      </div>
-      <div class="form-group">
-        <label for="driver-phone">Driver Phone</label>
-        <input type="tel" id="driver-phone" required>
-      </div>
-      <input type="hidden" id="order-id" value="${orderId}">
-      <div class="form-actions">
-        <button type="submit" class="btn btn-primary">Assign Driver</button>
-        <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
-      </div>
-    </form>
-  </div>
-</div>
-`;
+ <div class="modal-overlay"></div>
+ <div class="modal-container">
+   <div class="modal-header">
+     <h3>Assign Driver</h3>
+     <button class="close-modal">&times;</button>
+   </div>
+   <div class="modal-body">
+     <form id="assign-driver-form">
+       <div class="form-group">
+         <label for="driver-name">Driver Name</label>
+         <input type="text" id="driver-name" required>
+       </div>
+       <div class="form-group">
+         <label for="driver-phone">Driver Phone</label>
+         <input type="tel" id="driver-phone" required>
+       </div>
+       <input type="hidden" id="order-id" value="${orderId}">
+       <div class="form-actions">
+         <button type="submit" class="btn btn-primary">Assign Driver</button>
+         <button type="button" class="btn btn-secondary close-modal-btn">Cancel</button>
+       </div>
+     </form>
+   </div>
+ </div>
+ `;
       document.body.appendChild(modal);
 
       document.body.classList.add("modal-open");

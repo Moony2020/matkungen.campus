@@ -52,6 +52,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // store settings updated event
   socket.on("store-settings-updated", () => {
     initStoreStatus();
+    updateStoreStatus();
   });
 
   socket.on("disconnect", () => {
@@ -542,7 +543,7 @@ Sun:           12:00–22:00
   const OPENING_HOURS = {
     0: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
     1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
-    2: [{ start: 11 * 60, end: 22 * 60 }], // Tue 11:00–22:00
+    2: [{ start: 11 * 60, end: 21 * 60 + 55 }], // Tue 11:00–22:00
     3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
     4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
     5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
@@ -654,16 +655,16 @@ Sun:           12:00–22:00
 
   function computeStoreStatus(storeSettings) {
     const {
-      mode = "auto",
+      mode = "auto", // "auto" | "busy" | "closed"
       hours,
       channels = { pickup: true, delivery: true },
       busyMessage,
     } = storeSettings || {};
 
-    //  treat it as "auto" if "open"
-    const effectiveMode = mode === "open" ? "auto" : mode;
+    const openByHours = isWithinHours(hours); // true if currently within hours
 
-    if (effectiveMode === "closed") {
+    // 1) Forced CLOSED wins always
+    if (mode === "closed") {
       return {
         open: false,
         busy: false,
@@ -671,36 +672,68 @@ Sun:           12:00–22:00
         reason: "forced-closed",
       };
     }
-    // Follow hours
-    const openByHours = isWithinHours(hours);
-    if (effectiveMode === "busy") {
-      // Busy = pickup-only **only when open by hours**
+
+    // 2) BUSY = pickup-only ONLY when we’re open by hours.
+    //    If hours are closed, treat as closed (no busy banner).
+    if (mode === "busy") {
       if (openByHours) {
         return {
           open: true,
           busy: true,
           channels: { ...channels, delivery: false, pickup: true },
-          reason: "busy",
+          reason: "busy-open-by-hours",
           busyMessage: busyMessage || "Endast avhämtning just nu.",
         };
       }
-
-      // Closed by hours wins over busy
       return {
         open: false,
         busy: false,
         channels: { pickup: false, delivery: false },
-        reason: "closed-by-hours-while-busy",
+        reason: "busy-but-closed-by-hours",
       };
     }
 
-    // auto (follow hours)
+    // 3) AUTO = follow hours
     return {
       open: openByHours,
       busy: false,
       channels: openByHours ? channels : { pickup: false, delivery: false },
-      reason: "auto-hours",
+      reason: openByHours ? "auto-open" : "auto-closed",
     };
+  }
+
+  function updateAdminModeUI(status, originalMode) {
+    // If admin set "busy" but we are closed by hours → show "auto" as selected.
+    const displayMode =
+      originalMode === "busy" && !status.open
+        ? "auto"
+        : originalMode === "open"
+        ? "auto"
+        : originalMode;
+
+    // Example if you have radios with ids: mode-auto, mode-busy, mode-closed
+    const ids = {
+      auto: "#mode-auto",
+      busy: "#mode-busy",
+      closed: "#mode-closed",
+    };
+    Object.values(ids).forEach((sel) => {
+      const el = document.querySelector(sel);
+      if (el) el.checked = false;
+    });
+    const picked = document.querySelector(ids[displayMode] || ids.auto);
+    if (picked) picked.checked = true;
+
+    // Optional: show a small hint next to the selector
+    const hint = document.getElementById("admin-mode-hint");
+    if (hint) {
+      if (originalMode === "busy" && !status.open) {
+        hint.textContent =
+          "Stängt enligt öppettider – ‘Endast avhämtning’ är pausat tills vi öppnar.";
+      } else {
+        hint.textContent = "";
+      }
+    }
   }
 
   function applyStoreStatusToUI({ open, busy, channels, busyMessage }) {
@@ -873,6 +906,50 @@ Sun:           12:00–22:00
       } catch {}
     }
   }
+  function getNextOpenCloseChange(hours) {
+    // hours: { 0..6 : [{start,end,overnight}] } like OPENING_HOURS
+    const now = new Date();
+    const dIdx = now.getDay();
+    const curMin = now.getHours() * 60 + now.getMinutes();
+
+    function isOpenAt(d, m) {
+      const today = hours?.[d] || [];
+      for (const itv of today) {
+        if (!itv.overnight) {
+          if (m >= itv.start && m < itv.end)
+            return { open: true, closesAt: itv.end, closesOffset: 0 };
+        } else {
+          if (m >= itv.start)
+            return { open: true, closesAt: itv.end, closesOffset: 1 };
+        }
+      }
+      const prev = (d + 6) % 7;
+      for (const itv of hours?.[prev] || []) {
+        if (itv.overnight && m < itv.end)
+          return { open: true, closesAt: itv.end, closesOffset: 0 };
+      }
+      return { open: false };
+    }
+
+    const state = isOpenAt(dIdx, curMin);
+    if (state.open)
+      return {
+        type: "close",
+        atMin: state.closesAt,
+        dayOffset: state.closesOffset,
+      };
+
+    // find next open
+    for (let add = 0; add < 8; add++) {
+      const idx = (dIdx + add) % 7;
+      for (const itv of hours?.[idx] || []) {
+        const start = itv.start;
+        if (add > 0 || curMin < start)
+          return { type: "open", atMin: start, dayOffset: add };
+      }
+    }
+    return null;
+  }
 
   // ---------- Store status (init + refresh with hours fallback) ----------
   async function initStoreStatus() {
@@ -882,7 +959,7 @@ Sun:           12:00–22:00
       );
       const store = json?.value || {};
 
-      // Fallback to your local OPENING_HOURS if nothing saved in DB
+      // ✅ define hours with fallback (same as updateStoreStatus)
       const hours =
         store?.hours &&
         ((Array.isArray(store.hours) && store.hours.length) ||
@@ -890,15 +967,17 @@ Sun:           12:00–22:00
           ? store.hours
           : OPENING_HOURS;
 
+      // ✅ use the GLOBAL computeStoreStatus you kept above
       const status = computeStoreStatus({ ...store, hours });
       applyStoreStatusToUI(status);
 
-      // ✅ make status available globally (busy = pickup-only)
       window.__storeStatus__ = status;
       localStorage.setItem("busyPickupOnly", status.busy ? "1" : "0");
 
-      // optional cache of full settings
       window.__storeSettings__ = { ...store, hours };
+
+      // keep Admin selector in sync
+      updateAdminModeUI(status, store.mode || "auto");
     } catch (e) {
       console.warn("Store status fetch failed:", e);
     }
@@ -921,7 +1000,10 @@ Sun:           12:00–22:00
       const status = computeStoreStatus({ ...store, hours });
       applyStoreStatusToUI(status);
 
-      // ✅ keep global + localStorage in sync for other pages (e.g., checkout)
+      // ✅ keep Admin selector in sync on every tick as well
+      updateAdminModeUI(status, store.mode || "auto");
+
+      // ✅ keep global + localStorage in sync
       window.__storeStatus__ = status;
       localStorage.setItem("busyPickupOnly", status.busy ? "1" : "0");
     } catch {}
@@ -940,6 +1022,37 @@ Sun:           12:00–22:00
     updateOpenStateUI(); // your local hours badge
     updateStoreStatus(); // re-fetch /api/store every minute
   }, 60_000);
+
+  // cancel previous boundary timer if any
+  clearTimeout(window.__storeBoundaryTimer);
+
+  const HOURS_FOR_TIMER =
+    (window.__storeSettings__ && window.__storeSettings__.hours) ||
+    OPENING_HOURS;
+  const next = getNextOpenCloseChange(HOURS_FOR_TIMER);
+  if (next) {
+    const now = new Date();
+    const target = new Date(now);
+    // minutes to timestamp (respecting dayOffset)
+    const targetDay = new Date(now);
+    targetDay.setDate(now.getDate() + (next.dayOffset || 0));
+    target.setFullYear(
+      targetDay.getFullYear(),
+      targetDay.getMonth(),
+      targetDay.getDate()
+    );
+    target.setHours(Math.floor(next.atMin / 60), next.atMin % 60, 0, 0);
+
+    let ms = target.getTime() - now.getTime();
+    if (ms < 0) ms += 24 * 60 * 60 * 1000; // guard for +1 wraps
+
+    // tiny buffer to avoid off-by-seconds
+    window.__storeBoundaryTimer = setTimeout(() => {
+      // one authoritative refresh at the boundary
+      updateStoreStatus();
+    }, Math.max(200, ms + 300));
+  }
+
   // ==================== ADD TO CART FUNCTIONALITY (no 404 version) ====================
   document.addEventListener("click", async function (e) {
     const btn = e.target.closest(".add-to-cart-btn");
@@ -3442,7 +3555,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
   // Use +1 on "end" for past-midnight spans
   const HOURS = {
     mon: [{ start: "11:00", end: "22:00" }],
-    tue: [{ start: "11:00", end: "22:00" }],
+    tue: [{ start: "11:00", end: "21:55" }],
     wed: [{ start: "11:00", end: "03:00+1" }],
     thu: [{ start: "11:00", end: "22:00" }],
     fri: [{ start: "11:00", end: "03:00+1" }],
