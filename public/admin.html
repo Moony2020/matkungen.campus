@@ -604,7 +604,7 @@
             <h3><i class="ri-error-warning-line"></i> Danger Zone</h3>
 
             <p class="muted">
-              ⚠️ This action will permanently delete ALL orders from the
+              ⚠️ This action will permanently delete all orders from the
               database. This operation cannot be undone.
             </p>
 
@@ -612,6 +612,7 @@
               id="danger-delete-all-form"
               class="danger-form"
               autocomplete="off"
+              data-phrase="DELETE"
             >
               <label class="danger-label">Security Phrase Required</label>
 
@@ -665,10 +666,10 @@
           </div>
 
           <!-- Confirm Modal -->
-          <div id="confirm-modal" class="custom-modal" style="display: none">
+          <!-- <div id="confirm-modal" class="custom-modal" style="display: none">
             <div class="custom-modal-backdrop"></div>
             <div class="custom-modal-content">
-              <!-- Sharp danger icon (no circle) -->
+              -- Sharp danger icon (no circle) --
               <div
                 class="modal-icon danger-icon danger-triangle"
                 aria-hidden="true"
@@ -691,11 +692,26 @@
                 </button>
               </div>
             </div>
-          </div>
+          </div> -->
         </section>
 
         <!-- Other sections would follow the same pattern if needed -->
       </main>
+    </div>
+
+    <!-- Confirm Modal for deleting items from menu -->
+    <!-- Confirm Modal -->
+    <div id="confirmModal" class="cm-hidden cm-overlay">
+      <div class="cm-dialog">
+        <div class="modal-icon danger-icon danger-triangle" aria-hidden="true">
+          <i class="ri-error-warning-line"></i>
+        </div>
+        <div class="cm-body" id="confirmModalMsg">Are you sure?</div>
+        <div class="cm-actions">
+          <button class="btn btn-outline" id="cmCancel">Cancel</button>
+          <button class="btn btn-primary" id="cmDelete">Delete</button>
+        </div>
+      </div>
     </div>
 
     <!-- Order Details Modal (hidden by default) -->

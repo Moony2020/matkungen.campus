@@ -62,7 +62,7 @@ const OPENING_HOURS = {
   1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
   2: [{ start: 11 * 60, end: 21 * 60 + 55 }], // Tue 11:00–22:00
   3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-  4: [{ start: 11 * 60, end: 22 * 60 }], // Thu 11:00–22:00
+  4: [{ start: 11 * 60, end: 24 * 60 }], // Thu 11:00–22:00
   5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
   6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
 };
@@ -192,11 +192,7 @@ app.use(
   })
 );
 
-// mount admin APIs
-app.use("/api/admin/menu", menuRoutes);
-app.use("/api/admin/settings", settingsRoutes);
-
-// ====== Apply CORS to REST ======
+// ====== Apply CORS to REST BEFORE any app.use('/api/admin/...') routes======
 app.use(
   cors({
     origin(origin, cb) {
@@ -211,18 +207,12 @@ app.use(
 );
 
 // (optional) Good to have: explicit preflight handler
-app.options(
-  "*",
-  cors({
-    origin(origin, cb) {
-      return isAllowedOrigin(origin)
-        ? cb(null, true)
-        : cb(new Error("Not allowed by CORS (preflight): " + origin));
-    },
-    credentials: true,
-  })
-);
+app.options("*", cors());
+router.options("/:id", cors());
 
+// mount admin APIs routes
+app.use("/api/admin/menu", menuRoutes);
+app.use("/api/admin/settings", settingsRoutes);
 // 📂
 // Serve only the public folder "assets all (images, JS, CSS and html files…)"
 const dev = process.env.NODE_ENV !== "production";

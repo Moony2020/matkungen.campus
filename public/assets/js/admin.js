@@ -40,6 +40,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
     return false;
   };
+
+  // Safe toast wrapper — won't crash if showToast doesn't exist
+  // Safe toast wrapper — won't crash if showToast doesn't exist
+  function toast(msg, type) {
+    if (typeof window.showToast === "function")
+      return window.showToast(msg, type);
+    // fallback
+    console[type === "error" ? "error" : "log"](
+      `[toast${type ? ":" + type : ""}]`,
+      msg
+    );
+  }
+
   class AdminPanel {
     constructor() {
       // Force light mode on initial load
@@ -1809,35 +1822,33 @@ document.addEventListener("DOMContentLoaded", function () {
               : "";
 
           return `
-        <div class="order-card">
-          <div class="order-header">
-            <span class="order-number">${it.name}</span>
-            <span class="order-date">${Number(it.price ?? 0).toFixed(
-              2
-            )} kr</span>
-          </div>
+ <div class="order-card" data-menu-id="${it._id}">
+   <div class="order-header">
+     <span class="order-number">${it.name}</span>
+     <span class="order-date">${Number(it.price ?? 0).toFixed(2)} kr</span>
+   </div>
 
-          <div class="cart-item">
-            <div class="cart-item-image">
-              <img src="${
-                it.imageUrl || "/assets/images/default-food.jpg"
-              }" alt="${it.name}">
-            </div>
-            <div class="cart-item-details">
-              <h4>${it.name}</h4>
-              <div class="muted">${it.category || ""}</div>
-              <p>${it.description || ""}</p>
-              ${sizesStr}
-              ${groupsStr}
-            </div>
-          </div>
+   <div class="cart-item">
+     <div class="cart-item-image">
+       <img src="${it.imageUrl || "/assets/images/default-food.jpg"}" alt="${
+            it.name
+          }">
+     </div>
+     <div class="cart-item-details">
+       <h4>${it.name}</h4>
+       <div class="muted">${it.category || ""}</div>
+       <p>${it.description || ""}</p>
+       ${sizesStr}
+       ${groupsStr}
+     </div>
+   </div>
 
-          <div class="card-actions">
-            <button class="btn" data-edit="${it._id}">Edit</button>
-            <button class="btn btn-danger" data-del="${it._id}">Delete</button>
-          </div>
-        </div>
-      `;
+   <div class="card-actions">
+     <button class="btn" data-edit="${it._id}">Edit</button>
+     <button class="btn btn-danger" data-del="${it._id}">Delete</button>
+   </div>
+ </div>
+ `;
         })
         .join("");
 
@@ -2073,20 +2084,39 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async deleteMenuItem(id) {
-      if (!(await confirmDialog("Delete this item?"))) return;
+      if (!id) return;
+
+      // First get the item name from DOM
+      const itemEl = document.querySelector(
+        `[data-menu-id="${CSS.escape(id)}"]`
+      );
+      const itemName =
+        itemEl?.querySelector(".order-number")?.textContent || "this item";
+
+      const ok = await confirmDialog(
+        `Delete item?\nThis will delete <b>${itemName}</b>.`
+      );
+      if (!ok) return;
+
       try {
         const res = await fetch(`/api/admin/menu/${id}`, {
           method: "DELETE",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          },
+          credentials: "include",
+          headers: { Accept: "application/json" },
         });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || "Delete failed");
-        this.showNotification("✅ Deleted");
-        this.loadMenu();
-      } catch (e) {
-        this.showNotification("❌ Failed to delete", true);
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data?.success !== true) {
+          throw new Error(data?.error || `Delete failed (${res.status})`);
+        }
+
+        const el = document.querySelector(`[data-menu-id="${CSS.escape(id)}"]`);
+        el?.remove();
+
+        this.showNotification("✅ Item deleted");
+      } catch (err) {
+        console.error("Delete error:", err);
+        toast(String(err.message || err), "error");
       }
     }
 
@@ -2729,7 +2759,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       // ----- Danger Zone: Delete ALL orders (type-to-confirm) -----
-      // ----- Danger Zone: Delete ALL orders (type-to-confirm) -----
       (() => {
         const self = this;
         const form = document.getElementById("danger-delete-all-form");
@@ -2781,7 +2810,7 @@ document.addEventListener("DOMContentLoaded", function () {
           }
 
           const ok = await confirmDialog(
-            "This will permanently delete ALL orders.\n\nThis cannot be undone. Proceed?",
+            "This will permanently delete all orders.\nThis cannot be undone.",
             { danger: true }
           );
           if (!ok) return;
@@ -3263,41 +3292,102 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   // Generic async confirm using #confirm-modal
-  function confirmDialog(message = "Are you sure?", { danger = false } = {}) {
-    const modal = document.getElementById("confirm-modal");
-    const text = modal.querySelector("#confirm-text");
-    const yes = modal.querySelector("#confirm-yes");
-    const no = modal.querySelector("#confirm-no");
-    const backdrop = modal.querySelector(".custom-modal-backdrop");
+  // function confirmDialog(message = "Are you sure?") {
+  //   const root = document.getElementById("confirmModal");
+  //   const msgEl = document.getElementById("confirmModalMsg");
+  //   const okBtn = document.getElementById("cmOk");
+  //   const cancelBtn = document.getElementById("cmCancel");
 
-    text.textContent = message;
-    modal.classList.toggle("danger", !!danger);
-    modal.style.display = "flex";
+  //   if (!root || !msgEl || !okBtn || !cancelBtn) {
+  //     // Fallback to native confirm if modal isn't present
+  //     return Promise.resolve(window.confirm(message));
+  //   }
 
+  //   msgEl.textContent = message;
+  //   root.classList.remove("cm-hidden");
+
+  //   return new Promise((resolve) => {
+  //     const cleanup = () => {
+  //       root.classList.add("cm-hidden");
+  //       okBtn.removeEventListener("click", onOk);
+  //       cancelBtn.removeEventListener("click", onCancel);
+  //       root.removeEventListener("click", onBackdrop);
+  //       document.removeEventListener("keydown", onEsc);
+  //     };
+  //     const onOk = () => {
+  //       cleanup();
+  //       resolve(true);
+  //     };
+  //     const onCancel = () => {
+  //       cleanup();
+  //       resolve(false);
+  //     };
+  //     const onBackdrop = (e) => {
+  //       if (e.target === root) onCancel();
+  //     };
+  //     const onEsc = (e) => {
+  //       if (e.key === "Escape") onCancel();
+  //     };
+
+  //     okBtn.addEventListener("click", onOk);
+  //     cancelBtn.addEventListener("click", onCancel);
+  //     root.addEventListener("click", onBackdrop);
+  //     document.addEventListener("keydown", onEsc);
+  //   });
+  // }
+
+  function confirmDialog(message = "Are you sure?", opts = {}) {
+    const {
+      variant = "default",
+      okText = "Delete",
+      cancelText = "Cancel",
+    } = opts;
+
+    const root = document.getElementById("confirmModal");
+    const msgEl = document.getElementById("confirmModalMsg");
+    const okBtn = document.getElementById("cmDelete");
+    const cancelBtn = document.getElementById("cmCancel");
+    if (!root || !msgEl || !okBtn || !cancelBtn) {
+      return Promise.resolve(window.confirm(message));
+    }
+
+    // message & button text
+    msgEl.innerHTML = message;
+    okBtn.textContent = okText;
+    cancelBtn.textContent = cancelText;
+
+    // variant styling
+    root.classList.remove("danger");
+    if (variant === "danger") root.classList.add("danger");
+
+    root.classList.remove("cm-hidden");
     return new Promise((resolve) => {
       const cleanup = () => {
-        modal.style.display = "none";
-        modal.classList.remove("danger");
-        yes.removeEventListener("click", onYes);
-        no.removeEventListener("click", onNo);
-        backdrop?.removeEventListener("click", onNo);
+        root.classList.add("cm-hidden");
+        root.classList.remove("danger");
+        okBtn.removeEventListener("click", onOk);
+        cancelBtn.removeEventListener("click", onCancel);
+        root.removeEventListener("click", onBackdrop);
         document.removeEventListener("keydown", onEsc);
       };
-      const onYes = () => {
+      const onOk = () => {
         cleanup();
         resolve(true);
       };
-      const onNo = () => {
+      const onCancel = () => {
         cleanup();
         resolve(false);
       };
+      const onBackdrop = (e) => {
+        if (e.target === root) onCancel();
+      };
       const onEsc = (e) => {
-        if (e.key === "Escape") onNo();
+        if (e.key === "Escape") onCancel();
       };
 
-      yes.addEventListener("click", onYes, { once: true });
-      no.addEventListener("click", onNo, { once: true });
-      backdrop?.addEventListener("click", onNo, { once: true });
+      okBtn.addEventListener("click", onOk);
+      cancelBtn.addEventListener("click", onCancel);
+      root.addEventListener("click", onBackdrop);
       document.addEventListener("keydown", onEsc);
     });
   }

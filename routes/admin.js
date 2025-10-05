@@ -706,7 +706,7 @@ const requireSuper = async (req, res, next) => {
   }
 };
 
-// routes/admin.js (or wherever your admin routes live)
+// delete all orders
 router.post("/orders/delete-all", adminAuth, async (req, res) => {
   try {
     const REQUIRED = process.env.DELETE_ALL_PHRASE || "DELETE ALL ORDERS"; // set a secret in env
