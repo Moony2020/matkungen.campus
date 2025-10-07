@@ -38,7 +38,7 @@ html {
 .back-arrow .btn-primary {
     position: absolute;
     /* Remove from normal document flow */
-    left: -10px;
+    left: -40px;
     /* Align it to the left */
     color: var(--quick-silver);
     display: flex;
@@ -67,7 +67,7 @@ html {
 }
 
 .menu-page .back-arrow i {
-    font-size: 5rem;
+    font-size: 4rem;
 }
 
 .menu-page .back-arrow a:hover {
@@ -272,7 +272,7 @@ html {
 }
 
 /* Icon-only buttons */
-.add-to-cart-btn.icon-only {
+#drinks-menu .add-to-cart-btn.icon-only {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -283,7 +283,7 @@ html {
     margin: 0 auto;
 }
 
-.add-to-cart-btn.icon-only i {
+#drinks-menu .add-to-cart-btn.icon-only i {
     font-size: 18px;
     margin: 0;
 }

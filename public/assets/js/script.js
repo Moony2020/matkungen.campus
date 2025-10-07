@@ -405,41 +405,41 @@ document.addEventListener("DOMContentLoaded", function () {
       if (cartItemsContainer) {
         if (this.cart.length === 0) {
           cartItemsContainer.innerHTML = `
-            <div class="empty-cart">
-              <i class="ri-shopping-cart-line"></i>
-              <p>Your cart is empty</p>
-            </div>
+          <div class="empty-cart">
+            <i class="ri-shopping-cart-line"></i>
+            <p>Your cart is empty</p>
+          </div>
           `;
         } else {
           // In Cart class updateCart() method
           cartItemsContainer.innerHTML = this.cart
             .map(
               (item) => `
-  <div class="cart-item" data-id="${item.id}">
-    <img src="${item.img}" alt="${item.name}" width="70" height="70">
-    <div class="item-details">
-      <h4>${item.name.split(" with ")[0]}</h4>
-      ${
-        item.name.includes(" with ")
-          ? `<div class="item-modifiers">${
-              // Clean up modifier text
-              item.name
-                .split(" with ")[1]
-                .replace(/\(0 kr\)/g, "") // Remove (0 kr)
-                .replace(/, $/, "") // Remove trailing commas
-            }</div>`
-          : ""
-      }
-      <div class="item-price">${item.price} kr</div>
-      <div class="item-quantity">
-        <button class="decrease-quantity">-</button>
-        <span>${item.quantity}</span>
-        <button class="increase-quantity">+</button>
-      </div>
-    </div>
-    <button class="remove-item"><i class="ri-close-line"></i></button>
-  </div>
-`
+          <div class="cart-item" data-id="${item.id}">
+            <img src="${item.img}" alt="${item.name}" width="70" height="70">
+            <div class="item-details">
+              <h4>${item.name.split(" with ")[0]}</h4>
+              ${
+                item.name.includes(" with ")
+                  ? `<div class="item-modifiers">${
+                      // Clean up modifier text
+                      item.name
+                        .split(" with ")[1]
+                        .replace(/\(0 kr\)/g, "") // Remove (0 kr)
+                        .replace(/, $/, "") // Remove trailing commas
+                    }</div>`
+                  : ""
+              }
+              <div class="item-price">${item.price} kr</div>
+              <div class="item-quantity">
+                <button class="decrease-quantity">-</button>
+                <span>${item.quantity}</span>
+                <button class="increase-quantity">+</button>
+              </div>
+            </div>
+            <button class="remove-item"><i class="ri-close-line"></i></button>
+          </div>
+          `
             )
             .join("");
         }
@@ -543,7 +543,7 @@ Sun:           12:00–22:00
   const OPENING_HOURS = {
     0: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sun 12:00–22:00
     1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
-    2: [{ start: 11 * 60, end: 21 * 60 + 55 }], // Tue 11:00–22:00
+    2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
     3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
     4: [{ start: 11 * 60, end: 24 * 60 }], // Thu 11:00–22:00
     5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
@@ -3841,17 +3841,45 @@ let modifierState = {
 // Modifier Popup Functions
 // ==================== MODIFIER POPUP FUNCTIONS ====================
 function openModifierPopup(item, name, selectedSize = null) {
+  // --- Detect if the modal markup exists on this page ---
+  const titleEl = document.getElementById("modifier-title");
+  const contentEl = document.getElementById("modifier-content");
+  const popupEl = document.getElementById("modifier-popup");
+  const overlayEl = document.querySelector(".modifier-overlay");
+
+  const hasModal = !!titleEl && !!contentEl && !!popupEl && !!overlayEl;
+
+  const hasModifiers =
+    Array.isArray(item?.modifiers) && item.modifiers.length > 0;
+
+  // --- If there is no modal on this page OR the item has no modifiers,
+  //     add directly to cart and stop here. ---
+  if (!hasModal || !hasModifiers) {
+    const price =
+      (selectedSize && selectedSize.price) ??
+      (typeof item?.price === "number" ? item.price : 0);
+
+    // Use your existing Cart instance
+    cart.addItem({
+      name,
+      price,
+      img: item.image || item.imageUrl || "/assets/images/default-food.jpg",
+    });
+    cart.showNotification?.(`${name} added to cart`);
+    return;
+  }
+
+  // --- Normal popup path (modal exists + item has modifiers) ---
   modifierState.currentItem = item;
   modifierState.currentItemName = name;
   modifierState.basePrice = selectedSize ? selectedSize.price : item.price;
   modifierState.selectedModifiers = {};
 
-  // Set title using the passed name
-  document.getElementById("modifier-title").textContent = name;
+  // Set title
+  titleEl.textContent = name;
 
   // Populate content
-  const content = document.getElementById("modifier-content");
-  content.innerHTML = "";
+  contentEl.innerHTML = "";
 
   if (item.modifiers) {
     item.modifiers.forEach((modifier, index) => {
@@ -3868,7 +3896,7 @@ function openModifierPopup(item, name, selectedSize = null) {
           const optionEl = document.createElement("div");
           optionEl.className = "modifier-option";
 
-          // --- Build input element ---
+          // input
           const input = document.createElement("input");
           input.type = modifier.type;
           input.id = optionId;
@@ -3876,17 +3904,15 @@ function openModifierPopup(item, name, selectedSize = null) {
           input.value = option.value;
           input.setAttribute("data-price", option.price);
 
-          // --- FIX: Default check "Normal" radio option ---
+          // default "Normal" for radios
           if (modifier.type === "radio" && option.value === "normal") {
             input.checked = true;
           }
-          // --- End fix ---
 
-          // Build label
+          // label
           const label = document.createElement("label");
           label.setAttribute("for", optionId);
 
-          // Inner label html
           const labelSpan = document.createElement("span");
           labelSpan.textContent = option.label;
           label.appendChild(labelSpan);
@@ -3898,12 +3924,10 @@ function openModifierPopup(item, name, selectedSize = null) {
             label.appendChild(priceTag);
           }
 
-          // Append input and label to optionEl
           optionEl.appendChild(input);
           optionEl.appendChild(label);
           optionsContainer.appendChild(optionEl);
 
-          // Add event listener
           input.addEventListener("change", updateTotalPrice);
         });
 
@@ -3917,16 +3941,16 @@ function openModifierPopup(item, name, selectedSize = null) {
         group.appendChild(textarea);
       }
 
-      content.appendChild(group);
+      contentEl.appendChild(group);
     });
   }
 
-  // Set initial total
+  // Initial total
   updateTotalPrice();
 
   // Show popup
-  document.getElementById("modifier-popup").classList.add("active");
-  document.querySelector(".modifier-overlay").classList.add("active");
+  popupEl.classList.add("active");
+  overlayEl.classList.add("active");
 }
 
 function closeModifierPopup() {
@@ -4213,6 +4237,47 @@ function initGlobalSearch() {
   }
 }
 
+// ---------- Category normalization (global) ----------
+function normalizeCategory(raw = "") {
+  const c = String(raw).trim().toLowerCase();
+  if (["roller", "roll", "rolls", "rullar", "rollers"].includes(c))
+    return "rollers";
+  if (["dishes", "tallrik", "tallrikar"].includes(c)) return "dishes";
+  if (["box", "boxes"].includes(c)) return "boxes";
+  if (["pita-bread", "pitabrod", "pitabröd", "pita"].includes(c))
+    return "pitabrod";
+  if (
+    [
+      "addition",
+      "additions",
+      "addition-menu",
+      "tillbehör",
+      "tillbehor",
+    ].includes(c)
+  )
+    return "addition";
+  if (["veg", "vegetarian", "vegetarisk"].includes(c)) return "vegetarian";
+  if (["drinks", "drink", "drinker", "drycker"].includes(c)) return "drinks";
+  return c; // pizza, burgers, salads, lunch, etc.
+}
+
+// ---------- Grid locator (global) ----------
+//Find the right grid on the current page
+function gridForCategory(catRaw) {
+  const cat = String(catRaw || "").toLowerCase();
+  const sel =
+    (window.SECTION_QUERY && window.SECTION_QUERY[cat]) ||
+    [
+      `[data-category="${cat}"] .menu-grid`,
+      `[data-category="${cat}"] .menu-grid-service`,
+      `[data-category="${cat}"] .grid-list1`,
+      `#${cat}-menu .menu-grid`,
+      `#${cat}-menu .menu-grid-service`,
+      `#${cat}-menu .grid-list1`,
+    ].join(", ");
+  return document.querySelector(sel);
+}
+
 // ---------- CATEGORY SECTION SELECTORS (match index.html) ----------
 const SECTION_QUERY = {
   pizza: "#pizza-menu .menu-grid",
@@ -4225,10 +4290,76 @@ const SECTION_QUERY = {
   boxes: "#boxes-menu .menu-grid",
   pitabrod: "#pitabrod-menu .menu-grid", // pita-bread / pitabröd
   addition: "#addition-menu .menu-grid", // tillbehör
-  drinks: "#drinks-menu .menu-grid", // if you have a drinks section on this page
-  vegetarisk: "#vegetarisk-menu .menu-grid", // if present on this page
-  lunch: "#lunch-menu .menu-grid", // if present on this page
+  // Standalone pages (multiple container class fallbacks)
+  drinks:
+    "#drinks-menu .menu-grid, #drinks-menu .menu-grid-service, #drinks-menu .grid-list1",
+  // NOTE: vegetarian page uses id="vegetarian-menu" (English), not "vegetarisk-menu"
+  vegetarian:
+    "#vegetarian-menu .menu-grid, #vegetarian-menu .menu-grid-service, #vegetarian-menu .grid-list1",
+  lunch:
+    "#lunch-menu .menu-grid, #lunch-menu .menu-grid-service, #lunch-menu .grid-list1",
 };
+
+function createDrinkCard(item) {
+  const card = document.createElement("article");
+  card.id = item.id;
+  // use drink page classes so service.css styles apply
+  card.className = "menu-card1 hover:card";
+
+  // figure: image (matches drink page structure)
+  const fig = document.createElement("figure");
+  fig.className = "card-banner img-holder";
+  // optional: keep consistent aspect
+  fig.style.setProperty("--width", "300");
+  fig.style.setProperty("--height", "200");
+
+  const img = document.createElement("img");
+  img.className = "img-cover";
+  img.loading = "lazy";
+  img.alt = item.name || "Drink";
+  img.src = item.image || "/assets/images/default-food.jpg";
+  img.width = 300;
+  img.height = 200;
+  fig.appendChild(img);
+
+  // content wrapper
+  const content = document.createElement("div");
+  content.className = "menu-card-content";
+
+  // title (drink page uses .menu-title1)
+  const title = document.createElement("h3");
+  title.className = "menu-title1";
+  title.textContent = item.name || "";
+
+  // price + icon button in one row (drink page uses .title-wrapper)
+  const row = document.createElement("div");
+  row.className = "title-wrapper";
+
+  const price = document.createElement("span");
+  price.className = "span title-5";
+  price.textContent = `${Number(item.price || 0)} kr`;
+
+  // compact round cart button (no .btn / .btn-primary)
+  const btn = document.createElement("button");
+  // keep your add-to-cart hook + icon-only drink style
+  btn.type = "button";
+  btn.className = "add-to-cart-btn icon-only";
+  btn.setAttribute("aria-label", "Lägg till");
+  btn.dataset.id = item.id;
+  btn.dataset.name = item.name || "";
+  btn.dataset.image = item.image || "";
+  // if it supports sizes i can set dataset.price later on size change
+  btn.dataset.price = String(item.price || 0);
+
+  const i = document.createElement("i");
+  i.className = "ri-shopping-cart-line"; // same icon as static drinks
+  btn.appendChild(i);
+
+  row.append(price, btn);
+  content.append(title, row);
+  card.append(fig, content);
+  return card;
+}
 
 // ---------- BUILD ONE CARD THAT MATCHES MY EXISTING HTML ----------
 function createMenuCard(item) {
@@ -4243,7 +4374,7 @@ function createMenuCard(item) {
 
   const content = document.createElement("div");
   content.className = "menu-item-content";
-
+  let defaultBtnPrice = Number(item.price ?? 0);
   if (Array.isArray(item.sizes) && item.sizes.length) {
     const title = document.createElement("h3");
     title.className = "menu-item-title";
@@ -4251,6 +4382,16 @@ function createMenuCard(item) {
 
     const sizeWrap = document.createElement("div");
     sizeWrap.className = "size-selector";
+    // Pick “Medium” by default if present, else 2nd item if exists, else 1st
+    let defaultIndex = item.sizes.findIndex((sz) =>
+      /medium/i.test(String(sz?.name || ""))
+    );
+    if (defaultIndex === -1) defaultIndex = item.sizes.length >= 2 ? 1 : 0;
+
+    // Sync the button’s default price to the chosen default size
+    defaultBtnPrice = Number(
+      item.sizes[defaultIndex]?.price ?? defaultBtnPrice
+    );
 
     item.sizes.forEach((s, i) => {
       const label = document.createElement("label");
@@ -4261,7 +4402,7 @@ function createMenuCard(item) {
       radio.name = `size-${item.id}`;
       radio.value = s.price; // ← price in value (global handler expects this)
       radio.dataset.price = s.price; // (kept, harmless)
-      if (i === 0) radio.checked = true;
+      if (i === defaultIndex) radio.checked = true;
 
       const span = document.createElement("span"); // ← so nextElementSibling exists
       span.textContent = ` ${s.name} (${s.price} kr)`;
@@ -4301,7 +4442,7 @@ function createMenuCard(item) {
   btn.type = "button";
   btn.className = "add-to-cart-btn";
   btn.dataset.name = item.name;
-  btn.dataset.price = String(item.price ?? item.sizes?.[0]?.price ?? 0);
+  btn.dataset.price = String(defaultBtnPrice);
   btn.dataset.img = img.src;
   btn.textContent = "Lägg till";
 
@@ -4395,30 +4536,6 @@ if (typeof window.renderMenu !== "function") {
   // Same-origin socket (server uses path "/socket.io")
   const socket = io({ path: "/socket.io", withCredentials: true });
 
-  // Keep category names consistent with your server normalize
-  function normalizeCategory(raw = "") {
-    const c = String(raw).trim().toLowerCase();
-    if (["roller", "roll", "rolls", "rullar", "rollers"].includes(c))
-      return "rollers";
-    if (["dishes", "tallrik", "tallrikar"].includes(c)) return "dishes";
-    if (["box", "boxes"].includes(c)) return "boxes";
-    if (["pita-bread", "pitabrod", "pitabröd", "pita"].includes(c))
-      return "pitabrod";
-    if (
-      [
-        "addition",
-        "additions",
-        "addition-menu",
-        "tillbehör",
-        "tillbehor",
-      ].includes(c)
-    )
-      return "addition";
-    if (["veg", "vegetarian", "vegetarisk"].includes(c)) return "vegetarisk";
-    if (["drinks", "drink", "drinker", "drycker"].includes(c)) return "drinks";
-    return c; // pizza, burgers, salads, lunch, etc.
-  }
-
   // DB → client item shape (matches what /api/menu returns)
   function dbToClient(doc = {}) {
     return {
@@ -4435,31 +4552,34 @@ if (typeof window.renderMenu !== "function") {
     };
   }
 
-  // Find the right grid on the current page
-  function gridForCategory(cat) {
-    // You already use these selectors in your script
-    // (#pizza-menu .menu-grid, [data-category="pizza"] .menu-grid, etc.)
-    // Try SECTION_QUERY first, then a generic fallback:
-    const sel =
-      (window.SECTION_QUERY && window.SECTION_QUERY[cat]) ||
-      `[data-category="${cat}"] .menu-grid, #${cat}-menu .menu-grid`;
-    return document.querySelector(sel);
-  }
-
   function upsertCardFromDoc(doc) {
+    // Normalize doc → client item and ensure a stable string id
     const item = dbToClient(doc);
-    const grid = gridForCategory(item.category);
+    item.id = String(item.id || item._id || "");
+    if (!item.id) return;
+
+    // Find the right grid (try case-insensitive category, then original)
+    const categoryKey = String(item.category || "").toLowerCase();
+    const grid = gridForCategory(categoryKey) || gridForCategory(item.category);
     if (!grid) return; // this page doesn't show that category
 
     const fresh = createMenuCard(item); // uses your existing card builder
+
+    // If card already exists, replace it; otherwise append (wrap in <li> for <ul> grids)
     const existing = document.getElementById(item.id);
     if (existing) {
       existing.replaceWith(fresh);
     } else {
-      grid.appendChild(fresh);
+      if (grid.tagName === "UL") {
+        const li = document.createElement("li");
+        li.appendChild(fresh);
+        grid.appendChild(li);
+      } else {
+        grid.appendChild(fresh);
+      }
     }
 
-    // keep your in-memory list used by search/filters in sync
+    // Keep your in-memory list (used by search/filters) in sync
     if (Array.isArray(window.menuItems)) {
       const i = window.menuItems.findIndex(
         (x) => String(x.id) === String(item.id)
@@ -4499,8 +4619,72 @@ function hidePaymentOverlay(minVisibleMs = 0, startedAt = Date.now()) {
   setTimeout(() => (o.hidden = true), wait);
 }
 
+// ---------- FETCH DB ITEMS ON STANDALONE PAGES (drinks, lunch, vegetarisk) ----------
+async function appendDbItemsToStandalonePages() {
+  // Skip if it's the home page
+  const isHome = /\/($|index\.html$)/.test(window.location.pathname);
+  if (isHome) return;
+
+  // Fetch robustly (accept {items:[...]} OR [...] )
+  let items = [];
+  try {
+    const res = await fetch("/api/menu", { cache: "no-store" });
+    if (res.ok) {
+      const payload = await res.json();
+      items = Array.isArray(payload?.items)
+        ? payload.items
+        : Array.isArray(payload)
+        ? payload
+        : [];
+    }
+  } catch (_) {}
+  if (!items.length) return;
+
+  items.forEach((doc) => {
+    const item = {
+      id: String(doc._id || doc.id || ""),
+      name: doc.name || "",
+      desc: doc.description || doc.desc || "",
+      price:
+        doc.price ??
+        (Array.isArray(doc.sizes) && doc.sizes[0] ? doc.sizes[0].price : 0),
+      image: doc.imageUrl || doc.image || "/assets/images/default-food.jpg",
+      sizes: Array.isArray(doc.sizes) ? doc.sizes : [],
+      modifiers: Array.isArray(doc.modifiers) ? doc.modifiers : [],
+      category: normalizeCategory(doc.category || ""),
+    };
+    if (!item.id) return;
+
+    const grid = gridForCategory(item.category);
+    if (!grid) return;
+
+    if (document.getElementById(item.id)) return; // avoid dupes
+
+    const isDrinks = item.category === "drinks";
+    const card = isDrinks ? createDrinkCard(item) : createMenuCard(item);
+
+    if (grid.tagName === "UL") {
+      const li = document.createElement("li");
+      li.appendChild(card);
+      grid.appendChild(li);
+    } else {
+      grid.appendChild(card);
+    }
+
+    // keep the in-memory list used by search/filters in sync
+    if (Array.isArray(window.menuItems)) {
+      const i = window.menuItems.findIndex(
+        (x) => String(x.id) === String(item.id)
+      );
+      if (i > -1) window.menuItems.splice(i, 1, item);
+      else window.menuItems.push(item);
+    }
+  });
+}
+
 // ==================== INIT ON PAGE LOAD ====================
 document.addEventListener("DOMContentLoaded", () => {
   loadMenuItems(); // keeps your search working (JSON) :contentReference[oaicite:6]{index=6}
   appendDbItemsToHome(); // appends admin DB items into the grids on home
+  appendDbItemsToStandalonePages(); // other pages: drycker, lunch, vegetarisk, etc.
 });
