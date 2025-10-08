@@ -279,7 +279,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -354,7 +390,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -429,7 +501,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -504,7 +612,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -579,7 +723,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -654,7 +834,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -720,7 +936,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -786,7 +1038,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -861,7 +1149,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -936,7 +1260,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1011,7 +1371,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1086,7 +1482,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1161,7 +1593,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1236,7 +1704,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1311,7 +1815,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1386,7 +1926,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1461,7 +2037,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1536,7 +2148,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1611,7 +2259,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1686,7 +2370,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1761,7 +2481,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1836,7 +2592,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1911,7 +2703,43 @@
       {
         "type": "checkbox",
         "title": "Extra sås",
-        "options": [{ "label": "Extra sås", "value": "extrasaas", "price": 10 }]
+        "options": [
+          { "label": "Extra sås", "value": "extrasaas", "price": 10 },
+          { "label": "2 Extra sås", "value": "2extrasaas", "price": 20 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
       },
       {
         "type": "textarea",
@@ -1956,6 +2784,39 @@
         "options": [
           { "label": "Extra pommes", "value": "pommes", "price": 15 },
           { "label": "Onion rings", "value": "onion_rings", "price": 12 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2004,6 +2865,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2046,6 +2940,39 @@
         "options": [
           { "label": "Extra pommes", "value": "pommes", "price": 15 },
           { "label": "Onion rings", "value": "onion_rings", "price": 12 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2094,6 +3021,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2135,6 +3095,39 @@
           { "label": "Olivolja & balsamico", "value": "olivolja", "price": 10 },
           { "label": "Citron dressing", "value": "citron", "price": 5 },
           { "label": "Sesam dressing", "value": "sesam", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2182,6 +3175,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2223,6 +3249,39 @@
           { "label": "Olivolja & balsamico", "value": "olivolja", "price": 10 },
           { "label": "Citron dressing", "value": "citron", "price": 5 },
           { "label": "Sesam dressing", "value": "sesam", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2270,6 +3329,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2314,6 +3406,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2347,6 +3472,39 @@
           { "label": "Stark sås", "value": "stark", "price": 5 },
           { "label": "Vitlöksås", "value": "vitlok", "price": 5 },
           { "label": "Mangosås", "value": "mango", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2385,6 +3543,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2417,6 +3608,39 @@
           { "label": "Stark sås", "value": "stark", "price": 5 },
           { "label": "Vitlöksås", "value": "vitlok", "price": 5 },
           { "label": "Mangosås", "value": "mango", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2455,6 +3679,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2487,6 +3744,39 @@
           { "label": "Stark sås", "value": "stark", "price": 5 },
           { "label": "Vitlöksås", "value": "vitlok", "price": 5 },
           { "label": "Mangosås", "value": "mango", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2525,6 +3815,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2560,6 +3883,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2592,6 +3948,39 @@
           { "label": "Stark sås", "value": "stark", "price": 5 },
           { "label": "Vitlöksås", "value": "vitlok", "price": 5 },
           { "label": "Mangosås", "value": "mango", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2639,6 +4028,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2680,6 +4102,39 @@
           { "label": "Bearnaise", "value": "bearnaise", "price": 10 },
           { "label": "Vitlök", "value": "vitlok", "price": 5 },
           { "label": "Chili", "value": "chili", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2727,6 +4182,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2768,6 +4256,39 @@
           { "label": "Bearnaise", "value": "bearnaise", "price": 10 },
           { "label": "Vitlök", "value": "vitlok", "price": 5 },
           { "label": "Chili", "value": "chili", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2815,6 +4336,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2856,6 +4410,39 @@
           { "label": "Bearnaise", "value": "bearnaise", "price": 10 },
           { "label": "Vitlök", "value": "vitlok", "price": 5 },
           { "label": "Chili", "value": "chili", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2902,6 +4489,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -2934,6 +4554,39 @@
           { "label": "Bearnaise", "value": "bearnaise", "price": 10 },
           { "label": "Vitlök", "value": "vitlok", "price": 5 },
           { "label": "Chili", "value": "chili", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -2972,6 +4625,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3004,6 +4690,39 @@
           { "label": "Bearnaise", "value": "bearnaise", "price": 10 },
           { "label": "Vitlök", "value": "vitlok", "price": 5 },
           { "label": "Chili", "value": "chili", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3042,6 +4761,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3073,6 +4825,39 @@
           { "label": "Extra pommes", "value": "pommes", "price": 15 },
           { "label": "Extra sås", "value": "saas", "price": 5 },
           { "label": "Fetaost", "value": "fetaost", "price": 10 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3110,6 +4895,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3141,6 +4959,39 @@
           { "label": "Extra pommes", "value": "pommes", "price": 15 },
           { "label": "Extra sås", "value": "saas", "price": 5 },
           { "label": "Fetaost", "value": "fetaost", "price": 10 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3178,6 +5029,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3209,6 +5093,39 @@
           { "label": "Extra pommes", "value": "pommes", "price": 15 },
           { "label": "Extra sås", "value": "saas", "price": 5 },
           { "label": "Fetaost", "value": "fetaost", "price": 10 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3246,6 +5163,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3277,6 +5227,39 @@
           { "label": "Extra pommes", "value": "pommes", "price": 15 },
           { "label": "Extra sås", "value": "saas", "price": 5 },
           { "label": "Fetaost", "value": "fetaost", "price": 10 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3314,6 +5297,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3348,6 +5364,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3379,6 +5428,39 @@
           { "label": "Extra pommes", "value": "pommes", "price": 15 },
           { "label": "Extra sås", "value": "saas", "price": 5 },
           { "label": "Fetaost", "value": "fetaost", "price": 10 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3426,6 +5508,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3466,6 +5581,39 @@
           { "label": "Tzatziki", "value": "tzatziki", "price": 5 },
           { "label": "Chilisås", "value": "chili", "price": 5 },
           { "label": "Vitlöksås", "value": "vitlok", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3512,6 +5660,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3552,6 +5733,39 @@
           { "label": "Tzatziki", "value": "tzatziki", "price": 5 },
           { "label": "Chilisås", "value": "chili", "price": 5 },
           { "label": "Vitlöksås", "value": "vitlok", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3598,6 +5812,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3638,6 +5885,39 @@
           { "label": "Tzatziki", "value": "tzatziki", "price": 5 },
           { "label": "Chilisås", "value": "chili", "price": 5 },
           { "label": "Vitlöksås", "value": "vitlok", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3684,6 +5964,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3715,6 +6028,39 @@
         "options": [
           { "label": "Grillad", "value": "grillad", "price": 5 },
           { "label": "Panerad", "value": "panerad", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3751,6 +6097,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3781,6 +6160,39 @@
         "options": [
           { "label": "Grillad", "value": "grillad", "price": 5 },
           { "label": "Panerad", "value": "panerad", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
@@ -3817,6 +6229,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3850,6 +6295,39 @@
         ]
       },
       {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
+        ]
+      },
+      {
         "type": "textarea",
         "title": "Speciella instruktioner",
         "placeholder": "T.ex. ingen lök, extra sås …",
@@ -3880,6 +6358,39 @@
         "options": [
           { "label": "Grillad", "value": "grillad", "price": 5 },
           { "label": "Panerad", "value": "panerad", "price": 5 }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          { "label": "Coca-Cola (33 cl)", "value": "coca-cola", "price": 15 },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          { "label": "Pepsi (33 cl)", "value": "pepsi", "price": 15 },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          { "label": "Fanta (33 cl)", "value": "fanta", "price": 15 },
+          { "label": "Fanta Zero (33 cl)", "value": "fanta-zero", "price": 15 },
+          { "label": "Sprite (33 cl)", "value": "sprite", "price": 15 },
+          { "label": "7Up (33 cl)", "value": "7up", "price": 15 },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          { "label": "Fanta (2 liter)", "value": "fanta-2liter", "price": 35 }
         ]
       },
       {
