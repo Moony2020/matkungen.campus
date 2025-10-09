@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", function () {
   };
 
   // Safe toast wrapper — won't crash if showToast doesn't exist
-  // Safe toast wrapper — won't crash if showToast doesn't exist
   function toast(msg, type) {
     if (typeof window.showToast === "function")
       return window.showToast(msg, type);
@@ -51,6 +50,20 @@ document.addEventListener("DOMContentLoaded", function () {
       `[toast${type ? ":" + type : ""}]`,
       msg
     );
+  }
+  // availability override UI
+  async function fetchAvailabilityOverrides() {
+    const res = await fetch("/api/availability", { cache: "no-store" });
+    const json = await res.json();
+    return Array.isArray(json?.overrides) ? json.overrides : [];
+  }
+
+  function mergeAvailabilityIntoItems(items, overrides) {
+    const map = new Map(overrides.map((o) => [String(o.id), !!o.available]));
+    items.forEach((it) => {
+      const id = String(it._id || it.id);
+      if (map.has(id)) it.available = map.get(id);
+    });
   }
 
   class AdminPanel {
@@ -1773,30 +1786,50 @@ document.addEventListener("DOMContentLoaded", function () {
 
     async loadMenu() {
       try {
+        // Build query from filters
         const params = new URLSearchParams();
         const cat = document.getElementById("menu-filter-category")?.value;
         const q = document.getElementById("menu-search")?.value?.trim();
         if (cat) params.set("category", cat);
         if (q) params.set("q", q);
 
-        const res = await fetch(`/api/admin/menu?${params.toString()}`, {
+        // 1) Fetch admin menu
+        const resp = await fetch(`/api/admin/menu?${params.toString()}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
           },
+          cache: "no-store",
         });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || "Failed");
+        const json = await resp.json();
+        if (!resp.ok || json?.success !== true) {
+          throw new Error(
+            json?.error || `Failed to load menu (${resp.status})`
+          );
+        }
 
-        this.menuState.items = data.items || [];
+        // Normalize items array
+        const items = Array.isArray(json.items) ? json.items : [];
+
+        // 2) Fetch availability overrides and merge *before* first render
+        const overrides = await fetchAvailabilityOverrides(); // returns [{ id, available }, ...]
+        mergeAvailabilityIntoItems(items, overrides); // mutates 'items' to set item.available
+
+        // 3) Save & render once (checkboxes will reflect true state)
+        this.menuState.items = items;
         this.renderMenuList();
-      } catch (e) {
-        console.error(e);
+      } catch (err) {
+        console.error("loadMenu error:", err);
         const list = document.getElementById("menu-list");
-        if (list)
+        if (list) {
           list.innerHTML =
             '<div class="empty-state">Failed to load menu.</div>';
+        }
+        // Optional toast if you have it:
+        if (typeof window.showToast === "function")
+          showToast("Failed to load menu", "error");
       }
     }
+
     renderMenuList() {
       const list = document.getElementById("menu-list");
       if (!list) return;
@@ -1816,42 +1849,51 @@ document.addEventListener("DOMContentLoaded", function () {
               : "";
           const groupsStr =
             it.modifiers && it.modifiers.length
-              ? `<div class="muted">Groups: ${it.modifiers
-                  .map((g) => g.name)
+              ? // if your groups use "title" not "name", use g.title:
+                `<div class="muted">Groups: ${it.modifiers
+                  .map((g) => g.title || g.name)
                   .join(", ")}</div>`
               : "";
 
+          const id = it._id || it.id; // works for DB or static ids
           return `
- <div class="order-card" data-menu-id="${it._id}">
-   <div class="order-header">
-     <span class="order-number">${it.name}</span>
-     <span class="order-date">${Number(it.price ?? 0).toFixed(2)} kr</span>
-   </div>
+          <div class="order-card" data-menu-id="${id}">
+            <div class="order-header">
+              <span class="order-number">${it.name}</span>
+              <span class="order-date">${Number(it.price ?? 0).toFixed(
+                2
+              )} kr</span>
+            </div>
 
-   <div class="cart-item">
-     <div class="cart-item-image">
-       <img src="${it.imageUrl || "/assets/images/default-food.jpg"}" alt="${
-            it.name
-          }">
-     </div>
-     <div class="cart-item-details">
-       <h4>${it.name}</h4>
-       <div class="muted">${it.category || ""}</div>
-       <p>${it.description || ""}</p>
-       ${sizesStr}
-       ${groupsStr}
-     </div>
-   </div>
+            <div class="cart-item">
+              <div class="cart-item-image">
+                <img src="${
+                  it.imageUrl || "/assets/images/default-food.jpg"
+                }" alt="${it.name}">
+              </div>
+              <div class="cart-item-details">
+                <h4>${it.name}</h4>
+                <div class="muted">${it.category || ""}</div>
+                <p>${it.description || ""}</p>
+                ${sizesStr}
+                ${groupsStr}
+              </div>
+            </div>
 
-   <div class="card-actions">
-     <button class="btn" data-edit="${it._id}">Edit</button>
-     <button class="btn btn-danger" data-del="${it._id}">Delete</button>
-   </div>
- </div>
- `;
+            <div class="card-actions">
+              <button class="btn" data-edit="${id}">Edit</button>
+              <button class="btn btn-danger" data-del="${id}">Delete</button>
+              <label class="availability-switch">
+                <input type="checkbox" class="availability-toggle" data-id="${id}" ${
+            it.available === false ? "" : "checked"
+          }>
+                <span>Available</span>
+              </label>
+            </div>
+          </div>
+          `;
         })
         .join("");
-
       // wire buttons
       list.querySelectorAll("[data-edit]").forEach((btn) => {
         btn.addEventListener("click", () =>
@@ -1868,6 +1910,10 @@ document.addEventListener("DOMContentLoaded", function () {
     async openMenuModal(id = null) {
       const modal = document.getElementById("menu-modal");
       const form = document.getElementById("menu-form");
+      const data = Object.fromEntries(new FormData(form).entries());
+      data.available = form.elements["available"]
+        ? form.elements["available"].checked
+        : true;
 
       // — helpers —
       const open = () => {
@@ -2919,6 +2965,30 @@ document.addEventListener("DOMContentLoaded", function () {
         clearTimeout(this._menuDebounce);
         this._menuDebounce = setTimeout(() => this.loadMenu(), 300);
       });
+
+      // Bind availability toggle ONCE, scoped to the list container
+      const list = document.getElementById("menu-list");
+      if (list && !list.dataset.availBound) {
+        list.addEventListener("change", async (e) => {
+          const el = e.target.closest(".availability-toggle");
+          if (!el) return;
+
+          const id = el.dataset.id;
+          const available = el.checked;
+
+          await fetch("/api/availability", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id, available }),
+          });
+
+          // optional toast/log
+          console.log(`Availability for ${id} = ${available}`);
+        });
+
+        // mark as bound so we don't double-bind on future re-inits
+        list.dataset.availBound = "1";
+      }
 
       // ===== SETTINGS (E.1) wire save button =====
       document

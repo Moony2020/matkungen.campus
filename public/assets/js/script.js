@@ -1,4 +1,34 @@
+// aassets/js/script.js
 "use strict";
+
+// Small toast helper (2s) if you don't already have cart.showNotification
+function showToast(msg = "Inte tillgänglig just nu") {
+  let t = document.getElementById("mk-toast");
+  if (!t) {
+    t = document.createElement("div");
+    t.id = "mk-toast";
+    t.style.cssText =
+      "position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#000;color:#FFD700;padding:10px 14px;border-radius:9999px;font-size:14px;z-index:9999;opacity:0;transition:opacity .2s";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = "1";
+  setTimeout(() => (t.style.opacity = "0"), 2000);
+}
+
+// Block add-to-cart on unavailable items
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".add-to-cart-btn, .btn-primary");
+  if (!btn) return;
+  if (btn.dataset.unavailable === "1" || btn.disabled) {
+    e.preventDefault();
+    e.stopPropagation();
+    window.cart?.showNotification
+      ? cart.showNotification("Inte tillgänglig just nu")
+      : showToast("Inte tillgänglig just nu");
+  }
+});
+
 let cart = null;
 
 // delivery fee rules (shared by checkout, payment, confirmation, print)
@@ -34,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Reattach your existing listeners here
+  // Reattach the existing listeners here
   socket.on("orderUpdate", (order) => {
     console.log("Order updated:", order);
     updateOrderStatusUI(order);
@@ -1288,6 +1318,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       return;
     }
   });
+
   // ==================== SIZE SELECTION FOR PIZZA ITEMS ====================
   document
     .querySelectorAll(".size-selector input[type='radio']")
@@ -4358,7 +4389,75 @@ function createDrinkCard(item) {
   row.append(price, btn);
   content.append(title, row);
   card.append(fig, content);
+  if (item.available === false) markCardAvailability(card, false);
   return card;
+}
+
+// ---------- Availability helpers ----------
+function markCardAvailability(cardEl, available) {
+  if (!cardEl) return;
+
+  // make sure the card can host absolute children
+  const cs = window.getComputedStyle(cardEl);
+  if (cs.position === "static") cardEl.style.position = "relative";
+
+  // find buttons inside this card
+  const btns = cardEl.querySelectorAll(".add-to-cart-btn, .btn-primary");
+
+  // add/remove state
+  if (!available) {
+    cardEl.classList.add("unavailable");
+
+    // disable cart buttons + text
+    btns.forEach((btn) => {
+      btn.dataset.unavailable = "1";
+      btn.disabled = true;
+      // if it's a primary text button, reflect "not available"
+      const txt = btn.querySelector(".text-1, .text, span");
+      if (txt) txt.textContent = "Ej tillgänglig just nu";
+    });
+
+    // badge: absolute overlay (doesn't push layout)
+    let badge = cardEl.querySelector(".mk-out-badge");
+    if (!badge) {
+      badge = document.createElement("div");
+      badge.className = "mk-out-badge";
+      badge.textContent = "Ej tillgänglig just nu";
+      cardEl.appendChild(badge);
+    }
+  } else {
+    cardEl.classList.remove("unavailable");
+    btns.forEach((btn) => {
+      btn.dataset.unavailable = "0";
+      btn.disabled = false;
+      // restore label only if we altered it before
+      if (btn.classList.contains("btn-primary")) {
+        const t1 = btn.querySelector(".text-1, .text, span");
+        if (t1) t1.textContent = btn.dataset.originalLabel || "Lägg till";
+      }
+    });
+    const badge = cardEl.querySelector(".mk-out-badge");
+    if (badge) badge.remove();
+  }
+}
+
+function applyAvailabilityOverrides(overrides) {
+  const map = new Map(
+    (overrides || []).map((o) => [String(o.id), !!o.available])
+  );
+
+  // update in-memory dataset so new cards know their state
+  if (Array.isArray(window.menuItems)) {
+    window.menuItems.forEach((it) => {
+      if (map.has(String(it.id))) it.available = map.get(String(it.id));
+    });
+  }
+
+  // mark any already-rendered cards
+  map.forEach((available, id) => {
+    const el = document.getElementById(String(id));
+    if (el) markCardAvailability(el, available);
+  });
 }
 
 // ---------- BUILD ONE CARD THAT MATCHES MY EXISTING HTML ----------
@@ -4449,6 +4548,7 @@ function createMenuCard(item) {
   content.appendChild(btn);
   card.appendChild(img);
   card.appendChild(content);
+  if (item.available === false) markCardAvailability(card, false);
   return card;
 }
 
@@ -4601,6 +4701,16 @@ if (typeof window.renderMenu !== "function") {
   socket.on("menu:new", (doc) => upsertCardFromDoc(doc));
   socket.on("menu:update", (doc) => upsertCardFromDoc(doc));
   socket.on("menu:delete", (doc) => removeCardById(doc._id || doc.id));
+  socket.on("availability:update", ({ id, available }) => {
+    // sync in-memory
+    if (Array.isArray(window.menuItems)) {
+      const i = window.menuItems.findIndex((x) => String(x.id) === String(id));
+      if (i > -1) window.menuItems[i].available = !!available;
+    }
+    // update card if it exists
+    const el = document.getElementById(String(id));
+    if (el) markCardAvailability(el, !!available);
+  });
 })();
 
 function showPaymentOverlay(msg = "Processing payment…") {
@@ -4683,8 +4793,18 @@ async function appendDbItemsToStandalonePages() {
 }
 
 // ==================== INIT ON PAGE LOAD ====================
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   loadMenuItems(); // keeps your search working (JSON) :contentReference[oaicite:6]{index=6}
-  appendDbItemsToHome(); // appends admin DB items into the grids on home
-  appendDbItemsToStandalonePages(); // other pages: drycker, lunch, vegetarisk, etc.
+  // First load all menu items from backend
+  await appendDbItemsToHome(); // appends admin DB items into the grids on home
+  await appendDbItemsToStandalonePages(); // DB items on other pages: drycker, lunch, vegetarisk, etc.
+
+  // fetch overrides and apply to cards
+  try {
+    const res = await fetch("/api/availability", { cache: "no-store" });
+    const json = await res.json();
+    applyAvailabilityOverrides(json.overrides || []);
+  } catch (e) {
+    console.error("availability fetch failed", e);
+  }
 });

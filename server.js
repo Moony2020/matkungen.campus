@@ -42,6 +42,7 @@ const MenuItem = require("./models/MenuItem"); // adjust path to MenuItem model
 const router = express.Router();
 const settingsRoutes = require("./routes/settings");
 const Setting = require("./models/Setting");
+const Availability = require("./models/Availability");
 
 // ---------- APP_URL base URL (single source of truth) ----------
 const APP_URL = (
@@ -339,6 +340,49 @@ app.get("/api/menu", async (req, res) => {
   } catch (e) {
     console.error(e);
     res.status(500).json({ success: false, message: "Failed to load menu" });
+  }
+});
+
+// --- Availability overrides API ---
+// Store per-item overrides here: { id: "vegetariana", available: true/false }
+
+app.get("/api/availability", async (req, res) => {
+  try {
+    const rows = await Availability.find({}).lean();
+    res.json({
+      overrides: rows.map((r) => ({
+        id: String(r.id),
+        available: !!r.available,
+      })),
+    });
+  } catch (e) {
+    console.error(e);
+    res.json({ overrides: [] });
+  }
+});
+
+app.post("/api/availability", async (req, res) => {
+  try {
+    const { id, available } = req.body || {};
+    if (!id) return res.status(400).json({ ok: false, error: "Missing id" });
+
+    await Availability.updateOne(
+      { id: String(id) },
+      {
+        $set: { id: String(id), available: !!available, updatedAt: new Date() },
+      },
+      { upsert: true }
+    );
+
+    if (io)
+      io.emit("availability:update", {
+        id: String(id),
+        available: !!available,
+      });
+    res.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ ok: false, error: String(e.message || e) });
   }
 });
 

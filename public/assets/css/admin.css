@@ -1644,16 +1644,6 @@ tr:hover {
     grid-column: 2/4;
 }
 
-@media (max-width: 900px) {
-    #menu-modal .form-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    #menu-modal .form-grid>label {
-        grid-column: 1 / -1 !important;
-    }
-}
-
 /* Base field look */
 #menu-modal label {
     display: flex;
@@ -1827,6 +1817,36 @@ tr:hover {
 #menu-modal .modal-actions .btn {
     flex: 0 0 auto;
     min-width: 110px;
+}
+
+/* ----------  Unavailable items ---------- */
+/* .unavailable {
+    opacity: .65;
+    position: relative;
+}
+
+.unavailable .add-to-cart-btn {
+    pointer-events: none;
+}
+
+.badge-out {
+    display: inline-block;
+    background: #999;
+    color: #fff;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 9999px;
+    margin-bottom: 8px;
+} */
+
+@media (max-width: 900px) {
+    #menu-modal .form-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    #menu-modal .form-grid>label {
+        grid-column: 1 / -1 !important;
+    }
 }
 
 @media (max-width:720px) {
