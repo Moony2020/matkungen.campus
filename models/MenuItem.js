@@ -18,6 +18,7 @@ const SizeSchema = new mongoose.Schema({
 
 const MenuItemSchema = new mongoose.Schema(
   {
+    id: { type: String, index: true }, // static slug (e.g., "coca-cola-33-cl")
     name: { type: String, required: true },
     category: { type: String, index: true }, // "burgers","salads","pizza","drinks", etc.
     description: { type: String, default: "" },

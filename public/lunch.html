@@ -11,7 +11,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon/fonts/remixicon.css">
 </head>
-
 <body>
     <!-- Lunch Menu -->
     <section class="menu-page lunch" id="lunch-menu">
@@ -30,7 +29,6 @@
                 <b>Lunch: kl. 11–14 <br /></b>
                 <span class="menu-item-spacing"></span> <!-- Spacer between items -->
             </p>
-
             <!-- Buttons to navigate to specific menus -->
             <div class="menu-buttons">
                 <div class="pizza-section">
@@ -39,7 +37,6 @@
                         class="btn btn-pizza">
                         <span class="text">Pizza Menu</span>
                     </a>
-
                 </div>
                 <div class="tallrikar-section">
                     <p class="menu-description">Tallrikar 80 kr inkl. dricka</p>
@@ -49,47 +46,44 @@
                     </a>
                 </div>
             </div>
-
             <ul class="menu-grid-service">
                 <li>
                     <div class="menu-item" id="hamburgare-90-gram-lunch-offer">
-                        <img src="/assets/images/hamburgare.png" alt="Greek Salad" class="menu-item-img">
+                        <img src="/assets/images/hamburgare.png" alt="Hamburgare 90 gram" class="menu-item-img">
                         <div class="menu-item-content">
                             <div class="title-wrapper">
                                 <h3 class="menu-item-title">
-                                    Hamburgare 90 gram<br>
+                                    Hamburgare 90 gram
                                     <span class="menu-item-offer">(Lunch Offer)</span>
                                 </h3>
-                                <span class="menu-item-price">50 kr</span>
+                                <span class="menu-item-price"></span> <!-- JS fills base price -->
                             </div>
                             <p class="menu-item-desc">
-                                Nötfärs 90 gram, isbergssallad, tomat gurka, lök,
-                                hamburgerdressing.
+                                Nötfärs 90 gram, isbergssallad, tomat, gurka, lök, hamburgerdressing.
                             </p>
-                            <button class="add-to-cart-btn" data-name="Hamburgare 90 gram (Lunch Offer)" data-price="50"
-                                data-img="./assets/images/hamburgare.png">
+                            <button class="add-to-cart-btn" data-name="Hamburgare 90 gram (Lunch Offer)" data-price=""
+                                data-img="/assets/images/hamburgare.png">
                                 <i class="ri-shopping-cart-line"></i> Lägg till
                             </button>
                         </div>
                     </div>
                 </li>
-
                 <li>
                     <div class="menu-item" id="falafelrulle-lunch-offer">
-                        <img src="/assets/images/falafelrulle.jpg" alt="Lasagne" class="menu-item-img">
+                        <img src="/assets/images/falafelrulle.jpg" alt="Falafelrulle" class="menu-item-img">
                         <div class="menu-item-content">
                             <div class="title-wrapper">
                                 <h3 class="menu-item-title">
                                     Falafelrulle
                                     <span class="menu-item-offer">(Lunch Offer)</span>
                                 </h3>
-                                <span class="menu-item-price">50 kr</span>
+                                <span class="menu-item-price"></span> <!-- JS fills base price -->
                             </div>
                             <p class="menu-item-desc">
                                 Falafel, isbergssallad, hummus, färska tomater, gurka, lök.
                             </p>
-                            <button class="add-to-cart-btn" data-name="Falafelrulle" data-price="50"
-                                data-img="./assets/images/falafelrulle.jpg">
+                            <button class="add-to-cart-btn" data-name="Falafelrulle (Lunch Offer)" data-price=""
+                                data-img="/assets/images/falafelrulle.jpg">
                                 <i class="ri-shopping-cart-line"></i> Lägg till
                             </button>
                         </div>
@@ -128,7 +122,7 @@
 
     <!-- <script src="/socket.io/socket.io.js"></script> -->
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script src="./assets/js/script.js"></script>
+    <script src="/assets/js/script.js"></script>
 </body>
 
 </html>

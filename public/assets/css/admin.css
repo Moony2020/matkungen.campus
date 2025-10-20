@@ -1838,6 +1838,55 @@ tr:hover {
     border-radius: 9999px;
     margin-bottom: 8px;
 } */
+/* Bigger, bold category line */
+.category-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2d2d2d;
+    margin-bottom: 6px;
+}
+
+/* Pretty pill chips */
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 600;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.chip-static {
+    background: #eef2ff;
+    /* soft indigo */
+    color: #3730a3;
+}
+
+.chip-db {
+    background: #ecfdf5;
+    /* soft green */
+    color: #065f46;
+}
+
+
+.menu-row.unavailable {
+    opacity: .6;
+}
+
+.menu-thumb {
+    width: 44px;
+    height: 44px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.menu-sub .muted {
+    color: #999;
+    margin-left: 6px;
+}
 
 @media (max-width: 900px) {
     #menu-modal .form-grid {

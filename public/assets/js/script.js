@@ -232,7 +232,22 @@ document.addEventListener("DOMContentLoaded", function () {
 
     window.addEventListener("load", autoSlide);
   }
+
   // ==================== PRELOADER ====================
+  // Scroll to hash if any (after content is loaded)
+  function scrollToHashIfAny(tries = 0) {
+    const hash = decodeURIComponent(location.hash || "").replace("#", "");
+    if (!hash) return;
+
+    const el = document.getElementById(hash);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      el.classList.add("mk-highlight");
+      setTimeout(() => el.classList.remove("mk-highlight"), 1200);
+    } else if (tries < 10) {
+      setTimeout(() => scrollToHashIfAny(tries + 1), 120);
+    }
+  }
 
   const preload = document.querySelector(".preload");
   const content = document.querySelector("main, body");
@@ -248,6 +263,7 @@ document.addEventListener("DOMContentLoaded", function () {
     preload.style.display = "none";
     if (content) content.style.display = "block";
     sessionStorage.removeItem("skipPreload");
+    scrollToHashIfAny();
   } else if (shortPreload === "true") {
     // Quick preloader animation
     preload.classList.add("loaded");
@@ -255,6 +271,7 @@ document.addEventListener("DOMContentLoaded", function () {
       preload.style.display = "none";
       if (content) content.style.display = "block";
       sessionStorage.removeItem("shortPreload");
+      scrollToHashIfAny();
     }, 800);
   } else {
     // Full simulated loading process
@@ -269,6 +286,7 @@ document.addEventListener("DOMContentLoaded", function () {
           setTimeout(() => {
             if (preload) preload.style.display = "none";
             if (content) content.style.display = "block";
+            scrollToHashIfAny();
           }, 800);
         }, 200);
       }
@@ -575,7 +593,7 @@ Sun:           12:00–22:00
     1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
     2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
     3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-    4: [{ start: 11 * 60, end: 24 * 60 }], // Thu 11:00–22:00
+    4: [{ start: 10 * 60, end: 24 * 60 }], // Thu 11:00–22:00
     5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
     6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
   };
@@ -1140,7 +1158,7 @@ Sun:           12:00–22:00
     ) {
       try {
         // 1) Try the public list
-        const r = await fetch("/api/menu", { cache: "no-store" });
+        const r = await fetch("/api/menu/public-menu", { cache: "no-store" });
         if (r.ok) {
           const payload = await r.json();
           const items = Array.isArray(payload?.items)
@@ -3808,13 +3826,17 @@ const PAGE_BY_CATEGORY = {
 };
 
 function dbToClient(doc) {
+  // Preserve the original page if it exists, otherwise use category mapping
+  const originalPage = doc.page;
+  const categoryPage = PAGE_BY_CATEGORY[doc.category] || "index.html";
+
   return {
     id: String(doc._id || doc.id),
     name: doc.name,
     price: doc.price,
-    image: doc.imageUrl || doc.image, // supports both DB and JSON
+    image: doc.imageUrl || doc.image,
     category: doc.category,
-    page: PAGE_BY_CATEGORY[doc.category] || "index.html",
+    page: originalPage || categoryPage, // Use original page if available
     desc: doc.description || doc.desc,
     sizes: doc.sizes || [],
     modifiers: doc.modifiers || [],
@@ -3827,7 +3849,7 @@ async function loadMenuItems() {
 
   // 1) Try the live API first
   try {
-    const res = await fetch("/api/menu");
+    const res = await fetch("/api/menu/public-menu", { cache: "no-store" });
     if (!res.ok) throw 0;
     const json = await res.json();
     data = json.items || [];
@@ -4085,8 +4107,8 @@ document
 document
   .querySelector(".add-with-modifiers")
   ?.addEventListener("click", addItemWithModifiers);
-// ==================== GLOBAL SEARCH FUNCTIONALITY ====================
 
+// ==================== GLOBAL SEARCH FUNCTIONALITY ====================
 function initGlobalSearch() {
   const searchInput = document.getElementById("global-search");
   const searchResults = document.getElementById("results-container");
@@ -4135,17 +4157,33 @@ function initGlobalSearch() {
   }
 
   function displaySearchResults(items) {
+    const searchResults = document.getElementById("results-container");
+    const searchContainer = document.querySelector(".search-results");
+
     if (items.length === 0) {
       searchResults.innerHTML = '<p class="no-results">No items found</p>';
       return;
     }
 
+    const currentPage = (
+      window.location.pathname.split("/").pop() || "index.html"
+    ).toLowerCase();
+
     const html = items
-      .map(
-        (item) => `
-      <div class="search-result-item" data-id="${item.id}" data-page="${
-          item.page
-        }">
+      .map((item, idx) => {
+        const page = (item.page || "").toLowerCase(); // "drycker.html", "lunch.html", "vegetarisk.html"
+        const samePage = page && currentPage === page;
+
+        // IMPORTANT: no leading slash here
+        const targetHref =
+          page && !samePage ? `${page}#${item.id}` : `#${item.id}`;
+
+        return `
+      <a class="search-result-item"
+         href="${targetHref}"
+         data-id="${item.id}"
+         data-page="${page}"
+         data-same-page="${samePage}">
         <img src="${item.image}" alt="${item.name}" class="search-result-img">
         <div class="search-item-details">
           <h4 class="item-name">${item.name}</h4>
@@ -4154,25 +4192,39 @@ function initGlobalSearch() {
           }</p>
           <p class="item-price">${item.price} kr</p>
         </div>
-      </div>
-    `
-      )
+      </a>`;
+      })
       .join("");
 
+    console.groupEnd(); // [Search] Rendering results
     searchResults.innerHTML = html;
 
-    document.querySelectorAll(".search-result-item").forEach((item) => {
-      item.addEventListener("click", function () {
+    // Clicks on rendered results
+    searchResults.querySelectorAll(".search-result-item").forEach((el) => {
+      el.addEventListener("click", function (e) {
         const id = this.dataset.id;
-        const page = this.dataset.page;
+        const page = this.dataset.page || "";
+        const samePage = this.dataset.samePage === "true";
+        const href = this.getAttribute("href");
 
-        if (window.location.pathname.endsWith(page)) {
+        if (samePage || !page) {
+          // same-page → smooth scroll only
+          e.preventDefault();
           scrollToItem(id);
-        } else {
-          navigateToItem(page, id);
+          searchContainer.classList.remove("open");
+          console.groupEnd();
+          return;
         }
 
+        // cross-page → navigate with short preload + location.assign
+        e.preventDefault();
+        sessionStorage.setItem("shortPreload", "true");
+        sessionStorage.setItem("searchTarget", id);
+        sessionStorage.setItem("searchTargetPage", page);
         searchContainer.classList.remove("open");
+
+        const target = `${page}#${id}`;
+        window.location.assign(target);
       });
     });
   }
@@ -4445,6 +4497,8 @@ function applyAvailabilityOverrides(overrides) {
   const map = new Map(
     (overrides || []).map((o) => [String(o.id), !!o.available])
   );
+  // cache globally so live updates & edits can re-apply without refetch
+  window.__availabilityMap = map;
 
   // update in-memory dataset so new cards know their state
   if (Array.isArray(window.menuItems)) {
@@ -4552,6 +4606,85 @@ function createMenuCard(item) {
   return card;
 }
 
+// update existing hardcoded cards HTML with the latest API data
+// (sizes, label prices, button price, under-title price) and
+// select "Medium" by default so CSS highlights it.
+function hydrateHardcodedCards(items) {
+  if (!Array.isArray(items)) return;
+
+  items.forEach((item) => {
+    const card = document.getElementById(item.id);
+    if (!card) return;
+
+    // --- 1) Update ALL size labels & radio values if this card has them ---
+    const labels = card.querySelectorAll(".size-selector label");
+    if (labels.length && Array.isArray(item.sizes)) {
+      // Build a lookup { nameLower: price }
+      const sizeMap = new Map(
+        item.sizes.map((s) => [
+          String(s.name || "").toLowerCase(),
+          Number(s.price) || 0,
+        ])
+      );
+
+      labels.forEach((labelEl) => {
+        const span = labelEl.querySelector("span");
+        const input = labelEl.querySelector('input[type="radio"]');
+        if (!span || !input) return;
+
+        // Keep original name text (before any "(... kr)")
+        const txt = span.textContent || "";
+        const nameOnly = txt.split("(")[0].trim(); // "Small" from "Small (65 kr)"
+        const price = sizeMap.get(nameOnly.toLowerCase());
+        if (typeof price === "number" && !Number.isNaN(price)) {
+          // Update visible label and the radio's value/data-price
+          span.textContent = `${nameOnly} (${price} kr)`;
+          input.value = String(price);
+          input.dataset.price = String(price);
+        }
+      });
+    }
+
+    // --- 2) Update a top/explicit price element on the card (if present) ---
+    const priceEl = card.querySelector(
+      ".menu-item-price, .drink-price, .card-price"
+    );
+    if (priceEl) {
+      // API sends item.price as the Medium (or best) price when sizes exist
+      priceEl.textContent = `${item.price} kr`;
+    }
+
+    // --- 3) Ensure the Add button carries the current default price (usually Medium) ---
+    const btn = card.querySelector(".add-to-cart-btn");
+    if (btn) {
+      btn.setAttribute("data-price", String(item.price)); // match default radio
+      const dn = btn.getAttribute("data-name") || "";
+      if (/^\s*[^()]+\(.*\)\s*$/.test(dn)) {
+        btn.setAttribute("data-name", `${item.name} (Medium)`);
+      }
+    }
+
+    // --- 4) Make "Medium" checked by default (then 2nd, else 1st) so CSS turns it gold ---
+    const radios = card.querySelectorAll('.size-selector input[type="radio"]');
+    if (radios.length) {
+      // find "Medium" span index among labels
+      const spans = card.querySelectorAll(".size-selector label span");
+      let mediumIdx = -1;
+      spans.forEach((sp, i) => {
+        if (/medium/i.test(sp.textContent || "")) mediumIdx = i;
+      });
+      let idx = mediumIdx > -1 ? mediumIdx : radios[1] ? 1 : 0;
+
+      // uncheck all, check default, then fire change so price & gold style update
+      radios.forEach((r) => (r.checked = false));
+      if (radios[idx]) {
+        radios[idx].checked = true;
+        radios[idx].dispatchEvent(new Event("change", { bubbles: true }));
+      }
+    }
+  });
+}
+
 // ---------- FETCH DB ITEMS AND APPEND INTO THE RIGHT GRIDS ----------
 async function appendDbItemsToHome() {
   // Only run on the home page whether it's "/" or "/index.html"
@@ -4559,11 +4692,13 @@ async function appendDbItemsToHome() {
   if (!isHome) return;
 
   try {
-    const res = await fetch("/api/menu");
+    const res = await fetch("/api/menu/public-menu", { cache: "no-store" });
     const data = await res.json();
     if (!data.success) return;
 
     const items = data.items;
+    // ⬇️ NEW: update already-present hard-coded cards with fresh prices
+    hydrateHardcodedCards(items);
 
     // Also add DB items to the global search dataset
     if (Array.isArray(window.menuItems)) {
@@ -4575,10 +4710,10 @@ async function appendDbItemsToHome() {
           (Array.isArray(doc.sizes) && doc.sizes[0] ? doc.sizes[0].price : 0),
         image: doc.imageUrl || doc.image,
         category: doc.category,
-        page: "index.html",
+        page: doc.page || PAGE_BY_CATEGORY[doc.category] || "index.html", // Preserve original page
         desc: doc.description || doc.desc,
         sizes: Array.isArray(doc.sizes) ? doc.sizes : [],
-        modifiers: Array.isArray(doc.modifiers) ? doc.modifiers : [], // ← keep modifiers!
+        modifiers: Array.isArray(doc.modifiers) ? doc.modifiers : [],
       }));
 
       // Merge into cache by id
@@ -4658,14 +4793,19 @@ if (typeof window.renderMenu !== "function") {
     item.id = String(item.id || item._id || "");
     if (!item.id) return;
 
-    // Find the right grid (try case-insensitive category, then original)
+    // 🔹 reapply known availability from the cached overrides (if any)
+    const availMap = window.__availabilityMap;
+    if (availMap && availMap.has(item.id)) {
+      item.available = availMap.get(item.id);
+    }
+
     const categoryKey = String(item.category || "").toLowerCase();
     const grid = gridForCategory(categoryKey) || gridForCategory(item.category);
-    if (!grid) return; // this page doesn't show that category
+    if (!grid) return;
 
-    const fresh = createMenuCard(item); // uses your existing card builder
+    const isDrinks = String(item.category || "").toLowerCase() === "drinks";
+    const fresh = isDrinks ? createDrinkCard(item) : createMenuCard(item);
 
-    // If card already exists, replace it; otherwise append (wrap in <li> for <ul> grids)
     const existing = document.getElementById(item.id);
     if (existing) {
       existing.replaceWith(fresh);
@@ -4679,13 +4819,28 @@ if (typeof window.renderMenu !== "function") {
       }
     }
 
-    // Keep your in-memory list (used by search/filters) in sync
+    // 🔹 make sure DOM reflects availability even if builders didn't set it
+    if (typeof item.available === "boolean") {
+      markCardAvailability(fresh, item.available);
+    }
+
+    // keep search/filters list in sync, preserving availability if we had it
     if (Array.isArray(window.menuItems)) {
       const i = window.menuItems.findIndex(
         (x) => String(x.id) === String(item.id)
       );
-      if (i > -1) window.menuItems.splice(i, 1, item);
-      else window.menuItems.push(item);
+      if (i > -1) {
+        const prev = window.menuItems[i];
+        if (
+          typeof prev?.available === "boolean" &&
+          typeof item.available !== "boolean"
+        ) {
+          item.available = prev.available;
+        }
+        window.menuItems.splice(i, 1, item);
+      } else {
+        window.menuItems.push(item);
+      }
     }
   }
 
@@ -4738,7 +4893,7 @@ async function appendDbItemsToStandalonePages() {
   // Fetch robustly (accept {items:[...]} OR [...] )
   let items = [];
   try {
-    const res = await fetch("/api/menu", { cache: "no-store" });
+    const res = await fetch("/api/menu/public-menu", { cache: "no-store" });
     if (res.ok) {
       const payload = await res.json();
       items = Array.isArray(payload?.items)
@@ -4749,6 +4904,7 @@ async function appendDbItemsToStandalonePages() {
     }
   } catch (_) {}
   if (!items.length) return;
+  hydrateHardcodedCards(items);
 
   items.forEach((doc) => {
     const item = {
@@ -4762,6 +4918,7 @@ async function appendDbItemsToStandalonePages() {
       sizes: Array.isArray(doc.sizes) ? doc.sizes : [],
       modifiers: Array.isArray(doc.modifiers) ? doc.modifiers : [],
       category: normalizeCategory(doc.category || ""),
+      page: doc.page || PAGE_BY_CATEGORY[doc.category] || "index.html", // Preserve original page
     };
     if (!item.id) return;
 
@@ -4794,10 +4951,11 @@ async function appendDbItemsToStandalonePages() {
 
 // ==================== INIT ON PAGE LOAD ====================
 document.addEventListener("DOMContentLoaded", async () => {
-  loadMenuItems(); // keeps your search working (JSON) :contentReference[oaicite:6]{index=6}
+  loadMenuItems(); // keeps the search working (JSON) :contentReference[oaicite:6]{index=6}
   // First load all menu items from backend
   await appendDbItemsToHome(); // appends admin DB items into the grids on home
   await appendDbItemsToStandalonePages(); // DB items on other pages: drycker, lunch, vegetarisk, etc.
+  initGlobalSearch();
 
   // fetch overrides and apply to cards
   try {

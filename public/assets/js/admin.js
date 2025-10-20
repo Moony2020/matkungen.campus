@@ -65,6 +65,17 @@ document.addEventListener("DOMContentLoaded", function () {
       if (map.has(id)) it.available = map.get(id);
     });
   }
+  // Prefer "Medium" price when sizes exist; otherwise first size; otherwise base price.
+  function displayPriceForAdmin(item) {
+    if (Array.isArray(item?.sizes) && item.sizes.length) {
+      const mid = item.sizes.find(
+        (s) => String(s.name || "").toLowerCase() === "medium"
+      );
+      const picked = mid || item.sizes[0];
+      return Number(picked.price) || 0;
+    }
+    return Number(item?.price) || 0;
+  }
 
   class AdminPanel {
     constructor() {
@@ -1792,6 +1803,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const q = document.getElementById("menu-search")?.value?.trim();
         if (cat) params.set("category", cat);
         if (q) params.set("q", q);
+        params.set("includeStatic", "1"); // 👈 important
 
         // 1) Fetch admin menu
         const resp = await fetch(`/api/admin/menu?${params.toString()}`, {
@@ -1820,102 +1832,207 @@ document.addEventListener("DOMContentLoaded", function () {
       } catch (err) {
         console.error("loadMenu error:", err);
         const list = document.getElementById("menu-list");
-        if (list) {
+        if (list)
           list.innerHTML =
             '<div class="empty-state">Failed to load menu.</div>';
-        }
-        // Optional toast if you have it:
-        if (typeof window.showToast === "function")
-          showToast("Failed to load menu", "error");
       }
     }
-
     renderMenuList() {
       const list = document.getElementById("menu-list");
       if (!list) return;
 
-      if (!this.menuState.items.length) {
+      const items = this.menuState.items || [];
+      if (!items.length) {
         list.innerHTML = '<div class="empty-state">No items found.</div>';
         return;
       }
 
-      list.innerHTML = this.menuState.items
-        .map((it) => {
-          const sizesStr =
-            it.sizes && it.sizes.length
-              ? `<div class="muted">Sizes: ${it.sizes
-                  .map((s) => `${s.name} (${Number(s.price).toFixed(2)} kr)`)
-                  .join(", ")}</div>`
-              : "";
-          const groupsStr =
-            it.modifiers && it.modifiers.length
-              ? // if your groups use "title" not "name", use g.title:
-                `<div class="muted">Groups: ${it.modifiers
-                  .map((g) => g.title || g.name)
-                  .join(", ")}</div>`
-              : "";
+      const seen = new Set();
 
-          const id = it._id || it.id; // works for DB or static ids
-          return `
-          <div class="order-card" data-menu-id="${id}">
-            <div class="order-header">
-              <span class="order-number">${it.name}</span>
-              <span class="order-date">${Number(it.price ?? 0).toFixed(
-                2
-              )} kr</span>
-            </div>
+      for (const it of items) {
+        const isStatic = it.source === "static";
+        const dbId = it._id || ""; // Mongo _id (DB items only)
+        const anyId = it.id || it._id; // global id (static id or _id)
+        if (!anyId) continue;
+        seen.add(String(anyId));
 
-            <div class="cart-item">
-              <div class="cart-item-image">
-                <img src="${
-                  it.imageUrl || "/assets/images/default-food.jpg"
-                }" alt="${it.name}">
-              </div>
-              <div class="cart-item-details">
-                <h4>${it.name}</h4>
-                <div class="muted">${it.category || ""}</div>
-                <p>${it.description || ""}</p>
-                ${sizesStr}
-                ${groupsStr}
-              </div>
-            </div>
+        const checked = it.available === false ? "" : "checked";
 
-            <div class="card-actions">
-              <button class="btn" data-edit="${id}">Edit</button>
-              <button class="btn btn-danger" data-del="${id}">Delete</button>
-              <label class="availability-switch">
-                <input type="checkbox" class="availability-toggle" data-id="${id}" ${
-            it.available === false ? "" : "checked"
-          }>
-                <span>Available</span>
-              </label>
-            </div>
-          </div>
-          `;
-        })
-        .join("");
-      // wire buttons
-      list.querySelectorAll("[data-edit]").forEach((btn) => {
-        btn.addEventListener("click", () =>
-          this.openMenuModal(btn.dataset.edit)
+        const sizesStr =
+          Array.isArray(it.sizes) && it.sizes.length
+            ? `<div class="muted">Sizes: ${it.sizes
+                .map((s) => `${s.name} (${Number(s.price).toFixed(2)} kr)`)
+                .join(", ")}</div>`
+            : "";
+
+        const groupsStr =
+          Array.isArray(it.modifiers) && it.modifiers.length
+            ? `<div class="muted">Groups: ${it.modifiers
+                .map((g) => g.title || g.name)
+                .join(", ")}</div>`
+            : "";
+
+        const html = `
+    <div class="order-card ${
+      it.available === false ? " unavailable" : ""
+    }" data-menu-id="${anyId}" data-source="${isStatic ? " static" : "db"}">
+      <div class="order-header">
+        <span class="order-number">${it.name}</span>
+        <span class="order-date">${displayPriceForAdmin(it).toFixed(
+          2
+        )} kr</span>
+      </div>
+      <div class="cart-item">
+        <div class="cart-item-image">
+          <img src="${
+            it.imageUrl || it.image || "/assets/images/default-food.jpg"
+          }" alt="${it.name}" loading="lazy"
+            decoding="async" onerror="this.onerror=null;this.src='/assets/images/default-food.jpg'">
+        </div>
+        <div class="cart-item-details">
+          <div class="category-label">${it.category || ""}${
+          it.page ? ` · ${it.page}` : ""
+        }</div>
+          <p>${it.description || ""}</p>
+          ${sizesStr}
+          ${groupsStr}
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <span class="chip ${isStatic ? " chip-static" : "chip-db"}">${
+          isStatic ? "Static" : "DB"
+        }</span>
+
+        <label class="availability-switch">
+          <input type="checkbox" class="availability-toggle" data-id="${anyId}" ${checked}>
+          <span>Available</span>
+        </label>
+
+        <button class="btn js-edit" data-id="${dbId || anyId}" data-source="${
+          isStatic ? " static" : "db"
+        }" data-name="${(it.name || "").replace(/"/g, "&quot;")}">Edit</button>
+
+        <button class="btn btn-danger ${
+          isStatic ? " js-delete-static" : "js-delete"
+        }" data-id="${anyId}" ${isStatic ? "disabled" : ""}>
+          Delete
+        </button>
+      </div>
+    </div>
+    `;
+        // Build a nodefrom the HTML
+        const wrapper = document.createElement("div");
+        wrapper.innerHTML = html.trim();
+        const nextEl = wrapper.firstElementChild;
+
+        // Upsert (replace the one row, don't rebuild the whole list)
+        const prevEl = list.querySelector(
+          `.order-card[data-menu-id="${CSS.escape(String(anyId))}"]`
         );
-      });
-      list.querySelectorAll("[data-del]").forEach((btn) => {
-        btn.addEventListener("click", () =>
-          this.deleteMenuItem(btn.dataset.del)
-        );
+        if (prevEl) prevEl.replaceWith(nextEl);
+        else list.appendChild(nextEl);
+
+        // ---- Attach the same listeners you had, but to this card only ----
+        // Edit
+        const editBtn = nextEl.querySelector(".js-edit");
+        if (editBtn) {
+          editBtn.addEventListener("click", async () => {
+            const source = (editBtn.dataset.source || "").trim().toLowerCase();
+            const rawId = editBtn.dataset.id;
+            if (!rawId) return;
+
+            if (source === "static") {
+              try {
+                const res = await fetch(
+                  `/api/admin/menu/static/${encodeURIComponent(rawId)}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${localStorage.getItem(
+                        "adminToken"
+                      )}`,
+                    },
+                    cache: "no-store",
+                  }
+                );
+                const json = await res.json().catch(() => ({}));
+                if (!res.ok || json?.success !== true || !json?.item) {
+                  console.error("Static GET failed", json);
+                  return;
+                }
+                const items = this.menuState.items || [];
+                const idx = items.findIndex(
+                  (x) => String(x.id) === String(rawId)
+                );
+                if (idx !== -1) items[idx] = json.item;
+                else items.push(json.item);
+                this.menuState.items = items;
+                this.openMenuModal(rawId);
+              } catch (err) {
+                console.error("Failed to open static item:", err);
+              }
+            } else {
+              this.openMenuModal(rawId);
+            }
+          });
+        }
+
+        // Delete (DB only)
+        const delBtn = nextEl.querySelector(".js-delete");
+        if (delBtn) {
+          delBtn.addEventListener("click", () =>
+            this.deleteMenuItem(delBtn.dataset.id)
+          );
+        }
+
+        // Availability toggle
+        const chk = nextEl.querySelector(".availability-toggle");
+        if (chk) {
+          chk.addEventListener("change", async (e) => {
+            const card = e.target.closest(".order-card");
+            const id = e.target.dataset.id;
+            const available = e.target.checked;
+
+            card.classList.toggle("unavailable", !available);
+
+            try {
+              const res = await fetch("/api/availability", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+                },
+                credentials: "include",
+                body: JSON.stringify({ id, available }),
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok || data?.success !== true)
+                throw new Error(data?.error || "Failed");
+            } catch (err) {
+              e.target.checked = !available;
+              card.classList.toggle("unavailable", available);
+              console.error("Failed to update availability for", id, err);
+              if (window.showToast)
+                showToast("Could not update availability", "error");
+            }
+          });
+        }
+      }
+
+      // Remove cards that are no longer present
+      list.querySelectorAll(".order-card[data-menu-id]").forEach((row) => {
+        if (!seen.has(String(row.getAttribute("data-menu-id")))) row.remove();
       });
     }
 
     async openMenuModal(id = null) {
       const modal = document.getElementById("menu-modal");
       const form = document.getElementById("menu-form");
-      const data = Object.fromEntries(new FormData(form).entries());
-      data.available = form.elements["available"]
-        ? form.elements["available"].checked
-        : true;
 
-      // — helpers —
+      const isObjectId = (v) =>
+        typeof v === "string" && /^[a-f\d]{24}$/i.test(v);
+
+      // ——— UI helpers ———
       const open = () => {
         modal.classList.add("show");
         modal.style.display = "flex";
@@ -1927,7 +2044,7 @@ document.addEventListener("DOMContentLoaded", function () {
         document.body.style.overflow = "";
       };
 
-      // add X button once
+      // Close button (create once)
       if (!modal.querySelector(".modal-close")) {
         const x = document.createElement("button");
         x.type = "button";
@@ -1938,26 +2055,102 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.querySelector(".modal-content").appendChild(x);
       }
 
-      // reset form & UI
-      form.reset();
-      form._id.value = id || "";
-      document.getElementById("sizes-container").innerHTML = "";
-      document.getElementById("modifiers-container").innerHTML = "";
-      document.getElementById("menu-modal-title").textContent = id
-        ? "Edit Menu Item"
-        : "New Menu Item";
+      // ——— Normalizers ———
+      const normSizes = (sizes) =>
+        (Array.isArray(sizes) ? sizes : []).map((s) => ({
+          name: s?.name ?? s?.title ?? "",
+          price: Number(s?.price ?? 0),
+        }));
 
-      // wire buttons every time (overwrites previous)
+      const normOptions = (opts) =>
+        (Array.isArray(opts) ? opts : []).map((o) => ({
+          name: o?.name ?? o?.title ?? o?.label ?? "",
+          price: Number(o?.price ?? 0),
+        }));
+
+      const normGroups = (groups) =>
+        (Array.isArray(groups) ? groups : []).map((g) => ({
+          title: g?.title ?? g?.name ?? "",
+          type: g?.type ?? (g?.required ? "radio" : "checkbox"),
+          required: !!(g?.required ?? g?.isRequired),
+          min: Number(g?.min ?? 0),
+          max: Number(g?.max ?? (g?.required ? 1 : 0)),
+          options: normOptions(g?.options ?? g?.items),
+        }));
+
+      // ——— Fill form from an item ———
+      const fillForm = (it) => {
+        if (!it) return;
+
+        // reset but DO NOT clear _id (set below explicitly)
+        const keepId = form._id?.value || "";
+        form.reset();
+        if (form._id) form._id.value = keepId;
+
+        // clear dynamic containers
+        const sizesBox = document.getElementById("sizes-container");
+        const modsBox = document.getElementById("modifiers-container");
+        if (sizesBox) sizesBox.innerHTML = "";
+        if (modsBox) modsBox.innerHTML = "";
+
+        // primitives
+        form.name.value = it.name || "";
+        form.category.value = it.category || form.category.value || "pizza";
+        form.price.value = Number(it.price ?? 0);
+        form.description.value = it.description || "";
+        if (form.available) form.available.checked = it.available !== false;
+
+        // ✅ Sizes (normalized)
+        for (const s of normSizes(it.sizes)) {
+          this.addSizeRow(s.name, s.price);
+        }
+
+        // ✅ Modifier groups (normalized)
+        for (const g of normGroups(it.modifiers)) {
+          this.addModifierGroup(g);
+        }
+      };
+
+      // ——— Resolve local item and a DB id ———
+      const items = this.menuState?.items || [];
+      const local =
+        items.find((x) => String(x._id) === String(id)) ||
+        items.find((x) => String(x.id) === String(id)) ||
+        null;
+
+      // try several places for a db id if editing
+      // Try to get a Mongo _id if present
+      const isObjId = (v) =>
+        typeof v === "string" && /^[0-9a-fA-F]{24}$/.test(v);
+      let mongoId = "";
+      if (local?._id) mongoId = String(local._id);
+      else if (local?.dbId) mongoId = String(local.dbId);
+      else if (isObjId(id)) mongoId = String(id);
+
+      // always clear then set hidden ids to avoid stale values
+      if (form._id) form._id.value = "";
+      if (form.static_id) form.static_id.value = "";
+
+      // If it's a STATIC item, use static_id and ensure _id stays empty
+      if (local?.source === "static") {
+        if (form.static_id) form.static_id.value = String(local.id || "");
+      } else if (mongoId) {
+        // DB edit → store _id
+        if (form._id) form._id.value = mongoId;
+      }
+
+      // Title: Edit when we found either a static item or a DB id; otherwise New
+      document.getElementById("menu-modal-title").textContent =
+        local || mongoId ? "Edit Menu Item" : "New Menu Item";
+      // wire buttons each time (idempotent)
       document.getElementById("add-size").onclick = () => this.addSizeRow();
       document.getElementById("add-mod-group").onclick = () =>
         this.addModifierGroup();
       document.getElementById("menu-cancel").onclick = close;
       form.onsubmit = (e) => this.submitMenuForm(e);
 
-      // open immediately so the modal shows even if fetch fails
+      // open modal now
       open();
-
-      // click outside to close (one-shot)
       modal.addEventListener(
         "click",
         (e) => {
@@ -1965,8 +2158,6 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         { once: true }
       );
-
-      // Esc to close (one-shot)
       const esc = (e) => {
         if (e.key === "Escape") {
           close();
@@ -1975,41 +2166,60 @@ document.addEventListener("DOMContentLoaded", function () {
       };
       window.addEventListener("keydown", esc);
 
-      // then load data for Edit (non-blocking for open)
-      if (id) {
+      // Prefill from local cache immediately (fast)
+      if (local) {
+        // If local had only static id but also a hidden dbId on the node/card, keep it
+        if (!mongoId && isObjectId(local?.dbId)) {
+          mongoId = String(local.dbId);
+          if (form._id) form._id.value = mongoId;
+        }
+        fillForm(local);
+      }
+
+      // If we have a DB id, fetch a fresh copy and re-fill
+      if (mongoId) {
         try {
-          const res = await fetch(`/api/admin/menu/${id}`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-            },
-          });
-          const data = await res.json();
-          if (data.success && data.item) {
-            const existing = data.item;
-            form.name.value = existing.name || "";
-            form.category.value = existing.category || "pizza";
-            form.price.value = existing.price ?? 0;
-            form.description.value = existing.description || "";
-            (existing.sizes || []).forEach((s) =>
-              this.addSizeRow(s.name, s.price)
-            );
-            (existing.modifiers || []).forEach((g) => this.addModifierGroup(g));
+          const res = await fetch(
+            `/api/admin/menu/${encodeURIComponent(mongoId)}`,
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+              },
+              cache: "no-store",
+            }
+          );
+          const json = await res.json().catch(() => ({}));
+          if (res.ok && json?.success && json.item) {
+            if (form._id) form._id.value = json.item._id || mongoId; // <- crucial
+            fillForm(json.item);
           } else {
-            this.showNotification("Could not load item details", true);
+            console.warn(
+              "openMenuModal: server returned no item; using local data"
+            );
           }
         } catch (err) {
-          console.error(err);
-          this.showNotification("Could not load item details", true);
+          console.error("openMenuModal fetch error:", err);
+          // keep local fill
         }
       }
+
+      // helpful debug
+      const dbId = form._id?.value || "";
+      const staticId = form.static_id?.value || "";
+      const primaryId = dbId || staticId || "";
+
+      console.log("[openMenuModal] id =", primaryId);
     }
 
     addSizeRow(name = "", price = 0) {
       const wrap = document.createElement("div");
       wrap.className = "row-inline";
+      wrap.setAttribute("data-size-row", "");
       wrap.innerHTML = `
-    <input class="size-name" placeholder="Size name" value="${name}">
-    <input class="size-price" type="number" step="0.01" placeholder="Price" value="${price}">
+    <input class="size-name" data-size-name placeholder="Size name" value="${name}">
+    <input class="size-price" data-size-price type="number" step="0.01" placeholder="Price" value="${
+      Number(price) || 0
+    }">
     <button type="button" class="btn btn-danger btn-sm">&times;</button>
   `;
       wrap.querySelector("button").onclick = () => wrap.remove();
@@ -2019,113 +2229,272 @@ document.addEventListener("DOMContentLoaded", function () {
     addModifierGroup(group = null) {
       const wrap = document.createElement("div");
       wrap.className = "subcard";
+      wrap.setAttribute("data-mod-group", "");
+
+      const groupTitle = group?.name || group?.title || "";
+      const options = Array.isArray(group?.options) ? group.options : [];
+
       wrap.innerHTML = `
     <div class="subcard-header">
-      <input class="mod-name" placeholder="Group name" value="${
-        group?.name || ""
-      }" />
+      <input class="mod-name" data-group-title placeholder="Group name" value="${groupTitle}" />
       <button type="button" class="btn btn-outline btn-sm add-option">+ Option</button>
       <button type="button" class="btn btn-danger btn-sm remove-group">Remove Group</button>
     </div>
     <div class="options"></div>
   `;
-      const options = wrap.querySelector(".options");
-      wrap.querySelector(".add-option").onclick = () => {
+
+      const optionsEl = wrap.querySelector(".options");
+
+      const addOptionRow = (o = {}) => {
         const row = document.createElement("div");
         row.className = "row-inline";
+        row.setAttribute("data-option-row", "");
+        const optName = o.name || o.label || "";
         row.innerHTML = `
-      <input class="opt-name" placeholder="Option name">
-      <input class="opt-price" type="number" step="0.01" placeholder="Price" value="0">
+      <input class="opt-name" data-option-name placeholder="Option name" value="${optName}">
+      <input class="opt-price" data-option-price type="number" step="0.01" placeholder="Price" value="${
+        Number(o.price) || 0
+      }">
       <button type="button" class="btn btn-danger btn-sm">&times;</button>
     `;
         row.querySelector("button").onclick = () => row.remove();
-        options.appendChild(row);
+        optionsEl.appendChild(row);
       };
+
+      wrap.querySelector(".add-option").onclick = () => addOptionRow();
       wrap.querySelector(".remove-group").onclick = () => wrap.remove();
 
-      (group?.options || []).forEach((o) => {
-        const row = document.createElement("div");
-        row.className = "row-inline";
-        row.innerHTML = `
-      <input class="opt-name" placeholder="Option name" value="${o.name}">
-      <input class="opt-price" type="number" step="0.01" placeholder="Price" value="${o.price}">
-      <button type="button" class="btn btn-danger btn-sm">&times;</button>
-    `;
-        row.querySelector("button").onclick = () => row.remove();
-        options.appendChild(row);
-      });
-
+      options.forEach(addOptionRow);
       document.getElementById("modifiers-container").appendChild(wrap);
     }
 
     async submitMenuForm(e) {
       e.preventDefault();
-      const form = e.target;
+      const form = e.currentTarget;
 
-      const sizes = [
-        ...document.querySelectorAll("#sizes-container .row-inline"),
-      ]
-        .map((row) => ({
-          name: row.querySelector(".size-name").value.trim(),
-          price: Number(row.querySelector(".size-price").value || 0),
-        }))
-        .filter((s) => s.name);
+      const isObjectId = (v) =>
+        typeof v === "string" && /^[a-f\d]{24}$/i.test(v);
 
-      const modifiers = [
-        ...document.querySelectorAll("#modifiers-container .subcard"),
-      ]
-        .map((sc) => {
-          const options = [...sc.querySelectorAll(".options .row-inline")]
-            .map((r) => ({
-              name: r.querySelector(".opt-name").value.trim(),
-              price: Number(r.querySelector(".opt-price").value || 0),
-            }))
-            .filter((o) => o.name);
-          return {
-            name: sc.querySelector(".mod-name").value.trim(),
-            options,
-          };
+      // 1) Basic fields
+      const idForUpdate = (form._id?.value || "").trim(); // Mongo _id (DB only)
+      const staticId = (form.static_id?.value || "").trim(); // slug (STATIC only)
+
+      const name = (form.name?.value || "").trim();
+      const category = (form.category?.value || "").trim();
+      const desc = (form.description?.value || "").trim();
+      const available = form.available ? !!form.available.checked : true;
+
+      // Base price (allow empty -> treated as null)
+      const priceStr = (form.price?.value ?? "").toString().trim();
+      const basePrice = priceStr === "" ? null : Number(priceStr);
+      const hasBase =
+        basePrice !== null && Number.isFinite(basePrice) && basePrice > 0;
+
+      // 2) Sizes (from DOM, your existing data-* hooks)
+      const sizeRows = [...document.querySelectorAll("[data-size-row]")];
+      const sizes = sizeRows
+        .map((row) => {
+          const n = (row.querySelector("[data-size-name]")?.value || "").trim();
+          const pStr = (
+            row.querySelector("[data-size-price]")?.value || ""
+          ).trim();
+          const p = pStr === "" ? NaN : Number(pStr);
+          if (!n) return null; // ignore empty rows by name
+          return { name: n, price: p };
         })
-        .filter((g) => g.name);
+        .filter(Boolean);
 
+      const hasSizes = sizes.length > 0;
+
+      // 3) Modifiers (groups + options) (keep your current logic)
+      const groupEls = [...document.querySelectorAll("[data-mod-group]")];
+      const modifiers = groupEls
+        .map((group) => {
+          const title = (
+            group.querySelector("[data-group-title]")?.value || ""
+          ).trim();
+          const optEls = [...group.querySelectorAll("[data-option-row]")];
+          const options = optEls
+            .map((opt) => ({
+              name: (
+                opt.querySelector("[data-option-name]")?.value || ""
+              ).trim(),
+              price: Number(
+                opt.querySelector("[data-option-price]")?.value || 0
+              ),
+            }))
+            .filter((o) => o.name !== "");
+          return { name: title, options };
+        })
+        .filter((g) => g.name !== "");
+
+      // 4) Validation – must have base price OR at least one size
+      if (!hasBase && !hasSizes) {
+        window.showToast?.("Provide base price or at least one size.", "error");
+        return;
+      }
+      // If sizes exist, each size must have price > 0
+      if (hasSizes) {
+        const bad = sizes.find(
+          (s) => !s.name || !Number.isFinite(s.price) || s.price <= 0
+        );
+        if (bad) {
+          window.showToast?.(
+            "Each size must have a name and a price > 0.",
+            "error"
+          );
+          return;
+        }
+      }
+      if (!name) {
+        window.showToast?.("Name is required.", "error");
+        return;
+      }
+
+      // 5) Build payload (only include price when it's valid (>0))
       const payload = {
-        name: form.name.value.trim(),
-        category: form.category.value,
-        description: form.description.value.trim(),
-        price: Number(form.price.value || 0),
-        sizes,
-        modifiers,
-        isActive: true,
+        name,
+        category,
+        description: desc,
+        available,
+        // sizes/modifiers are added below conditionally
       };
+      if (hasBase) payload.price = Number(basePrice); // only set if valid
+      payload.sizes = sizes; // <-- ALWAYS include (can be [])
+      if (modifiers.length > 0) payload.modifiers = modifiers;
 
-      const fd = new FormData();
-      fd.append("data", JSON.stringify(payload));
-      if (form.image.files[0]) fd.append("image", form.image.files[0]);
+      // Preserve existing sizes/modifiers/price on edit if the form had none
+      const isDbUpdate = isObjectId(idForUpdate);
+      const isStaticEdit = !!staticId;
 
-      const isEdit = !!form._id.value;
-      const url = isEdit
-        ? `/api/admin/menu/${form._id.value}`
-        : "/api/admin/menu";
-      const method = isEdit ? "PUT" : "POST";
+      if (
+        (isStaticEdit || isDbUpdate) &&
+        !hasSizes &&
+        modifiers.length === 0 &&
+        !hasBase
+      ) {
+        const cached = (this.menuState?.items || []).find(
+          (x) =>
+            (staticId && String(x.id) === String(staticId)) ||
+            (idForUpdate && String(x._id) === String(idForUpdate))
+        );
+        if (cached) {
+          if (!("sizes" in payload) && Array.isArray(cached.sizes)) {
+            payload.sizes = cached.sizes;
+          }
+          if (!("modifiers" in payload) && Array.isArray(cached.modifiers)) {
+            payload.modifiers = cached.modifiers;
+          }
+          if (
+            !("price" in payload) &&
+            typeof cached.price === "number" &&
+            cached.price > 0
+          ) {
+            payload.price = Number(cached.price) || 0;
+          }
+        }
+      }
+
+      // 6) Image handling — declare BEFORE using it anywhere
+      const file = form.image?.files?.[0] || null;
+
+      // 7) Endpoint + method
+      let url = "/api/admin/menu";
+      let method = "POST";
+
+      if (staticId && !isDbUpdate) {
+        // Editing a STATIC item
+        url = `/api/admin/menu/static/${encodeURIComponent(staticId)}`;
+        method = "PUT";
+      } else if (isDbUpdate) {
+        // Updating DB item
+        url = `/api/admin/menu/${encodeURIComponent(idForUpdate)}`;
+        method = "PUT";
+      } else if (idForUpdate) {
+        console.error("submitMenuForm: invalid _id value:", idForUpdate);
+        window.showToast?.("Cannot update: invalid item id", "error");
+        return;
+      }
+
+      // 8) Choose payload type
+      const useFormData = !staticId && !!file;
+
+      const saveBtn = form.querySelector('button[type="submit"]');
+      const prevDisabled = saveBtn?.disabled;
+      if (saveBtn) saveBtn.disabled = true;
 
       try {
-        const res = await fetch(url, {
-          method,
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          },
-          body: fd,
-        });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error || "Save failed");
-        this.showNotification("✅ Saved");
-        document.getElementById("menu-modal").classList.remove("show");
-        document.getElementById("menu-modal").style.display = "none";
+        let res;
+        if (useFormData) {
+          // DB with file → FormData that matches server expectations
+          const fd = new FormData();
+
+          // IMPORTANT: server parses JSON from `payload` (or `data`) ONLY when there's a file
+          fd.set(
+            "payload",
+            JSON.stringify({
+              name: payload.name,
+              category: payload.category,
+              description: payload.description,
+              available: !!payload.available,
+              ...(typeof payload.price === "number" && payload.price > 0
+                ? { price: payload.price }
+                : {}),
+              sizes: Array.isArray(payload.sizes) ? payload.sizes : [], // <-- ALWAYS include (even [])
+              ...(Array.isArray(payload.modifiers) &&
+              payload.modifiers.length > 0
+                ? { modifiers: payload.modifiers }
+                : {}),
+            })
+          );
+
+          // File goes as usual
+          fd.append("image", file);
+
+          res = await fetch(url, {
+            method,
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            },
+            body: fd,
+            credentials: "include",
+          });
+        } else {
+          // STATIC or DB w/o file → JSON
+          res = await fetch(url, {
+            method,
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+            },
+            credentials: "include",
+            body: JSON.stringify(payload),
+          });
+        }
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data?.success !== true) {
+          throw new Error(data?.error || `Save failed (${res.status})`);
+        }
+
+        window.showToast?.(
+          isDbUpdate || isStaticEdit ? "Item updated" : "Item created",
+          "success"
+        );
+
+        // Close modal
+        const modal = document.getElementById("menu-modal");
+        modal.classList.remove("show");
+        modal.style.display = "none";
         document.body.style.overflow = "";
-        this.loadMenu();
+
+        // Refresh admin list
+        await this.loadMenu();
       } catch (err) {
-        console.error(err);
-        this.showNotification("❌ Failed to save item", true);
+        console.error("submitMenuForm error:", err);
+        window.showToast?.(err.message || "Could not save item", "error");
+      } finally {
+        if (saveBtn) saveBtn.disabled = prevDisabled;
       }
     }
 
@@ -3360,51 +3729,6 @@ document.addEventListener("DOMContentLoaded", function () {
       }, 10);
     }
   }
-
-  // Generic async confirm using #confirm-modal
-  // function confirmDialog(message = "Are you sure?") {
-  //   const root = document.getElementById("confirmModal");
-  //   const msgEl = document.getElementById("confirmModalMsg");
-  //   const okBtn = document.getElementById("cmOk");
-  //   const cancelBtn = document.getElementById("cmCancel");
-
-  //   if (!root || !msgEl || !okBtn || !cancelBtn) {
-  //     // Fallback to native confirm if modal isn't present
-  //     return Promise.resolve(window.confirm(message));
-  //   }
-
-  //   msgEl.textContent = message;
-  //   root.classList.remove("cm-hidden");
-
-  //   return new Promise((resolve) => {
-  //     const cleanup = () => {
-  //       root.classList.add("cm-hidden");
-  //       okBtn.removeEventListener("click", onOk);
-  //       cancelBtn.removeEventListener("click", onCancel);
-  //       root.removeEventListener("click", onBackdrop);
-  //       document.removeEventListener("keydown", onEsc);
-  //     };
-  //     const onOk = () => {
-  //       cleanup();
-  //       resolve(true);
-  //     };
-  //     const onCancel = () => {
-  //       cleanup();
-  //       resolve(false);
-  //     };
-  //     const onBackdrop = (e) => {
-  //       if (e.target === root) onCancel();
-  //     };
-  //     const onEsc = (e) => {
-  //       if (e.key === "Escape") onCancel();
-  //     };
-
-  //     okBtn.addEventListener("click", onOk);
-  //     cancelBtn.addEventListener("click", onCancel);
-  //     root.addEventListener("click", onBackdrop);
-  //     document.addEventListener("keydown", onEsc);
-  //   });
-  // }
 
   function confirmDialog(message = "Are you sure?", opts = {}) {
     const {

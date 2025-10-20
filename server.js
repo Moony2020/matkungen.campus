@@ -63,7 +63,7 @@ const OPENING_HOURS = {
   1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
   2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
   3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-  4: [{ start: 11 * 60, end: 24 * 60 }], // Thu 11:00–22:00
+  4: [{ start: 10 * 60, end: 24 * 60 }], // Thu 11:00–22:00
   5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
   6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
 };
@@ -213,6 +213,7 @@ router.options("/:id", cors());
 
 // mount admin APIs routes
 app.use("/api/admin/menu", menuRoutes);
+app.use("/api/menu", menuRoutes);
 app.use("/api/admin/settings", settingsRoutes);
 // 📂
 // Serve only the public folder "assets all (images, JS, CSS and html files…)"
@@ -361,28 +362,46 @@ app.get("/api/availability", async (req, res) => {
   }
 });
 
-app.post("/api/availability", async (req, res) => {
+// POST /api/availability  (toggle availability for any item id)
+// Requires admin; uses cookie/session or token depending on your setup
+app.post("/api/availability", adminAuth, async (req, res) => {
   try {
-    const { id, available } = req.body || {};
-    if (!id) return res.status(400).json({ ok: false, error: "Missing id" });
+    let { id, available } = req.body || {};
+    if (!id) {
+      return res.status(400).json({ success: false, error: "Missing id" });
+    }
 
-    await Availability.updateOne(
-      { id: String(id) },
-      {
-        $set: { id: String(id), available: !!available, updatedAt: new Date() },
-      },
-      { upsert: true }
-    );
+    // normalize
+    id = String(id).trim();
+    // Accept booleans or strings like "true"/"false"
+    if (typeof available !== "boolean") {
+      if (typeof available === "string") {
+        available = available.toLowerCase() === "true";
+      } else {
+        available = !!available;
+      }
+    }
 
-    if (io)
-      io.emit("availability:update", {
-        id: String(id),
-        available: !!available,
-      });
-    res.json({ ok: true });
+    const update = {
+      id,
+      available,
+      updatedAt: new Date(),
+    };
+
+    await Availability.updateOne({ id }, { $set: update }, { upsert: true });
+
+    // broadcast live change
+    if (typeof io !== "undefined" && io) {
+      io.emit("availability:update", { id, available });
+    }
+
+    return res.json({ success: true, override: update });
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ ok: false, error: String(e.message || e) });
+    console.error("POST /api/availability error:", e);
+    return res.status(500).json({
+      success: false,
+      error: e?.message || "Internal server error",
+    });
   }
 });
 
@@ -462,16 +481,25 @@ if (isDev) {
 }
 
 // CORS for Socket.IO
+// Socket.IO on the SAME `server`
 const io = new Server(server, {
-  path: "/socket.io", // keep default or customize if proxy needs
+  path: "/socket.io",
   cors: {
+    // In dev you can just use `true`; in prod keep your isAllowedOrigin check
     origin(origin, cb) {
-      if (!origin) return cb(null, true);
-      cb(null, isAllowedOrigin(origin));
+      if (!origin) return cb(null, true); // same-origin / curl
+      cb(null, isAllowedOrigin(origin)); // your whitelist fn
     },
     credentials: true,
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   },
+  // Try WebSocket first, fall back to polling (quietes console noise)
+  transports: ["websocket", "polling"],
+  // Optional: make transient network hiccups less noisy
+  reconnection: true,
+  reconnectionAttempts: 10,
+  reconnectionDelay: 500,
 });
 
 // Make io/app accessible from routes/others
