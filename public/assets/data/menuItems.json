@@ -127,7 +127,7 @@
     "name": "Hamburgare 90 gram (Lunch Offer)",
     "price": 50,
     "image": "/assets/images/hamburgare.png",
-    "category": "burgers",
+    "category": "lunch",
     "page": "lunch.html",
     "desc": "Nötfärs 90 gram, isbergssallad, tomat gurka, lök, hamburgerdressing",
     "modifiers": [
@@ -210,9 +210,9 @@
   {
     "id": "falafelrulle-lunch-offer",
     "name": "Falafelrulle (Lunch Offer)",
-    "price": 50,
+    "price": 55,
     "image": "/assets/images/falafelrulle.jpg",
-    "category": "rollers",
+    "category": "lunch",
     "page": "lunch.html",
     "desc": "Falafel, isbergssallad, hummus, färska tomater, gurka, lök",
     "modifiers": [
@@ -264,16 +264,137 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
+    ],
+    "sizes": []
+  },
+  {
+    "id": "falafelrulle-veg",
+    "name": "Falafelrulle (veg)",
+    "price": 50,
+    "image": "/assets/images/falafelrulle.jpg",
+    "category": "vegetarian",
+    "page": "vegetarisk.html",
+    "desc": "Falafel, isbergssallad, hummus, färska tomater, gurka, lök",
+    "modifiers": [
+      {
+        "type": "checkbox",
+        "title": "Extra tillbehör",
+        "options": [
+          {
+            "label": "Extra kött",
+            "value": "kott",
+            "price": 20
+          },
+          {
+            "label": "Extra ost",
+            "value": "ost",
+            "price": 10
+          },
+          {
+            "label": "Avokado",
+            "value": "avokado",
+            "price": 15
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Sås (välj sås)",
+        "options": [
+          {
+            "label": "Stark sås",
+            "value": "stark",
+            "price": 5
+          },
+          {
+            "label": "Vitlöksås",
+            "value": "vitlok",
+            "price": 5
+          },
+          {
+            "label": "Mangosås",
+            "value": "mango",
+            "price": 5
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          {
+            "label": "Coca-Cola (33 cl)",
+            "value": "coca-cola",
+            "price": 15
+          },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          {
+            "label": "Pepsi (33 cl)",
+            "value": "pepsi",
+            "price": 15
+          },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          {
+            "label": "Fanta (33 cl)",
+            "value": "fanta",
+            "price": 15
+          },
+          {
+            "label": "Fanta Zero (33 cl)",
+            "value": "fanta-zero",
+            "price": 15
+          },
+          {
+            "label": "Sprite (33 cl)",
+            "value": "sprite",
+            "price": 15
+          },
+          {
+            "label": "7Up (33 cl)",
+            "value": "7up",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          {
+            "label": "Fanta (2 liter)",
+            "value": "fanta-2liter",
+            "price": 35
+          }
+        ]
+      },
+      {
+        "type": "textarea",
+        "title": "Speciella instruktioner",
+        "placeholder": "T.ex. ingen lök, extra sås …",
+        "optional": true
+      }
     ]
   },
   {
-    "id": "halloumisallad",
-    "name": "Halloumisallad",
-    "price": 80,
-    "image": "/assets/images/halloumisallad.png",
-    "category": "salads",
+    "id": "falafelsallad-veg",
+    "name": "Falafelsallad  (veg)",
+    "price": 70,
+    "image": "/assets/images/falafelsallad.png",
+    "category": "vegetarian",
     "page": "vegetarisk.html",
-    "desc": "Halloumi, isbergssallad, gurka, färska tomater, rödlök, paprika, olivolja, citron, och persilja",
+    "desc": "Falafel, isbergssallad, tomater, gurka, lök, majs, vitlöksås",
     "modifiers": [
       {
         "type": "checkbox",
@@ -335,6 +456,424 @@
             "label": "Sesam dressing",
             "value": "sesam",
             "price": 5
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          {
+            "label": "Coca-Cola (33 cl)",
+            "value": "coca-cola",
+            "price": 15
+          },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          {
+            "label": "Pepsi (33 cl)",
+            "value": "pepsi",
+            "price": 15
+          },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          {
+            "label": "Fanta (33 cl)",
+            "value": "fanta",
+            "price": 15
+          },
+          {
+            "label": "Fanta Zero (33 cl)",
+            "value": "fanta-zero",
+            "price": 15
+          },
+          {
+            "label": "Sprite (33 cl)",
+            "value": "sprite",
+            "price": 15
+          },
+          {
+            "label": "7Up (33 cl)",
+            "value": "7up",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          {
+            "label": "Fanta (2 liter)",
+            "value": "fanta-2liter",
+            "price": 35
+          }
+        ]
+      },
+      {
+        "type": "textarea",
+        "title": "Speciella instruktioner",
+        "placeholder": "T.ex. ingen lök, extra sås …",
+        "optional": true
+      }
+    ]
+  },
+  {
+    "id": "halloumisallad-veg",
+    "name": "Halloumisallad (veg)",
+    "price": 80,
+    "image": "/assets/images/halloumisallad.png",
+    "category": "vegetarian",
+    "page": "vegetarisk.html",
+    "desc": "Halloumi, isbergssallad, gurka, tomater, rödlök, paprika, olivolja, citron, persilja",
+    "modifiers": [
+      {
+        "type": "checkbox",
+        "title": "Protein tillägg",
+        "options": [
+          {
+            "label": "Kyckling",
+            "value": "kyckling",
+            "price": 20
+          },
+          {
+            "label": "Räkor",
+            "value": "rakor",
+            "price": 25
+          },
+          {
+            "label": "Tonfisk",
+            "value": "tonfisk",
+            "price": 20
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Extra tillbehör",
+        "options": [
+          {
+            "label": "Avokado",
+            "value": "avokado",
+            "price": 15
+          },
+          {
+            "label": "Fetaost",
+            "value": "fetaost",
+            "price": 10
+          },
+          {
+            "label": "Nötter",
+            "value": "notter",
+            "price": 10
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Dressing (välj)",
+        "options": [
+          {
+            "label": "Olivolja & balsamico",
+            "value": "olivolja",
+            "price": 10
+          },
+          {
+            "label": "Citron dressing",
+            "value": "citron",
+            "price": 5
+          },
+          {
+            "label": "Sesam dressing",
+            "value": "sesam",
+            "price": 5
+          }
+        ]
+      },
+      {
+        "type": "textarea",
+        "title": "Speciella instruktioner",
+        "placeholder": "T.ex. ingen lök, extra sås …",
+        "optional": true
+      }
+    ]
+  },
+  {
+    "id": "vegetariana-veg",
+    "name": "Vegetariana (veg)",
+    "image": "/assets/images/vegetariana.jpg",
+    "category": "vegetarian",
+    "page": "vegetarisk.html",
+    "desc": "Tomatsås, ost, champinjoner, lök, paprika, fetaost, oliver",
+    "price": 0,
+    "sizes": [
+      {
+        "name": "Small",
+        "price": 60
+      },
+      {
+        "name": "Medium",
+        "price": 120
+      },
+      {
+        "name": "Large",
+        "price": 190
+      }
+    ],
+    "modifiers": [
+      {
+        "type": "radio",
+        "title": "Deg (Välj deg)",
+        "options": [
+          {
+            "label": "Normal",
+            "value": "normal",
+            "price": 0
+          },
+          {
+            "label": "Glutenfri",
+            "value": "glutenfri",
+            "price": 35
+          },
+          {
+            "label": "Laktosfri",
+            "value": "laktosfri",
+            "price": 10
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Tillägg (lägg till)",
+        "options": [
+          {
+            "label": "Bacon",
+            "value": "bacon",
+            "price": 15
+          },
+          {
+            "label": "Kebabkött (Nötkött)",
+            "value": "kebab",
+            "price": 20
+          },
+          {
+            "label": "Kyckling",
+            "value": "kyckling",
+            "price": 20
+          },
+          {
+            "label": "Extra Köttfärs",
+            "value": "köttfärs",
+            "price": 20
+          },
+          {
+            "label": "Musslor",
+            "value": "musslor",
+            "price": 20
+          },
+          {
+            "label": "Oxfilé",
+            "value": "oxfilé",
+            "price": 20
+          },
+          {
+            "label": "Räkor",
+            "value": "räkor",
+            "price": 20
+          },
+          {
+            "label": "Skinka",
+            "value": "skinka",
+            "price": 20
+          },
+          {
+            "label": "Tonfisk",
+            "value": "tonfisk",
+            "price": 20
+          },
+          {
+            "label": "Pepparoni",
+            "value": "pepparoni",
+            "price": 20
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Sås (välj sås)",
+        "options": [
+          {
+            "label": "Blandad sås",
+            "value": "blandad",
+            "price": 10
+          },
+          {
+            "label": "Kebab sås",
+            "value": "kebab",
+            "price": 10
+          },
+          {
+            "label": "Vitlök sås",
+            "value": "vitlök",
+            "price": 10
+          },
+          {
+            "label": "Stark sås",
+            "value": "stark",
+            "price": 10
+          },
+          {
+            "label": "Bearnaise sås",
+            "value": "bearnaise",
+            "price": 10
+          },
+          {
+            "label": "Ketchup",
+            "value": "ketchup",
+            "price": 10
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Grönsaker (lägg till)",
+        "options": [
+          {
+            "label": "Fetaost",
+            "value": "fetaost",
+            "price": 15
+          },
+          {
+            "label": "Avokado",
+            "value": "avokado",
+            "price": 10
+          },
+          {
+            "label": "Lök",
+            "value": "lök",
+            "price": 10
+          },
+          {
+            "label": "Champinjoner",
+            "value": "champinjoner",
+            "price": 10
+          },
+          {
+            "label": "Paprika",
+            "value": "paprika",
+            "price": 10
+          },
+          {
+            "label": "Oliver",
+            "value": "oliver",
+            "price": 10
+          },
+          {
+            "label": "Ananas",
+            "value": "ananas",
+            "price": 10
+          },
+          {
+            "label": "Ruccola",
+            "value": "ruccola",
+            "price": 10
+          },
+          {
+            "label": "Sparris",
+            "value": "sparris",
+            "price": 10
+          },
+          {
+            "label": "Tomat",
+            "value": "tomat",
+            "price": 10
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Extra sås",
+        "options": [
+          {
+            "label": "Extra sås",
+            "value": "extrasaas",
+            "price": 10
+          },
+          {
+            "label": "2 Extra sås",
+            "value": "2extrasaas",
+            "price": 20
+          }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "title": "Drycker (lägg till)",
+        "options": [
+          {
+            "label": "Coca-Cola (33 cl)",
+            "value": "coca-cola",
+            "price": 15
+          },
+          {
+            "label": "Coca-Cola Zero (33 cl)",
+            "value": "coca-cola-zero",
+            "price": 15
+          },
+          {
+            "label": "Pepsi (33 cl)",
+            "value": "pepsi",
+            "price": 15
+          },
+          {
+            "label": "Pepsi Max no sugar (33 cl)",
+            "value": "pepsi-max-no-sugar",
+            "price": 15
+          },
+          {
+            "label": "Fanta (33 cl)",
+            "value": "fanta",
+            "price": 15
+          },
+          {
+            "label": "Fanta Zero (33 cl)",
+            "value": "fanta-zero",
+            "price": 15
+          },
+          {
+            "label": "Sprite (33 cl)",
+            "value": "sprite",
+            "price": 15
+          },
+          {
+            "label": "7Up (33 cl)",
+            "value": "7up",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Citron (33 cl)",
+            "value": "bonaqua-citron",
+            "price": 15
+          },
+          {
+            "label": "Bonaqua Naturell (33 cl)",
+            "value": "bonaqua-naturell",
+            "price": 15
+          },
+          {
+            "label": "Fanta (2 liter)",
+            "value": "fanta-2liter",
+            "price": 35
           }
         ]
       },
@@ -7229,7 +7768,7 @@
   {
     "id": "kebabsallad",
     "name": "Kebabsallad",
-    "price": 80,
+    "price": 75,
     "image": "/assets/images/kebabsallad.png",
     "category": "salads",
     "page": "index.html",
@@ -7365,7 +7904,8 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
-    ]
+    ],
+    "sizes": []
   },
   {
     "id": "kycklingsallad",
@@ -8054,7 +8594,7 @@
   {
     "id": "kebabrulle",
     "name": "Kebabrulle",
-    "price": 60,
+    "price": 65,
     "image": "/assets/images/kebabrulle.png",
     "category": "rollers",
     "page": "index.html",
@@ -8169,16 +8709,17 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
-    ]
+    ],
+    "sizes": []
   },
   {
     "id": "kycklingrulle",
     "name": "Kycklingrulle",
-    "price": 60,
+    "price": 65,
     "image": "/assets/images/kycklingrulle.jpg",
     "category": "rollers",
     "page": "index.html",
-    "desc": "Kyckling, isbergssallad, dressing, färska tomater, lök, feferoni",
+    "desc": "Kyckling, isbergssallad, dressing, färska tomater, lök, feferoni.",
     "modifiers": [
       {
         "type": "checkbox",
@@ -8289,7 +8830,8 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
-    ]
+    ],
+    "sizes": []
   },
   {
     "id": "halloumirulle",
@@ -8414,7 +8956,7 @@
   {
     "id": "blandadrulle",
     "name": "Blandadrulle",
-    "price": 70,
+    "price": 65,
     "image": "/assets/images/blandadrulle.jpg",
     "category": "rollers",
     "page": "index.html",
@@ -8529,7 +9071,8 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
-    ]
+    ],
+    "sizes": []
   },
   {
     "id": "krispigrulle",
@@ -10351,7 +10894,7 @@
   {
     "id": "kebab-box",
     "name": "Kebab box",
-    "price": 80,
+    "price": 85,
     "image": "/assets/images/kebab-box.jpg",
     "category": "boxes",
     "page": "index.html",
@@ -10461,7 +11004,8 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
-    ]
+    ],
+    "sizes": []
   },
   {
     "id": "kyckling-box",
@@ -10581,7 +11125,7 @@
   {
     "id": "blandad-box",
     "name": "Blandad box",
-    "price": 90,
+    "price": 80,
     "image": "/assets/images/blandad-box.jpg",
     "category": "boxes",
     "page": "index.html",
@@ -10691,7 +11235,8 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
-    ]
+    ],
+    "sizes": []
   },
   {
     "id": "krispig-box",
@@ -11637,7 +12182,7 @@
   {
     "id": "kebab-med-pitabröd",
     "name": "Kebab med Pitabröd",
-    "price": 85,
+    "price": 80,
     "image": "/assets/images/kebab-pitabrod.jpg",
     "category": "pitabrod",
     "page": "index.html",
@@ -11768,12 +12313,13 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
-    ]
+    ],
+    "sizes": []
   },
   {
     "id": "kyckling-med-pitabröd",
     "name": "Kyckling med Pitabröd",
-    "price": 85,
+    "price": 80,
     "image": "/assets/images/kyckling-pitabrod.jpg",
     "category": "pitabrod",
     "page": "index.html",
@@ -11904,7 +12450,8 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
-    ]
+    ],
+    "sizes": []
   },
   {
     "id": "blandad-med-pitabröd",
@@ -12181,7 +12728,7 @@
   {
     "id": "halloumi-med-pitabröd",
     "name": "Halloumi med Pitabröd",
-    "price": 85,
+    "price": 80,
     "image": "/assets/images/halloumi-pitabrod.jpg",
     "category": "pitabrod",
     "page": "index.html",
@@ -12312,7 +12859,8 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
-    ]
+    ],
+    "sizes": []
   },
   {
     "id": "cevapcici-med-pitabröd",

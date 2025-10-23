@@ -298,30 +298,6 @@ app.get("/api/menu", async (req, res) => {
       .lean()
       .sort({ sort: 1, createdAt: 1 });
 
-    const normalizeCategory = (raw = "") => {
-      const c = String(raw || "")
-        .trim()
-        .toLowerCase();
-      if (["roller", "rollers", "rolls"].includes(c)) return "rollers";
-      if (["pita-bread", "pitabrod", "pitabröd", "pita"].includes(c))
-        return "pitabrod";
-      if (
-        [
-          "addition",
-          "additions",
-          "addition-menu",
-          "tillbehör",
-          "tillbehor",
-        ].includes(c)
-      )
-        return "addition";
-      if (["veg", "vegetarian", "vegetarisk"].includes(c)) return "vegetarisk";
-      if (["drinks", "drink", "drinker", "drycker"].includes(c))
-        return "drinks";
-      return c; // pizza, burgers, salads, dishes, boxes, lunch, etc.
-    };
-
-    // convert to array of items for frontend model/modifiers
     const items = docs.map((d) => ({
       id: d._id.toString(),
       name: d.name,
@@ -330,10 +306,8 @@ app.get("/api/menu", async (req, res) => {
         d.price ??
         (Array.isArray(d.sizes) && d.sizes[0] ? d.sizes[0].price : 0),
       image: d.imageUrl || "/assets/images/default-food.jpg",
-      category: normalizeCategory(d.category),
-      // ✅ Important: always return Array, not null
+      category: d.category, // ← no normalize here
       sizes: Array.isArray(d.sizes) ? d.sizes : [],
-      // ✅ Most important thing: converted the modifiers to the interface form
       modifiers: mapModifiers(d.modifiers),
     }));
 

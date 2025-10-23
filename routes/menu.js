@@ -20,28 +20,6 @@ function slugify(s = "") {
     .replace(/^-+|-+$/g, "");
 }
 
-function normalizeCategory(raw = "") {
-  const c = String(raw || "")
-    .trim()
-    .toLowerCase();
-  if (["roller", "rollers", "rolls"].includes(c)) return "rollers";
-  if (["pita-bread", "pitabrod", "pitabröd", "pita"].includes(c))
-    return "pitabrod";
-  if (
-    [
-      "addition",
-      "additions",
-      "addition-menu",
-      "tillbehör",
-      "tillbehor",
-    ].includes(c)
-  )
-    return "addition";
-  if (["veg", "vegetarian", "vegetarisk"].includes(c)) return "vegetarisk";
-  if (["drinks", "drink", "drinker", "drycker"].includes(c)) return "drinks";
-  return c; // pizza, burgers, salads, dishes, boxes, lunch, etc.
-}
-
 function mapModifiers(dbGroups) {
   // 1) Take incoming groups (DB-like shape) or []
   const arr = Array.isArray(dbGroups) ? dbGroups : [];
@@ -102,7 +80,7 @@ function toPublicItem(d) {
         ? pickDisplayPrice(d.sizes)
         : Number(d.price || 0),
     image: d.imageUrl || "/assets/images/default-food.jpg",
-    category: normalizeCategory(d.category),
+    category: d.category, // ← pass-through (no normalize)
     sizes: Array.isArray(d.sizes) ? d.sizes : [],
     modifiers: mapModifiers(d.modifiers),
   };
@@ -319,15 +297,6 @@ function normItem(it, source = "db") {
 
 // Map static modifiers { title, options:[{name, price}] } -> DB-like then -> UI-like
 function staticToPublic(s = {}) {
-  const toDbModifierGroups = (mods = []) =>
-    (Array.isArray(mods) ? mods : []).map((g) => ({
-      name: g.title || g.name || "",
-      options: (Array.isArray(g.options) ? g.options : []).map((o) => ({
-        name: o.name || o.label || "",
-        price: Number(o.price) || 0,
-      })),
-    }));
-
   return {
     id: String(s.id || ""),
     name: s.name || s.title || "",
@@ -337,13 +306,14 @@ function staticToPublic(s = {}) {
         ? pickDisplayPrice(s.sizes)
         : Number(s.price || 0),
     image: s.image || s.imageUrl || "/assets/images/default-food.jpg",
-    category: normalizeCategory(s.category || ""),
+    category: s.category || "", // pass-through
     page: s.page || null,
     sizes: Array.isArray(s.sizes) ? s.sizes : [],
-    // convert static → DB-like → UI-like so checkboxes/radios appear correctly
+    // use the global helper here
     modifiers: mapModifiers(toDbModifierGroups(s.modifiers)),
   };
 }
+
 /* ---------- STATIC items: GET one, UPDATE, DELETE (by slug id) ---------- */
 // GET /api/admin/menu/static/:id  → read a static item (for opening modal)
 router.get("/static/:id", adminAuth, async (req, res) => {
@@ -425,7 +395,7 @@ router.put("/static/:id", adminAuth, async (req, res) => {
 
   // ---- persist
   STATIC_MENU[idx] = next;
-  await saveStaticMenu(STATIC_MENU);
+  saveStaticMenu();
 
   // ---- live update for clients (send PUBLIC/UI shape), admin gets admin shape
   const payload = staticToPublic(next); // includes textarea via mapModifiers
@@ -568,7 +538,7 @@ router.get("/public-menu", async (req, res) => {
           ? pickDisplayPrice(d.sizes)
           : Number(d.price || 0),
       image: d.imageUrl || "/assets/images/default-food.jpg",
-      category: normalizeCategory(d.category || ""),
+      category: d.category || "", // ← pass-through
       sizes: Array.isArray(d.sizes) ? d.sizes : [],
       modifiers: mapModifiers(d.modifiers),
       sort: Number(d.sort || 0),
@@ -585,7 +555,7 @@ router.get("/public-menu", async (req, res) => {
           ? pickDisplayPrice(s.sizes)
           : Number(s.price || 0),
       image: s.image || s.imageUrl || "/assets/images/default-food.jpg",
-      category: normalizeCategory(s.category || ""),
+      category: s.category || "", // ← pass-through
       sizes: Array.isArray(s.sizes) ? s.sizes : [],
       // convert static-style modifiers to DB-like → UI-like
       modifiers: mapModifiers(toDbModifierGroups(s.modifiers)),

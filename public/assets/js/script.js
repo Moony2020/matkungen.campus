@@ -3814,15 +3814,14 @@ const PAGE_BY_CATEGORY = {
   pizza: "index.html",
   burgers: "index.html",
   salads: "index.html",
-  rollers: "index.html", // legacy JSON uses "rollers"
-  rolls: "index.html", // admin UI sometimes uses "rolls"
+  rollers: "index.html",
   dishes: "index.html",
   boxes: "index.html",
-  pitabrod: "index.html", // “pita bread”
+  pitabrod: "index.html",
   addition: "index.html",
   drinks: "drycker.html",
-  lunch: "lunch.html",
   vegetarian: "vegetarisk.html",
+  lunch: "lunch.html",
 };
 
 function dbToClient(doc) {
@@ -4323,25 +4322,32 @@ function initGlobalSearch() {
 // ---------- Category normalization (global) ----------
 function normalizeCategory(raw = "") {
   const c = String(raw).trim().toLowerCase();
-  if (["roller", "roll", "rolls", "rullar", "rollers"].includes(c))
-    return "rollers";
-  if (["dishes", "tallrik", "tallrikar"].includes(c)) return "dishes";
-  if (["box", "boxes"].includes(c)) return "boxes";
-  if (["pita-bread", "pitabrod", "pitabröd", "pita"].includes(c))
-    return "pitabrod";
-  if (
-    [
-      "addition",
-      "additions",
-      "addition-menu",
-      "tillbehör",
-      "tillbehor",
-    ].includes(c)
-  )
-    return "addition";
-  if (["veg", "vegetarian", "vegetarisk"].includes(c)) return "vegetarian";
-  if (["drinks", "drink", "drinker", "drycker"].includes(c)) return "drinks";
-  return c; // pizza, burgers, salads, lunch, etc.
+
+  // ✅ Allow ONLY the canonical keys
+  const allowed = new Set([
+    "pizza",
+    "burgers",
+    "salads",
+    "rollers",
+    "dishes",
+    "boxes",
+    "pitabrod",
+    "addition",
+    "drinks",
+    "vegetarian",
+    "lunch",
+  ]);
+
+  // ✅ Minimal backward compatibility (only if exists in data)
+  const map = {
+    pitabröd: "pitabrod",
+    vegetarisk: "vegetarian",
+  };
+
+  const k = map[c] || c;
+
+  // ✅ Return canonical name only (no random aliases)
+  return allowed.has(k) ? k : k;
 }
 
 // ---------- Grid locator (global) ----------
@@ -4367,16 +4373,12 @@ const SECTION_QUERY = {
   burgers: "#burgers-menu .menu-grid",
   salads: "#salads-menu .menu-grid",
   rollers: "#rollers-menu .menu-grid",
-  rolls: "#rollers-menu .menu-grid", // alias → rollers
-  // Extra categories you mentioned:
   dishes: "#dishes-menu .menu-grid",
   boxes: "#boxes-menu .menu-grid",
-  pitabrod: "#pitabrod-menu .menu-grid", // pita-bread / pitabröd
-  addition: "#addition-menu .menu-grid", // tillbehör
-  // Standalone pages (multiple container class fallbacks)
+  pitabrod: "#pitabrod-menu .menu-grid",
+  addition: "#addition-menu .menu-grid",
   drinks:
     "#drinks-menu .menu-grid, #drinks-menu .menu-grid-service, #drinks-menu .grid-list1",
-  // NOTE: vegetarian page uses id="vegetarian-menu" (English), not "vegetarisk-menu"
   vegetarian:
     "#vegetarian-menu .menu-grid, #vegetarian-menu .menu-grid-service, #vegetarian-menu .grid-list1",
   lunch:

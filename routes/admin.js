@@ -8,6 +8,7 @@ const nodemailer = require("nodemailer");
 const Admin = require("../models/Admin");
 const Order = require("../models/Order");
 const User = require("../models/User");
+
 const adminAuth = require("../middleware/adminAuth");
 
 // Email transporter
@@ -436,7 +437,12 @@ router.get("/revenue", async (req, res) => {
       });
     } else if (period === "month") {
       // Create an array for each day of the month
-      const daysInMonth = new Date().getDate();
+      const now = new Date();
+      const daysInMonth = new Date(
+        now.getFullYear(),
+        now.getMonth() + 1,
+        0
+      ).getDate();
       formattedData = Array(daysInMonth).fill(0);
       revenueData.forEach((item) => {
         formattedData[item._id.day - 1] = item.revenue;
@@ -456,7 +462,7 @@ router.get("/revenue", async (req, res) => {
 });
 
 // GET single order by ID for Admin
-router.get("/admin/orders/:id", async (req, res) => {
+router.get("/orders/by-number/:orderNumber", async (req, res) => {
   try {
     const order = await Order.findOne({ orderNumber: req.params.id });
 
@@ -473,7 +479,6 @@ router.get("/admin/orders/:id", async (req, res) => {
 });
 
 // order details route
-
 router.get("/orders/:id", async (req, res) => {
   try {
     const order = await Order.findById(req.params.id).populate(
@@ -695,8 +700,8 @@ router.put("/orders/:id/status", adminAuth, async (req, res) => {
 // Only super admins should be able to do this (optional but recommended)
 const requireSuper = async (req, res, next) => {
   try {
-    // assuming adminAuth put adminId on req; adapt if your token stores role directly
-    const admin = await Admin.findById(req.adminId).lean();
+    const adminId = req.admin?.id || req.adminId; // support either
+    const admin = await Admin.findById(adminId).lean();
     if (!admin || (admin.role && admin.role.toLowerCase() !== "super")) {
       return res.status(403).json({ error: "Super admin only" });
     }
@@ -707,7 +712,7 @@ const requireSuper = async (req, res, next) => {
 };
 
 // delete all orders
-router.post("/orders/delete-all", adminAuth, async (req, res) => {
+router.post("/orders/delete-all", adminAuth, requireSuper, async (req, res) => {
   try {
     const REQUIRED = process.env.DELETE_ALL_PHRASE || "DELETE ALL ORDERS"; // set a secret in env
     const { phrase } = req.body || {};

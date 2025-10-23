@@ -1846,7 +1846,9 @@ document.addEventListener("DOMContentLoaded", function () {
         list.innerHTML = '<div class="empty-state">No items found.</div>';
         return;
       }
-
+      // ✅ if we have items No items found. disappear/clear, ensure any old empty-state is cleared
+      const staleEmpty = list.querySelector(".empty-state");
+      if (staleEmpty) list.innerHTML = "";
       const seen = new Set();
 
       for (const it of items) {
