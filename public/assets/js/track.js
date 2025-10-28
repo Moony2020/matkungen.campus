@@ -32,8 +32,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Show initial status
-    document.getElementById("order-number").textContent =
-      data.order.orderNumber;
+    document.getElementById(
+      "order-number"
+    ).textContent = `#${data.order.orderNumber}`;
     //  document.getElementById("order-status").textContent = data.order.status;
 
     updateProgressBar(data.order.status);

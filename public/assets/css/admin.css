@@ -41,6 +41,7 @@
     --white-alpha-10: hsla(0, 0%, 100%, 0.1);
     --black: hsla(0, 0%, 0%, 1);
     --black-alpha-80: hsla(0, 0%, 0%, 0.8);
+    --black-alpha-9: hsla(0, 0%, 0%, 0.24);
     --black-alpha-15: hsla(0, 0%, 0%, 0.15);
     --main-color: #ffd700;
     --text-color: #ffffff;
@@ -1280,6 +1281,29 @@ tr:hover {
     margin-bottom: 10px;
 }
 
+.order-item .line-note {
+    margin: 4px 0 8px;
+    padding-left: 8px;
+    font-size: 13px;
+    color: var(--text-light);
+    border-left: 3px solid #ffd600;
+}
+
+.order-notes {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: #fff8db;
+    border: 1px dashed #ffdd57;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+[data-theme="dark"] .order-notes {
+    background: var(--black-alpha-9);
+    border: 1px dashed #ffdd57;
+    color: #fff8db;
+}
+
 .order-items-preview {
     margin-bottom: 10px;
 }
@@ -1324,6 +1348,13 @@ tr:hover {
     padding-top: 10px;
     border-top: 1px solid var(--text-lighter);
     margin-top: 10px;
+}
+
+/* Small summary line above the customers table */
+.customers-summary {
+    margin: 12px 0;
+    font-weight: 600;
+    opacity: 0.85;
 }
 
 /* Top Items list styling */

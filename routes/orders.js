@@ -172,13 +172,27 @@ router.post("/:id/complete-payment", async (req, res) => {
 // Create a new order
 router.post("/", optionalAuth, async (req, res) => {
   try {
-    const { items, customer, paymentMethod, subtotal, deliveryFee, total } =
-      req.body;
+    const {
+      items,
+      customer,
+      paymentMethod,
+      subtotal,
+      deliveryFee,
+      total,
+      fulfillmentMethod, // optional (e.g., "pickup" / "delivery")
+      orderNote: checkoutNote, // optional note from checkout page
+    } = req.body;
 
-    // Normalize customer fields from any shape the client might send
+    // quick sanity check before create/doing any DB lookups / user linking
+    if (!Array.isArray(items) || items.length === 0) {
+      return res
+        .status(400)
+        .json({ success: false, error: "No items in order." });
+    }
+    // -------- Normalize customer fields --------
     const rawCustomer = customer || {};
-    let normalizedEmail = String(
-      (req.user && req.user.email) || // will be falsy because req.user is an id (fine)
+    const normalizedEmail = String(
+      (req.user && req.user.email) ||
         req.body.email ||
         rawCustomer.email ||
         req.body.contactEmail ||
@@ -188,12 +202,12 @@ router.post("/", optionalAuth, async (req, res) => {
       .trim()
       .toLowerCase();
 
-    console.log("orders POST → normalizedEmail:", normalizedEmail);
     const name = (rawCustomer.name || req.body.name || "Guest").trim();
     const phone = (rawCustomer.phone || req.body.phone || "").trim();
     const address = rawCustomer.address || req.body.address || "";
+    const orderNote = String(checkoutNote || rawCustomer.notes || "").trim();
 
-    // Require email for guest checkout (logged-in users can skip this)
+    // Guests must provide an email
     if (!req.user && !normalizedEmail) {
       return res.status(400).json({
         success: false,
@@ -201,70 +215,67 @@ router.post("/", optionalAuth, async (req, res) => {
       });
     }
 
-    // Ensure we always have a User (guest or logged-in)
-    let userId;
+    // -------- Find or create the user (link by email even if not logged in) --------
+    let userId = null;
+    let userDoc = null;
+
     if (req.user) {
-      userId = req.user;
-    } else {
-      // Guest: find-or-create lightweight user by email
-      let user = await User.findOne({ email: normalizedEmail });
-      if (!user) {
-        const randomPassword = crypto.randomBytes(16).toString("hex");
-        user = await User.create({
-          name,
-          email: normalizedEmail, // <-- IMPORTANT
-          phone,
-          address,
-          isGuest: true,
-          password: randomPassword, // hashed by your pre-save hook
-        });
-      } else if (user.isGuest) {
-        // Optionally enrich guest profile
-        const updates = {};
-        if (!user.name && name) updates.name = name;
-        if (!user.phone && phone) updates.phone = phone;
-        if (Object.keys(updates).length) {
-          await User.updateOne({ _id: user._id }, { $set: updates });
-        }
-      }
-      userId = user._id;
+      userDoc = await User.findById(req.user);
+    } else if (normalizedEmail) {
+      userDoc = await User.findOne({ email: normalizedEmail });
     }
-    // Persist latest contact info on the user so Customers page shows it / registered users-customers
-    if (userId) {
-      // decide if the current order is pickup
+
+    if (!userDoc && normalizedEmail) {
+      // create a lightweight guest user
+      const randomPassword = crypto.randomBytes(16).toString("hex");
+      userDoc = await User.create({
+        name,
+        email: normalizedEmail,
+        phone,
+        address,
+        isGuest: true,
+        password: randomPassword, // hashed by pre-save hook
+      });
+    }
+
+    if (userDoc) {
+      userId = userDoc._id;
+
+      // Update profile with latest info (your requested behavior)
       const isPickup =
-        /pickup/i.test(String(req.body.fulfillmentMethod || "")) ||
+        /pickup/i.test(String(fulfillmentMethod || "")) ||
         /avh[aä]mtning/i.test(String(address || ""));
 
-      const set = {};
-      if (name) set.name = name; // optional, keep name in sync
-      if (phone) set.phone = phone; // always update latest phone
-
-      // Only save address when it's a real delivery address
-      if (!isPickup && address && !/avh[aä]mtning/i.test(address)) {
-        set.address = address;
+      const updateFields = {};
+      if (name && name !== userDoc.name) updateFields.name = name;
+      if (phone && phone !== userDoc.phone) updateFields.phone = phone;
+      // Only persist address if it's a real delivery address
+      if (!isPickup && address && address !== userDoc.address) {
+        updateFields.address = address;
       }
 
-      if (Object.keys(set).length) {
-        await User.updateOne({ _id: userId }, { $set: set });
+      if (Object.keys(updateFields).length) {
+        await User.updateOne({ _id: userId }, { $set: updateFields });
       }
     }
 
+    // -------- Create the order --------
     const orderNumber = await generateUniqueOrderNumber();
     const paymentStatus =
       paymentMethod === "Cash on Delivery" ? "Pending" : "Completed";
     const status = "Confirmed";
 
     const order = new Order({
-      user: userId,
+      user: userId, // may be null if somehow no email provided
       orderNumber,
-      items,
-      // keep embedded customer too (used by your email sender)
+      items, // item-level notes (it.note) are preserved if sent by the client
+      orderNote, // 💡 checkout note saved at order level
       customer: {
         name,
-        email: normalizedEmail, // <-- IMPORTANT
+        email: normalizedEmail,
         phone,
         address,
+        notes: orderNote, // ← also copied into customer snapshot
       },
       subtotal,
       deliveryFee,
@@ -282,21 +293,16 @@ router.post("/", optionalAuth, async (req, res) => {
     });
 
     const savedOrder = await order.save();
-    console.log(
-      "orders POST → savedOrder.customer.email:",
-      savedOrder?.customer?.email
-    );
-    // sockets
+
+    // -------- Notify via sockets & app events --------
     const io = req.app.get("io");
     io.emit("new-order", savedOrder);
-
-    // centralized email (server.js listeners)
     req.app.emit("order:created", savedOrder);
 
-    res.status(201).json({ success: true, order: savedOrder });
+    return res.status(201).json({ success: true, order: savedOrder });
   } catch (err) {
     console.error("Order creation error:", err);
-    res.status(500).json({ error: "Server error" });
+    return res.status(500).json({ error: "Server error" });
   }
 });
 
@@ -333,13 +339,27 @@ router.get("/track/:orderNumber", async (req, res) => {
 });
 
 // Update an order by orderNumber
+// Update an order by orderNumber (whitelist fields)
 router.put("/:orderNumber", optionalAuth, async (req, res) => {
   try {
+    const allowed = [
+      "status",
+      "paymentStatus",
+      "estimatedDeliveryTime",
+      "orderNote",
+      "customer.notes",
+    ];
+    const $set = {};
+    for (const k of allowed) {
+      if (k in req.body) $set[k] = req.body[k];
+    }
+
     const updatedOrder = await Order.findOneAndUpdate(
       { orderNumber: req.params.orderNumber },
-      { $set: req.body },
+      Object.keys($set).length ? { $set } : {},
       { new: true }
     );
+
     if (!updatedOrder)
       return res.status(404).json({ error: "Order not found" });
     res.json({ order: updatedOrder });

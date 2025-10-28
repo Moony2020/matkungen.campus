@@ -626,12 +626,22 @@ function buildOrderEmailHtml(order) {
     : order.customer?.address || "";
 
   const itemsHtml = items
-    .map(
-      (i) =>
-        `<li style="margin-bottom:6px;">${i.name} × ${i.quantity} = ${(
-          Number(i.price || 0) * Number(i.quantity || 0)
-        ).toFixed(2)} kr</li>`
-    )
+    .map((i) => {
+      const qty = Number(i.quantity || 0);
+      const price = Number(i.price || 0);
+      const line = `${i.name} × ${qty} = ${(price * qty).toFixed(2)} kr`;
+
+      // Show the note (from the modifier modal) if present
+      const noteBlock =
+        i.note && String(i.note).trim()
+          ? `<div style="margin:2px 0 6px 0;">📝 ${String(i.note)
+              .replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")}</div>`
+          : "";
+
+      return `<li style="margin-bottom:6px;">${line}${noteBlock}</li>`;
+    })
     .join("");
 
   return `

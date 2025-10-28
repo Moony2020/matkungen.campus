@@ -10,7 +10,20 @@ const Order = require("../models/Order");
 const User = require("../models/User");
 
 const adminAuth = require("../middleware/adminAuth");
+const { isValidObjectId } = require("mongoose");
 
+// Reusable validator for any :id style param
+function validateObjectIdParam(paramName) {
+  return (req, res, next) => {
+    const val = req.params[paramName];
+    if (!isValidObjectId(val)) {
+      return res
+        .status(400)
+        .json({ success: false, error: "Invalid id format" });
+    }
+    next();
+  };
+}
 // Email transporter
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -464,49 +477,37 @@ router.get("/revenue", async (req, res) => {
 // GET single order by ID for Admin
 router.get("/orders/by-number/:orderNumber", async (req, res) => {
   try {
-    const order = await Order.findOne({ orderNumber: req.params.id });
-
-    if (!order) {
-      return res.status(404).json({ error: "Order not found" });
-    }
-
+    const order = await Order.findOne({ orderNumber: req.params.orderNumber });
+    if (!order) return res.status(404).json({ error: "Order not found" });
     res.json(order);
   } catch (err) {
     console.error("Error fetching order:", err);
-
     res.status(500).json({ error: "Server error" });
   }
 });
 
 // order details route
-router.get("/orders/:id", async (req, res) => {
-  try {
-    const order = await Order.findById(req.params.id).populate(
-      "user",
-      "name email"
-    );
+// order details route (admin)
+router.get(
+  "/orders/:id",
+  adminAuth,                    // protect admin endpoint
+  validateObjectIdParam("id"),  // <- guard against non-ObjectId like "segmented"
+  async (req, res) => {
+    try {
+      const order = await Order.findById(req.params.id)
+        .populate("user", "name email");
 
-    if (!order) {
-      return res.status(404).json({
-        success: false,
+      if (!order) {
+        return res.status(404).json({ success: false, error: "Order not found" });
+      }
 
-        error: "Order not found",
-      });
+      res.json({ success: true, order });
+    } catch (error) {
+      console.error("Order detail error:", error);
+      res.status(500).json({ success: false, error: "Server error" });
     }
-
-    res.json({
-      success: true,
-
-      order,
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-
-      error: error.message,
-    });
   }
-});
+);
 
 // get all orders
 router.get("/orders", adminAuth, async (req, res) => {
@@ -870,65 +871,98 @@ router.get("/customers", adminAuth, async (req, res) => {
   }
 });
 
-// GET /api/admin/customers/:id
-router.get("/customers/:id", adminAuth, async (req, res) => {
+//✅ Get separate lists of Registered and Guest customers (must be placed BEFORE /customers/:id)
+router.get("/customers/segmented", adminAuth, async (req, res) => {
   try {
-    const id = req.params.id;
-
-    const customer = await User.findById(id).lean();
-    if (!customer) {
-      return res.status(404).json({ success: false, error: "Not found" });
-    }
-
-    const orders = await Order.find({
-      user: customer._id,
-      paymentStatus: "Completed",
-    })
+    const registered = await User.find({ isGuest: { $ne: true } })
+      .select("name email phone address createdAt")
       .sort({ createdAt: -1 })
-      .limit(25)
       .lean();
 
-    const totalOrders = await Order.countDocuments({
-      user: customer._id,
-      paymentStatus: "Completed",
-    });
-
-    const totalSpentAgg = await Order.aggregate([
+    const guests = await User.aggregate([
+      { $match: { isGuest: true } },
       {
-        $match: {
-          user: customer._id,
-          paymentStatus: "Completed",
+        $lookup: {
+          from: "orders",
+          localField: "_id",
+          foreignField: "user",
+          as: "orders",
         },
       },
       {
-        $group: {
-          _id: customer._id,
-          total: { $sum: "$total" },
+        $project: {
+          name: 1,
+          email: 1,
+          phone: 1,
+          totalOrders: { $size: "$orders" },
+          lastOrderDate: { $max: "$orders.createdAt" },
         },
       },
+      { $sort: { lastOrderDate: -1 } },
     ]);
 
-    const totalSpent = totalSpentAgg[0]?.total || 0;
-
-    res.json({
-      success: true,
-      customer: {
-        _id: customer._id,
-        name: customer.name,
-        email: customer.email,
-        phone: customer.phone || "",
-        address: customer.address || "",
-        createdAt: customer.createdAt,
-        totalOrders,
-        totalSpent: Math.round(totalSpent * 100) / 100,
-      },
-      orders,
-    });
-  } catch (error) {
-    console.error("Customer detail error:", error);
+    res.json({ success: true, registered, guests });
+  } catch (err) {
+    console.error("Error fetching segmented customers:", err);
     res.status(500).json({ success: false, error: "Server error" });
   }
 });
+
+// GET /api/admin/customers/:id
+// Must be *after* /customers/segmented
+router.get(
+  "/customers/:id",
+  adminAuth,
+  validateObjectIdParam("id"), // <-- add this
+  async (req, res) => {
+    try {
+      const id = req.params.id;
+
+      const customer = await User.findById(id).lean();
+      if (!customer) {
+        return res.status(404).json({ success: false, error: "Not found" });
+      }
+
+      const orders = await Order.find({
+        user: customer._id,
+        paymentStatus: "Completed",
+      })
+        .sort({ createdAt: -1 })
+        .limit(25)
+        .lean();
+
+      const totalOrders = await Order.countDocuments({
+        user: customer._id,
+        paymentStatus: "Completed",
+      });
+
+      const totalSpentAgg = await Order.aggregate([
+        { $match: { user: customer._id, paymentStatus: "Completed" } },
+        { $group: { _id: customer._id, total: { $sum: "$total" } } },
+      ]);
+
+      const totalSpent = totalSpentAgg[0]?.total || 0;
+
+      res.json({
+        success: true,
+        customer: {
+          _id: customer._id,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone || "",
+          address: customer.address || "",
+          createdAt: customer.createdAt,
+          totalOrders,
+          totalSpent: Math.round(totalSpent * 100) / 100,
+        },
+        orders,
+      });
+    } catch (error) {
+      console.error("Customer detail error:", error);
+      res.status(500).json({ success: false, error: "Server error" });
+    }
+  }
+);
 
 // (Optional) GET /api/admin/customers/stats/today
 router.get("/customers/stats/today", adminAuth, async (req, res) => {

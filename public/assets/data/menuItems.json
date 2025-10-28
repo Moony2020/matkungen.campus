@@ -6,7 +6,8 @@
     "image": "/assets/images/Coca-Cola.png",
     "category": "drinks",
     "page": "drycker.html",
-    "desc": "Klassisk Coca-Cola"
+    "desc": "Klassisk Coca-Cola",
+    "sizes": []
   },
   {
     "id": "coca-cola-zero-33-cl",
@@ -40,7 +41,8 @@
         "placeholder": "T.ex. ingen lök, extra sås …",
         "optional": true
       }
-    ]
+    ],
+    "sizes": []
   },
   {
     "id": "pepsi-max-33-cl",
@@ -116,11 +118,12 @@
   {
     "id": "bonaqua-naturell-33-cl",
     "name": "Bonaqua Naturell (33 cl)",
-    "price": 15,
+    "price": 14,
     "image": "/assets/images/Bonaqua-Naturell.png",
     "category": "drinks",
     "page": "drycker.html",
-    "desc": "Naturellt mineralvatten"
+    "desc": "Naturellt mineralvatten",
+    "sizes": []
   },
   {
     "id": "hamburgare-90-gram-lunch-offer",

@@ -116,6 +116,8 @@ html {
     /* ✅ Centers the full grid */
     gap: 20px;
     padding: 0 10px;
+    grid-auto-flow: dense;
+    align-items: stretch;
 }
 
 .menu-grid-service .menu-item {
@@ -123,10 +125,6 @@ html {
     flex-direction: column;
     /* ... other styles ... */
     min-height: 420px;
-}
-
-.menu-grid-service .menu-item-img {
-    /* no changes needed */
 }
 
 .menu-grid-service .menu-item-content {
@@ -256,14 +254,24 @@ html {
 }
 
 /* container adjustment for drink* */
+/* DRINKS grid */
 .grid-list1 {
     display: grid;
-    /* Use grid layout */
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    /* Responsive grid */
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    /* responsive cols */
     gap: 20px;
-    /* Space between grid items */
+    grid-auto-flow: dense;
+    /* pack items */
+    justify-content: start !important;
+    /* <-- don't center the track */
+    align-content: start;
+    /* keep rows pinned to the top */
+    justify-items: stretch;
+    /* cards span full cell width */
+    align-items: stretch;
+    /* cards span full cell height */
 }
+
 
 /* hover transform for drinks menu */
 #drinks-menu .hover\:card:is(:hover,

@@ -6828,6 +6828,9 @@ body.modal-open {
         margin: 0 auto;
         padding: 0 0 !important;
         box-sizing: border-box;
+        justify-content: start !important;
+        align-content: start;
+        grid-auto-flow: dense;
     }
 
     .menu-item {
@@ -7157,6 +7160,9 @@ body.modal-open {
         margin: 0 auto;
         padding: 0 0 !important;
         box-sizing: border-box;
+        justify-content: start !important;
+        align-content: start;
+        grid-auto-flow: dense;
     }
 }
 
@@ -7565,8 +7571,11 @@ body.modal-open {
         display: grid;
         grid-template-columns: repeat(3, 1fr) !important;
         gap: 30px;
-        justify-content: center;
+        /* justify-content: center; */
         /* center the grid even if there are less than 3 items */
+        justify-content: start !important;
+        align-content: start;
+        grid-auto-flow: dense;
     }
 
 

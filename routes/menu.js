@@ -620,7 +620,6 @@ router.post("/", adminAuth, upload.single("image"), async (req, res) => {
   }
 });
 
-// Update (admin)
 // PUT /api/admin/menu/:id
 router.put("/:id", adminAuth, upload.single("image"), async (req, res) => {
   try {

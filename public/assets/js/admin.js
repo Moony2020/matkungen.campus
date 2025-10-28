@@ -917,6 +917,117 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
 
+    // --- Render Customers Summary ---
+    renderCustomersSummary(registeredCount, guestsCount) {
+      const section = document.getElementById("customers-section");
+      if (!section) return;
+
+      const header = section.querySelector(".section-header");
+      const beforeNode = header || section.querySelector(".card");
+
+      let summary = document.getElementById("customers-summary");
+      if (!summary) {
+        summary = document.createElement("div");
+        summary.id = "customers-summary";
+        summary.className = "customers-summary";
+
+        if (beforeNode && beforeNode.nextSibling) {
+          beforeNode.parentNode.insertBefore(summary, beforeNode.nextSibling);
+        } else if (beforeNode && beforeNode.parentNode) {
+          beforeNode.parentNode.appendChild(summary);
+        } else {
+          section.appendChild(summary);
+        }
+      }
+
+      summary.textContent = `👤 Registered: ${registeredCount} · 🧾 Guests: ${guestsCount}`;
+    }
+    // --- Load Customers with separation ---
+    async loadCustomersSegmented() {
+      try {
+        const token = localStorage.getItem("adminToken");
+        const res = await fetch("/api/admin/customers/segmented", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (!data.success)
+          throw new Error(data.error || "Failed to load customers");
+
+        // ✅ Add the summary line
+        this.renderCustomersSummary(
+          (data.registered || []).length,
+          (data.guests || []).length
+        );
+
+        // Render the tables
+        this.renderSegmentedCustomers(data.registered, data.guests);
+      } catch (err) {
+        console.error("Failed to load customers:", err);
+        this.showNotification("Failed to load customers", true);
+      }
+    }
+
+    // --- Render in Admin UI ---
+    renderSegmentedCustomers(registered, guests) {
+      // ✅ show small summary line above the tables
+      this.renderCustomersSummary(registered.length, guests.length);
+
+      const container = document.getElementById("customers-list");
+      if (!container) return;
+
+      container.innerHTML = `
+    <h3>Registered Customers</h3>
+    <table class="customers-table">
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Joined</th></tr>
+      </thead>
+      <tbody>
+        ${
+          registered.length
+            ? registered
+                .map(
+                  (u) => `
+          <tr>
+            <td>${u.name || "N/A"}</td>
+            <td>${u.email || "N/A"}</td>
+            <td>${u.phone || "N/A"}</td>
+            <td>${new Date(u.createdAt).toLocaleDateString("sv-SE")}</td>
+          </tr>`
+                )
+                .join("")
+            : `<tr><td colspan="4">No registered users</td></tr>`
+        }
+      </tbody>
+    </table>
+
+    <h3>Guest Customers</h3>
+    <table class="customers-table">
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Orders</th></tr>
+      </thead>
+      <tbody>
+        ${
+          guests.length
+            ? guests
+                .map(
+                  (g) => `
+          <tr>
+            <td>${g.name || "N/A"}</td>
+            <td>${
+              g.email || "N/A"
+            }</td>   <!-- ✅ FIXED: use email instead of _id -->
+            <td>${g.phone || "N/A"}</td>
+            <td>${g.totalOrders}</td>
+          </tr>`
+                )
+                .join("")
+            : `<tr><td colspan="4">No guest users</td></tr>`
+        }
+      </tbody>
+    </table>
+  `;
+    }
+
     // New method to scroll to and highlight an order
     scrollToOrder(orderNumber) {
       const orderCard = document.querySelector(
@@ -960,51 +1071,24 @@ document.addEventListener("DOMContentLoaded", function () {
         <i class="ri-eye-line"></i>
       </button>
     </div>
-  `;
+    `;
       return row;
     }
-    // createOrderRow(order) {
-    //   const row = document.createElement("div");
-    //   row.className = "order-row";
-    //   row.dataset.orderId = order._id;
-    //   const statusMap = {
-    //     Pending: "pending",
-    //     Confirmed: "confirmed",
-    //     "On the Way": "on-the-way",
-    //     Delivered: "delivered",
-    //     Cancelled: "cancelled",
-    //   };
-
-    //   row.innerHTML = `
-    //     <div class="order-cell order-number">#${order.orderNumber}</div>
-    //     <div class="order-cell customer">${order.customer.name}</div>
-    //     <div class="order-cell items-count">${order.items.reduce(
-    //       (acc, item) => acc + item.quantity,
-    //       0
-    //     )}</div>
-    //     <div class="order-cell total">${order.total.toFixed(2)} kr</div>
-    //     <div class="order-cell status">
-    //       <span class="status-badge ${statusMap[order.status]}">${
-    //     order.status
-    //   }</span>
-    //     </div>
-    //     <div class="order-cell actions">
-    //       <button class="btn-action view-order" data-order="${order._id}">
-    //         <i class="ri-eye-line"></i>
-    //       </button>
-    //       <button class="btn-action edit-order" data-order="${order._id}">
-    //         <i class="ri-edit-line"></i>
-    //       </button>
-    //     </div>
-    //   `;
-    //   return row;
-    // }
 
     createOrderCard(order) {
       const card = document.createElement("div");
       card.className = "order-card";
       card.dataset.orderId = order._id;
       card.dataset.orderNumber = order.orderNumber;
+
+      // small helper to avoid HTML injection in notes
+      const esc = (s) =>
+        String(s || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
 
       const statusMap = {
         Pending: { class: "pending", icon: "ri-time-line" },
@@ -1015,7 +1099,6 @@ document.addEventListener("DOMContentLoaded", function () {
       };
       const statusInfo = statusMap[order.status] || statusMap["Pending"];
 
-      // --- NEW: safe fee text (Gratis for pickup or 0) ---
       const isPickup =
         String(order.orderType || "").toLowerCase() === "pickup" ||
         /avh[aä]mtning/i.test(order.customer?.address || "");
@@ -1024,103 +1107,114 @@ document.addEventListener("DOMContentLoaded", function () {
       const deliveryFeeText =
         feeNum <= 0 ? "Gratis" : `${feeNum.toFixed(2)} kr`;
 
+      // order-level note (from checkout page)
+      const orderLevelNote = order.orderNote || order.customer?.notes || "";
+
       card.innerHTML = `
-    <div class="order-header">
-      <div class="order-meta">
-        <span class="order-number">#${order.orderNumber}</span>
-        <span class="order-date">${new Date(
-          order.createdAt
-        ).toLocaleString()}</span>
-      </div>
-      <div class="order-status ${statusInfo.class}">
-        <i class="${statusInfo.icon}"></i>
-        ${order.status}
-      </div>
+  <div class="order-header">
+    <div class="order-meta">
+      <span class="order-number">#${order.orderNumber}</span>
+      <span class="order-date">${new Date(
+        order.createdAt
+      ).toLocaleString()}</span>
     </div>
-
-    <div class="order-customer">
-      <div class="customer-name">${order.customer.name}</div>
-      <div class="customer-phone">${order.customer.phone}</div>
-      <div class="customer-address">${order.customer.address}</div>
+    <div class="order-status ${statusInfo.class}">
+      <i class="${statusInfo.icon}"></i>
+      ${order.status}
     </div>
+  </div>
 
-    <div class="order-summary">
-      <div class="order-items-preview">
-        ${order.items
-          .slice(0, 3)
-          .map(
-            (item) => `
-          <div class="preview-item">
-            <span>${item.name} × ${item.quantity}</span>
-            <span>${(Number(item.price) * Number(item.quantity)).toFixed(
-              2
-            )} kr</span>
+  <div class="order-customer">
+    <div class="customer-name">${esc(order.customer?.name)}</div>
+    <div class="customer-phone">${esc(order.customer?.phone)}</div>
+    <div class="customer-address">${esc(order.customer?.address)}</div>
+  </div>
+
+  <div class="order-summary">
+    <div class="order-items-preview">
+      ${order.items
+        .slice(0, 3)
+        .map(
+          (item) => `
+        <div class="preview-item">
+          <div>
+            <div>${esc(item.name)} × ${Number(item.quantity)}</div>
+            ${
+              item.note
+                ? `<div class="line-note">📝 ${esc(item.note)}</div>`
+                : ""
+            }
           </div>
-        `
-          )
-          .join("")}
-        ${
-          order.items.length > 3
-            ? `<div class="more-items">+${
-                order.items.length - 3
-              } more items</div>`
-            : ""
-        }
-      </div>
+          <div>${(Number(item.price) * Number(item.quantity)).toFixed(
+            2
+          )} kr</div>
+        </div>`
+        )
+        .join("")}
+      ${
+        order.items.length > 3
+          ? `<div class="more-items">+${
+              order.items.length - 3
+            } more items</div>`
+          : ""
+      }
 
-      <div class="order-totals">
-        <div class="total-row">
-          <span>Subtotal:</span>
-          <span>${Number(order.subtotal || 0).toFixed(2)} kr</span>
-        </div>
-        <div class="total-row">
-          <span>Delivery:</span>
-          <span>${
-            String(order.orderType || "").toLowerCase() === "pickup" ||
-            Number(order.deliveryFee) === 0
-              ? "Gratis"
-              : `${Number(order.deliveryFee || 0).toFixed(2)} kr`
-          }</span>
-        </div>
-        <div class="total-row grand-total">
-          <span>Total:</span>
-          <span>${Number(order.total || 0).toFixed(2)} kr</span>
-        </div>
-      </div>
+      ${
+        orderLevelNote
+          ? `<div class="order-notes"><strong>Order note:</strong> ${esc(
+              orderLevelNote
+            )}</div>`
+          : ""
+      }
+    </div>
 
-      <div class="order-actions">
+    <div class="order-totals">
+      <div class="total-row">
+        <span>Subtotal:</span>
+        <span>${Number(order.subtotal || 0).toFixed(2)} kr</span>
+      </div>
+      <div class="total-row">
+        <span>Delivery:</span>
+        <span>${deliveryFeeText}</span>
+      </div>
+      <div class="total-row grand-total">
+        <span>Total:</span>
+        <span>${Number(order.total || 0).toFixed(2)} kr</span>
+      </div>
+    </div>
+
+    <div class="order-actions">
       <button class="btn btn-outline print-receipt" data-order="${order._id}">
         Print Receipt
       </button>
-   <div class="status-actions">
-  <div class="select-field">
-    <select class="status-select" data-order="${order._id}">
-      <option value="Pending"   ${
-        order.status === "Pending" ? "selected" : ""
-      }>Pending</option>
-      <option value="Confirmed" ${
-        order.status === "Confirmed" ? "selected" : ""
-      }>Confirmed</option>
-      <option value="On the Way" ${
-        order.status === "On the Way" ? "selected" : ""
-      }>On the Way</option>
-      <option value="Delivered" ${
-        order.status === "Delivered" ? "selected" : ""
-      }>Delivered</option>
-      <option value="Cancelled" ${
-        order.status === "Cancelled" ? "selected" : ""
-      }>Cancelled</option>
-    </select>
-    <i class="ri-arrow-down-s-fill chevron" aria-hidden="true"></i>
-  </div>
 
-  <button class="btn btn-primary update-status" data-order="${
-    order._id
-  }">Update</button>
-</div>
-
+      <div class="status-actions">
+        <div class="select-field">
+          <select class="status-select" data-order="${order._id}">
+            <option value="Pending"   ${
+              order.status === "Pending" ? "selected" : ""
+            }>Pending</option>
+            <option value="Confirmed" ${
+              order.status === "Confirmed" ? "selected" : ""
+            }>Confirmed</option>
+            <option value="On the Way" ${
+              order.status === "On the Way" ? "selected" : ""
+            }>On the Way</option>
+            <option value="Delivered" ${
+              order.status === "Delivered" ? "selected" : ""
+            }>Delivered</option>
+            <option value="Cancelled" ${
+              order.status === "Cancelled" ? "selected" : ""
+            }>Cancelled</option>
+          </select>
+          <i class="ri-arrow-down-s-fill chevron" aria-hidden="true"></i>
+        </div>
+        <button class="btn btn-primary update-status" data-order="${
+          order._id
+        }">Update</button>
+      </div>
     </div>
-  `;
+  </div>`;
       return card;
     }
 
@@ -1370,29 +1464,25 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
     }
-
     // ==================== PRINT RECEIPT FUNCTION ADMIN PAGE ====================
     printOrderReceipt(order) {
-      // Guard
       if (!order) return;
 
-      // Detect pickup even if address is "Avhämtning"
+      // Detect pickup even if address says "Avhämtning"
       const isPickup =
-        order.orderType === "pickup" ||
-        (order.customer?.address || "").toLowerCase().includes("avhämtning");
+        String(order.orderType || "").toLowerCase() === "pickup" ||
+        /avh[aä]mtning/i.test(order.customer?.address || "");
 
-      // Compute numbers safely
+      // Numbers
       const subtotalFromItems = Array.isArray(order.items)
         ? order.items.reduce(
             (s, i) => s + Number(i.price || 0) * Number(i.quantity || 0),
             0
           )
         : 0;
-
       const sub = Number(
         order.subtotal != null ? order.subtotal : subtotalFromItems
       );
-
       const fee = isPickup ? 0 : Number(order.deliveryFee ?? 20);
       const tot = sub + fee;
 
@@ -1400,158 +1490,180 @@ document.addEventListener("DOMContentLoaded", function () {
       const sectionTitle = isPickup
         ? "Pickup Information"
         : "Delivery Information";
-      const etaText = isPickup ? " 10 minutes" : "20–35 minutes";
+      const etaText = isPickup ? "10 minutes" : "20–35 minutes";
 
-      // Your store pickup location (used for pickup instead of "Adress: Avhämtning")
+      // Store info for pickup
       const STORE_NAME = "Matkungen";
       const STORE_ADDRESS = "P G Vejdes väg, 352 52 Växjö";
       const STORE_PHONE = "0769 666 666";
 
-      // Create a hidden iframe for printing
+      // Hidden iframe
       const iframe = document.createElement("iframe");
       iframe.style.position = "absolute";
       iframe.style.left = "-9999px";
       document.body.appendChild(iframe);
 
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
 
-      // Use order's creation date (fallback to now if missing/invalid)
+      // Date
       const created = order.createdAt ? new Date(order.createdAt) : new Date();
-      const orderDate =
-        created.toString() !== "Invalid Date"
-          ? created.toLocaleDateString("sv-SE", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : new Date().toLocaleDateString("sv-SE", {
-              year: "numeric",
-              month: "2-digit",
-              day: "2-digit",
-              hour: "2-digit",
-              minute: "2-digit",
-            });
+      const orderDate = (
+        created.toString() !== "Invalid Date" ? created : new Date()
+      ).toLocaleDateString("sv-SE", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
 
-      iframeDoc.open();
-      iframeDoc.write(`
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <title>Order Receipt - ${order.orderNumber || ""}</title>
-      <link rel="stylesheet" href="/assets/css/style.css">
-    </head>
-    <body class="print-view">
-      <div class="confirmation-card">
-        <div class="confirmation-header">
-          <h1>Matkungen</h1>
-          <p class="confirmation-text">
-            Order Number <span id="order-number">${
-              order.orderNumber || ""
-            }</span>
-          </p>
-        </div>
+      doc.open();
+      doc.write(`
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Order Receipt - ${order.orderNumber || ""}</title>
+  <link rel="stylesheet" href="/assets/css/style.css">
+  <style>
+    /* PRINT receipt – item + note layout (same as confirmation page) */
+    .order-items { margin-top: 8px; }
+    .order-items .order-item{
+      display:block !important;
+      padding:8px 0;
+      border-bottom:1px solid #eee;
+      page-break-inside:avoid;
+    }
+    .order-items .order-item .item-row{
+      display:flex;
+      justify-content:space-between;
+      gap:16px;
+    }
+    .order-items .order-item .item-name{ font-weight:500; }
+    .order-items .order-item .item-price{
+      font-weight:600;
+      white-space:nowrap;
+      text-align:right;
+    }
+    .order-items .order-item .item-note{
+      display:flex !important;
+      align-items:center;
+      gap:8px;
+      margin:6px 0 0;
+      padding:0;
+      font-size:13px;
+      line-height:1.35;
+      color:#333;
+    }
+    .order-items .order-item .item-note .emoji{
+      display:inline-block;
+      line-height:1;
+      vertical-align:middle;
+      transform:translateY(0);
+    }
+  </style>
+</head>
+<body class="print-view">
+  <div class="confirmation-card">
+    <div class="confirmation-header">
+      <h1>Matkungen</h1>
+      <p class="confirmation-text">
+        Order Number <span id="order-number">${order.orderNumber || ""}</span>
+      </p>
+    </div>
 
-        <div class="confirmation-content">
-          <div class="delivery-info">
-            <h2>${sectionTitle}</h2>
-            <div id="customer-details">
-              ${
-                order.customer
-                  ? `
-                <p><strong>Name:</strong> ${order.customer.name || "N/A"}</p>
-                <p><strong>Phone:</strong> ${order.customer.phone || "N/A"}</p>
-                ${
-                  isPickup
-                    ? `
-                      <p><strong>Pickup Location:</strong> ${STORE_NAME}</p>
-                      <p><strong>Address:</strong> ${STORE_ADDRESS}</p>
-                      <p><strong>Restaurant Phone:</strong> ${STORE_PHONE}</p>
-                    `
-                    : `
-                      <p><strong>Address:</strong> ${
-                        order.customer.address || "N/A"
-                      }</p>
-                    `
-                }
-                ${
-                  order.customer.notes
-                    ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>`
-                    : ""
-                }
-              `
-                  : "<p>No customer information available</p>"
-              }
-            </div>
-            <div class="detail-row">
-              <span>Payment Method:</span>
-              <span id="payment-method">${
-                order.paymentMethod || "Not specified"
-              }</span>
-            </div>
-            <div class="detail-row">
-              <span>Order Date:</span>
-              <span>${orderDate}</span>
-            </div>
-            <div class="detail-row">
-              <span>Estimated ${isPickup ? "Time" : "Delivery"}:</span>
-              <span id="delivery-time">${etaText}</span>
-            </div>
-          </div>
-
-          <div class="order-summary">
-            <h2>Order Summary</h2>
-            <div class="order-items" id="order-items">
-              ${
-                order.items
-                  ?.map(
-                    (item) => `
-                  <div class="order-item">
-                    <div class="item-name">${item.name} × ${item.quantity}</div>
-                    <div class="item-price">${(
-                      Number(item.price || 0) * Number(item.quantity || 0)
-                    ).toFixed(2)} kr</div>
-                  </div>
+    <div class="confirmation-content">
+      <div class="delivery-info">
+        <h2>${sectionTitle}</h2>
+        <div id="customer-details">
+          ${
+            order.customer
+              ? `
+            <p><strong>Name:</strong> ${order.customer.name || "N/A"}</p>
+            <p><strong>Phone:</strong> ${order.customer.phone || "N/A"}</p>
+            ${
+              isPickup
+                ? `
+                  <p><strong>Pickup Location:</strong> ${STORE_NAME}</p>
+                  <p><strong>Address:</strong> ${STORE_ADDRESS}</p>
+                  <p><strong>Restaurant Phone:</strong> ${STORE_PHONE}</p>
                 `
-                  )
-                  .join("") || "<p>No items in order</p>"
-              }
-            </div>
-
-            <div class="order-totals">
-              <div class="order-row">
-                <span>Subtotal</span>
-                <span id="order-subtotal">${sub.toFixed(2)} kr</span>
-              </div>
-              <div class="order-row">
-                <span>Delivery Fee</span>
-                <span id="delivery-fee">${feeText}</span>
-              </div>
-              <div class="order-row total">
-                <span>Total</span>
-                <span id="order-total">${tot.toFixed(2)} kr</span>
-              </div>
-            </div>
-          </div>
+                : `<p><strong>Address:</strong> ${
+                    order.customer.address || "N/A"
+                  }</p>`
+            }
+            ${
+              order.customer.notes
+                ? `<p><strong>Notes:</strong> ${order.customer.notes}</p>`
+                : ""
+            }
+          `
+              : "<p>No customer information available</p>"
+          }
         </div>
+        <div class="detail-row"><span>Payment Method:</span><span id="payment-method">${
+          order.paymentMethod || "Not specified"
+        }</span></div>
+        <div class="detail-row"><span>Order Date:</span><span>${orderDate}</span></div>
+        <div class="detail-row"><span>Estimated ${
+          isPickup ? "Time" : "Delivery"
+        }:</span><span id="delivery-time">${etaText}</span></div>
       </div>
 
-      <script>
-        window.onload = function() {
-          setTimeout(function() {
-            window.print();
-            setTimeout(function() {
-              window.parent.document.body.removeChild(window.frameElement);
-            }, 1000);
-          }, 200);
-        };
-      </script>
-    </body>
-    </html>
+      <div class="order-summary">
+        <h2>Order Summary</h2>
+        <div class="order-items" id="order-items">
+          ${
+            order.items
+              ?.map(
+                (i) => `
+              <div class="order-item">
+                <div class="item-row">
+                  <div class="item-name">${i.name} × ${i.quantity}</div>
+                  <div class="item-price">${(
+                    Number(i.price || 0) * Number(i.quantity || 0)
+                  ).toFixed(2)} kr</div>
+                </div>
+                ${
+                  i.note
+                    ? `<div class="item-note"><span class="emoji" aria-hidden="true">📝</span><span class="text">${i.note}</span></div>`
+                    : ""
+                }
+              </div>
+            `
+              )
+              .join("") || "<p>No items in order</p>"
+          }
+        </div>
+
+        <div class="order-totals">
+          <div class="order-row"><span>Subtotal</span><span id="order-subtotal">${sub.toFixed(
+            2
+          )} kr</span></div>
+          <div class="order-row"><span>Delivery Fee</span><span id="delivery-fee">${feeText}</span></div>
+          <div class="order-row total"><span>Total</span><span id="order-total">${tot.toFixed(
+            2
+          )} kr</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function () {
+      setTimeout(function () {
+        window.print();
+        setTimeout(function () {
+          window.parent.document.body.removeChild(window.frameElement);
+        }, 1000);
+      }, 200);
+    };
+  </script>
+</body>
+</html>
   `);
-      iframeDoc.close();
+      doc.close();
     }
+
     createEditModal(order) {
       const modal = document.createElement("div");
       modal.className = "edit-modal";
@@ -1610,7 +1722,7 @@ document.addEventListener("DOMContentLoaded", function () {
          </div>
        </form>
      </div>
-   </div>
+    </div>
    `;
       // Add event listeners
       modal.querySelector(".close-modal").addEventListener("click", () => {
@@ -1837,6 +1949,7 @@ document.addEventListener("DOMContentLoaded", function () {
             '<div class="empty-state">Failed to load menu.</div>';
       }
     }
+
     renderMenuList() {
       const list = document.getElementById("menu-list");
       if (!list) return;
@@ -1920,9 +2033,9 @@ document.addEventListener("DOMContentLoaded", function () {
         }" data-id="${anyId}" ${isStatic ? "disabled" : ""}>
           Delete
         </button>
+       </div>
       </div>
-    </div>
-    `;
+     `;
         // Build a nodefrom the HTML
         const wrapper = document.createElement("div");
         wrapper.innerHTML = html.trim();
@@ -2010,12 +2123,15 @@ document.addEventListener("DOMContentLoaded", function () {
               const data = await res.json().catch(() => ({}));
               if (!res.ok || data?.success !== true)
                 throw new Error(data?.error || "Failed");
+              this.showNotification(
+                `Availability: ${available ? "Enabled" : "Disabled"}`
+              );
             } catch (err) {
               e.target.checked = !available;
               card.classList.toggle("unavailable", available);
               console.error("Failed to update availability for", id, err);
-              if (window.showToast)
-                showToast("Could not update availability", "error");
+              // ❌ Error toast
+              this.showNotification("Could not update availability", true);
             }
           });
         }
@@ -2056,6 +2172,34 @@ document.addEventListener("DOMContentLoaded", function () {
         x.addEventListener("click", close);
         modal.querySelector(".modal-content").appendChild(x);
       }
+
+      // ——— NEW: hard-reset when creating a NEW item ———
+      if (!id) {
+        // Clear all inputs (also clears file input)
+        form.reset();
+
+        // Empty dynamic sections
+        const sizesBox = document.getElementById("sizes-container");
+        const modsBox = document.getElementById("modifiers-container");
+        if (sizesBox) sizesBox.innerHTML = "";
+        if (modsBox) modsBox.innerHTML = "";
+
+        // Clear hidden ids so we don't carry over edit state
+        if (form._id) form._id.value = "";
+        if (form.static_id) form.static_id.value = "";
+
+        // Optional defaults
+        if (form.category)
+          form.category.value = form.category.value || "drinks"; // set your preferred default
+        if (form.price) form.price.value = "";
+        if (form.name) form.name.value = "";
+        if (form.description) form.description.value = "";
+
+        // Title for new item
+        const titleEl = document.getElementById("menu-modal-title");
+        if (titleEl) titleEl.textContent = "New Menu Item";
+      }
+      // ——— end NEW block ———
 
       // ——— Normalizers ———
       const normSizes = (sizes) =>
@@ -2106,7 +2250,6 @@ document.addEventListener("DOMContentLoaded", function () {
         for (const s of normSizes(it.sizes)) {
           this.addSizeRow(s.name, s.price);
         }
-
         // ✅ Modifier groups (normalized)
         for (const g of normGroups(it.modifiers)) {
           this.addModifierGroup(g);
@@ -2120,14 +2263,13 @@ document.addEventListener("DOMContentLoaded", function () {
         items.find((x) => String(x.id) === String(id)) ||
         null;
 
-      // try several places for a db id if editing
       // Try to get a Mongo _id if present
-      const isObjId = (v) =>
+      const isObjId24 = (v) =>
         typeof v === "string" && /^[0-9a-fA-F]{24}$/.test(v);
       let mongoId = "";
       if (local?._id) mongoId = String(local._id);
       else if (local?.dbId) mongoId = String(local.dbId);
-      else if (isObjId(id)) mongoId = String(id);
+      else if (isObjId24(id)) mongoId = String(id);
 
       // always clear then set hidden ids to avoid stale values
       if (form._id) form._id.value = "";
@@ -2144,6 +2286,7 @@ document.addEventListener("DOMContentLoaded", function () {
       // Title: Edit when we found either a static item or a DB id; otherwise New
       document.getElementById("menu-modal-title").textContent =
         local || mongoId ? "Edit Menu Item" : "New Menu Item";
+
       // wire buttons each time (idempotent)
       document.getElementById("add-size").onclick = () => this.addSizeRow();
       document.getElementById("add-mod-group").onclick = () =>
@@ -2170,7 +2313,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
       // Prefill from local cache immediately (fast)
       if (local) {
-        // If local had only static id but also a hidden dbId on the node/card, keep it
         if (!mongoId && isObjectId(local?.dbId)) {
           mongoId = String(local.dbId);
           if (form._id) form._id.value = mongoId;
@@ -2209,7 +2351,6 @@ document.addEventListener("DOMContentLoaded", function () {
       const dbId = form._id?.value || "";
       const staticId = form.static_id?.value || "";
       const primaryId = dbId || staticId || "";
-
       console.log("[openMenuModal] id =", primaryId);
     }
 
@@ -2284,7 +2425,10 @@ document.addEventListener("DOMContentLoaded", function () {
       const name = (form.name?.value || "").trim();
       const category = (form.category?.value || "").trim();
       const desc = (form.description?.value || "").trim();
-      const available = form.available ? !!form.available.checked : true;
+
+      // Only include availability if the input exists in this form
+      const hasAvailInput = !!form.available;
+      const availableValue = hasAvailInput ? !!form.available.checked : null;
 
       // Base price (allow empty -> treated as null)
       const priceStr = (form.price?.value ?? "").toString().trim();
@@ -2292,7 +2436,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const hasBase =
         basePrice !== null && Number.isFinite(basePrice) && basePrice > 0;
 
-      // 2) Sizes (from DOM, your existing data-* hooks)
+      // 2) Sizes (from DOM)
       const sizeRows = [...document.querySelectorAll("[data-size-row]")];
       const sizes = sizeRows
         .map((row) => {
@@ -2301,14 +2445,14 @@ document.addEventListener("DOMContentLoaded", function () {
             row.querySelector("[data-size-price]")?.value || ""
           ).trim();
           const p = pStr === "" ? NaN : Number(pStr);
-          if (!n) return null; // ignore empty rows by name
+          if (!n) return null;
           return { name: n, price: p };
         })
         .filter(Boolean);
 
       const hasSizes = sizes.length > 0;
 
-      // 3) Modifiers (groups + options) (keep your current logic)
+      // 3) Modifiers (groups + options)
       const groupEls = [...document.querySelectorAll("[data-mod-group]")];
       const modifiers = groupEls
         .map((group) => {
@@ -2330,12 +2474,11 @@ document.addEventListener("DOMContentLoaded", function () {
         })
         .filter((g) => g.name !== "");
 
-      // 4) Validation – must have base price OR at least one size
+      // 4) Validation
       if (!hasBase && !hasSizes) {
         window.showToast?.("Provide base price or at least one size.", "error");
         return;
       }
-      // If sizes exist, each size must have price > 0
       if (hasSizes) {
         const bad = sizes.find(
           (s) => !s.name || !Number.isFinite(s.price) || s.price <= 0
@@ -2353,17 +2496,17 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
-      // 5) Build payload (only include price when it's valid (>0))
+      // 5) Build payload (don’t include 'available' unless the input exists)
       const payload = {
         name,
         category,
         description: desc,
-        available,
-        // sizes/modifiers are added below conditionally
+        // sizes/modifiers added below
       };
-      if (hasBase) payload.price = Number(basePrice); // only set if valid
-      payload.sizes = sizes; // <-- ALWAYS include (can be [])
+      if (hasBase) payload.price = Number(basePrice);
+      payload.sizes = sizes;
       if (modifiers.length > 0) payload.modifiers = modifiers;
+      if (hasAvailInput) payload.available = availableValue;
 
       // Preserve existing sizes/modifiers/price on edit if the form had none
       const isDbUpdate = isObjectId(idForUpdate);
@@ -2397,7 +2540,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
       }
 
-      // 6) Image handling — declare BEFORE using it anywhere
+      // 6) Image handling
       const file = form.image?.files?.[0] || null;
 
       // 7) Endpoint + method
@@ -2405,11 +2548,9 @@ document.addEventListener("DOMContentLoaded", function () {
       let method = "POST";
 
       if (staticId && !isDbUpdate) {
-        // Editing a STATIC item
         url = `/api/admin/menu/static/${encodeURIComponent(staticId)}`;
         method = "PUT";
       } else if (isDbUpdate) {
-        // Updating DB item
         url = `/api/admin/menu/${encodeURIComponent(idForUpdate)}`;
         method = "PUT";
       } else if (idForUpdate) {
@@ -2428,29 +2569,23 @@ document.addEventListener("DOMContentLoaded", function () {
       try {
         let res;
         if (useFormData) {
-          // DB with file → FormData that matches server expectations
           const fd = new FormData();
+          // Build the JSON object for the server (conditionally include 'available')
+          const payloadForFile = {
+            name: payload.name,
+            category: payload.category,
+            description: payload.description,
+            ...(typeof payload.price === "number" && payload.price > 0
+              ? { price: payload.price }
+              : {}),
+            sizes: Array.isArray(payload.sizes) ? payload.sizes : [],
+            ...(Array.isArray(payload.modifiers) && payload.modifiers.length > 0
+              ? { modifiers: payload.modifiers }
+              : {}),
+          };
+          if (hasAvailInput) payloadForFile.available = !!availableValue;
 
-          // IMPORTANT: server parses JSON from `payload` (or `data`) ONLY when there's a file
-          fd.set(
-            "payload",
-            JSON.stringify({
-              name: payload.name,
-              category: payload.category,
-              description: payload.description,
-              available: !!payload.available,
-              ...(typeof payload.price === "number" && payload.price > 0
-                ? { price: payload.price }
-                : {}),
-              sizes: Array.isArray(payload.sizes) ? payload.sizes : [], // <-- ALWAYS include (even [])
-              ...(Array.isArray(payload.modifiers) &&
-              payload.modifiers.length > 0
-                ? { modifiers: payload.modifiers }
-                : {}),
-            })
-          );
-
-          // File goes as usual
+          fd.set("payload", JSON.stringify(payloadForFile));
           fd.append("image", file);
 
           res = await fetch(url, {
@@ -2462,7 +2597,6 @@ document.addEventListener("DOMContentLoaded", function () {
             credentials: "include",
           });
         } else {
-          // STATIC or DB w/o file → JSON
           res = await fetch(url, {
             method,
             headers: {
@@ -2479,9 +2613,8 @@ document.addEventListener("DOMContentLoaded", function () {
           throw new Error(data?.error || `Save failed (${res.status})`);
         }
 
-        window.showToast?.(
-          isDbUpdate || isStaticEdit ? "Item updated" : "Item created",
-          "success"
+        this.showNotification(
+          isDbUpdate || isStaticEdit ? "🔄 Item updated" : "✨ Item created"
         );
 
         // Close modal
@@ -2530,7 +2663,25 @@ document.addEventListener("DOMContentLoaded", function () {
         const el = document.querySelector(`[data-menu-id="${CSS.escape(id)}"]`);
         el?.remove();
 
-        this.showNotification("✅ Item deleted");
+        // 🔹 Remove it from local cache so grid layout knows it's gone
+        if (Array.isArray(this.menuState?.items)) {
+          this.menuState.items = this.menuState.items.filter(
+            (x) => String(x.id || x._id) !== String(id)
+          );
+        }
+
+        // 🔹 Notify user
+        this.showNotification("🗑️ Item deleted");
+
+        // 🔹 Optional: trigger a re-layout for grid (browser fix)
+        const list =
+          document.getElementById("menu-list") ||
+          document.querySelector(".menu-grid-service, .grid-list1");
+        if (list) {
+          list.style.display = "none";
+          list.offsetHeight; // force reflow
+          list.style.display = "grid";
+        }
       } catch (err) {
         console.error("Delete error:", err);
         toast(String(err.message || err), "error");
@@ -2809,35 +2960,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
     calculateETA(deliveryTime) {
       if (!deliveryTime) return "Calculating...";
-
       const now = new Date();
-
       const deliveryDate = new Date(deliveryTime);
-
       const diff = deliveryDate - now;
-
       if (diff <= 0) return "Arrived";
-
       const minutes = Math.round(diff / (1000 * 60));
-
       return `${minutes} minutes`;
     }
 
-    // updateOrderStatus method
-    // In the updateOrderStatus method, add this logic
-    // replace the old:  async updateOrderStatus(orderId, newStatus) { ... }
+    // Function to update the status of an order
     updateOrderStatus = async (orderId, newStatus) => {
       try {
-        // 1) fetch the current order to know the previous status
         const token = localStorage.getItem("adminToken");
+        if (!token) {
+          this.showNotification("Please log in again", true);
+          window.location.href = "/admin-login.html";
+          return;
+        }
+
+        // 1) get current order to know previous status
         const prevRes = await fetch(`/api/admin/orders/${orderId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!prevRes.ok) throw new Error("Failed to fetch current order");
         const prevJson = await prevRes.json();
-        const previousStatus = prevJson.order?.status;
+        const previousStatus = prevJson.order?.status || "";
 
-        // 2) update the status on the server
+        // 2) update status
         const res = await fetch(`/api/admin/orders/${orderId}/status`, {
           method: "PUT",
           headers: {
@@ -2851,9 +3000,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!res.ok)
           throw new Error(data.error || "Failed to update order status");
 
-        // 3) revenue widget handling
-        // If server sent fresh stats (it does when you set to Delivered for a today order),
-        // use them; otherwise adjust locally so demotions also reflect immediately.
+        // 3) revenue widget
         if (data.stats) {
           this.updateDashboardStats(data.stats);
         } else {
@@ -2874,11 +3021,15 @@ document.addEventListener("DOMContentLoaded", function () {
           }
         }
 
-        // 4) update the card/table UI
-        this.updateOrderInUI(data.order);
-        this.showNotification(
-          `Order #${data.order.orderNumber} updated to ${newStatus}`
-        );
+        // 4) update UI + safe notification
+        if (data.order) {
+          this.updateOrderInUI(data.order);
+          this.showNotification(
+            `Order #${data.order.orderNumber} updated to ${newStatus}`
+          );
+        } else {
+          this.showNotification("Order status updated");
+        }
       } catch (err) {
         console.error("Error updating order status:", err);
         this.showNotification("Failed to update order status", true);
@@ -3279,52 +3430,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
       })();
 
-      // ---------- Delete all (confirm) ----------
-      // const deleteAllBtn = document.getElementById("delete-all-orders");
-      // const modal = document.getElementById("confirm-modal");
-      // const confirmYes = document.getElementById("confirm-yes");
-      // const confirmNo = document.getElementById("confirm-no");
-      // if (deleteAllBtn && modal && confirmYes && confirmNo) {
-      //   deleteAllBtn.addEventListener(
-      //     "click",
-      //     () => (modal.style.display = "flex")
-      //   );
-      //   confirmNo.addEventListener(
-      //     "click",
-      //     () => (modal.style.display = "none")
-      //   );
-      //   confirmYes.addEventListener("click", async () => {
-      //     modal.style.display = "none";
-      //     try {
-      //       const response = await fetch("/api/admin/orders/delete-all", {
-      //         method: "DELETE",
-      //         headers: {
-      //           Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-      //         },
-      //       });
-      //       const result = await response.json();
-      //       if (response.ok) {
-      //         this.showNotification("✅ All orders deleted successfully.");
-      //         document.getElementById("orders-list").innerHTML =
-      //           '<div class="empty-state">No orders found.</div>';
-      //         document.getElementById("recent-orders-table").innerHTML =
-      //           '<div class="empty-state">No recent orders.</div>';
-      //       } else {
-      //         this.showNotification(
-      //           result?.error || "❌ Failed to delete orders.",
-      //           true
-      //         );
-      //       }
-      //     } catch (err) {
-      //       console.error("Error:", err);
-      //       this.showNotification(
-      //         "❌ An error occurred while deleting orders.",
-      //         true
-      //       );
-      //     }
-      //   });
-      // }
-
       // ===== MENU (D.1) wire filter/search/new =====
       document
         .getElementById("menu-new")
@@ -3654,7 +3759,7 @@ document.addEventListener("DOMContentLoaded", function () {
           this.loadMenu?.();
           break;
         case "customers":
-          this.loadCustomersTable?.();
+          this.loadCustomersSegmented?.();
           break;
         case "settings":
           this.loadSettings?.();

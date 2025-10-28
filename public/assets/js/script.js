@@ -29,6 +29,126 @@ document.addEventListener("click", (e) => {
   }
 });
 
+/* ---------------- LIVE MENU STATE + REPAINT (GLOBAL) ---------------- */
+let PUBLIC_MENU_ITEMS = [];
+
+function currentPageFile() {
+  return window.location.pathname.split("/").pop() || "index.html";
+}
+
+// Replace the whole list and repaint
+function setPublicMenuItems(items) {
+  PUBLIC_MENU_ITEMS = Array.isArray(items) ? items : [];
+  repaintAllProducts();
+}
+
+// Merge incoming items by id and repaint
+// Merge incoming items by id but PRESERVE the existing sequence
+function mergeIntoPublic(items) {
+  const avail = window.__availabilityMap; // if applyAvailabilityOverrides() ran
+  for (const raw of items || []) {
+    if (!raw) continue;
+    const id = String(raw.id || raw._id || "");
+    if (!id) continue;
+
+    const next = { ...raw };
+    if (avail && avail.has(id)) next.available = avail.get(id);
+
+    const idx = PUBLIC_MENU_ITEMS.findIndex((x) => String(x.id) === id);
+    if (idx > -1) {
+      PUBLIC_MENU_ITEMS[idx] = next; // replace in place → keeps order
+    } else {
+      PUBLIC_MENU_ITEMS.push(next); // new items go to the end
+    }
+  }
+  repaintAllProducts();
+}
+
+// One true renderer: clear the visible grids on this page and rebuild
+function renderMenuFromState() {
+  // Clear any grids that exist on this page
+  document
+    .querySelectorAll(".menu-grid, .menu-grid-service, .grid-list1")
+    .forEach((c) => {
+      c.innerHTML = "";
+    });
+
+  // Only sort by explicit numeric `sort` (if present); otherwise keep sequence as is
+  const list = [...PUBLIC_MENU_ITEMS].sort(
+    (a, b) => (a.sort || 0) - (b.sort || 0)
+  );
+
+  for (const it of list) {
+    const cat = normalizeCategory(it.category || "");
+    const grid = gridForCategory(cat);
+    if (!grid) continue;
+
+    const isDrinks = cat === "drinks";
+    const card = isDrinks ? createDrinkCard(it) : createMenuCard(it);
+
+    if (grid.tagName === "UL") {
+      const li = document.createElement("li");
+      li.appendChild(card);
+      grid.appendChild(li);
+    } else {
+      grid.appendChild(card);
+    }
+  }
+
+  // Keep your hydration of hard-coded cards (prices/sizes)
+  if (typeof hydrateHardcodedCards === "function") {
+    hydrateHardcodedCards(PUBLIC_MENU_ITEMS);
+  }
+
+  // --- Re-apply the "show only 12 pizzas" rule after repaint ---
+  const pizzaGrid = document.querySelector("#pizza-menu .menu-grid");
+  if (pizzaGrid) {
+    const cards = pizzaGrid.querySelectorAll(
+      ".menu-item, .menu-card, article, li"
+    );
+    const limit = 12;
+
+    // Hide beyond 12
+    let hidden = 0;
+    cards.forEach((el, i) => {
+      if (i < limit) {
+        el.style.display = "";
+      } else {
+        el.style.display = "none";
+        hidden++;
+      }
+    });
+
+    // Wire / show the “Visa alla pizzor” button
+    const showAllBtn = document.getElementById("show-all-pizza-btn");
+    if (showAllBtn) {
+      showAllBtn.style.display = hidden > 0 ? "block" : "none";
+      showAllBtn.onclick = () => {
+        cards.forEach((el) => (el.style.display = ""));
+        showAllBtn.style.display = "none";
+      };
+    }
+  }
+}
+
+// Small adapter so old callers can keep using window.renderMenu
+window.renderMenu = function (items, _page) {
+  // keep global dataset for search
+  window.menuItems = items || [];
+  // use the single renderer
+  renderMenuFromState();
+};
+
+// repaintAllProducts just delegates to the renderer
+function repaintAllProducts() {
+  window.renderMenu(PUBLIC_MENU_ITEMS, currentPageFile());
+}
+
+// Expose globally just in case other modules reference them
+window.setPublicMenuItems = setPublicMenuItems;
+window.mergeIntoPublic = mergeIntoPublic;
+window.repaintAllProducts = repaintAllProducts;
+
 let cart = null;
 
 // delivery fee rules (shared by checkout, payment, confirmation, print)
@@ -64,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Reattach the existing listeners here
+  // Order updates
   socket.on("orderUpdate", (order) => {
     console.log("Order updated:", order);
     updateOrderStatusUI(order);
@@ -87,6 +207,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
   socket.on("disconnect", () => {
     console.log("❌ Disconnected from server");
+  });
+  // New item → add/replace then repaint
+  socket.on("menu:new", (item) => {
+    mergeIntoPublic([item]); // server already emits public shape
+  });
+
+  // Updated item → replace then repaint
+  socket.on("menu:update", (item) => {
+    mergeIntoPublic([item]);
+  });
+
+  // Deleted item → remove then repaint
+  socket.on("menu:delete", (payload) => {
+    const id = String(payload?._id || payload?.id || "");
+    if (!id) return;
+    PUBLIC_MENU_ITEMS = PUBLIC_MENU_ITEMS.filter((x) => String(x.id) !== id);
+    repaintAllProducts();
+  });
+  socket.on("availability:update", ({ id, available }) => {
+    const sid = String(id);
+
+    // 1) update the in-memory public list used for rendering
+    PUBLIC_MENU_ITEMS = PUBLIC_MENU_ITEMS.map((x) =>
+      String(x.id) === sid ? { ...x, available: !!available } : x
+    );
+
+    // 2) update the global search/cache dataset too
+    if (Array.isArray(window.menuItems)) {
+      const i = window.menuItems.findIndex((x) => String(x.id) === sid);
+      if (i > -1) window.menuItems[i].available = !!available;
+    }
+
+    // 3) update the card immediately without a full repaint
+    const el = document.getElementById(sid);
+    if (el) markCardAvailability(el, !!available);
+
+    // (Optional) if i prefer a full repaint instead, you can call:
+    // repaintAllProducts();
   });
 });
 
@@ -1813,11 +1971,13 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
             price: it.price,
             quantity: it.quantity,
             img: it.img || "",
+            note: it.note || "", // ← keep per-item note
           })),
           subtotal,
           deliveryFee: appliedDeliveryFee,
           total,
           paymentMethod: "Pending",
+          orderNote: notes || "",
         };
 
         const currentUser = JSON.parse(localStorage.getItem("currentUser"));
@@ -2388,11 +2548,15 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
                 .replace(/\(0 kr\)/g, "")
                 .replace(/, $/, "")}</div>`
             : "";
+          const noteHtml = item.note
+            ? `<div class="modifiers">📝 ${item.note}</div>`
+            : "";
           return `
           <div class="order-item-confirmation">
             <div class="item-name">
               ${baseName} <span class="quantity">${item.quantity}</span>
               ${modifiersHtml}
+              ${noteHtml}  
             </div>
             <div class="item-price">${(
               Number(item.price || 0) * Number(item.quantity || 0)
@@ -2441,7 +2605,8 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
     ?.addEventListener("click", function () {
       const currentOrder =
         JSON.parse(localStorage.getItem("currentOrder")) || {};
-      // script.js (confirmation page + print receipt)
+
+      // pickup?
       const isPickup =
         /pickup/i.test(
           String(currentOrder.fulfillmentMethod || currentOrder.orderType || "")
@@ -2452,7 +2617,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       const STORE_ADDRESS = "P G Vejdes väg, 352 52 Växjö";
       const STORE_PHONE = "0769 666 666";
 
-      // Use the order's creation date if available (fallback to now)
+      // date
       const created = currentOrder.createdAt
         ? new Date(currentOrder.createdAt)
         : new Date();
@@ -2473,7 +2638,7 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
               minute: "2-digit",
             });
 
-      // Totals
+      // totals
       const subtotalFromItems = Array.isArray(currentOrder.items)
         ? currentOrder.items.reduce(
             (s, i) => s + Number(i.price || 0) * Number(i.quantity || 0),
@@ -2491,27 +2656,40 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       const feeText = feeP === 0 ? "Gratis" : `${feeP.toFixed(2)} kr`;
       const etaText = isPickup ? "10 minuter" : "20-35 minuter";
       const etaLabel = isPickup ? "Beräknad tid" : "Beräknad leveranstid";
-
       const sectionTitle = isPickup
         ? "Upphämtningsinformation"
         : "Leveransinformation";
 
-      // Build customer details
+      // escape helper (for safety)
+      const esc = (s) =>
+        String(s ?? "").replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            }[m])
+        );
+
+      // customer details
       const c = currentOrder.customer || {};
       const customerDetailsHtml = isPickup
         ? `
-      <p><strong>Namn:</strong> ${c.name || "N/A"}</p>
-      <p><strong>Telefon:</strong> ${c.phone || "N/A"}</p>
+      <p><strong>Namn:</strong> ${esc(c.name) || "N/A"}</p>
+      <p><strong>Telefon:</strong> ${esc(c.phone) || "N/A"}</p>
       <p><strong>Upphämtningsställe:</strong> ${STORE_NAME}</p>
       <p><strong>Adress:</strong> ${STORE_ADDRESS}</p>
       <p><strong>Restaurangens telefon:</strong> ${STORE_PHONE}</p>
-      ${c.notes ? `<p><strong>Noteringar:</strong> ${c.notes}</p>` : ""}
+      ${c.notes ? `<p><strong>Noteringar:</strong> ${esc(c.notes)}</p>` : ""}
     `
         : `
-      <p><strong>Namn:</strong> ${c.name || "N/A"}</p>
-      <p><strong>Telefon:</strong> ${c.phone || "N/A"}</p>
-      <p><strong>Adress:</strong> ${c.address || "N/A"}</p>
-      ${c.notes ? `<p><strong>Noteringar:</strong> ${c.notes}</p>` : ""}
+      <p><strong>Namn:</strong> ${esc(c.name) || "N/A"}</p>
+      <p><strong>Telefon:</strong> ${esc(c.phone) || "N/A"}</p>
+      <p><strong>Adress:</strong> ${esc(c.address) || "N/A"}</p>
+      ${c.notes ? `<p><strong>Noteringar:</strong> ${esc(c.notes)}</p>` : ""}
     `;
 
       // Hidden iframe
@@ -2523,16 +2701,58 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
       iframeDoc.open();
       iframeDoc.write(`
-      <html>
+    <html>
+    <head>
+      <title>Order Receipt - ${currentOrder.orderNumber || ""}</title>
+      <base href="${location.origin}/">
+      <link rel="stylesheet" href="/assets/css/style.css">
+      <style>
+  /* PRINT receipt – item + note layout */
+  .order-items { margin-top: 8px; }
 
-      <head>
-        <title>Order Receipt - ${currentOrder.orderNumber || ""}</title>
-        <base href="${location.origin}/">
-        <link rel="stylesheet" href="/assets/css/style.css">
-      </head>
+  .order-items .order-item{
+    display: block !important;        /* make note appear under the line */
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+    page-break-inside: avoid;
+  }
 
-      <body class="print-view">
-        <div class="confirmation-card">
+  /* first row (name × qty ... price) */
+  .order-items .order-item .item-row{
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .order-items .order-item .item-name{ font-weight: 500; }
+  .order-items .order-item .item-price{
+    font-weight: 600;
+    white-space: nowrap;
+    text-align: right;
+  }
+
+  /* note row directly UNDER the item row */
+  .order-items .order-item .item-note{
+    display: flex !important;          /* inline with icon + text */
+    align-items: center;               /* vertically center emoji */
+    gap: 8px;
+    margin: 6px 0 0;                   /* a little space below the item */
+    padding: 0;                        /* no background/border anymore */
+    font-size: 13px;
+    line-height: 1.35;
+    color: #333;
+  }
+  .order-items .order-item .item-note .emoji{
+    display: inline-block;
+    line-height: 1;
+    vertical-align: middle;            /* keep emoji on the text baseline */
+    transform: translateY(0);          /* avoid sitting too high */
+  }
+</style>
+
+    </head>
+
+    <body class="print-view">
+      <div class="confirmation-card">
         <div class="confirmation-header">
           <h1>Matkungen</h1>
           <p class="confirmation-text">
@@ -2545,13 +2765,11 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         <div class="confirmation-content">
           <div class="delivery-info">
             <h2>${sectionTitle}</h2>
-            <div id="customer-details">
-              ${customerDetailsHtml}
-            </div>
+            <div id="customer-details">${customerDetailsHtml}</div>
             <div class="detail-row">
               <span>Betalningsmetod:</span>
               <span id="payment-method">${
-                currentOrder.paymentMethod || "Not specified"
+                esc(currentOrder.paymentMethod) || "Not specified"
               }</span>
             </div>
             <div class="detail-row">
@@ -2566,19 +2784,31 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
 
           <div class="order-summary">
             <h2>Ordersammanfattning</h2>
+
             <div class="order-items" id="order-items">
               ${
-                currentOrder.items
-                  ?.map(
-                    (item) => `
-                  <div class="order-item">
-                    <div class="item-name">${item.name} × ${item.quantity}</div>
-                    <div class="item-price">${(
+                (currentOrder.items || [])
+                  .map((item) => {
+                    const lineTotal = (
                       Number(item.price || 0) * Number(item.quantity || 0)
-                    ).toFixed(2)} kr</div>
-                  </div>
-                `
-                  )
+                    ).toFixed(2);
+                    const noteHtml = item.note
+                      ? `<div class="item-note"><span class="emoji">📝</span>${esc(
+                          item.note
+                        )}</div>`
+                      : "";
+                    return `
+                    <div class="order-item">
+                      <div class="item-row">
+                        <div class="item-name">${esc(item.name)} × ${Number(
+                      item.quantity || 0
+                    )}</div>
+                        <div class="item-price">${lineTotal} kr</div>
+                      </div>
+                      ${noteHtml}
+                    </div>
+                  `;
+                  })
                   .join("") || "<p>No items in order</p>"
               }
             </div>
@@ -2602,10 +2832,10 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       </div>
 
       <script>
-        window.onload = function() {
-          setTimeout(function() {
+        window.onload = function () {
+          setTimeout(function () {
             window.print();
-            setTimeout(function() {
+            setTimeout(function () {
               window.parent.document.body.removeChild(window.frameElement);
             }, 1000);
           }, 200);
@@ -3806,7 +4036,6 @@ window.addEventListener("resize", positionStoreStatus);
 window.addEventListener("orientationchange", positionStoreStatus);
 
 // ==================== LOAD MENU DATA FROM JSON ====================
-
 let menuItems = [];
 
 // Map DB item -> the shape our front-end expects
@@ -3880,7 +4109,7 @@ async function loadMenuItems() {
   // uses this able to find modifiers
   window.menuItems = mapped;
   menuItems = mapped;
-  renderMenu(mapped, page);
+  setPublicMenuItems(mapped); // ✅ feeds state + repaint
 }
 
 // ==================== MODIFIER POPUP STATE ====================
@@ -4037,62 +4266,50 @@ function updateTotalPrice() {
   // Update UI
   document.querySelector(".total-price").textContent = `${total.toFixed(2)} kr`;
 }
-
 function addItemWithModifiers() {
   if (!modifierState.currentItem) return;
 
-  // Get special instructions
+  // textarea from the special-instructions group
   const specialInstructions =
-    document.querySelector(".textarea-group textarea")?.value || "";
+    document.querySelector(".textarea-group textarea")?.value?.trim() || "";
 
-  // Create modifier description - skip default "Normal" options
+  // Build a short "with ..." text for the name (skip Normal +0 kr)
   let modifierDesc = "";
   Object.values(modifierState.selectedModifiers).forEach((group) => {
-    group.forEach((modifier) => {
-      // Skip "Normal" option with 0 kr price
-      if (modifier.label === "Normal" && modifier.price === 0) {
-        return;
-      }
-
-      modifierDesc += `${modifier.label}`;
-      if (modifier.price > 0) {
-        modifierDesc += ` (+${modifier.price} kr)`;
-      }
-      modifierDesc += ", ";
+    group.forEach((m) => {
+      if (m.label === "Normal" && Number(m.price) === 0) return;
+      modifierDesc +=
+        m.label + (Number(m.price) > 0 ? ` (+${m.price} kr)` : "") + ", ";
     });
   });
+  if (modifierDesc) modifierDesc = modifierDesc.slice(0, -2);
 
-  // Remove trailing comma
-  if (modifierDesc) {
-    modifierDesc = modifierDesc.slice(0, -2);
-  }
-
-  // Create the full product name
+  // Final display name
   let fullProductName = modifierState.currentItemName;
-  if (modifierDesc) {
-    fullProductName += ` with ${modifierDesc}`;
-  }
+  if (modifierDesc) fullProductName += ` with ${modifierDesc}`;
 
-  // Create cart item
+  // Price from modal footer
+  const unitPrice =
+    parseFloat(document.querySelector(".total-price").textContent) || 0;
+
+  // Create cart item and **store the modal note**
   const cartItem = {
     name: fullProductName,
-    price: parseFloat(document.querySelector(".total-price").textContent),
+    price: unitPrice,
+    qty: 1,
     img: modifierState.currentItem.image || "/assets/images/default-food.jpg",
+    note: specialInstructions, // <<—— IMPORTANT
   };
 
-  // Add to cart
   cart.addItem(cartItem);
 
-  // Create notification message
   const baseName = modifierState.currentItemName.split(" with ")[0];
-  const notificationMessage = modifierDesc
-    ? `${baseName} with customizations added to cart`
-    : `${baseName} added to cart`;
+  cart.showNotification(
+    modifierDesc
+      ? `${baseName} with customizations added to cart`
+      : `${baseName} added to cart`
+  );
 
-  // Show notification
-  cart.showNotification(notificationMessage);
-
-  // Close popup
   closeModifierPopup();
 }
 
@@ -4728,30 +4945,8 @@ async function appendDbItemsToHome() {
       });
     }
 
-    items.forEach((item) => {
-      // pick section selector by normalized category (aliases covered server-side and here)
-      const sel =
-        SECTION_QUERY[item.category] ||
-        SECTION_QUERY[item.category?.toLowerCase()];
-      if (!sel) return; // category not shown on this page → skip
-
-      const grid = document.querySelector(sel);
-      if (!grid) return;
-
-      // Avoid duplicates if you ever re-run
-      if (document.getElementById(item.id)) return;
-
-      const card = createMenuCard(item);
-
-      // Some sections use <ul class="menu-grid">, others <div class="menu-grid">
-      if (grid.tagName === "UL") {
-        const li = document.createElement("li");
-        li.appendChild(card);
-        grid.appendChild(li);
-      } else {
-        grid.appendChild(card);
-      }
-    });
+    // Items from API are already in public/client shape (id, name, price, image, category, sizes, modifiers, sort, page)
+    mergeIntoPublic(items);
   } catch (e) {
     console.error("Failed to load DB menu", e);
   }
@@ -4764,111 +4959,6 @@ if (typeof window.renderMenu !== "function") {
     appendDbItemsToHome();
   };
 }
-
-/* ===================== LIVE MENU (no refresh) ===================== */
-(function initLiveMenuUpdates() {
-  // Only run if Socket.IO client is available on the page
-  if (!window.io) return;
-
-  // Same-origin socket (server uses path "/socket.io")
-  const socket = io({ path: "/socket.io", withCredentials: true });
-
-  // DB → client item shape (matches what /api/menu returns)
-  function dbToClient(doc = {}) {
-    return {
-      id: String(doc._id || doc.id || ""),
-      name: doc.name || "",
-      desc: doc.description || doc.desc || "",
-      price:
-        doc.price ??
-        (Array.isArray(doc.sizes) && doc.sizes[0] ? doc.sizes[0].price : 0),
-      image: doc.imageUrl || doc.image || "/assets/images/default-food.jpg",
-      sizes: Array.isArray(doc.sizes) ? doc.sizes : [],
-      modifiers: Array.isArray(doc.modifiers) ? doc.modifiers : [], // ← add this
-      category: normalizeCategory(doc.category || ""),
-    };
-  }
-
-  function upsertCardFromDoc(doc) {
-    // Normalize doc → client item and ensure a stable string id
-    const item = dbToClient(doc);
-    item.id = String(item.id || item._id || "");
-    if (!item.id) return;
-
-    // 🔹 reapply known availability from the cached overrides (if any)
-    const availMap = window.__availabilityMap;
-    if (availMap && availMap.has(item.id)) {
-      item.available = availMap.get(item.id);
-    }
-
-    const categoryKey = String(item.category || "").toLowerCase();
-    const grid = gridForCategory(categoryKey) || gridForCategory(item.category);
-    if (!grid) return;
-
-    const isDrinks = String(item.category || "").toLowerCase() === "drinks";
-    const fresh = isDrinks ? createDrinkCard(item) : createMenuCard(item);
-
-    const existing = document.getElementById(item.id);
-    if (existing) {
-      existing.replaceWith(fresh);
-    } else {
-      if (grid.tagName === "UL") {
-        const li = document.createElement("li");
-        li.appendChild(fresh);
-        grid.appendChild(li);
-      } else {
-        grid.appendChild(fresh);
-      }
-    }
-
-    // 🔹 make sure DOM reflects availability even if builders didn't set it
-    if (typeof item.available === "boolean") {
-      markCardAvailability(fresh, item.available);
-    }
-
-    // keep search/filters list in sync, preserving availability if we had it
-    if (Array.isArray(window.menuItems)) {
-      const i = window.menuItems.findIndex(
-        (x) => String(x.id) === String(item.id)
-      );
-      if (i > -1) {
-        const prev = window.menuItems[i];
-        if (
-          typeof prev?.available === "boolean" &&
-          typeof item.available !== "boolean"
-        ) {
-          item.available = prev.available;
-        }
-        window.menuItems.splice(i, 1, item);
-      } else {
-        window.menuItems.push(item);
-      }
-    }
-  }
-
-  function removeCardById(id) {
-    document.getElementById(String(id))?.remove();
-    if (Array.isArray(window.menuItems)) {
-      window.menuItems = window.menuItems.filter(
-        (x) => String(x.id) !== String(id)
-      );
-    }
-  }
-  //   socket.on("menu:all", (docs) => docs.forEach(upsertCardFromDoc));
-  socket.on("menu:new", (doc) => upsertCardFromDoc(doc));
-  socket.on("menu:update", (doc) => upsertCardFromDoc(doc));
-  socket.on("menu:delete", (doc) => removeCardById(doc._id || doc.id));
-  socket.on("availability:update", ({ id, available }) => {
-    // sync in-memory
-    if (Array.isArray(window.menuItems)) {
-      const i = window.menuItems.findIndex((x) => String(x.id) === String(id));
-      if (i > -1) window.menuItems[i].available = !!available;
-    }
-    // update card if it exists
-    const el = document.getElementById(String(id));
-    if (el) markCardAvailability(el, !!available);
-  });
-})();
 
 function showPaymentOverlay(msg = "Processing payment…") {
   const o = document.getElementById("payment-overlay");
