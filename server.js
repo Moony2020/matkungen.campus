@@ -63,7 +63,7 @@ const OPENING_HOURS = {
   1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
   2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
   3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-  4: [{ start: 10 * 60, end: 24 * 60 }], // Thu 11:00–22:00
+  4: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
   5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
   6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
 };
@@ -552,10 +552,20 @@ app.on("order:created", async (order) => {
     if (!to) return; // keep the guard
 
     const pdfBuffer = await createReceiptPdf(order); // styled PDF
+    const html = buildOrderEmailHtml(order);
+
+    const text = html
+      .replace(/<[^>]+>/g, " ") // HTML tags
+      .replace(/\s+/g, " ") // whitespace
+      .replace(/\bwith\b/gi, "+") // with → +
+      .replace(/\(\+(\d+(?:\.\d+)?)\s*kr\)/gi, "($1 kr)")
+      .trim();
+
     await sendOrderEmail({
       to,
       subject: `Orderbekräftelse #${order.orderNumber} – Matkungen`,
       html: buildOrderEmailHtml(order), // 👈 use fancy HTML
+      text,
       pdfBuffer,
     });
     console.log("✓ order:created email sent", to);
@@ -629,16 +639,46 @@ function buildOrderEmailHtml(order) {
     .map((i) => {
       const qty = Number(i.quantity || 0);
       const price = Number(i.price || 0);
-      const line = `${i.name} × ${qty} = ${(price * qty).toFixed(2)} kr`;
 
-      // Show the note (from the modifier modal) if present
-      const noteBlock =
-        i.note && String(i.note).trim()
-          ? `<div style="margin:2px 0 6px 0;">📝 ${String(i.note)
-              .replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;")}</div>`
-          : "";
+      // Clean up the name
+      let displayName = String(i.name || "");
+
+      // 1. Split by " with " to separate base name from modifiers
+      const parts = displayName.split(" with ");
+      let baseName = parts[0];
+      let modifiers = parts.length > 1 ? parts[1] : null;
+
+      // 2. Process modifiers: replace "with" with "+" and clean prices
+      if (modifiers) {
+        // Replace "with" → "+" in the modifiers part
+        modifiers = modifiers.replace(/\bwith\b/gi, "+");
+        // Remove + from price displays like (+5 kr) → (5 kr)
+        modifiers = modifiers.replace(
+          /\(\+(\d+(?:\.\d+)?)\s*kr\)/gi,
+          "($1 kr)"
+        );
+        displayName = `${baseName} + ${modifiers}`;
+      } else {
+        // If no modifiers, still clean any prices in the base name
+        displayName = displayName.replace(
+          /\(\+(\d+(?:\.\d+)?)\s*kr\)/gi,
+          "($1 kr)"
+        );
+      }
+
+      const line = `${displayName} × ${qty} = ${(price * qty).toFixed(2)} kr`;
+
+      // Also clean the note if it exists
+      let itemNote = "";
+      if (i.note) {
+        itemNote = i.note
+          .replace(/\bwith\b/gi, "+")
+          .replace(/\(\+(\d+(?:\.\d+)?)\s*kr\)/gi, "($1 kr)");
+      }
+
+      const noteBlock = itemNote
+        ? `<div style="margin:2px 0 6px 0;">📝 ${itemNote}</div>`
+        : "";
 
       return `<li style="margin-bottom:6px;">${line}${noteBlock}</li>`;
     })

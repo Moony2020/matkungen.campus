@@ -306,6 +306,25 @@ router.post("/", optionalAuth, async (req, res) => {
   }
 });
 
+// ✅ Get order by orderNumber (for reorder button)
+router.get("/by-number/:orderNumber", auth, async (req, res) => {
+  try {
+    const order = await Order.findOne({
+      orderNumber: req.params.orderNumber,
+      user: req.user, // only fetch orders/make sure that order belongs for the logged-in user
+    }).lean();
+
+    if (!order) {
+      return res.status(404).json({ success: false, error: "Order not found" });
+    }
+
+    res.json({ success: true, order });
+  } catch (err) {
+    console.error("Error fetching order by number:", err);
+    res.status(500).json({ success: false, error: "Server error" });
+  }
+});
+
 // Get a single order by Mongo _id (belongs to the logged-in user)
 router.get("/:id", auth, async (req, res) => {
   try {

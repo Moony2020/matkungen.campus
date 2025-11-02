@@ -3241,9 +3241,11 @@ body.nav-active {
 }
 
 .item-price {
+    align-self: flex-start;
+    font-weight: var(--weight-600);
     color: var(--gold-crayola);
-    font-weight: bold;
-    margin-bottom: 5px;
+    white-space: nowrap;
+    text-align: right;
 }
 
 .item-quantity {
@@ -3404,6 +3406,8 @@ body.nav-active {
     /* Ensure it appears on new line */
     margin-top: 4px;
     opacity: 0.9;
+    order: 3;
+    /* Push to the end */
 }
 
 /* Price styling */
@@ -3655,11 +3659,11 @@ body.nav-active {
 }
 
 .checkout-grid .order-row,
+.payment-summary .order-row,
 .confirmation-content .order-row {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
-
+    padding: 5px 0;
 }
 
 .checkout-grid .order-row strong,
@@ -3677,10 +3681,10 @@ body.nav-active {
 .checkout-grid .order-row.total,
 .payment-grid .order-row.total,
 .confirmation-content .order-row.total {
-    font-weight: bold;
-    font-size: 18px;
+    font-weight: var(--weight-600);
+    font-size: var(--fontSize-body-4);
     border-top: 1px solid var(--white-alpha-20);
-    margin-top: 10px;
+    margin-top: 8px;
     padding-top: 15px;
 }
 
@@ -4106,19 +4110,13 @@ body.nav-active {
     margin-bottom: 15px;
 }
 
-.payment-summary .order-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-}
-
-.payment-summary .order-row.total {
+/* .payment-summary .order-row.total {
     font-weight: bold;
     font-size: var(--fontSize-body-3);
     margin-top: 15px;
-    padding-top: 15px;
+    padding-top: 105px;
     border-top: 1px solid var(--white-alpha-20);
-}
+} */
 
 .payment-grid .order-summary {
     background: var(--eerie-black-2);
@@ -4160,7 +4158,7 @@ body.nav-active {
 .payment-grid .order-row {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
+    padding: 5px 0;
 }
 
 .swish-qr-placeholder {
@@ -4249,6 +4247,22 @@ body.nav-active {
     font-weight: bold;
 }
 
+.payment-page .order-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+/* keep item and price on one line */
+.checkout-page .order-item-checkout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+
 /* Make quantity badge match checkout on payment & confirmation too */
 .checkout-page .order-item-checkout .quantity,
 .payment-page .quantity,
@@ -4265,6 +4279,16 @@ body.nav-active {
     height: 21px;
     border-radius: 22px;
     transition: background-color 0.3s ease;
+}
+
+/* Fix quantity position on checkout/payment (make it stay on the first line) */
+.checkout-page .order-item-checkout .item-name,
+.payment-page .order-item .item-name {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+    /* allow modifiers to drop to next line */
 }
 
 /* ==== Payment overlay ==== */
@@ -5441,6 +5465,32 @@ body.nav-active {
 .no-orders .small {
     font-size: var(--fontSize-label-1);
     margin-top: 5px;
+}
+
+/* Order Actions reorder button (Beställ igen) */
+.order-actions {
+    margin-top: 10px;
+}
+
+.order-actions .reorder-btn {
+    width: 100%;
+    background: transparent;
+    border: 1px solid var(--gold-crayola);
+    color: var(--eerie-black-1);
+    padding: 6px 10px;
+    border-radius: 9999px;
+    font-size: var(--fontSize-body-5);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.order-actions .reorder-btn:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.7);
 }
 
 /* Order Modal */

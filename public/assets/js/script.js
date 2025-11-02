@@ -611,41 +611,42 @@ document.addEventListener("DOMContentLoaded", function () {
       if (cartItemsContainer) {
         if (this.cart.length === 0) {
           cartItemsContainer.innerHTML = `
-          <div class="empty-cart">
-            <i class="ri-shopping-cart-line"></i>
-            <p>Your cart is empty</p>
-          </div>
-          `;
+      <div class="empty-cart">
+        <i class="ri-shopping-cart-line"></i>
+        <p>Your cart is empty</p>
+      </div>
+      `;
         } else {
-          // In Cart class updateCart() method
+          // In Cart class updateCart() method - UPDATED to use "+" instead of "with"
           cartItemsContainer.innerHTML = this.cart
             .map(
               (item) => `
-          <div class="cart-item" data-id="${item.id}">
-            <img src="${item.img}" alt="${item.name}" width="70" height="70">
-            <div class="item-details">
-              <h4>${item.name.split(" with ")[0]}</h4>
-              ${
-                item.name.includes(" with ")
-                  ? `<div class="item-modifiers">${
-                      // Clean up modifier text
-                      item.name
-                        .split(" with ")[1]
-                        .replace(/\(0 kr\)/g, "") // Remove (0 kr)
-                        .replace(/, $/, "") // Remove trailing commas
-                    }</div>`
-                  : ""
-              }
-              <div class="item-price">${item.price} kr</div>
-              <div class="item-quantity">
-                <button class="decrease-quantity">-</button>
-                <span>${item.quantity}</span>
-                <button class="increase-quantity">+</button>
-              </div>
-            </div>
-            <button class="remove-item"><i class="ri-close-line"></i></button>
+      <div class="cart-item" data-id="${item.id}">
+        <img src="${item.img}" alt="${item.name}" width="70" height="70">
+        <div class="item-details">
+          <h4>${item.name.split(" with ")[0]}</h4>
+          ${
+            item.name.includes(" with ")
+              ? `<div class="item-modifiers">${
+                  // Clean up modifier text and replace "with" with "+"
+                  item.name
+                    .split(" with ")[1]
+                    .replace(/\(0 kr\)/g, "") // Remove (0 kr)
+                    .replace(/, $/, "") // Remove trailing commas
+                    .replace(/\bwith\b/gi, "+") // Replace "with" with "+"
+                }</div>`
+              : ""
+          }
+          <div class="item-price">${item.price} kr</div>
+          <div class="item-quantity">
+            <button class="decrease-quantity">-</button>
+            <span>${item.quantity}</span>
+            <button class="increase-quantity">+</button>
           </div>
-          `
+        </div>
+        <button class="remove-item"><i class="ri-close-line"></i></button>
+      </div>
+      `
             )
             .join("");
         }
@@ -751,7 +752,7 @@ Sun:           12:00–22:00
     1: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Mon 11:00–22:00
     2: [{ start: 11 * 60, end: 3 * 60, overnight: true }], // Tue 11:00–22:00
     3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
-    4: [{ start: 10 * 60, end: 24 * 60 }], // Thu 11:00–22:00
+    4: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
     5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
     6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
   };
@@ -1777,7 +1778,8 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         .map((item) => {
           const parts = String(item.name || "").split(" with ");
           const baseName = parts[0];
-          const modifiers = parts.length > 1 ? parts[1] : null;
+          const modifiers =
+            parts.length > 1 ? parts[1].replace(/\bwith\b/gi, "+") : null;
           const modifiersHtml = modifiers
             ? `<div class="modifiers">+ ${modifiers}</div>`
             : "";
@@ -2542,14 +2544,16 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
         .map((item) => {
           const parts = (item.name || "").split(" with ");
           const baseName = parts[0];
-          const modifiers = parts.length > 1 ? parts[1] : null;
+          const modifiers =
+            parts.length > 1 ? parts[1].replace(/\bwith\b/gi, "+") : null;
           const modifiersHtml = modifiers
-            ? `<div class="modifiers">+ ${modifiers
-                .replace(/\(0 kr\)/g, "")
-                .replace(/, $/, "")}</div>`
+            ? `<div class="modifiers">+ ${modifiers}</div>`
             : "";
           const noteHtml = item.note
-            ? `<div class="modifiers">📝 ${item.note}</div>`
+            ? `<div class="modifiers">📝 ${item.note.replace(
+                /\bwith\b/gi,
+                "+"
+              )}</div>`
             : "";
           return `
           <div class="order-item-confirmation">
@@ -2792,15 +2796,25 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
                     const lineTotal = (
                       Number(item.price || 0) * Number(item.quantity || 0)
                     ).toFixed(2);
+
+                    // REPLACE "with" WITH "+" IN ITEM NAME AND NOTE
+                    const itemName = esc(item.name)
+                      .replace(/\bwith\b/gi, "+")
+                      .replace(/\(\+(\d+(?:\.\d+)?)\s*kr\)/gi, "($1 kr)");
+
+                    const itemNote = item.note
+                      ? esc(item.note)
+                          .replace(/\bwith\b/gi, "+")
+                          .replace(/\(\+(\d+(?:\.\d+)?)\s*kr\)/gi, "($1 kr)")
+                      : "";
+
                     const noteHtml = item.note
-                      ? `<div class="item-note"><span class="emoji">📝</span>${esc(
-                          item.note
-                        )}</div>`
+                      ? `<div class="item-note"><span class="emoji">📝</span>${itemNote}</div>`
                       : "";
                     return `
                     <div class="order-item">
                       <div class="item-row">
-                        <div class="item-name">${esc(item.name)} × ${Number(
+                        <div class="item-name">${itemName} × ${Number(
                       item.quantity || 0
                     )}</div>
                         <div class="item-price">${lineTotal} kr</div>
@@ -3449,6 +3463,68 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
       }
     }
 
+    async reorderOrder(orderNumber) {
+      try {
+        const res = await fetch(`/api/orders/by-number/${orderNumber}`, {
+          headers: {
+            Authorization: `Bearer ${this.token || ""}`,
+          },
+        });
+
+        const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data.error || "Kunde inte läsa ordern");
+        }
+
+        const prev = data.order;
+
+        // لو حبيت تمنع إعادة الطلب لو مش Delivered، تقدر تضيف شرط هنا
+
+        // نحاول نحافظ على كل شيء من الطلب القديم
+        const pendingOrder = {
+          orderType: prev.orderType || "delivery",
+          customer: {
+            name: prev.customer?.name || "",
+            // 👇 أهم سطر: لو الزبون كتب إيميل في الطلب السابق، استعمله
+            email: prev.customer?.email || this.currentUser?.email || "",
+            phone: prev.customer?.phone || "",
+            address: prev.customer?.address || "",
+            notes: prev.customer?.notes || prev.orderNote || "",
+          },
+          items: (prev.items || []).map((it) => ({
+            name: it.name,
+            price: Number(it.price || 0),
+            quantity: Number(it.quantity || 1),
+            img: it.img || it.image || "",
+            note: it.note || "",
+          })),
+          subtotal: Number(prev.subtotal || 0),
+          deliveryFee: Number(prev.deliveryFee || 0),
+          total: Number(
+            prev.total ||
+              Number(prev.subtotal || 0) + Number(prev.deliveryFee || 0)
+          ),
+          paymentMethod: "Pending",
+          orderNote: prev.orderNote || "",
+          source: "reorder",
+        };
+
+        // لو هو لوج إن، أربطه بالحساب
+        if (this.currentUser?.id) {
+          pendingOrder.user = this.currentUser.id;
+        }
+
+        // خزّنه
+        localStorage.setItem("pendingOrder", JSON.stringify(pendingOrder));
+
+        // ووديه على الدفع مباشرة
+        window.location.href = "payment.html?from=reorder";
+      } catch (err) {
+        console.error(err);
+        this.showNotification?.(err.message || "Failed to reorder", true);
+      }
+    }
+
     createOrderItemHTML(order) {
       const statusMap = {
         Completed: {
@@ -3536,6 +3612,13 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
           })
           .join("")}
       </div>
+       <!-- 👇 reorder button  -->
+      <div class="order-actions">
+        <button class="reorder-btn" data-order="${order.orderNumber}">
+          <i class="ri-refresh-line"></i>
+          Beställ igen
+        </button>
+      </div>
     </div>
   `;
     }
@@ -3588,6 +3671,16 @@ Attach this to your existing "Make Order" / "Checkout" buttons.
             .closest("button")
             .getAttribute("data-order");
           this.deleteOrder(orderNumber);
+        });
+      });
+
+      // ✅ Reorder
+      document.querySelectorAll(".reorder-btn").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const orderNumber = e.target
+            .closest("button")
+            .getAttribute("data-order");
+          this.reorderOrder(orderNumber);
         });
       });
     }
@@ -4279,9 +4372,10 @@ function addItemWithModifiers() {
     group.forEach((m) => {
       if (m.label === "Normal" && Number(m.price) === 0) return;
       modifierDesc +=
-        m.label + (Number(m.price) > 0 ? ` (+${m.price} kr)` : "") + ", ";
+        m.label + (Number(m.price) > 0 ? ` (${m.price} kr)` : "") + ", ";
     });
   });
+
   if (modifierDesc) modifierDesc = modifierDesc.slice(0, -2);
 
   // Final display name
@@ -4300,7 +4394,7 @@ function addItemWithModifiers() {
     img: modifierState.currentItem.image || "/assets/images/default-food.jpg",
     note: specialInstructions, // <<—— IMPORTANT
   };
-
+  // this already triggers notification/sound
   cart.addItem(cartItem);
 
   const baseName = modifierState.currentItemName.split(" with ")[0];

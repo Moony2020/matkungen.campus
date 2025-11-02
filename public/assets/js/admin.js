@@ -282,7 +282,7 @@ document.addEventListener("DOMContentLoaded", function () {
           if (order?.paymentStatus !== "Completed") return;
 
           // sound + ping on bell
-          this.playNotificationSound();
+          // this.playNotificationSound();
           const notificationBtn = document.querySelector(".notification-btn");
           notificationBtn?.classList.add("notification-ping");
           setTimeout(
@@ -1131,41 +1131,41 @@ document.addEventListener("DOMContentLoaded", function () {
   </div>
 
   <div class="order-summary">
-    <div class="order-items-preview">
-      ${order.items
-        .slice(0, 3)
-        .map(
-          (item) => `
+  <div class="order-items-preview">
+    ${order.items
+      .slice(0, 3)
+      .map((item) => {
+        // Keep "med" as is, only replace English "with" with "+"
+        const itemName = esc(item.name).replace(/\bwith\b/gi, "+");
+        const itemNote = item.note
+          ? esc(item.note).replace(/\bwith\b/gi, "+")
+          : "";
+
+        return `
         <div class="preview-item">
           <div>
-            <div>${esc(item.name)} × ${Number(item.quantity)}</div>
-            ${
-              item.note
-                ? `<div class="line-note">📝 ${esc(item.note)}</div>`
-                : ""
-            }
+            <div>${itemName} × ${Number(item.quantity)}</div>
+            ${item.note ? `<div class="line-note">📝 ${itemNote}</div>` : ""}
           </div>
           <div>${(Number(item.price) * Number(item.quantity)).toFixed(
             2
           )} kr</div>
-        </div>`
-        )
-        .join("")}
-      ${
-        order.items.length > 3
-          ? `<div class="more-items">+${
-              order.items.length - 3
-            } more items</div>`
-          : ""
-      }
+        </div>`;
+      })
+      .join("")}
+    ${
+      order.items.length > 3
+        ? `<div class="more-items">+${order.items.length - 3} more items</div>`
+        : ""
+    }
 
-      ${
-        orderLevelNote
-          ? `<div class="order-notes"><strong>Order note:</strong> ${esc(
-              orderLevelNote
-            )}</div>`
-          : ""
-      }
+    ${
+      orderLevelNote
+        ? `<div class="order-notes"><strong>Order note:</strong> ${esc(
+            orderLevelNote
+          ).replace(/\bwith\b/gi, "+")}</div>`
+        : ""
+    }
     </div>
 
     <div class="order-totals">
@@ -1465,6 +1465,7 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     }
     // ==================== PRINT RECEIPT FUNCTION ADMIN PAGE ====================
+    p; // ==================== PRINT RECEIPT FUNCTION ADMIN PAGE ====================
     printOrderReceipt(order) {
       if (!order) return;
 
@@ -1614,23 +1615,29 @@ document.addEventListener("DOMContentLoaded", function () {
         <div class="order-items" id="order-items">
           ${
             order.items
-              ?.map(
-                (i) => `
-              <div class="order-item">
-                <div class="item-row">
-                  <div class="item-name">${i.name} × ${i.quantity}</div>
-                  <div class="item-price">${(
-                    Number(i.price || 0) * Number(i.quantity || 0)
-                  ).toFixed(2)} kr</div>
-                </div>
-                ${
-                  i.note
-                    ? `<div class="item-note"><span class="emoji" aria-hidden="true">📝</span><span class="text">${i.note}</span></div>`
-                    : ""
-                }
-              </div>
-            `
-              )
+              ?.map((i) => {
+                // ✅ CONSISTENT: Replace "with" with "+" in both name and note
+                const itemName = (i.name || "").replace(/\bwith\b/gi, "+");
+                const itemNote = i.note
+                  ? i.note.replace(/\bwith\b/gi, "+")
+                  : "";
+
+                return `
+                  <div class="order-item">
+                    <div class="item-row">
+                      <div class="item-name">${itemName} × ${i.quantity}</div>
+                      <div class="item-price">${(
+                        Number(i.price || 0) * Number(i.quantity || 0)
+                      ).toFixed(2)} kr</div>
+                    </div>
+                    ${
+                      i.note
+                        ? `<div class="item-note"><span class="emoji" aria-hidden="true">📝</span><span class="text">${itemNote}</span></div>`
+                        : ""
+                    }
+                  </div>
+                `;
+              })
               .join("") || "<p>No items in order</p>"
           }
         </div>
@@ -3600,10 +3607,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
         addNotifListItem(li);
 
-        // optional sound
-        try {
-          document.getElementById("notification-sound")?.play();
-        } catch {}
+        // Play sound ONLY here - remove from socket handler
+        this.playNotificationSound();
       };
 
       // keep a tiny reference set if you need it elsewhere
