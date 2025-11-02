@@ -754,7 +754,7 @@ Sun:           12:00–22:00
     3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
     4: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
     5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
-    6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
+    6: [{ start: 12 * 60, end: 4 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
   };
 
   function minutesNow() {

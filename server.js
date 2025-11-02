@@ -65,7 +65,7 @@ const OPENING_HOURS = {
   3: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Wed 11:00–03:00 (Thu)
   4: [{ start: 10 * 60, end: 3 * 60, overnight: true }], // Thu 11:00–22:00
   5: [{ start: 9 * 60, end: 3 * 60, overnight: true }], // Fri 11:00–03:00 (Sat)
-  6: [{ start: 12 * 60, end: 3 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
+  6: [{ start: 12 * 60, end: 4 * 60, overnight: true }], // Sat 12:00–03:00 (Sun)
 };
 
 function getStockholmParts() {
@@ -545,15 +545,8 @@ io.on("connection", (socket) => {
 // Central app-level listeners that actually send the emails
 app.on("order:created", async (order) => {
   try {
-    const to =
-      order?.customer?.email?.trim() ||
-      order?.email?.trim() || // fallback if ever stored flat
-      "";
-    if (!to) return; // keep the guard
-
-    const pdfBuffer = await createReceiptPdf(order); // styled PDF
+    // HTML + نص نظيف
     const html = buildOrderEmailHtml(order);
-
     const text = html
       .replace(/<[^>]+>/g, " ") // HTML tags
       .replace(/\s+/g, " ") // whitespace
@@ -561,39 +554,55 @@ app.on("order:created", async (order) => {
       .replace(/\(\+(\d+(?:\.\d+)?)\s*kr\)/gi, "($1 kr)")
       .trim();
 
-    await sendOrderEmail({
-      to,
-      subject: `Orderbekräftelse #${order.orderNumber} – Matkungen`,
-      html: buildOrderEmailHtml(order), // 👈 use fancy HTML
-      text,
-      pdfBuffer,
-    });
-    console.log("✓ order:created email sent", to);
+    // PDF
+    const pdfBuffer = await createReceiptPdf(order);
+
+    // 1) email from checkout if available
+    const checkoutEmail =
+      order?.customer?.email?.trim() || order?.email?.trim();
+
+    // 2) email from account if user exists
+    let accountEmail = "";
+    if (order?.user) {
+      const u = await User.findById(order.user).lean();
+      if (u?.email) accountEmail = u.email.trim();
+    }
+
+    // 3) Recipients
+    const recipients = [];
+    if (checkoutEmail) recipients.push(checkoutEmail);
+    if (accountEmail && accountEmail !== checkoutEmail) {
+      recipients.push(accountEmail);
+    }
+
+    // ⚠️ No recipients? No emails.
+    // not important: This is expected if the order was placed programmatically (e.g., admin panel)
+    if (!recipients.length) {
+      console.warn(
+        "order:created → order has NO email (probably admin/API order):",
+        order.orderNumber
+      );
+      return;
+    }
+
+    await Promise.all(
+      recipients.map((to) =>
+        sendOrderEmail({
+          to,
+          subject: `Orderbekräftelse #${order.orderNumber} – Matkungen`,
+          html,
+          text,
+          pdfBuffer,
+        })
+      )
+    );
+
+    console.log("✅ order:created emails sent to:", recipients.join(", "));
   } catch (e) {
     console.error("❌ order:created email failed:", e);
   }
 });
 
-app.on("order:paid", async (order) => {
-  try {
-    const to =
-      order?.customer?.email?.trim() ||
-      order?.email?.trim() || // fallback if ever stored flat
-      "";
-    if (!to) return; // keep the guard
-
-    const pdfBuffer = await createReceiptPdf(order); // styled PDF
-    await sendOrderEmail({
-      to,
-      subject: `Order #${order.orderNumber} Confirmed - Matkungen`,
-      html: buildOrderEmailHtml(order), // 👈 use fancy HTML
-      pdfBuffer,
-    });
-    console.log("✓ order:paid email sent", to);
-  } catch (e) {
-    console.error("❌ order:paid email failed:", e);
-  }
-});
 function buildOrderEmailHtml(order) {
   // Determine if pickup or delivery , /pickup/i has the i flag → it matches pickup, Pickup, PICKUP, PickUp, etc., without you having to lowercase first.
   const isPickup =
